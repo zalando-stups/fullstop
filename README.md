@@ -1,7 +1,5 @@
 ###Fullstop - Audit reporting
 
-... processes logfiles from cloudtrail to handle specific events on the platform.
-
 ###How
 
 Aim of the project is to enrich CloudTrail log events.
