@@ -1,0 +1,6 @@
+#
+#
+#
+fullstop:
+    container:
+        autoStart: true

@@ -1,0 +1,32 @@
+#
+#
+#
+fullstop:
+    container:
+        autoStart: true
+    processor:
+        properties:
+            # The sqs url where you wish to pull CloudTrail notification from (required)
+            sqsUrl: ${FULLSTOP_SQS_URL}
+
+            # The SQS end point specific to a region
+            sqsRegion: ${FULLSTOP_SQS_REGION}
+
+            # A period of time during which Amazon SQS prevents other consuming components
+            # from receiving and processing that message
+            visibilityTimeout: 60
+
+            # The S3 end point specific to a region
+            s3Region: ${FULLSTOP_S3_REGION}
+
+            # Number of threads to download S3 files in parallel when you enable thread mode
+            threadCount: 1
+
+            # The duration in seconds to wait for thread pool termination before issue shutDownNow
+            threadTerminationDelaySeconds: 60
+
+            # Max number of AWSCloudTrailEvent that buffered before emit. EagleEye may emit 0 events
+            maxEventsPerEmit: 10
+
+            # Whether to include raw event in CloudTrailEventMetadata
+            enableRawEventInfo: false
