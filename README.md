@@ -8,23 +8,23 @@ In our scenario we have multiple AWS accounts that need to be handled.
 
 Each of this account has CloudTrail activated and is configured to write
 in a bucket that reside in the account where also fullstop is running.
-(Right now in AWS is not possible to read CloudTrail logs from different account)
+(Right now in AWS it's not possible to read CloudTrail logs from a different account)
 
 Fullstop will then process events collected from CloudTrail.
 
-For enrich CloudTrail log events with information that comes
-from other system than AWS, we should only configure fullstop to do so.
+To enrich CloudTrail log events with information that comes
+from other systems than AWS, we should only configure fullstop to do so.
 
-Could be complicated if we need information from the AWS api,
+Could be complicated if we need information from the AWS API,
 because events are coming from different accounts.
 To solve that problem we are using cross account role in order
-to call the AWS api of this accounts.
+to call the AWS API of this accounts.
 The account that is running fullstop should therfore be trusted
 by all other accounts in order to perform this operations.
 
 ###Configuration
 
-You will need to provive AWS credentials.
+You will need to provide AWS credentials.
 We use for that the nice [aws-minion](https://github.com/zalando/aws-minion) tool.
 
 This enviroment variable should be set:
