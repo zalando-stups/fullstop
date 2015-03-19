@@ -2,25 +2,48 @@
 
 ... processes logfiles from cloudtrail to handle specific events on the platform.
 
+###How
+
+Aim of the project is to enrich CloudTrail log events.
+
+In our scenario we have multiple AWS accounts that need to be handled.
+
+Each of this account has CloudTrail activated and is configured to write
+in a bucket that reside in the account where also fullstop is running.
+(Right now in AWS is not possible to read CloudTrail logs from different account)
+
+Fullstop will then process events collected from CloudTrail.
+
+For enrich CloudTrail log events with information that comes
+from other system than AWS, we should only configure fullstop to do so.
+
+Could be complicated if we need information from the AWS api,
+because events are coming from different accounts.
+To solve that problem we are using cross account role in order
+to call the AWS api of this accounts.
+The account that is running fullstop should therfore be trusted
+by all other accounts in order to perform this operations.
+
 ###Configuration
+
+You will need to provive AWS credentials.
+We use for that the nice [aws-minion](https://github.com/zalando/aws-minion) tool.
 
 This enviroment variable should be set:
 
+    FULLSTOP_SQS_URL
+    FULLSTOP_SQS_REGION
+    FULLSTOP_S3_REGION
 
-    FULLSTOP_SQS_URL (example: https://sqs.eu-central-1.amazonaws.com/ACCOUNT_ID/fullstop)
-    FULLSTOP_SQS_REGION (example: eu-west-1)
+Example:
 
-    FULLSTOP_S3_REGION (example: eu-west-1)
+    $ export FULLSTOP_SQS_URL=https://sqs.eu-central-1.amazonaws.com/ACCOUNT_ID/fullstop
+    $ export FULLSTOP_SQS_REGION=eu-central-1
+    $ export FULLSTOP_S3_REGION=eu-west-1
 
-
-###How to build
+###How to build/run
 
     mvn clean install
-
-###How to run
-
-    mvn spring-boot:run
-
 
 ## License
 
