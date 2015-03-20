@@ -1,5 +1,7 @@
 #Fullstop - Audit reporting
 
+![Fullstop](images/fullstop.png)
+
 Aim of the project is to enrich CloudTrail log events.
 
 In our scenario we have multiple AWS accounts that need to be handled.
