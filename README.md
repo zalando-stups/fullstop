@@ -35,9 +35,15 @@ Example:
     $ export FULLSTOP_SQS_REGION=eu-central-1
     $ export FULLSTOP_S3_REGION=eu-west-1
 
-##How to build/run
+##How to build
 
-    mvn clean install
+    $ mvn clean install
+
+##How to run
+
+    $ cd fullstop
+
+    $ mvn spring-boot:run
 
 ## License
 

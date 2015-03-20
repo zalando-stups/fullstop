@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -46,7 +47,7 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
  *
  * @author  jbellmann
  */
-//@Ignore
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Fullstop.class)
 @IntegrationTest

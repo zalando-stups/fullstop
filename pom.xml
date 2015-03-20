@@ -113,6 +113,7 @@
 
     <modules>
         <module>fullstop</module>
-        <module>fullstop-plugin</module>
+        <module>fullstop-plugin-api</module>
+        <module>fullstop-plugins</module>
     </modules>
 </project>
