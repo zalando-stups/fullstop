@@ -19,6 +19,8 @@ Fullstop can even call the AWS API of a different account, by using a [cross-acc
 The account that is running fullstop should therefore be trusted
 by all other accounts in order to perform this operations.
 
+![Fullstop-Cross-Account-Role](images/fullstop-cross-account-role.png)
+
 ##Configuration
 
 This enviroment variable should be set:
