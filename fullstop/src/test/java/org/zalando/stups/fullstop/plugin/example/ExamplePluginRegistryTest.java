@@ -31,14 +31,14 @@ import org.mockito.Mockito;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 
+import org.zalando.stups.fullstop.PluginEventsProcessor;
+import org.zalando.stups.fullstop.plugin.FullstopPlugin;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 import com.google.common.collect.Lists;
-
-import org.zalando.stups.fullstop.PluginEventsProcessor;
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 /**
  * Shows how it works with the registry itself.

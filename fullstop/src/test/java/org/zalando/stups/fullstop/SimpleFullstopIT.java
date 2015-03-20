@@ -36,10 +36,10 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import org.zalando.stups.fullstop.plugin.FullstopPlugin;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.AWSCloudTrailProcessingExecutor;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 /**
  * Only checks the configuration works. The {@link AWSCloudTrailProcessingExecutor} will not be started in this test.

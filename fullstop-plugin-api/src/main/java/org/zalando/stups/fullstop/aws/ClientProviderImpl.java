@@ -16,39 +16,40 @@
 
 package org.zalando.stups.fullstop.aws;
 
+import org.springframework.stereotype.Service;
+
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+
 import com.amazonaws.regions.Region;
+
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
-import org.springframework.stereotype.Service;
 
 /**
- * //TODO, every call to get__Client is a requestToAWS and costs money
+ * //TODO, every call to get__Client is a requestToAWS and costs money.
  *
- * @author mrandi
+ * @author  mrandi
  */
 @Service
 public class ClientProviderImpl implements ClientProvider {
 
     @Override
-    public AmazonEC2Client getEC2Client(String accountId, Region region) {
-        AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
+    public AmazonEC2Client getEC2Client(final String accountId, final Region region) {
 
-        AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn("arn:aws:iam::" + accountId
-                + ":role/fullstop-role")
-                .withDurationSeconds(3600).withRoleSessionName(
-                        "fullstop-role");
+        if (accountId.equals(getCurrentAccountId())) {
 
-        AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
+            AmazonEC2Client amazonEC2Client = new AmazonEC2Client();
+            amazonEC2Client.setRegion(region);
 
-        BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(assumeResult.getCredentials()
-                .getAccessKeyId(), assumeResult.getCredentials().getSecretAccessKey(),
-                assumeResult.getCredentials().getSessionToken());
+            return amazonEC2Client;
+        }
 
+        BasicSessionCredentials temporaryCredentials = getTemporaryCredentials(accountId);
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);
         amazonEC2Client.setRegion(region);
 
@@ -56,7 +57,26 @@ public class ClientProviderImpl implements ClientProvider {
     }
 
     @Override
-    public AmazonRoute53Client getRoute53Client(String accountId, Region region) {
-        return null;
+    public AmazonRoute53Client getRoute53Client(final String accountId, final Region region) {
+        throw new UnsupportedOperationException("Not implemented yet!");
+    }
+
+    private BasicSessionCredentials getTemporaryCredentials(final String accountId) {
+        AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
+
+        AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn("arn:aws:iam::" + accountId
+                                                                         + ":role/fullstop-role")
+                                                                 .withDurationSeconds(3600).withRoleSessionName(
+                                                                     "fullstop-role");
+
+        AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
+
+        return new BasicSessionCredentials(assumeResult.getCredentials().getAccessKeyId(),
+                assumeResult.getCredentials().getSecretAccessKey(), assumeResult.getCredentials().getSessionToken());
+    }
+
+    private String getCurrentAccountId() {
+        AmazonIdentityManagementClient iamClient = new AmazonIdentityManagementClient();
+        return iamClient.getUser().getUser().getUserId();
     }
 }

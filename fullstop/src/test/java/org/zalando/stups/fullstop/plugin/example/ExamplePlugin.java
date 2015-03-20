@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Component;
 
+import org.zalando.stups.fullstop.plugin.FullstopPlugin;
+
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
@@ -37,8 +39,6 @@ import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
-
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".

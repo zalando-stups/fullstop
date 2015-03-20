@@ -18,11 +18,13 @@ package org.zalando.stups.fullstop;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.Properties;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.configuration.ProcessingConfiguration;
 import com.amazonaws.services.cloudtrail.processinglibrary.configuration.PropertiesFileConfiguration;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventMetadata;
@@ -122,7 +124,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * Creates a {@link PropertiesFileConfiguration} from values provided in a classpath properties file.
      *
-     * @param  prop  the classpath properties file to load.
+     * @param  prop                the classpath properties file to load.
      * @param  credentialProvider  credential provider.
      */
     public ExtPropertiesFileConfiguration(final Properties prop, final AWSCredentialsProviderChain credentialProvider) {
