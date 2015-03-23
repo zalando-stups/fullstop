@@ -47,6 +47,7 @@ Example:
 
     $ mvn spring-boot:run
 
+
 ## License
 
 Copyright © 2015 Zalando SE
