@@ -1,3 +1,4 @@
+https://travis-ci.org/zalando-stups/fullstop.svg?branch=master
 #Fullstop - Audit reporting
 
 ![Fullstop](images/fullstop.png)
