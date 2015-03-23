@@ -17,8 +17,11 @@
 package org.zalando.stups.fullstop;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.SmartLifecycle;
+
 import org.springframework.stereotype.Component;
+
 import org.springframework.util.Assert;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.AWSCloudTrailProcessingExecutor;

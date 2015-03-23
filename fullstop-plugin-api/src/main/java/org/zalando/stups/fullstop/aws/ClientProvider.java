@@ -17,6 +17,7 @@
 package org.zalando.stups.fullstop.aws;
 
 import com.amazonaws.regions.Region;
+
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 

@@ -16,17 +16,16 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.Collections;
+import java.util.List;
 
-import com.amazonaws.services.ec2.AmazonEC2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.auth.BasicSessionCredentials;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -36,10 +35,11 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
-import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
-import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
-import org.zalando.stups.fullstop.aws.ClientProvider;
+import com.amazonaws.services.ec2.model.GroupIdentifier;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
+
+import com.jayway.jsonpath.JsonPath;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
@@ -52,18 +52,15 @@ public class RunInstancePlugin implements FullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
     private static final String EC2_EVENTS = "ec2.amazonaws.com";
-    private static final String DELETE = "Delete";
+    private static final String RUN = "Run";
 
     private final ClientProvider clientProvider;
 
     @Autowired
-    public RunInstancePlugin(ClientProvider clientProvider) {
+    public RunInstancePlugin(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
-    /**
-     * We use this as a filter for events.
-     */
     @Override
     public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData eventData = event.getEventData();
@@ -71,37 +68,43 @@ public class RunInstancePlugin implements FullstopPlugin {
         String eventSource = eventData.getEventSource();
         String eventName = eventData.getEventName();
 
-        return eventSource.equals(EC2_EVENTS) && eventName.startsWith(DELETE);
+        return eventSource.equals(EC2_EVENTS) && eventName.startsWith(RUN);
     }
 
     @Override
-    // @HystrixCommand(fallback = my coole exception)
-    // command for account id and client type -> generate new credentials
     public Object processEvent(final CloudTrailEvent event) {
 
-        String parameters = event.getEventData().getRequestParameters();
-        String instanceId = getFromParameters(parameters);
+        String parameters = event.getEventData().getResponseElements();
+        List<String> instanceIds = getFromParameters(parameters);
 
         AmazonEC2Client client = clientProvider.getEC2Client(event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesRequest request = new DescribeInstancesRequest();
-        request.setInstanceIds(Collections.singleton(instanceId));
+        request.setInstanceIds(instanceIds);
 
-        // try
         DescribeInstancesResult result = client.describeInstances(request);
-        // catch credentials are old
-        // throw new my coole exception ( account id, CLIENTTYPE.EC2, exception) -> this will trigger hystrix
 
+        for (Reservation reservation : result.getReservations()) {
+            for (Instance instance : reservation.getInstances()) {
+                for (GroupIdentifier groupIdentifier : instance.getSecurityGroups()) {
+                    LOG.info(
+                        "DO some MAGIC stuff with instance id: {}, and type: {}, and security group id: {}, and security group name: {}",
+                        instance.getInstanceId(), instance.getInstanceType(), groupIdentifier.getGroupId(),
+                        groupIdentifier.getGroupName());
+                }
 
-        LOG.info("SAVING RESULT INTO MAGIC DB", result);
-        return null;
+            }
+
+        }
+
+        LOG.info("SAVING RESULT INTO MAGIC DB: {}", result);
+
+        return result;
     }
 
-    private String getFromParameters(final String parameters) {
-
-        // TODO Auto-generated method stub
-        return null;
+    private List<String> getFromParameters(final String parameters) {
+        return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
     }
 
 }

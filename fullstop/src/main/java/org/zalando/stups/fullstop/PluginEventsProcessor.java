@@ -19,14 +19,16 @@ package org.zalando.stups.fullstop;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.plugin.core.PluginRegistry;
+
 import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.interfaces.EventsProcessor;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 /**
  * Simple {@link EventsProcessor} that delegates to {@link FullstopPlugin}s that can procces the {@link CloudTrailEvent}.

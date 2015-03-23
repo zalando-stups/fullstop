@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
