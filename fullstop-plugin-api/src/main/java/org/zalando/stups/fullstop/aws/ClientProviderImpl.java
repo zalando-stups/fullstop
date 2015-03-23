@@ -24,7 +24,6 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
@@ -41,16 +40,7 @@ public class ClientProviderImpl implements ClientProvider {
     @Override
     public AmazonEC2Client getEC2Client(final String accountId, final Region region) {
 
-        if (accountId.equals(getCurrentAccountId())) {
-
-            AmazonEC2Client amazonEC2Client = new AmazonEC2Client();
-            amazonEC2Client.setRegion(region);
-
-            return amazonEC2Client;
-        }
-
-        BasicSessionCredentials temporaryCredentials = getTemporaryCredentials(accountId);
-        AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);
+        AmazonEC2Client amazonEC2Client = new AmazonEC2Client(getTemporaryCredentials(accountId));
         amazonEC2Client.setRegion(region);
 
         return amazonEC2Client;
@@ -65,18 +55,12 @@ public class ClientProviderImpl implements ClientProvider {
         AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
 
         AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn("arn:aws:iam::" + accountId
-                                                                         + ":role/fullstop-role")
-                                                                 .withDurationSeconds(3600).withRoleSessionName(
-                                                                     "fullstop-role");
+                                                                         + ":role/fullstop").withDurationSeconds(3600)
+                                                                 .withRoleSessionName("fullstop");
 
         AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
 
         return new BasicSessionCredentials(assumeResult.getCredentials().getAccessKeyId(),
                 assumeResult.getCredentials().getSecretAccessKey(), assumeResult.getCredentials().getSessionToken());
-    }
-
-    private String getCurrentAccountId() {
-        AmazonIdentityManagementClient iamClient = new AmazonIdentityManagementClient();
-        return iamClient.getUser().getUser().getUserId();
     }
 }

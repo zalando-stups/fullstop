@@ -52,7 +52,7 @@ public class RunInstancePlugin implements FullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
     private static final String EC2_EVENTS = "ec2.amazonaws.com";
-    private static final String RUN = "Run";
+    private static final String RUN = "RunInstances";
 
     private final ClientProvider clientProvider;
 
@@ -68,7 +68,7 @@ public class RunInstancePlugin implements FullstopPlugin {
         String eventSource = eventData.getEventSource();
         String eventName = eventData.getEventName();
 
-        return eventSource.equals(EC2_EVENTS) && eventName.startsWith(RUN);
+        return eventSource.equals(EC2_EVENTS) && eventName.equals(RUN);
     }
 
     @Override
@@ -104,6 +104,9 @@ public class RunInstancePlugin implements FullstopPlugin {
     }
 
     private List<String> getFromParameters(final String parameters) {
+        if (parameters == null){
+            return null; // was autoscaling
+        }
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
     }
 
