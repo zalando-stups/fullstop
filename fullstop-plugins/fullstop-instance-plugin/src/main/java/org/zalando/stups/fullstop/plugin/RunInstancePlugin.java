@@ -1,5 +1,5 @@
-/*
- * Copyright 2015 Zalando SE
+/**
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -33,38 +43,28 @@ import com.amazonaws.services.ec2.model.SecurityGroup;
 
 import com.jayway.jsonpath.JsonPath;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
-import java.util.List;
-
-
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
  *
  * @author  jbellmann
  */
-@Component public class RunInstancePlugin implements FullstopPlugin {
+@Component
+public class RunInstancePlugin implements FullstopPlugin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            RunInstancePlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
     private static final String EC2_EVENTS = "ec2.amazonaws.com";
     private static final String RUN = "RunInstances";
 
     private final ClientProvider clientProvider;
 
-    @Autowired public RunInstancePlugin(final ClientProvider clientProvider) {
+    @Autowired
+    public RunInstancePlugin(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
-    @Override public boolean supports(final CloudTrailEvent event) {
+    @Override
+    public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData eventData = event.getEventData();
 
         String eventSource = eventData.getEventSource();
@@ -73,16 +73,15 @@ import java.util.List;
         return eventSource.equals(EC2_EVENTS) && eventName.equals(RUN);
     }
 
-    @Override public Object processEvent(final CloudTrailEvent event) {
+    @Override
+    public Object processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getResponseElements();
         List<String> instanceIds = getFromParameters(parameters);
         List<String> securityGroupId = getSecuritygroup(parameters);
 
-        AmazonEC2Client client = clientProvider.getEC2Client(
-                event.getEventData().getUserIdentity().getAccountId(),
-                Region.getRegion(
-                    Regions.fromName(event.getEventData().getAwsRegion())));
+        AmazonEC2Client client = clientProvider.getEC2Client(event.getEventData().getUserIdentity().getAccountId(),
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         request.setInstanceIds(instanceIds);
@@ -93,12 +92,10 @@ import java.util.List;
 
             for (Instance instance : reservation.getInstances()) {
 
-                for (GroupIdentifier groupIdentifier :
-                    instance.getSecurityGroups()) {
+                for (GroupIdentifier groupIdentifier : instance.getSecurityGroups()) {
                     LOG.info(
                         "DO some MAGIC stuff with instance id: {}, and type: {}, and security group id: {}, and security group name: {}",
-                        instance.getInstanceId(), instance.getInstanceType(),
-                        groupIdentifier.getGroupId(),
+                        instance.getInstanceId(), instance.getInstanceType(), groupIdentifier.getGroupId(),
                         groupIdentifier.getGroupName());
                 }
 
@@ -111,14 +108,13 @@ import java.util.List;
         return result;
     }
 
-    private List<String> getSecuritygroup(String parameters) {
+    private List<String> getSecuritygroup(final String parameters) {
 
         if (parameters == null) {
             return null; // autoscaling events return parameter as null
         }
 
-        return JsonPath.read(parameters,
-                "$.networkInterfaceSet.items[*].groupSet.items[*].groupId");
+        return JsonPath.read(parameters, "$.networkInterfaceSet.items[*].groupSet.items[*].groupId");
     }
 
     private List<String> getFromParameters(final String parameters) {
@@ -130,17 +126,17 @@ import java.util.List;
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
     }
 
-    private String getSecuritySettings(List<String> securityGroupId,
-        AmazonEC2Client amazonEC2Client) {
-        DescribeSecurityGroupsRequest request =
-            new DescribeSecurityGroupsRequest();
+    private String getSecuritySettings(final List<String> securityGroupId, final AmazonEC2Client amazonEC2Client) {
+        DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
         request.setGroupIds(securityGroupId);
 
-        DescribeSecurityGroupsResult result =
-            amazonEC2Client.describeSecurityGroups(request);
+        DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
 
         List<SecurityGroup> securityGroups = result.getSecurityGroups();
-//        return securityGroups.g
+
+        // securityGroups.get(0).getIpPermissions()
+// return securityGroups.g
+        return null;
     }
 
 }

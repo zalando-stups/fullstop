@@ -1,20 +1,24 @@
-/*
- * Copyright 2015 Zalando SE
+/**
+ * Copyright 2015 the original author or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.events;
 
-package org.zalando.stups;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.nio.charset.StandardCharsets;
 
@@ -70,15 +74,32 @@ public class FileEventReader {
     }
 
     public void readEvents(final File file, final CloudTrailLog ctLog) throws CallbackException {
-        try(GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
-            EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
-        ) {
+        try {
+            InputStream is = null;
+            if (file.getAbsolutePath().endsWith(".json.gz")) {
+                is = new GZIPInputStream(new FileInputStream(file));
+            }
 
+            if (file.getAbsolutePath().endsWith(".json")) {
+                is = new FileInputStream(file);
+            }
+
+            final EventSerializer serializer = this.getEventSerializer(is, ctLog);
             this.emitEvents(serializer);
-        } catch (IllegalArgumentException | IOException e) {
+        } catch (IOException e) {
             this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
                     new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
         }
+
+// try(GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
+// EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
+// ) {
+//
+// this.emitEvents(serializer);
+// } catch (IllegalArgumentException | IOException e) {
+// this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
+// new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
+// }
     }
 
     /**
@@ -91,8 +112,8 @@ public class FileEventReader {
      *
      * @throws  IOException
      */
-    private EventSerializer getEventSerializer(final GZIPInputStream inputStream, final CloudTrailLog ctLog)
-            throws IOException {
+    protected EventSerializer getEventSerializer(final InputStream inputStream, final CloudTrailLog ctLog)
+        throws IOException {
         EventSerializer serializer;
 
         if (isEnableRawEventInfo) {
@@ -107,7 +128,7 @@ public class FileEventReader {
         return serializer;
     }
 
-    private void emitEvents(final EventSerializer serializer) throws CallbackException, IOException {
+    protected void emitEvents(final EventSerializer serializer) throws CallbackException, IOException {
         EventBuffer<CloudTrailEvent> eventBuffer = new EventBuffer<>(10);
         while (serializer.hasNextEvent()) {
 

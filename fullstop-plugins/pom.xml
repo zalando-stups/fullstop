@@ -30,6 +30,9 @@
 
     <packaging>pom</packaging>
 
+    <properties>
+        <main.basedir>${basedir}/..</main.basedir>
+    </properties>
 
     <modules>
         <module>fullstop-instance-plugin</module>
