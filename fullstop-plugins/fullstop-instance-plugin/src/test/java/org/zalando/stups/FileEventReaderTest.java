@@ -45,7 +45,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 /**
  * @author  jbellmann
  */
-@Ignore
+//@Ignore
 public class FileEventReaderTest {
 
     private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
