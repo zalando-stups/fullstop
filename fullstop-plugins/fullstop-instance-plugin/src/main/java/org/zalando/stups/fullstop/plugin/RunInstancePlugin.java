@@ -1,5 +1,5 @@
-/*
- * Copyright 2015 Zalando SE
+/**
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin;
 
 import java.util.List;
@@ -35,9 +34,12 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.GroupIdentifier;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.SecurityGroup;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -76,6 +78,7 @@ public class RunInstancePlugin implements FullstopPlugin {
 
         String parameters = event.getEventData().getResponseElements();
         List<String> instanceIds = getFromParameters(parameters);
+        List<String> securityGroupId = getSecuritygroup(parameters);
 
         AmazonEC2Client client = clientProvider.getEC2Client(event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
@@ -86,7 +89,9 @@ public class RunInstancePlugin implements FullstopPlugin {
         DescribeInstancesResult result = client.describeInstances(request);
 
         for (Reservation reservation : result.getReservations()) {
+
             for (Instance instance : reservation.getInstances()) {
+
                 for (GroupIdentifier groupIdentifier : instance.getSecurityGroups()) {
                     LOG.info(
                         "DO some MAGIC stuff with instance id: {}, and type: {}, and security group id: {}, and security group name: {}",
@@ -103,11 +108,35 @@ public class RunInstancePlugin implements FullstopPlugin {
         return result;
     }
 
-    private List<String> getFromParameters(final String parameters) {
-        if (parameters == null){
-            return null; // was autoscaling
+    private List<String> getSecuritygroup(final String parameters) {
+
+        if (parameters == null) {
+            return null; // autoscaling events return parameter as null
         }
+
+        return JsonPath.read(parameters, "$.networkInterfaceSet.items[*].groupSet.items[*].groupId");
+    }
+
+    private List<String> getFromParameters(final String parameters) {
+
+        if (parameters == null) {
+            return null; // autoscaling events return parameter as null
+        }
+
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
+    }
+
+    private String getSecuritySettings(final List<String> securityGroupId, final AmazonEC2Client amazonEC2Client) {
+        DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
+        request.setGroupIds(securityGroupId);
+
+        DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
+
+        List<SecurityGroup> securityGroups = result.getSecurityGroups();
+
+        // securityGroups.get(0).getIpPermissions()
+// return securityGroups.g
+        return null;
     }
 
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright 2015 Zalando SE
+/**
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,54 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin.example;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mockito;
 
-import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.plugin.core.SimplePluginRegistry;
-
-import org.zalando.stups.fullstop.PluginEventsProcessor;
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
-import com.google.common.collect.Lists;
-
 /**
- * Shows how it works with the registry itself.
+ * Simple test for the plugin itself. It should be possible to test a plugin completely.
  *
  * @author  jbellmann
  */
 @Ignore
-public class ExamplePluginRegistryTest {
+public class ExamplePluginTest {
 
     private CloudTrailEvent event;
     private CloudTrailEventData eventData;
-
-    private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
 
     @Before
     public void setUp() {
         event = Mockito.mock(CloudTrailEvent.class);
         eventData = Mockito.mock(CloudTrailEventData.class);
-
-        List<FullstopPlugin> plugins = new ArrayList<>();
-        plugins.add(new ExamplePlugin());
-        pluginRegistry = SimplePluginRegistry.create(plugins);
     }
 
     @Test
@@ -69,9 +49,9 @@ public class ExamplePluginRegistryTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
+        ExamplePlugin plugin = new ExamplePlugin();
 
-        Assertions.assertThat(pluginsThatSupportsTheEvent).isEmpty();
+        Assertions.assertThat(plugin.supports(event)).isFalse();
 
     }
 
@@ -81,25 +61,10 @@ public class ExamplePluginRegistryTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
+        ExamplePlugin plugin = new ExamplePlugin();
 
-        Assertions.assertThat(pluginsThatSupportsTheEvent).isNotEmpty();
+        Assertions.assertThat(plugin.supports(event)).isTrue();
 
     }
 
-    @Test
-    public void eventsProcessor() {
-        Mockito.when(eventData.getEventName()).thenReturn("Delete");
-        Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
-        Mockito.when(event.getEventData()).thenReturn(eventData);
-
-        PluginEventsProcessor processor = new PluginEventsProcessor(pluginRegistry);
-
-        try {
-            processor.process(Lists.newArrayList(event));
-        } catch (CallbackException e) {
-            e.printStackTrace();
-            Assert.fail();
-        }
-    }
 }
