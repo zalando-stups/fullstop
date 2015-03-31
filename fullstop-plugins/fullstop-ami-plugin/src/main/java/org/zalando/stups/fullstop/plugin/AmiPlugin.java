@@ -16,53 +16,46 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import org.slf4j.Logger;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.jayway.jsonpath.JsonPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author  mrandi
  */
 @Component
 public class AmiPlugin implements FullstopPlugin {
-
-    private final Logger log = getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
     private static final String EC2_EVENTS = "ec2.amazonaws.com";
     private static final String RUN = "RunInstances";
 
-    private final ClientProvider clientProvider;
+    private static final String AMI = "ADBCDEF";
 
-    @Autowired
-    public AmiPlugin(final ClientProvider clientProvider) {
-        this.clientProvider = clientProvider;
-    }
 
     @Override
-    public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData eventData = event.getEventData();
+    public Object processEvent(CloudTrailEvent event) {
+        return getAmi(event.getEventData().getResponseElements());
 
-        String eventSource = eventData.getEventSource();
-        String eventName = eventData.getEventName();
-
-        return eventSource.equals(EC2_EVENTS) && eventName.equals(RUN);
     }
 
+
     @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    public boolean supports(CloudTrailEvent delimiter) {
+        CloudTrailEventData cloudTrailEventData = delimiter.getEventData();
+        String eventSource = cloudTrailEventData.getEventSource();
+        String eventName = cloudTrailEventData.getEventName();
 
-        // 1. get ami from event
-        // 2. find out if this ami is whitelisted
+        return eventName.equals(EC2_EVENTS) && eventSource.equals(RUN);
+    }
 
-        return null;
+    private String getAmi(String parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        return JsonPath.read(parameters, "$.InstancesSet.items[*].imageId");
     }
 }
