@@ -16,18 +16,26 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.jayway.jsonpath.JsonPath;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Component;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+
+import com.google.common.collect.Lists;
+
+import com.jayway.jsonpath.JsonPath;
 
 /**
  * @author  mrandi
  */
 @Component
 public class AmiPlugin implements FullstopPlugin {
+
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
     private static final String EC2_EVENTS = "ec2.amazonaws.com";
@@ -35,27 +43,37 @@ public class AmiPlugin implements FullstopPlugin {
 
     private static final String AMI = "ADBCDEF";
 
-
     @Override
-    public Object processEvent(CloudTrailEvent event) {
-        return getAmi(event.getEventData().getResponseElements());
-
-    }
-
-
-    @Override
-    public boolean supports(CloudTrailEvent delimiter) {
-        CloudTrailEventData cloudTrailEventData = delimiter.getEventData();
+    public boolean supports(final CloudTrailEvent event) {
+        CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
         return eventName.equals(EC2_EVENTS) && eventSource.equals(RUN);
     }
 
-    private String getAmi(String parameters) {
+    @Override
+    public Object processEvent(final CloudTrailEvent event) {
+        List<String> ami = getAmi(event.getEventData().getResponseElements());
+
+        final List<String> whitelistedAmi = Lists.newArrayList();
+        whitelistedAmi.add(AMI);
+
+        boolean hasChanged = ami.retainAll(whitelistedAmi);
+
+        if (hasChanged) {
+            LOG.info("blublbu ami not valid");
+        }
+
+        return null;
+
+    }
+
+    private List<String> getAmi(final String parameters) {
         if (parameters == null) {
             return null;
         }
+
         return JsonPath.read(parameters, "$.InstancesSet.items[*].imageId");
     }
 }

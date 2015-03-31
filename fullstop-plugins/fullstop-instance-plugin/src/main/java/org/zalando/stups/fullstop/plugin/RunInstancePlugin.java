@@ -91,15 +91,6 @@ public class RunInstancePlugin implements FullstopPlugin {
         return JsonPath.read(parameters, "$.InstancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
     }
 
-    private List<String> getFromParameters(final String parameters) {
-
-        if (parameters == null) {
-            return null; // autoscaling events return parameter as null
-        }
-
-        return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-    }
-
     private List<String> getSecuritySettings(final List<String> securityGroupId, final AmazonEC2Client amazonEC2Client) {
         DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
         request.setGroupIds(securityGroupId);
