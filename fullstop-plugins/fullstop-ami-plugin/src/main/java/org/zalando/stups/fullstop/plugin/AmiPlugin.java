@@ -16,9 +16,20 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
 /**
  * @author mrandi
  */
 public class AmiPlugin implements FullstopPlugin{
 
+    @Override
+    public Object processEvent(CloudTrailEvent event) {
+        return null;
+    }
+
+    @Override
+    public boolean supports(CloudTrailEvent delimiter) {
+        return false;
+    }
 }
