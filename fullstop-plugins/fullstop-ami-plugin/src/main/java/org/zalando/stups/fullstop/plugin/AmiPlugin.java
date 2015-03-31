@@ -21,7 +21,6 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 
 /**
  * @author mrandi
@@ -37,9 +36,8 @@ public class AmiPlugin implements FullstopPlugin {
 
     @Override
     public Object processEvent(CloudTrailEvent event) {
-        String ami = getAmi(event.getEventData().getResponseElements());
+        return getAmi(event.getEventData().getResponseElements());
 
-        return ami;
     }
 
 
