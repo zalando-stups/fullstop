@@ -17,19 +17,45 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.jayway.jsonpath.JsonPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 /**
  * @author mrandi
  */
-public class AmiPlugin implements FullstopPlugin{
+public class AmiPlugin implements FullstopPlugin {
+    private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
+
+    private static final String EC2_EVENTS = "ec2.amazonaws.com";
+    private static final String RUN = "RunInstances";
+
+    private static final String AMI = "ADBCDEF";
+
 
     @Override
     public Object processEvent(CloudTrailEvent event) {
-        return null;
+        String ami = getAmi(event.getEventData().getResponseElements());
+
+        return ami;
     }
+
 
     @Override
     public boolean supports(CloudTrailEvent delimiter) {
-        return false;
+        CloudTrailEventData cloudTrailEventData = delimiter.getEventData();
+        String eventSource = cloudTrailEventData.getEventSource();
+        String eventName = cloudTrailEventData.getEventName();
+
+        return eventName.equals(EC2_EVENTS) && eventSource.equals(RUN);
+    }
+
+    private String getAmi(String parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        return JsonPath.read(parameters, "$.InstancesSet.items[*].imageId");
     }
 }
