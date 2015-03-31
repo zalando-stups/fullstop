@@ -16,20 +16,53 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.slf4j.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
-public class AmiPlugin implements FullstopPlugin{
+@Component
+public class AmiPlugin implements FullstopPlugin {
 
-    @Override
-    public Object processEvent(CloudTrailEvent event) {
-        return null;
+    private final Logger log = getLogger(getClass());
+
+    private static final String EC2_EVENTS = "ec2.amazonaws.com";
+    private static final String RUN = "RunInstances";
+
+    private final ClientProvider clientProvider;
+
+    @Autowired
+    public AmiPlugin(final ClientProvider clientProvider) {
+        this.clientProvider = clientProvider;
     }
 
     @Override
-    public boolean supports(CloudTrailEvent delimiter) {
-        return false;
+    public boolean supports(final CloudTrailEvent event) {
+        CloudTrailEventData eventData = event.getEventData();
+
+        String eventSource = eventData.getEventSource();
+        String eventName = eventData.getEventName();
+
+        return eventSource.equals(EC2_EVENTS) && eventName.equals(RUN);
+    }
+
+    @Override
+    public Object processEvent(final CloudTrailEvent event) {
+
+        // 1. get ami from event
+        // 2. find out if this ami is whitelisted
+
+        return null;
     }
 }
