@@ -21,10 +21,12 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
+@Component
 public class AmiPlugin implements FullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
