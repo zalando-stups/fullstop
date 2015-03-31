@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
 
-import org.springframework.plugin.core.Plugin;
+package org.zalando.stups.fullstop.aws;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.regions.Region;
 
 /**
+ * Just for testing at the moment.
+ *
  * @author  jbellmann
  */
-public interface FullstopPlugin extends Plugin<CloudTrailEvent> {
+public interface CachingClientProvider {
 
-    Object processEvent(CloudTrailEvent event);
-
+    <T> T getClient(Class<T> type, String accountId, Region region);
 }
