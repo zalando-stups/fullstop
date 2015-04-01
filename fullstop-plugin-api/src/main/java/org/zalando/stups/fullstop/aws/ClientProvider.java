@@ -19,6 +19,7 @@ import com.amazonaws.regions.Region;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.route53.AmazonRoute53Client;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * @author  mrandi
@@ -28,4 +29,6 @@ public interface ClientProvider {
     AmazonEC2Client getEC2Client(String accountId, Region region);
 
     AmazonRoute53Client getRoute53Client(String accountId, Region region);
+
+    AmazonS3Client getS3Client(final String accountID, final Region region);
 }

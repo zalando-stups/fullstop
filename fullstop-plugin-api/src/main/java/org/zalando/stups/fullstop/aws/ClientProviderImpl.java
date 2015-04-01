@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.aws;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.auth.BasicSessionCredentials;
@@ -48,6 +49,14 @@ public class ClientProviderImpl implements ClientProvider {
     @Override
     public AmazonRoute53Client getRoute53Client(final String accountId, final Region region) {
         throw new UnsupportedOperationException("Not implemented yet!");
+    }
+
+    @Override
+    public AmazonS3Client getS3Client(final String accountId, final Region region){
+        AmazonS3Client amazonS3Client = new AmazonS3Client(getTemporaryCredentials(accountId));
+        amazonS3Client.setRegion(region);
+
+        return amazonS3Client;
     }
 
     private BasicSessionCredentials getTemporaryCredentials(final String accountId) {

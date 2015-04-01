@@ -30,3 +30,6 @@ fullstop:
 
             # Whether to include raw event in CloudTrailEventMetadata
             enableRawEventInfo: false
+
+            # The bucket, where our enriched data will be stored
+            s3bucket: ${FULLSTOP_S3_BUCKET}
