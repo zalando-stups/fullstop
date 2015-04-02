@@ -81,6 +81,7 @@
     </dependencies>
 
     <build>
+        <finalName>fullstop</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
