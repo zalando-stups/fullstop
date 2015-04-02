@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.plugin.core.PluginRegistry;
 
 import org.springframework.stereotype.Component;
@@ -38,6 +39,9 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 public class PluginEventsProcessor implements EventsProcessor {
 
     private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+
+    @Value("${fullstop.processor.properties.s3bucket}")
+    private String s3bucket;
 
     @Autowired
     public PluginEventsProcessor(final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry) {

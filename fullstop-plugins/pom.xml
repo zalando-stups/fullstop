@@ -36,6 +36,7 @@
 
     <modules>
         <module>fullstop-instance-plugin</module>
+        <module>fullstop-ami-plugin</module>
     </modules>
 
 

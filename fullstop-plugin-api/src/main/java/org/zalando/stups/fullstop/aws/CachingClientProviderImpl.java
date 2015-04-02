@@ -16,35 +16,32 @@
 
 package org.zalando.stups.fullstop.aws;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.AmazonWebServiceClient;
-
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
-
 import com.amazonaws.regions.Region;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author  jbellmann
  */
+@Service
 public class CachingClientProviderImpl implements CachingClientProvider {
 
     private static final String ROLE_SESSION_NAME = "fullstop";
 
-    private static final String ROLE_ARN_LAST = ":role/fullstop";
-
     private static final String ROLE_ARN_FIRST = "arn:aws:iam::";
+
+    private static final String ROLE_ARN_LAST = ":role/fullstop";
 
     private LoadingCache<Key<?>, Object> cache = null;
 

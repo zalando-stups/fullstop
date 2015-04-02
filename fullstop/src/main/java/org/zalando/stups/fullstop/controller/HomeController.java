@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.aws;
 
-import com.amazonaws.regions.Region;
+package org.zalando.stups.fullstop.controller;
 
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.route53.AmazonRoute53Client;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author  mrandi
+ * @author mrandi
  */
-public interface ClientProvider {
+@RestController
+public class HomeController {
 
-    AmazonEC2Client getEC2Client(String accountId, Region region);
 
-    AmazonRoute53Client getRoute53Client(String accountId, Region region);
+    @RequestMapping({ "/", "/index" })
+    public String home(){
+        return "Fullstop is here!";
+    }
+
 }

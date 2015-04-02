@@ -4,4 +4,4 @@
 target
 *.iml
 .idea
-
+fullstop/src/main/resources/logs
