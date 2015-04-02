@@ -61,7 +61,7 @@ Build fullstop:
     
 Build docker image:
 
-    $ docker build -t registry/fullstop:0-1 fullstop
+    $ docker build -t registry/fullstop:0.1 fullstop
 
 Show images:
 
@@ -69,11 +69,11 @@ Show images:
 
 Run with docker:
 
-    $ docker run -it registry/fullstop:0-1
+    $ docker run -it registry/fullstop:0.1
 
 Push docker image:
 
-    $ docker push registry/fullstop:0-1
+    $ docker push registry/fullstop:0.1
 
 
 ## License
