@@ -52,6 +52,28 @@ Example:
     $ cd fullstop
 
     $ mvn spring-boot:run
+    
+##How to build a docker image
+
+Build fullstop:
+
+    $ mvn clean install -U
+    
+Build docker image:
+
+    $ docker build -t registry/fullstop:0-1 fullstop
+
+Show images:
+
+    $ docker images
+
+Run with docker:
+
+    $ docker run -it registry/fullstop:0-1
+
+Push docker image:
+
+    $ docker push registry/fullstop:0-1
 
 
 ## License
