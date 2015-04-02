@@ -117,7 +117,7 @@ public class S3Controller {
 
         ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest().withBucketName(bucket)                //
-                        .withPrefix(location) //
+                        .withPrefix(location)                                  //
                         .withMaxKeys(page);
 
         ObjectListing objectListing = amazonS3Client.listObjects(listObjectsRequest);
