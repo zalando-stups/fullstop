@@ -15,28 +15,34 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.jayway.jsonpath.JsonPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jayway.jsonpath.JsonPath;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 @Component
 public class RunInstancePlugin implements FullstopPlugin {
@@ -46,11 +52,11 @@ public class RunInstancePlugin implements FullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final ClientProvider clientProvider;
+    private final CachingClientProvider clientProvider;
 
     @Autowired
-    public RunInstancePlugin(final ClientProvider clientProvider) {
-        this.clientProvider = clientProvider;
+    public RunInstancePlugin(final CachingClientProvider cachingClientProvider) {
+        this.clientProvider = cachingClientProvider;
     }
 
     @Override
@@ -69,17 +75,17 @@ public class RunInstancePlugin implements FullstopPlugin {
         String parameters = event.getEventData().getResponseElements();
 
         List<String> securityGroupId = getSecuritygroup(parameters);
-        AmazonEC2Client client = clientProvider.getEC2Client(event.getEventData().getUserIdentity().getAccountId(),
+        AmazonEC2Client client = clientProvider.getClient(AmazonEC2Client.class,
+                event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+
         List<String> securityRules = getSecuritySettings(securityGroupId, client);
 
-
-        for (int i = 0; i < securityGroupId.size(); i++) {
-            LOG.info("SAVING RESULT INTO MAGIC DB: {}", securityGroupId.get(i));
+        for (String securityRule : securityRules) {
+            LOG.info("SAVING RESULT INTO MAGIC DB: {}", securityRule);
         }
 
-
-        return null;
+        return securityRules;
     }
 
     private List<String> getSecuritygroup(final String parameters) {
@@ -88,10 +94,12 @@ public class RunInstancePlugin implements FullstopPlugin {
             return null; // autoscaling events return parameter as null
         }
 
-        return JsonPath.read(parameters, "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+        return JsonPath.read(parameters,
+                "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
     }
 
-    private List<String> getSecuritySettings(final List<String> securityGroupId, final AmazonEC2Client amazonEC2Client) {
+    private List<String> getSecuritySettings(final List<String> securityGroupId,
+            final AmazonEC2Client amazonEC2Client) {
         DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
         request.setGroupIds(securityGroupId);
 

@@ -30,7 +30,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 
 import org.zalando.stups.fullstop.PluginEventsProcessor;
-import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
 import org.zalando.stups.fullstop.events.FileEventReader;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 import org.zalando.stups.fullstop.plugin.RunInstancePlugin;
@@ -49,13 +49,13 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 public class FileEventReaderTest {
 
     private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
-    private ClientProvider clientProvider;
+    private CachingClientProvider clientProvider;
 
     private RunInstancePlugin plugin;
 
     @Before
     public void setUp() {
-        clientProvider = Mockito.mock(ClientProvider.class);
+        clientProvider = Mockito.mock(CachingClientProvider.class);
 
         List<FullstopPlugin> plugins = new ArrayList<>();
         plugin = new RunInstancePlugin(clientProvider);
@@ -67,7 +67,8 @@ public class FileEventReaderTest {
     public void testReadLogFile() throws CallbackException {
 
         AmazonEC2Client client = Mockito.mock(AmazonEC2Client.class);
-        Mockito.when(clientProvider.getEC2Client(Mockito.anyString(), Mockito.any(Region.class))).thenReturn(client);
+        Mockito.when(clientProvider.getClient(AmazonEC2Client.class, Mockito.anyString(), Mockito.any(Region.class)))
+               .thenReturn(client);
 
         for (String filename : LogFiles.all()) {
 

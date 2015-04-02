@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
 import org.springframework.util.CollectionUtils;
-import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
 
 /**
  * @author mrandi
@@ -51,14 +51,14 @@ public class AmiPlugin implements FullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final ClientProvider clientProvider;
+    private final CachingClientProvider cachingClientProvider;
 
     @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
     @Autowired
-    public AmiPlugin(final ClientProvider clientProvider) {
-        this.clientProvider = clientProvider;
+    public AmiPlugin(final CachingClientProvider cachingClientProvider) {
+        this.cachingClientProvider = cachingClientProvider;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class AmiPlugin implements FullstopPlugin {
 
         final List<String> whitelistedAmis = Lists.newArrayList();
 
-        AmazonEC2Client ec2Client = clientProvider.getEC2Client(whitelistedAmiAccount,
+        AmazonEC2Client ec2Client = cachingClientProvider.getClient(AmazonEC2Client.class, whitelistedAmiAccount,
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
