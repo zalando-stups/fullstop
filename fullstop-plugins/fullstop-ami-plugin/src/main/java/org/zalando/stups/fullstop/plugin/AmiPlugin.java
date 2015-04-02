@@ -18,9 +18,17 @@ package org.zalando.stups.fullstop.plugin;
 
 import java.util.List;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -29,19 +37,29 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
+import org.springframework.util.CollectionUtils;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 /**
- * @author  mrandi
+ * @author mrandi
  */
 @Component
 public class AmiPlugin implements FullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
-    private static final String EC2_EVENTS = "ec2.amazonaws.com";
-    private static final String RUN = "RunInstances";
+    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+    private static final String EVENT_NAME = "RunInstances";
 
-    private static final String AMI = "ADBCDEF";
+    private final ClientProvider clientProvider;
+
+    @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
+    private String whitelistedAmiAccount;
+
+    @Autowired
+    public AmiPlugin(final ClientProvider clientProvider) {
+        this.clientProvider = clientProvider;
+    }
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
@@ -49,23 +67,57 @@ public class AmiPlugin implements FullstopPlugin {
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-        return eventName.equals(EC2_EVENTS) && eventSource.equals(RUN);
+        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
     }
 
     @Override
     public Object processEvent(final CloudTrailEvent event) {
-        List<String> ami = getAmi(event.getEventData().getResponseElements());
 
-        final List<String> whitelistedAmi = Lists.newArrayList();
-        whitelistedAmi.add(AMI);
+        String parameters = event.getEventData().getResponseElements();
 
-        boolean hasChanged = ami.retainAll(whitelistedAmi);
+        List<String> amis = getAmi(parameters);
 
-        if (hasChanged) {
-            LOG.info("blublbu ami not valid");
+        final List<String> whitelistedAmis = Lists.newArrayList();
+
+        AmazonEC2Client ec2Client = clientProvider.getEC2Client(whitelistedAmiAccount,
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+
+        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
+
+        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
+        List<Image> images = describeImagesResult.getImages();
+
+        for (Image image : images) {
+            if (image.getName().startsWith("Taupage-")) {
+                whitelistedAmis.add(image.getImageId());
+            }
         }
 
-        return null;
+        List<String> invalidAmis = Lists.newArrayList();
+
+        for (String ami : amis) {
+
+            boolean valid = false;
+
+            for (String whitelistedAmi : whitelistedAmis) {
+                if (ami.equals(whitelistedAmi)) {
+                    valid = true;
+                }
+            }
+
+            if (!valid) {
+                invalidAmis.add(ami);
+            }
+
+        }
+
+        if (!CollectionUtils.isEmpty(invalidAmis)) {
+            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters), invalidAmis);
+            return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: " + invalidAmis;
+        } else {
+            LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
+            return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
+        }
 
     }
 
@@ -74,6 +126,13 @@ public class AmiPlugin implements FullstopPlugin {
             return null;
         }
 
-        return JsonPath.read(parameters, "$.InstancesSet.items[*].imageId");
+        return JsonPath.read(parameters, "$.instancesSet.items[*].imageId");
+    }
+
+    private List<String> getInstanceId(final String parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
     }
 }

@@ -43,8 +43,8 @@ public class RunInstancePlugin implements FullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
-    private static final String EC2_EVENTS = "ec2.amazonaws.com";
-    private static final String RUN = "RunInstances";
+    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+    private static final String EVENT_NAME = "RunInstances";
 
     private final ClientProvider clientProvider;
 
@@ -60,7 +60,7 @@ public class RunInstancePlugin implements FullstopPlugin {
         String eventSource = eventData.getEventSource();
         String eventName = eventData.getEventName();
 
-        return eventSource.equals(EC2_EVENTS) && eventName.equals(RUN);
+        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class RunInstancePlugin implements FullstopPlugin {
             return null; // autoscaling events return parameter as null
         }
 
-        return JsonPath.read(parameters, "$.InstancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+        return JsonPath.read(parameters, "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
     }
 
     private List<String> getSecuritySettings(final List<String> securityGroupId, final AmazonEC2Client amazonEC2Client) {

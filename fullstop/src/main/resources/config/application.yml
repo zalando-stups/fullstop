@@ -33,3 +33,9 @@ fullstop:
 
             # The bucket, where our enriched data will be stored
             s3bucket: ${FULLSTOP_S3_BUCKET}
+
+            # Account containing whitelisted AMI
+            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
+
+            # Directory where the local logs are stored in order to test fullstop
+            fullstopHome: ${user.home}/fullstop_logs

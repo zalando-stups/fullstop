@@ -16,6 +16,19 @@
 
 package org.zalando.stups.fullstop.filereader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import java.nio.charset.StandardCharsets;
+
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.ProcessingLibraryException;
 import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultEventFilter;
@@ -32,24 +45,16 @@ import com.amazonaws.services.cloudtrail.processinglibrary.serializer.EventSeria
 import com.amazonaws.services.cloudtrail.processinglibrary.serializer.RawLogDeliveryEventSerializer;
 import com.amazonaws.services.cloudtrail.processinglibrary.utils.EventBuffer;
 import com.amazonaws.services.cloudtrail.processinglibrary.utils.LibraryUtils;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 /**
  * So we can test a bit as long no access is possible to the s3-files directly.
  *
  * @author  jbellmann
  */
-public class  FileEventReader {
+public class FileEventReader {
 
     private static final Logger logger = LoggerFactory.getLogger(FileEventReader.class);
 
@@ -63,6 +68,7 @@ public class  FileEventReader {
         this.eventsProcessor = eventsProcessor;
         this.eventFilter = eventFilter;
         this.mapper = new ObjectMapper();
+        this.exceptionHandler = new DefaultExceptionHandler();
     }
 
     public FileEventReader(final EventsProcessor eventsProcessor) {
@@ -70,9 +76,10 @@ public class  FileEventReader {
     }
 
     public void readEvents(final File file, final CloudTrailLog ctLog) throws CallbackException {
-        try(GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
-                EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
-        ) {
+        try {
+            GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
+
+            EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
 
             this.emitEvents(serializer);
         } catch (IllegalArgumentException | IOException e) {
@@ -136,7 +143,7 @@ public class  FileEventReader {
 
         @Override
         public boolean isSuccess() {
-            return true;
+            return false;
         }
 
     }
