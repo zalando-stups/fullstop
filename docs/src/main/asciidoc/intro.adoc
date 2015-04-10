@@ -1,0 +1,2 @@
+Fullstop is a framework to process CloudTrails-Logs in a flexible way. So this project provides a base implementation
+for processing these logs and also tries to make it possible to extend it with own implementation.

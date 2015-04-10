@@ -1,0 +1,20 @@
+= FullStop
+:github: https://github.com/zalando-stups/fullstop
+:githubmaster: {github}/tree/master
+:docslink: {githubmaster}/docs/src/main/asciidoc
+
+include::intro.adoc[]
+
+== Installation
+
+include::install.adoc[]
+
+== Architecture
+
+TODO
+
+== Plugins
+
+TODO
+
+=== Provided by default
