@@ -44,6 +44,7 @@
         <module>fullstop-plugins</module>
         <module>fullstop-test-support</module>
         <module>fullstop-processing</module>
+        <module>docs</module>
     </modules>
 
     <dependencyManagement>
