@@ -1,0 +1,165 @@
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.6</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>ant-contrib</groupId>
+                                <artifactId>ant-contrib</artifactId>
+                                <version>1.0b3</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>ant</groupId>
+                                        <artifactId>ant</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant-nodeps</artifactId>
+                                <version>1.8.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.tigris.antelope</groupId>
+                                <artifactId>antelopetasks</artifactId>
+                                <version>3.2.10</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.jruby</groupId>
+                                <artifactId>jruby-complete</artifactId>
+                                <version>1.7.12</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.jacoco</groupId>
+                                <artifactId>org.jacoco.ant</artifactId>
+                                <version>0.7.5-SNAPSHOT</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant-junit</artifactId>
+                                <version>1.8.2</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>package-and-attach-docs-zip</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip">
+                                            <fileset dir="${project.build.directory}/generated-docs" excludes="*.sh" />
+                                        </zip>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>setup-maven-properties</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <exportAntProperties>true</exportAntProperties>
+                                    <target>
+                                        <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+                                        <taskdef name="stringutil" classname="ise.antelope.tasks.StringUtilTask" />
+                                        <var name="version-type" value="${project.version}" />
+                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp=".*\.(.*)" replace="\1" />
+                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="(M)\d+" replace="MILESTONE" />
+                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="(RC)\d+" replace="MILESTONE" />
+                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="BUILD-(.*)" replace="SNAPSHOT" />
+                                        <stringutil string="${version-type}" property="spring-cloud-repo">
+                                            <lowercase />
+                                        </stringutil>
+                                        <var name="github-tag" value="v${project.version}" />
+                                        <propertyregex property="github-tag" override="true" input="${github-tag}" regexp=".*SNAPSHOT" replace="master" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>prepare-reports</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <typedef resource="org/jacoco/ant/antlib.xml" />
+                                        <echo message="Coverage report" />
+                                        <report>
+                                            <executiondata>
+                                                <fileset dir="${main.basedir}/fullstop/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop/target" includes="jacoco-it.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugin-api/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugin-api/target" includes="jacoco-it.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/target" includes="jacoco-it.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" includes="jacoco-it.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-processing/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-processing/target" includes="jacoco-it.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-test-support/target" includes="jacoco.exec" />
+                                                <fileset dir="${main.basedir}/fullstop-test-support/target" includes="jacoco-it.exec" />
+                                            </executiondata>
+                                            <structure name="Fullstop">
+                                                <group name="fullstop">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop/target/classes" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                                <group name="fullstop-plugin-api">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugin-api/target/classes" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugin-api/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                                <group name="fullstop-ami-plugin">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/target/classes" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                                <group name="fullstop-instance-plugin">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                                <group name="fullstop-processing">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop-processing/target/classes" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop-processing/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                                <group name="fullstop-test-support">
+                                                    <classfiles>
+                                                        <fileset dir="${main.basedir}/fullstop-test-support/target/classes" excludes="**/HelpMojo.class" />
+                                                    </classfiles>
+                                                    <sourcefiles>
+                                                        <fileset dir="${main.basedir}/fullstop-test-support/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                            </structure>
+                                            <html destdir="${project.build.directory}/jacoco" footer="Code Coverage Report for Fullstop ${project.version}" locale="en" />
+                                            <csv destfile="${project.build.directory}/jacoco/jacoco.csv" />
+                                            <xml destfile="${project.build.directory}/jacoco/jacoco.xml" />
+                                        </report>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
