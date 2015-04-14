@@ -157,6 +157,10 @@
                 <version>3.1.0</version>
                 <configuration>
                     <dryRun>false</dryRun>
+                        <jacocoReports>
+                            <jacocoReport>${main.basedir}/fullstop/target/site/jacoco/jacoco.xml</jacocoReport>
+                            <jacocoReport>${main.basedir}/fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        </jacocoReports>
                 </configuration>
             </plugin>
             <plugin>
