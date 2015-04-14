@@ -15,6 +15,8 @@
  */
 package org.zalando.stups.fullstop;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -31,5 +33,12 @@ public class Fullstop {
 
     public static void main(final String[] args) {
         SpringApplication.run(Fullstop.class, args);
+    }
+
+    private RegisteredPluginLogger registeredPluginLogger;
+
+    @PostConstruct
+    public void init() {
+        registeredPluginLogger.logRegisteredPlugins();
     }
 }

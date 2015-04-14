@@ -15,13 +15,16 @@
  */
 package org.zalando.stups.fullstop.plugin.example;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.assertj.core.api.Assertions;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mockito;
+
+import org.springframework.plugin.metadata.PluginMetadata;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -31,7 +34,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
  *
  * @author  jbellmann
  */
-@Ignore
+// @Ignore
 public class ExamplePluginTest {
 
     private CloudTrailEvent event;
@@ -62,9 +65,16 @@ public class ExamplePluginTest {
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
         ExamplePlugin plugin = new ExamplePlugin();
-
         Assertions.assertThat(plugin.supports(event)).isTrue();
 
+        PluginMetadata metadata = plugin.getMetadata();
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getName()).isNotNull();
+        assertThat(metadata.getName()).isNotEmpty();
+        assertThat(metadata.getVersion()).isNotNull();
+        assertThat(metadata.getName()).isEqualTo(plugin.getClass().getName());
+        assertThat(metadata.getVersion()).isNotEmpty();
+        assertThat(metadata.getVersion()).isEqualTo("0.5.6");
     }
 
 }
