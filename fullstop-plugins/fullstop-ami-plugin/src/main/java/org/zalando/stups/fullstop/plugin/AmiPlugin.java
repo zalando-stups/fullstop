@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
 import org.springframework.util.CollectionUtils;
-import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 /**
  * @author mrandi
@@ -51,13 +51,13 @@ public class AmiPlugin implements FullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final CachingClientProvider cachingClientProvider;
+    private final ClientProvider cachingClientProvider;
 
     @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
     @Autowired
-    public AmiPlugin(final CachingClientProvider cachingClientProvider) {
+    public AmiPlugin(final ClientProvider cachingClientProvider) {
         this.cachingClientProvider = cachingClientProvider;
     }
 

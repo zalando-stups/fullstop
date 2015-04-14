@@ -30,7 +30,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 
 import org.zalando.stups.fullstop.PluginEventsProcessor;
-import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.FileEventReader;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 import org.zalando.stups.fullstop.plugin.RunInstancePlugin;
@@ -49,13 +49,13 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 public class FileEventReaderTest {
 
     private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
-    private CachingClientProvider clientProvider;
+    private ClientProvider clientProvider;
 
     private RunInstancePlugin plugin;
 
     @Before
     public void setUp() {
-        clientProvider = Mockito.mock(CachingClientProvider.class);
+        clientProvider = Mockito.mock(ClientProvider.class);
 
         List<FullstopPlugin> plugins = new ArrayList<>();
         plugin = new RunInstancePlugin(clientProvider);
