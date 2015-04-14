@@ -131,7 +131,14 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
         this.sqsUrl = prop.getProperty(SQS_URL);
         LibraryUtils.checkArgumentNotNull(this.sqsUrl, "Cannot find SQS URL in properties file.");
 
-        this.awsCredentialsProvider = credentialProvider;
+        String accessKey = prop.getProperty(ACCESS_KEY);
+        String secretKey = prop.getProperty(SECRET_KEY);
+
+        if (accessKey != null && secretKey != null) {
+            this.awsCredentialsProvider = new SimplePropertiesCredentials(prop);
+        } else {
+            this.awsCredentialsProvider = credentialProvider;
+        }
 
         this.s3Region = prop.getProperty(S3_REGION);
         this.visibilityTimeout = this.getIntProperty(prop, VISIBILITY_TIMEOUT);
