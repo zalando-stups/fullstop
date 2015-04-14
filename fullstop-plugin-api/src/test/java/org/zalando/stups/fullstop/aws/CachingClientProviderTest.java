@@ -49,7 +49,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 public class CachingClientProviderTest {
 
     @Autowired
-    private CachingClientProvider provider;
+    private ClientProvider provider;
 
     @Test
     public void testCachingClientProvider() throws InterruptedException {
@@ -75,8 +75,8 @@ public class CachingClientProviderTest {
     static class TestConfig {
 
         @Bean
-        public CachingClientProvider cachingClientProvider() {
-            return new CachingClientProviderImpl();
+        public ClientProvider cachingClientProvider() {
+            return new CachingClientProvider();
         }
     }
 

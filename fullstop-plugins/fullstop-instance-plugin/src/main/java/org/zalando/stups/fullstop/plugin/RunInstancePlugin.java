@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
-import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -52,10 +52,10 @@ public class RunInstancePlugin implements FullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final CachingClientProvider clientProvider;
+    private final ClientProvider clientProvider;
 
     @Autowired
-    public RunInstancePlugin(final CachingClientProvider cachingClientProvider) {
+    public RunInstancePlugin(final ClientProvider cachingClientProvider) {
         this.clientProvider = cachingClientProvider;
     }
 
