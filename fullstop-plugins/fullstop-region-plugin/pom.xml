@@ -25,6 +25,7 @@
 
     <artifactId>fullstop-region-plugin</artifactId>
     <name>Fullstop -- Region plugin</name>
+    <description>Check that instances run in valid regions</description>
 
     <properties>
         <main.basedir>${basedir}/../..</main.basedir>
