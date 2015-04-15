@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.zalando.stups.fullstop.FullstopContainerProperties;
+import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
 import org.zalando.stups.fullstop.FullstopLoggingProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
@@ -71,15 +71,15 @@ public class S3Controller {
 
     private FullstopLoggingProperties fullstopLoggingProperties;
 
-    private FullstopContainerProperties fullstopContainerProperties;
+    private final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties;
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,
             final FullstopLoggingProperties fullstopLoggingProperties,
-            final FullstopContainerProperties fullstopContainerProperties) {
+            final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties) {
         this.pluginEventsProcessor = pluginEventsProcessor;
         this.fullstopLoggingProperties = fullstopLoggingProperties;
-        this.fullstopContainerProperties = fullstopContainerProperties;
+        this.cloudTrailProcessingLibraryProperties = cloudTrailProcessingLibraryProperties;
     }
 
     @RequestMapping(method = GET, value = "/read")
@@ -124,7 +124,7 @@ public class S3Controller {
 
         AmazonS3Client amazonS3Client = new AmazonS3Client();
         amazonS3Client.setRegion(Region.getRegion(
-                Regions.fromName(fullstopContainerProperties.getProperties().get(S3_REGION_KEY))));
+                Regions.fromName((String) cloudTrailProcessingLibraryProperties.getAsProperties().get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
             new ListObjectsRequest().withBucketName(bucket) //

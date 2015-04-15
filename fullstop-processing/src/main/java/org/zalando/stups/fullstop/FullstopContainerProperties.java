@@ -15,9 +15,6 @@
  */
 package org.zalando.stups.fullstop;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -28,22 +25,12 @@ public class FullstopContainerProperties {
 
     private boolean autoStart = true;
 
-    private Map<String, String> properties = new HashMap<String, String>();
-
     public boolean isAutoStart() {
         return autoStart;
     }
 
     public void setAutoStart(final boolean autoStart) {
         this.autoStart = autoStart;
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(final Map<String, String> properties) {
-        this.properties = properties;
     }
 
 }
