@@ -17,8 +17,11 @@ package org.zalando.stups.fullstop;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 
@@ -29,12 +32,14 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
  */
 @SpringBootApplication
 @EnablePluginRegistries({ FullstopPlugin.class })
+@EnableConfigurationProperties({ FullstopLoggingProperties.class })
 public class Fullstop {
 
     public static void main(final String[] args) {
         SpringApplication.run(Fullstop.class, args);
     }
 
+    @Autowired
     private RegisteredPluginLogger registeredPluginLogger;
 
     @PostConstruct
