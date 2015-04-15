@@ -39,3 +39,9 @@ fullstop:
 
             # Directory where the local logs are stored in order to test fullstop
             fullstopHome: ${user.home}/fullstop_logs
+    plugins:
+        properties:
+            # The whitelist of regions
+            whitelistedRegions:
+              - 'eu-west-1'
+              - 'eu-central-1'
