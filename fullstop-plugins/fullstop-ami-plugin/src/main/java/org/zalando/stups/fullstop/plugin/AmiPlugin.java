@@ -16,35 +16,39 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.List;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
+
+import com.google.common.collect.Lists;
+
+import com.jayway.jsonpath.JsonPath;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
-import com.google.common.collect.Lists;
-
-import com.jayway.jsonpath.JsonPath;
 import org.springframework.util.CollectionUtils;
+
 import org.zalando.stups.fullstop.aws.ClientProvider;
+
+import java.util.List;
+
 
 /**
  * @author mrandi
  */
-@Component
-public class AmiPlugin implements FullstopPlugin {
+@Component public class AmiPlugin implements FullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
@@ -53,25 +57,23 @@ public class AmiPlugin implements FullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-    @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
+    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
-    @Autowired
-    public AmiPlugin(final ClientProvider cachingClientProvider) {
+    @Autowired public AmiPlugin(final ClientProvider cachingClientProvider) {
         this.cachingClientProvider = cachingClientProvider;
     }
 
-    @Override
-    public boolean supports(final CloudTrailEvent event) {
+    @Override public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
+        return eventSource.equals(EC2_SOURCE_EVENTS) &&
+            eventName.equals(EVENT_NAME);
     }
 
-    @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    @Override public Object processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getResponseElements();
 
@@ -79,15 +81,20 @@ public class AmiPlugin implements FullstopPlugin {
 
         final List<String> whitelistedAmis = Lists.newArrayList();
 
-        AmazonEC2Client ec2Client = cachingClientProvider.getClient(AmazonEC2Client.class, whitelistedAmiAccount,
-                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+        AmazonEC2Client ec2Client = cachingClientProvider.getClient(
+                AmazonEC2Client.class, whitelistedAmiAccount,
+                Region.getRegion(
+                    Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
+        DescribeImagesRequest describeImagesRequest =
+            new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
 
-        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
+        DescribeImagesResult describeImagesResult = ec2Client.describeImages(
+                describeImagesRequest);
         List<Image> images = describeImagesResult.getImages();
 
         for (Image image : images) {
+
             if (image.getName().startsWith("Taupage-")) {
                 whitelistedAmis.add(image.getImageId());
             }
@@ -100,6 +107,7 @@ public class AmiPlugin implements FullstopPlugin {
             boolean valid = false;
 
             for (String whitelistedAmi : whitelistedAmis) {
+
                 if (ami.equals(whitelistedAmi)) {
                     valid = true;
                 }
@@ -112,16 +120,23 @@ public class AmiPlugin implements FullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters), invalidAmis);
-            return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: " + invalidAmis;
+            LOG.info("Instances with ids: {} was started with wrong images: {}",
+                getInstanceId(parameters), invalidAmis);
+
+            return "Instances with ids: " + getInstanceId(parameters) +
+                " was started with wrong images: " + invalidAmis;
         } else {
-            LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
-            return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
+            LOG.info("Ami for instance: {} is whitelisted.",
+                getInstanceId(parameters));
+
+            return "Ami for instance: " + getInstanceId(parameters) +
+                " is whitelisted.";
         }
 
     }
 
     private List<String> getAmi(final String parameters) {
+
         if (parameters == null) {
             return null;
         }
@@ -130,9 +145,11 @@ public class AmiPlugin implements FullstopPlugin {
     }
 
     private List<String> getInstanceId(final String parameters) {
+
         if (parameters == null) {
             return null;
         }
+
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
     }
 }

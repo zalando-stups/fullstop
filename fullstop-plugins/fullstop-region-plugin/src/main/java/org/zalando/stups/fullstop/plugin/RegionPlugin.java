@@ -18,14 +18,10 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
 import com.jayway.jsonpath.JsonPath;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,8 +39,8 @@ import java.util.List;
     private static final String EVENT_NAME = "RunInstances";
 
 
-    @Value("${fullstop.pluign.properties.whitelistedRegions}")
-    private List<String> whitelistedRegions;
+    @Value("${fullstop.plugin.properties.whitelistedRegions}")
+    private String whitelistedRegions;
 
 
     @Override public boolean supports(final CloudTrailEvent event) {
@@ -57,31 +53,30 @@ import java.util.List;
     }
 
     @Override public Object processEvent(final CloudTrailEvent event) {
-
         String parameters = event.getEventData().getResponseElements();
 
-        String region = getRegion(parameters);
+        String region = event.getEventData().getAwsRegion();
         String instances = getInstanceIds(parameters).toString();
 
-        if (!whitelistedRegions.contains(region)) {
-            LOG.error("EC2 instances " + instances +
+        if (!whitelistedRegions.equals(region)) {
+            LOG.error("Region: EC2 instances " + instances +
                 " are running in the wrong region! (" + region + ")");
 
-            return "EC2 instances " + instances +
+            return "Region: EC2 instances " + instances +
                 " are running in the wrong region! (" + region + ")";
         }
-
-        return "All clear :)";
+        LOG.info("Region: correct region set.");
+        return "Region: correct region set.";
     }
 
-    private String getRegion(final String parameters) {
-
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, "$.awsRegion");
-    }
+//    private String getRegion(final String parameters) {
+//
+//        if (parameters == null) {
+//            return null;
+//        }
+//
+//        return JsonPath.read(parameters, "$.awsRegion");
+//    }
 
     private List<String> getInstanceIds(final String parameters) {
 

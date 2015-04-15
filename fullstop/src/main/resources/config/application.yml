@@ -30,6 +30,10 @@ fullstop:
 
             # Whether to include raw event in CloudTrailEventMetadata
             enableRawEventInfo: false
+    plugin:
+        properties:
+            # The whitelist of regions - TODO: spring and @value and yaml list are not wroking nicely
+            whitelistedRegions: 'eu-west-1'
 
             # The bucket, where our enriched data will be stored
             s3bucket: ${FULLSTOP_S3_BUCKET}
@@ -39,9 +43,3 @@ fullstop:
 
             # Directory where the local logs are stored in order to test fullstop
             fullstopHome: ${user.home}/fullstop_logs
-    plugins:
-        properties:
-            # The whitelist of regions
-            whitelistedRegions:
-              - 'eu-west-1'
-              - 'eu-central-1'

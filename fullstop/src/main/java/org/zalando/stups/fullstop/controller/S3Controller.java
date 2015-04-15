@@ -66,7 +66,7 @@ public class S3Controller {
     @Value("${fullstop.processor.properties.s3Region}")
     private String s3Region;
 
-    @Value("${fullstop.processor.properties.fullstopHome}")
+    @Value("${fullstop.plugin.properties.fullstopHome}")
     private String fullstopHome;
 
     @Autowired

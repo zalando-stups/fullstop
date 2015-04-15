@@ -40,7 +40,7 @@ public class PluginEventsProcessor implements EventsProcessor {
 
     private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
 
-    @Value("${fullstop.processor.properties.s3bucket}")
+    @Value("${fullstop.plugin.properties.s3bucket}")
     private String s3bucket;
 
     @Autowired
