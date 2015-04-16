@@ -71,7 +71,7 @@ public class ExamplePlugin implements FullstopPlugin {
     @Override
     // @HystrixCommand(fallback = my coole exception)
     // command for account id and client type -> generate new credentials
-    public Object processEvent(final CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getRequestParameters();
         String instanceId = getFromParameters(parameters);
@@ -88,7 +88,6 @@ public class ExamplePlugin implements FullstopPlugin {
         // throw new my coole exception ( account id, CLIENTTYPE.EC2, exception) -> this will trigger hystrix
 
         LOG.info("SAVING RESULT INTO MAGIC DB", result);
-        return null;
     }
 
     private AmazonEC2Client getClientForAccount(final String accountId, final Region region) {

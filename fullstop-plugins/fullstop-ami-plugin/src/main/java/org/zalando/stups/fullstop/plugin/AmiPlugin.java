@@ -24,11 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.plugin.metadata.PluginMetadata;
-
 import org.springframework.stereotype.Component;
-
-import org.springframework.util.CollectionUtils;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
@@ -50,7 +46,7 @@ import com.jayway.jsonpath.JsonPath;
  * @author  mrandi
  */
 @Component
-public class AmiPlugin implements FullstopPlugin {
+public class AmiPlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
@@ -77,7 +73,7 @@ public class AmiPlugin implements FullstopPlugin {
     }
 
     @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getResponseElements();
 
@@ -117,15 +113,15 @@ public class AmiPlugin implements FullstopPlugin {
 
         }
 
-        if (!CollectionUtils.isEmpty(invalidAmis)) {
-            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
-                invalidAmis);
-            return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: "
-                    + invalidAmis;
-        } else {
-            LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
-            return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
-        }
+// if (!CollectionUtils.isEmpty(invalidAmis)) {
+// LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
+// invalidAmis);
+// return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: "
+// + invalidAmis;
+// } else {
+// LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
+// return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
+// }
 
     }
 
@@ -143,10 +139,5 @@ public class AmiPlugin implements FullstopPlugin {
         }
 
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-    }
-
-    @Override
-    public PluginMetadata getMetadata() {
-        return new DefaultMetadataProvider(getClass().getName()).getMetadata();
     }
 }

@@ -18,12 +18,9 @@ package org.zalando.stups.fullstop.plugin.hello;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.plugin.metadata.PluginMetadata;
-
 import org.springframework.stereotype.Component;
 
-import org.zalando.stups.fullstop.plugin.DefaultMetadataProvider;
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
@@ -33,7 +30,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
  * @author  jbellmann
  */
 @Component
-public class HelloEventPlugin implements FullstopPlugin {
+public class HelloEventPlugin extends AbstractFullstopPlugin {
 
     private final Logger log = LoggerFactory.getLogger(HelloEventPlugin.class);
 
@@ -46,13 +43,7 @@ public class HelloEventPlugin implements FullstopPlugin {
     }
 
     @Override
-    public PluginMetadata getMetadata() {
-        return new DefaultMetadataProvider(getClass().getName()).getMetadata();
-    }
-
-    @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
         log.info("HELLO EVENT - {}", event.getEventData().getEventId());
-        return null;
     }
 }
