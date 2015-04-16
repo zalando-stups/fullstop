@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.plugin.metadata.PluginMetadata;
+
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
@@ -113,6 +115,11 @@ public class RunInstancePlugin implements FullstopPlugin {
         }
 
         return securityRules;
+    }
+
+    @Override
+    public PluginMetadata getMetadata() {
+        return new DefaultMetadataProvider(getClass().getName()).getMetadata();
     }
 
 }

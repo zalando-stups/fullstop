@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop;
 
-import org.springframework.plugin.core.Plugin;
-import org.springframework.plugin.metadata.MetadataProvider;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author  jbellmann
  */
-public interface FullstopPlugin extends Plugin<CloudTrailEvent>, MetadataProvider {
+@ConfigurationProperties(prefix = "fullstop.logging")
+public class FullstopLoggingProperties {
 
-    Object processEvent(CloudTrailEvent event);
+    private String dir;
+
+    public String getDir() {
+        return dir;
+    }
+
+    public void setDir(final String dir) {
+        this.dir = dir;
+    }
 
 }

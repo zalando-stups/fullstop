@@ -18,30 +18,36 @@ package org.zalando.stups.fullstop.plugin;
 
 import java.util.List;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.DescribeImagesResult;
-import com.amazonaws.services.ec2.model.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.plugin.metadata.PluginMetadata;
+
 import org.springframework.stereotype.Component;
+
+import org.springframework.util.CollectionUtils;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
 
 import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
-import org.springframework.util.CollectionUtils;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
 @Component
 public class AmiPlugin implements FullstopPlugin {
@@ -112,8 +118,10 @@ public class AmiPlugin implements FullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters), invalidAmis);
-            return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: " + invalidAmis;
+            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
+                invalidAmis);
+            return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: "
+                    + invalidAmis;
         } else {
             LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
             return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
@@ -133,6 +141,12 @@ public class AmiPlugin implements FullstopPlugin {
         if (parameters == null) {
             return null;
         }
+
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
+    }
+
+    @Override
+    public PluginMetadata getMetadata() {
+        return new DefaultMetadataProvider(getClass().getName()).getMetadata();
     }
 }

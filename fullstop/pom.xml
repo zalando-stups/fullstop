@@ -32,9 +32,20 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-hello-event-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-processing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-instance-plugin</artifactId>
@@ -45,6 +56,7 @@
             <artifactId>fullstop-ami-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+         -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -57,6 +69,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+
+        <!-- TESTING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -72,20 +86,19 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-processing</artifactId>
-            <version>0.5.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-instance-plugin</artifactId>
-            <version>0.5.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>
         <finalName>fullstop</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>banner.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
