@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.plugin.metadata.PluginMetadata;
-
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
@@ -47,7 +45,7 @@ import com.jayway.jsonpath.JsonPath;
  * @author  jbellmann
  */
 @Component
-public class RunInstancePlugin implements FullstopPlugin {
+public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
@@ -72,7 +70,7 @@ public class RunInstancePlugin implements FullstopPlugin {
     }
 
     @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getResponseElements();
 
@@ -86,8 +84,6 @@ public class RunInstancePlugin implements FullstopPlugin {
         for (String securityRule : securityRules) {
             LOG.info("SAVING RESULT INTO MAGIC DB: {}", securityRule);
         }
-
-        return securityRules;
     }
 
     private List<String> getSecuritygroup(final String parameters) {
@@ -115,11 +111,6 @@ public class RunInstancePlugin implements FullstopPlugin {
         }
 
         return securityRules;
-    }
-
-    @Override
-    public PluginMetadata getMetadata() {
-        return new DefaultMetadataProvider(getClass().getName()).getMetadata();
     }
 
 }
