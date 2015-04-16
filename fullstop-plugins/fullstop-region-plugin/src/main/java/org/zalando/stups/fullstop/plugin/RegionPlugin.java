@@ -30,7 +30,8 @@ import java.util.List;
 /**
  * @author gkneitschel
  */
-@Component public class RegionPlugin implements FullstopPlugin {
+@Component
+public class RegionPlugin implements FullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(
             RegionPlugin.class);
@@ -43,16 +44,18 @@ import java.util.List;
     private String whitelistedRegions;
 
 
-    @Override public boolean supports(final CloudTrailEvent event) {
+    @Override
+    public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
         return eventSource.equals(EC2_SOURCE_EVENTS) &&
-            eventName.equals(EVENT_NAME);
+                eventName.equals(EVENT_NAME);
     }
 
-    @Override public Object processEvent(final CloudTrailEvent event) {
+    @Override
+    public Object processEvent(final CloudTrailEvent event) {
         String parameters = event.getEventData().getResponseElements();
 
         String region = event.getEventData().getAwsRegion();
@@ -60,23 +63,15 @@ import java.util.List;
 
         if (!whitelistedRegions.equals(region)) {
             LOG.error("Region: EC2 instances " + instances +
-                " are running in the wrong region! (" + region + ")");
+                    " are running in the wrong region! (" + region + ")");
 
             return "Region: EC2 instances " + instances +
-                " are running in the wrong region! (" + region + ")";
+                    " are running in the wrong region! (" + region + ")";
         }
         LOG.info("Region: correct region set.");
         return "Region: correct region set.";
     }
-
-//    private String getRegion(final String parameters) {
-//
-//        if (parameters == null) {
-//            return null;
-//        }
-//
-//        return JsonPath.read(parameters, "$.awsRegion");
-//    }
+    
 
     private List<String> getInstanceIds(final String parameters) {
 
