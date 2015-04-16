@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -60,6 +61,10 @@ public class RegionPlugin implements FullstopPlugin {
 
         String region = event.getEventData().getAwsRegion();
         String instances = getInstanceIds(parameters).toString();
+        if (instances.isEmpty()){
+            LOG.error("No instanceIds found");
+            return "No instanceIds found";
+        }
 
         if (!whitelistedRegions.equals(region)) {
             LOG.error("Region: EC2 instances " + instances +
@@ -71,14 +76,20 @@ public class RegionPlugin implements FullstopPlugin {
         LOG.info("Region: correct region set.");
         return "Region: correct region set.";
     }
-    
+
 
     private List<String> getInstanceIds(final String parameters) {
 
         if (parameters == null) {
             return null;
         }
-
-        return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
+        List<String> instanceIds = new ArrayList<>();
+        try {
+            instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
+            return instanceIds;
+        } catch (Exception e) {
+            LOG.error("Cannot find InstanceIds in JSON " +e );
+        }
+        return instanceIds;
     }
 }
