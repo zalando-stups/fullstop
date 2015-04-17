@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
-<!---
 [![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
---->
+
+
 #Fullstop - Audit reporting
 
 ![Fullstop](images/fullstop.png)
