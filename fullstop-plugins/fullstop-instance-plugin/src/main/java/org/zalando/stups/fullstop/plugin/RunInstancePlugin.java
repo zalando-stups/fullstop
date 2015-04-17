@@ -80,7 +80,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         List<String> securityRules = getSecuritySettings(securityGroupId, client);
-
+        if (securityRules.isEmpty()){
+            LOG.error("No security groups found in event!");
+        }
         for (String securityRule : securityRules) {
             LOG.info("SAVING RESULT INTO MAGIC DB: {}", securityRule);
         }
@@ -92,8 +94,14 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             return null; // autoscaling events return parameter as null
         }
 
-        return JsonPath.read(parameters,
-                "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+        List<String> securityGroups = new ArrayList<>();
+        try {
+            securityGroups = JsonPath.read(parameters,
+                    "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+        } catch (Exception e){
+            LOG.error("could not fetch security groups " +e);
+        }
+        return securityGroups;
     }
 
     private List<String> getSecuritySettings(final List<String> securityGroupId,
