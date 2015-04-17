@@ -17,8 +17,10 @@ package org.zalando.stups.fullstop;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.plugin.core.PluginRegistry;
 
@@ -38,10 +40,9 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 @Component
 public class PluginEventsProcessor implements EventsProcessor {
 
-    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+    private final Logger log = LoggerFactory.getLogger(PluginEventsProcessor.class);
 
-    @Value("${fullstop.processor.properties.s3bucket}")
-    private String s3bucket;
+    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
 
     @Autowired
     public PluginEventsProcessor(final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry) {
@@ -75,9 +76,14 @@ public class PluginEventsProcessor implements EventsProcessor {
      * @param  plugin
      */
     protected void doProcess(final CloudTrailEvent event, final FullstopPlugin plugin) {
+        try {
 
-        // TODO, what to do with a possible result
-        plugin.processEvent(event);
+            plugin.processEvent(event);
+        } catch (Exception e) {
+
+            // can we do more?
+            log.error(e.getMessage(), e);
+        }
     }
 
     /**
