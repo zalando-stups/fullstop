@@ -38,6 +38,7 @@
         <module>fullstop-instance-plugin</module>
         <module>fullstop-ami-plugin</module>
         <module>fullstop-hello-event-plugin</module>
+        <module>fullstop-publicVPC-plugin</module>
     </modules>
 
 
