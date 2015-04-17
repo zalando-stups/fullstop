@@ -15,34 +15,28 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-
 import com.jayway.jsonpath.JsonPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class RunInstancePlugin extends AbstractFullstopPlugin {
@@ -80,7 +74,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         List<String> securityRules = getSecuritySettings(securityGroupId, client);
-        if (securityRules.isEmpty()){
+        if (securityRules.isEmpty()) {
             LOG.error("No security groups found in event!");
         }
         for (String securityRule : securityRules) {
@@ -98,20 +92,27 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         try {
             securityGroups = JsonPath.read(parameters,
                     "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
-        } catch (Exception e){
-            LOG.error("could not fetch security groups " +e);
+        } catch (Exception e) {
+            LOG.error("could not fetch security groups from JSON" + e);
         }
         return securityGroups;
     }
 
     private List<String> getSecuritySettings(final List<String> securityGroupId,
-            final AmazonEC2Client amazonEC2Client) {
-        DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
-        request.setGroupIds(securityGroupId);
+                                             final AmazonEC2Client amazonEC2Client) {
+        DescribeSecurityGroupsResult result;
+        List<SecurityGroup> securityGroups = new ArrayList<>();
+        try {
+            DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
+            request.setGroupIds(securityGroupId);
 
-        DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
+            result = amazonEC2Client.describeSecurityGroups(request);
 
-        List<SecurityGroup> securityGroups = result.getSecurityGroups();
+            securityGroups = result.getSecurityGroups();
+        } catch (Exception e) {
+            LOG.error("Could not fetch security groups from Amazon" + e);
+        }
+
 
         List<String> securityRules = new ArrayList<>();
         for (SecurityGroup securityGroup : securityGroups) {
