@@ -184,7 +184,6 @@
         </plugins>
     </build>
 
-
     <profiles>
         <profile>
             <id>custom-release</id>
@@ -196,4 +195,11 @@
             </properties>
         </profile>
     </profiles>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
 </project>
