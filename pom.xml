@@ -30,7 +30,7 @@
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine />
+        <argLine></argLine>
     </properties>
 
     <modules>
