@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fullstop-timemachine</artifactId>
+    <name>Fullstop -- Time-Machine</name>
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
