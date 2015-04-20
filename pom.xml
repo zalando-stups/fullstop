@@ -19,7 +19,7 @@
 
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5.0-jb-2</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
 
@@ -30,7 +30,7 @@
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine></argLine>
+        <argLine />
     </properties>
 
     <modules>
@@ -200,7 +200,7 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>0.5.0-jb-2</tag>
     </scm>
 
     <distributionManagement>
