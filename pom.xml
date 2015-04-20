@@ -40,6 +40,7 @@
         <module>fullstop-test-support</module>
         <module>fullstop-processing</module>
         <module>docs</module>
+        <module>fullstop-timemachine</module>
     </modules>
 
     <dependencyManagement>

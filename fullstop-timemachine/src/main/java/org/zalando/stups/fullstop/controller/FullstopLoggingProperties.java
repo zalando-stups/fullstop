@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop;
+package org.zalando.stups.fullstop.controller;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
