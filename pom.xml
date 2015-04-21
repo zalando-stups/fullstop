@@ -46,6 +46,7 @@
         <module>fullstop-processing</module>
         <module>docs</module>
         <module>fullstop-timemachine</module>
+        <module>fullstop-violation-store-slf4j</module>
     </modules>
 
     <dependencyManagement>
