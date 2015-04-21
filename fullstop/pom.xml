@@ -50,7 +50,6 @@
             <artifactId>fullstop-processing</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-instance-plugin</artifactId>
@@ -61,7 +60,6 @@
             <artifactId>fullstop-ami-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-         -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
