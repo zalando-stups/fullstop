@@ -19,7 +19,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -28,6 +28,10 @@
                 <includes>
                     <include>META-INF/fullstop/*.*</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
