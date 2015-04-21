@@ -16,6 +16,20 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.stereotype.Component;
+
+import org.springframework.util.CollectionUtils;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 
@@ -30,25 +44,12 @@ import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.stereotype.Component;
-
-import org.springframework.util.CollectionUtils;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
-import java.util.List;
-
-
 /**
- * @author mrandi
+ * @author  mrandi
  */
-@Component public class AmiPlugin implements FullstopPlugin {
+
+@Component
+public class AmiPlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
@@ -60,20 +61,22 @@ import java.util.List;
     @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
-    @Autowired public AmiPlugin(final ClientProvider cachingClientProvider) {
+    @Autowired
+    public AmiPlugin(final ClientProvider cachingClientProvider) {
         this.cachingClientProvider = cachingClientProvider;
     }
 
-    @Override public boolean supports(final CloudTrailEvent event) {
+    @Override
+    public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-        return eventSource.equals(EC2_SOURCE_EVENTS) &&
-            eventName.equals(EVENT_NAME);
+        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
     }
 
-    @Override public Object processEvent(final CloudTrailEvent event) {
+    @Override
+    public void processEvent(final CloudTrailEvent event) {
 
         String parameters = event.getEventData().getResponseElements();
 
@@ -81,16 +84,12 @@ import java.util.List;
 
         final List<String> whitelistedAmis = Lists.newArrayList();
 
-        AmazonEC2Client ec2Client = cachingClientProvider.getClient(
-                AmazonEC2Client.class, whitelistedAmiAccount,
-                Region.getRegion(
-                    Regions.fromName(event.getEventData().getAwsRegion())));
+        AmazonEC2Client ec2Client = cachingClientProvider.getClient(AmazonEC2Client.class, whitelistedAmiAccount,
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeImagesRequest describeImagesRequest =
-            new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
+        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
 
-        DescribeImagesResult describeImagesResult = ec2Client.describeImages(
-                describeImagesRequest);
+        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
         List<Image> images = describeImagesResult.getImages();
 
         for (Image image : images) {
@@ -120,17 +119,11 @@ import java.util.List;
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            LOG.info("Instances with ids: {} was started with wrong images: {}",
-                getInstanceId(parameters), invalidAmis);
+            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
+                invalidAmis);
 
-            return "Instances with ids: " + getInstanceId(parameters) +
-                " was started with wrong images: " + invalidAmis;
         } else {
-            LOG.info("Ami for instance: {} is whitelisted.",
-                getInstanceId(parameters));
-
-            return "Ami for instance: " + getInstanceId(parameters) +
-                " is whitelisted.";
+            LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
         }
 
     }

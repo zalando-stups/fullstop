@@ -16,34 +16,34 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.jayway.jsonpath.JsonPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.stereotype.Component;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+
+import com.jayway.jsonpath.JsonPath;
 
 /**
- * @author gkneitschel
+ * @author  gkneitschel
  */
 @Component
-public class RegionPlugin implements FullstopPlugin {
+public class RegionPlugin extends AbstractFullstopPlugin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            RegionPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RegionPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-
     @Value("${fullstop.plugin.properties.whitelistedRegions}")
     private String whitelistedRegions;
-
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
@@ -51,45 +51,41 @@ public class RegionPlugin implements FullstopPlugin {
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-        return eventSource.equals(EC2_SOURCE_EVENTS) &&
-                eventName.equals(EVENT_NAME);
+        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
     }
 
     @Override
-    public Object processEvent(final CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
         String parameters = event.getEventData().getResponseElements();
 
         String region = event.getEventData().getAwsRegion();
         String instances = getInstanceIds(parameters).toString();
-        if (instances.isEmpty()){
+        if (instances.isEmpty()) {
             LOG.error("No instanceIds found");
-            return "No instanceIds found";
         }
 
         if (!whitelistedRegions.equals(region)) {
-            LOG.error("Region: EC2 instances " + instances +
-                    " are running in the wrong region! (" + region + ")");
+            LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
 
-            return "Region: EC2 instances " + instances +
-                    " are running in the wrong region! (" + region + ")";
         }
-        LOG.info("Region: correct region set.");
-        return "Region: correct region set.";
-    }
 
+        LOG.info("Region: correct region set.");
+    }
 
     private List<String> getInstanceIds(final String parameters) {
 
         if (parameters == null) {
             return null;
         }
+
         List<String> instanceIds = new ArrayList<>();
         try {
             instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
             return instanceIds;
         } catch (Exception e) {
-            LOG.error("Cannot find InstanceIds in JSON " +e );
+            LOG.error("Cannot find InstanceIds in JSON " + e);
         }
+
         return instanceIds;
     }
 }

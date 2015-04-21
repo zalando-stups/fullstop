@@ -16,14 +16,15 @@
 package org.zalando.stups.fullstop.plugin;
 
 import org.springframework.plugin.core.Plugin;
+import org.springframework.plugin.metadata.MetadataProvider;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 /**
  * @author  jbellmann
  */
-public interface FullstopPlugin extends Plugin<CloudTrailEvent> {
+public interface FullstopPlugin extends Plugin<CloudTrailEvent>, MetadataProvider {
 
-    Object processEvent(CloudTrailEvent event);
+    void processEvent(CloudTrailEvent event);
 
 }
