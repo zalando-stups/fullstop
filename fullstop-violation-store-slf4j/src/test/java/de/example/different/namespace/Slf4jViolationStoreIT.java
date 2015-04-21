@@ -32,6 +32,8 @@ import org.zalando.stups.fullstop.violation.ViolationStore;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 
 /**
+ * Simple Test.
+ *
  * @author  jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
