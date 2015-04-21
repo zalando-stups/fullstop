@@ -7,6 +7,10 @@
     </parent>
     <artifactId>fullstop-violation-store-slf4j</artifactId>
 
+    <properties>
+        <main.basedir>${basedir}/..</main.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
