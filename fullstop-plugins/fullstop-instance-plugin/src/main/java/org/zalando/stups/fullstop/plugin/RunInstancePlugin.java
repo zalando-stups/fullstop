@@ -93,7 +93,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             securityGroups = JsonPath.read(parameters,
                     "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
         } catch (Exception e) {
-            LOG.error("could not fetch security groups from JSON" + e);
+            LOG.error("could not fetch security groups from JSON - " + e);
         }
         return securityGroups;
     }
@@ -110,7 +110,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
             securityGroups = result.getSecurityGroups();
         } catch (Exception e) {
-            LOG.error("Could not fetch security groups from Amazon" + e);
+            LOG.error("Could not fetch security groups from Amazon - " + e);
         }
 
 
