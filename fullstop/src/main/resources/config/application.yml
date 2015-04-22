@@ -46,3 +46,7 @@ fullstop:
 
             # Account containing whitelisted AMI
             whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT} 
+
+logging:
+   level:
+        org.springframework.web: DEBUG

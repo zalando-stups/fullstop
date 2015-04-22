@@ -37,5 +37,6 @@
         <module>fullstop-ami-plugin</module>
         <module>fullstop-region-plugin</module>
         <module>fullstop-hello-event-plugin</module>
+        <module>fullstop-keypair-plugin</module>
     </modules>
 </project>
