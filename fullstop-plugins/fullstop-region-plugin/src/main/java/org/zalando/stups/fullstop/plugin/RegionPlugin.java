@@ -29,6 +29,8 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
+import com.google.common.collect.Lists;
+
 import com.jayway.jsonpath.JsonPath;
 
 /**
@@ -56,12 +58,14 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
+
+        // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
         String parameters = event.getEventData().getResponseElements();
 
         String region = event.getEventData().getAwsRegion();
-        String instances = getInstanceIds(parameters).toString();
+        List<String> instances = getInstanceIds(parameters);
         if (instances.isEmpty()) {
-            LOG.error("No instanceIds found");
+            LOG.error("No instanceIds found, maybe autoscaling?");
         }
 
         if (!whitelistedRegions.equals(region)) {
@@ -75,7 +79,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     private List<String> getInstanceIds(final String parameters) {
 
         if (parameters == null) {
-            return null;
+            return Lists.newArrayList();
         }
 
         List<String> instanceIds = new ArrayList<>();
