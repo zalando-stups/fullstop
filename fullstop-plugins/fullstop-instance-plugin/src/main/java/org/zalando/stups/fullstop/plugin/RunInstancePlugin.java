@@ -93,7 +93,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         List<String> securityGroups = new ArrayList<>();
         try {
             securityGroups = JsonPath.read(parameters,
-                    "$.Test.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+                    "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
         } catch( PathNotFoundException e) {
             LOG.error("could not fetch security groups from event");
         }
