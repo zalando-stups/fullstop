@@ -131,7 +131,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     private List<String> getAmi(final String parameters) {
 
         if (parameters == null) {
-            return null;
+            return Lists.newArrayList();
         }
 
         return JsonPath.read(parameters, "$.instancesSet.items[*].imageId");

@@ -37,11 +37,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-hello-event-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -57,6 +52,20 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation-store-slf4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- START PLUGINS -->
+        <!-- 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-hello-event-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+         -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-instance-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -70,6 +79,13 @@
             <artifactId>fullstop-ami-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-nopasswords-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- END PLUGINS -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

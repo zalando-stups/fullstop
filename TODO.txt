@@ -1,0 +1,3 @@
+-AMI-Plugin, extract utility methods for json-parsing
+-Region-Plugin, same
+-Instance-Plugin
