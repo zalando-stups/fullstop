@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Component;
 
+import org.springframework.util.CollectionUtils;
+
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import com.amazonaws.regions.Region;
@@ -45,6 +47,7 @@ import com.jayway.jsonpath.JsonPath;
 /**
  * @author  mrandi
  */
+
 @Component
 public class AmiPlugin extends AbstractFullstopPlugin {
 
@@ -55,7 +58,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-    @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
+    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
     @Autowired
@@ -90,6 +93,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         List<Image> images = describeImagesResult.getImages();
 
         for (Image image : images) {
+
             if (image.getName().startsWith("Taupage-")) {
                 whitelistedAmis.add(image.getImageId());
             }
@@ -102,6 +106,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
             boolean valid = false;
 
             for (String whitelistedAmi : whitelistedAmis) {
+
                 if (ami.equals(whitelistedAmi)) {
                     valid = true;
                 }
@@ -113,27 +118,27 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         }
 
-// if (!CollectionUtils.isEmpty(invalidAmis)) {
-// LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
-// invalidAmis);
-// return "Instances with ids: " + getInstanceId(parameters) + " was started with wrong images: "
-// + invalidAmis;
-// } else {
-// LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
-// return "Ami for instance: " + getInstanceId(parameters) + " is whitelisted.";
-// }
+        if (!CollectionUtils.isEmpty(invalidAmis)) {
+            LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
+                invalidAmis);
+
+        } else {
+            LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
+        }
 
     }
 
     private List<String> getAmi(final String parameters) {
+
         if (parameters == null) {
-            return null;
+            return Lists.newArrayList();
         }
 
         return JsonPath.read(parameters, "$.instancesSet.items[*].imageId");
     }
 
     private List<String> getInstanceId(final String parameters) {
+
         if (parameters == null) {
             return null;
         }

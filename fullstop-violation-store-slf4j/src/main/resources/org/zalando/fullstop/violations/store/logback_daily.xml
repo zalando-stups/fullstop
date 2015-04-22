@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+    <appender name="fullstop_violations_store" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${VIOLATIONS_LOG_DIR}/violations.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>violations.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <logger name="fullstop.violations.store" level="info" additivity="false">
+        <appender-ref ref="fullstop_violations_store" />
+    </logger>
+</included>
