@@ -35,13 +35,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.String.*;
 import static java.util.regex.Pattern.compile;
-import static java.util.regex.Pattern.matches;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.RequestEntity.get;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -62,12 +63,15 @@ public class KioPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
+    private final ViolationStore violationStore;
+
     @Value("${fullstop.plugins.kio.url}/apps/{appId}")
     private String kioApplicationUrl;
 
     @Autowired
-    public KioPlugin(final ClientProvider cachingClientProvider) {
+    public KioPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
         this.cachingClientProvider = cachingClientProvider;
+        this.violationStore = violationStore;
     }
 
     @Override
@@ -97,7 +101,7 @@ public class KioPlugin extends AbstractFullstopPlugin {
                             applicationName).toUri()).accept(APPLICATION_JSON).build(), JsonNode.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                LOG.info("Application: {} is not registered in kio.", applicationName);
+                violationStore.save(format("Application: %s is not registered in kio.",applicationName));
             }
         }
     }
@@ -116,6 +120,7 @@ public class KioPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
+            violationStore.save(format("InstanceId: %s doesn't have any userData.",instanceId));
             return null;
         }
 
@@ -127,15 +132,15 @@ public class KioPlugin extends AbstractFullstopPlugin {
         Matcher matcher = pattern.matcher(decodedUserData);
 
         if (!matcher.find()) {
-            LOG.error("No application_id defined for this instance {}, " +
-                    "please change the userData configuration for this instance and add this information.", instanceId);
+            violationStore.save(format("No application_id defined for this instance %s, " +
+                    "please change the userData configuration for this instance and add this information.", instanceId));
         }
 
         try {
             return matcher.group(2);
         } catch (IndexOutOfBoundsException e) {
-            LOG.error("No application_id defined for this instance {}, " +
-                    "please change the userData configuration for this instance and add this information.", instanceId);
+            violationStore.save(format("No application_id defined for this instance %s, " +
+                    "please change the userData configuration for this instance and add this information.", instanceId));
             return null;
         }
     }
