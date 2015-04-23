@@ -38,5 +38,6 @@
         <module>fullstop-region-plugin</module>
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-nopasswords-plugin</module>
+        <module>fullstop-pierone-plugin</module>
     </modules>
 </project>

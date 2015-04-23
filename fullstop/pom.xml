@@ -57,7 +57,7 @@
         </dependency>
 
         <!-- START PLUGINS -->
-        <!-- 
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-hello-event-plugin</artifactId>
@@ -84,7 +84,12 @@
             <artifactId>fullstop-nopasswords-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-pierone-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- END PLUGINS -->
         <dependency>
             <groupId>com.google.guava</groupId>
