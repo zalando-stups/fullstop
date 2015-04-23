@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -57,7 +58,7 @@
         </dependency>
 
         <!-- START PLUGINS -->
-        <!-- 
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-hello-event-plugin</artifactId>
@@ -84,7 +85,12 @@
             <artifactId>fullstop-nopasswords-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-kio-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- END PLUGINS -->
         <dependency>
             <groupId>com.google.guava</groupId>
