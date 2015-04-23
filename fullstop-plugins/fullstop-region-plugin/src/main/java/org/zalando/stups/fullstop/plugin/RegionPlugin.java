@@ -44,7 +44,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    @Value("${fullstop.plugin.properties.whitelistedRegions}")
+    @Value("${fullstop.plugins.region.whitelistedRegions}")
     private String whitelistedRegions;
 
     @Override
