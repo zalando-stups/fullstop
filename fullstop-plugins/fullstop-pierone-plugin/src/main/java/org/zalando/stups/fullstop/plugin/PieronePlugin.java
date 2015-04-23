@@ -57,7 +57,7 @@ public class PieronePlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private static Pattern pattern = compile("(source: )(.*)");
+    private static Pattern pattern = compile("( source: )(.*)");
 
     private final ClientProvider cachingClientProvider;
 
@@ -81,16 +81,16 @@ public class PieronePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        String applicationName = getSourceLocation(event);
+        String sourceLocation = getSourceLocation(event);
 
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<JsonNode> response = restTemplate.exchange(get(
                 fromHttpUrl(pieroneApplicationUrl).buildAndExpand(
-                        applicationName).toUri()).accept(APPLICATION_JSON).build(), JsonNode.class);
+                        sourceLocation).toUri()).accept(APPLICATION_JSON).build(), JsonNode.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            LOG.info("Application: {} is not present in pierone.", applicationName);
+            LOG.info("Application: {} is not present in pierone.", sourceLocation);
         }
     }
 
