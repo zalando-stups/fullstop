@@ -26,7 +26,6 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.util.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +83,6 @@ public class KioPlugin extends AbstractFullstopPlugin {
 
         String applicationName = getApplicationName(event);
 
-        final List<String> kioRegisteredApplication = Lists.newArrayList();
-
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<JsonNode> response = restTemplate.exchange(get(
@@ -98,8 +95,6 @@ public class KioPlugin extends AbstractFullstopPlugin {
     }
 
     private String getApplicationName(final CloudTrailEvent event) {
-
-        String applicationName = "";
 
         List<String> instanceIds = getInstanceId(event.getEventData().getResponseElements());
         String instanceId = instanceIds.get(0);
