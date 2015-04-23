@@ -36,7 +36,7 @@ final class EventSourcePredicate extends CloudTrailEventPredicate {
     }
 
     @Override
-    public boolean doApply(final CloudTrailEvent input) {
+    public boolean doTest(final CloudTrailEvent input) {
         return eventSourceName.equals(checkNotNull(input.getEventData()).getEventSource());
     }
 

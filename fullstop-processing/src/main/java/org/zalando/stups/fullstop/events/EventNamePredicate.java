@@ -18,10 +18,11 @@ package org.zalando.stups.fullstop.events;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+import java.util.function.Predicate;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 
 /**
  * @author  jbellmann
@@ -38,7 +39,7 @@ final class EventNamePredicate extends CloudTrailEventPredicate {
     }
 
     @Override
-    public boolean doApply(final CloudTrailEvent input) {
+    public boolean doTest(final CloudTrailEvent input) {
         return eventName.equals(Preconditions.checkNotNull(input.getEventData()).getEventName());
     }
 

@@ -93,25 +93,25 @@ public class CloudTrailEventSupportTest {
     @Test
     public void EventSourcePredicateTrue() {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec2.amazonaws.com");
-        assertThat(EC2_EVENT.apply(cloudTrailEvent)).isTrue();
+        assertThat(EC2_EVENT.test(cloudTrailEvent)).isTrue();
     }
 
     @Test
     public void EventSourcePredicateFalse() {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec3.amazonaws.com");
-        assertThat(EC2_EVENT.apply(cloudTrailEvent)).isFalse();
+        assertThat(EC2_EVENT.test(cloudTrailEvent)).isFalse();
     }
 
     @Test
     public void EventNamePredicateFalse() {
         when(cloudTrailEventData.getEventName()).thenReturn("RunNothing");
-        assertThat(RUN_INSTANCES.apply(cloudTrailEvent)).isFalse();
+        assertThat(RUN_INSTANCES.test(cloudTrailEvent)).isFalse();
     }
 
     @Test
     public void EventNamePredicateTrue() {
         when(cloudTrailEventData.getEventName()).thenReturn("RunInstances");
-        assertThat(RUN_INSTANCES.apply(cloudTrailEvent)).isTrue();
+        assertThat(RUN_INSTANCES.test(cloudTrailEvent)).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -130,9 +130,9 @@ public class CloudTrailEventSupportTest {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec2.amazonaws.com");
 
         CloudTrailEventPredicate predicate = CloudTrailEventPredicate.fromSource("ec2.amazonaws.com");
-        predicate = predicate.and(CloudTrailEventPredicate.withName("RunInstances"));
+        predicate = predicate.andWith(CloudTrailEventPredicate.withName("RunInstances"));
 
-        assertThat(predicate.apply(cloudTrailEvent)).isTrue();
+        assertThat(predicate.test(cloudTrailEvent)).isTrue();
     }
 
     @Test
@@ -141,8 +141,8 @@ public class CloudTrailEventSupportTest {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec3.amazonaws.com");
 
         CloudTrailEventPredicate predicate = CloudTrailEventPredicate.fromSource("ec2.amazonaws.com");
-        predicate = predicate.and(CloudTrailEventPredicate.withName("RunInstances"));
+        predicate = predicate.andWith(CloudTrailEventPredicate.withName("RunInstances"));
 
-        assertThat(predicate.apply(cloudTrailEvent)).isFalse();
+        assertThat(predicate.test(cloudTrailEvent)).isFalse();
     }
 }

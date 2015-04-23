@@ -96,11 +96,11 @@ public abstract class CloudtrailEventSupport {
     }
 
     public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EventSourcePredicate.EC2_EVENT.apply(cloudTrailEvent);
+        return EventSourcePredicate.EC2_EVENT.test(cloudTrailEvent);
     }
 
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return EventNamePredicate.RUN_INSTANCES.apply(cloudTrailEvent);
+        return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
     }
 
     public static Region getRegion(CloudTrailEvent cloudTrailEvent) {

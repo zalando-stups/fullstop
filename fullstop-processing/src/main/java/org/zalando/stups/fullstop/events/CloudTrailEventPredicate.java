@@ -15,10 +15,9 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import java.util.function.Predicate;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 /**
  * Base for {@link Predicate} implementations.
@@ -27,12 +26,12 @@ import com.google.common.base.Predicates;
  */
 public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEvent> {
 
-    public CloudTrailEventPredicate and(final CloudTrailEventPredicate cloudTrailEventPredicate) {
-        return new Internal(Predicates.and(this, cloudTrailEventPredicate));
+    public CloudTrailEventPredicate andWith(final CloudTrailEventPredicate cloudTrailEventPredicate) {
+        return new Internal(this.and(cloudTrailEventPredicate));
     }
 
-    public CloudTrailEventPredicate or(final CloudTrailEventPredicate cloudTrailEventPredicate) {
-        return new Internal(Predicates.or(this, cloudTrailEventPredicate));
+    public CloudTrailEventPredicate orWith(final CloudTrailEventPredicate cloudTrailEventPredicate) {
+        return new Internal(this.or(cloudTrailEventPredicate));
     }
 
     public static CloudTrailEventPredicate fromSource(final String eventSource) {
@@ -44,13 +43,15 @@ public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEv
     }
 
     @Override
-    public boolean apply(final CloudTrailEvent input) {
-        return doApply(input);
+    public boolean test(final CloudTrailEvent t) {
+        return doTest(t);
     }
 
-    public abstract boolean doApply(CloudTrailEvent event);
+    public abstract boolean doTest(CloudTrailEvent event);
 
     /**
+     * For type.
+     *
      * @author  jbellmann
      */
     static class Internal extends CloudTrailEventPredicate {
@@ -62,8 +63,8 @@ public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEv
         }
 
         @Override
-        public boolean doApply(final CloudTrailEvent event) {
-            return delegate.apply(event);
+        public boolean doTest(final CloudTrailEvent event) {
+            return delegate.test(event);
         }
     }
 
