@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * @author  mrandi
+ * @author mrandi
  */
 
 @Component
@@ -58,7 +58,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
+    @Value("${fullstop.plugins.ami.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
     @Autowired
@@ -120,7 +120,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
             LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
-                invalidAmis);
+                    invalidAmis);
 
         } else {
             LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));
@@ -131,7 +131,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     private List<String> getAmi(final String parameters) {
 
         if (parameters == null) {
-            return null;
+            return Lists.newArrayList();
         }
 
         return JsonPath.read(parameters, "$.instancesSet.items[*].imageId");

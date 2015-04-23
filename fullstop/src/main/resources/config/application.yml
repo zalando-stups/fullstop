@@ -36,16 +36,21 @@ fullstop:
 
             # Whether to include raw event in CloudTrailEventMetadata
             enableRawEventInfo: false
-    plugin:
+    plugins:
         properties:
-            # The whitelist of regions - TODO: spring and @value and yaml list are not wroking nicely
-            whitelistedRegions: 'eu-west-1'
-
             # The bucket, where our enriched data will be stored
             s3bucket: ${FULLSTOP_S3_BUCKET}
 
+        region:
+            # The whitelist of regions - TODO: spring and @value and yaml list are not wroking nicely
+            whitelistedRegions: 'eu-west-1'
+
+        ami:
             # Account containing whitelisted AMI
-            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT} 
+            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
+
+        kio:
+            url: ${FULLSTOP_KIO_URL}
 
 logging:
    level:

@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -24,6 +25,7 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,8 +94,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         try {
             securityGroups = JsonPath.read(parameters,
                     "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
-        } catch (Exception e) {
-            LOG.error("could not fetch security groups from JSON - " + e);
+        } catch( PathNotFoundException e) {
+            LOG.error("could not fetch security groups from event");
         }
         return securityGroups;
     }
@@ -109,8 +111,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             result = amazonEC2Client.describeSecurityGroups(request);
 
             securityGroups = result.getSecurityGroups();
-        } catch (Exception e) {
-            LOG.error("Could not fetch security groups from Amazon - " + e);
+        } catch (AmazonClientException e) {
+            LOG.error("Could not fetch security groups from Amazon");
         }
 
 
