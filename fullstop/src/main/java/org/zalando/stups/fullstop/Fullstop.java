@@ -32,7 +32,6 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
  */
 @SpringBootApplication
 @EnablePluginRegistries({ FullstopPlugin.class })
-@EnableConfigurationProperties({ FullstopLoggingProperties.class })
 public class Fullstop {
 
     public static void main(final String[] args) {

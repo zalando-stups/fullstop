@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop;
+package org.zalando.stups.fullstop.violation.store.slf4j;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
+ * To enable simple configuration in Spring-Boot-Environment.
+ *
  * @author  jbellmann
  */
-@ConfigurationProperties(prefix = "fullstop.logging")
-public class FullstopLoggingProperties {
+@Configuration
+public class Slf4jViolationStoreAutoconfiguration {
 
-    private String dir;
-
-    public String getDir() {
-        return dir;
-    }
-
-    public void setDir(final String dir) {
-        this.dir = dir;
+    @Bean
+// @Conditional(Bea)
+    public Slf4jViolationStore slf4jViolationStore() {
+        return new Slf4jViolationStore();
     }
 
 }

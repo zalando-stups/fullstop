@@ -16,7 +16,12 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <parent>
+        <groupId>org.zalando.stups.build</groupId>
+        <artifactId>stups-parent</artifactId>
+        <version>1</version>
+        <relativePath />
+    </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
     <version>0.5.0-SNAPSHOT</version>
@@ -28,59 +33,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>1.2.3.RELEASE</spring-boot.version>
 
+        <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine></argLine>
+        <argLine />
     </properties>
-
-    <profiles>
-        <profile>
-            <id>custom-release</id>
-        </profile>
-        <profile>
-            <id>coveralls</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.eluder.coveralls</groupId>
-                        <artifactId>coveralls-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <configuration>
-                            <dryRun>true</dryRun>
-                            <jacocoReports>
-                                <jacocoReport>fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                                <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
-                            </jacocoReports>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>coveralls-travis</id>
-            <activation>
-                <property>
-                    <name>TRAVIS</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.eluder.coveralls</groupId>
-                        <artifactId>coveralls-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <configuration>
-                            <dryRun>false</dryRun>
-                            <jacocoReports>
-                                <jacocoReport>fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                                <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
-                            </jacocoReports>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <modules>
         <module>fullstop</module>
@@ -89,6 +45,8 @@
         <module>fullstop-test-support</module>
         <module>fullstop-processing</module>
         <module>docs</module>
+        <module>fullstop-timemachine</module>
+        <module>fullstop-violation-store-slf4j</module>
     </modules>
 
     <dependencyManagement>
@@ -159,40 +117,11 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <arguments>-Pcustom-release,maven</arguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <deployAtEnd>true</deployAtEnd>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-scm-plugin</artifactId>
-                <version>1.9.2</version>
-                <configuration>
-                    <connectionType>connection</connectionType>
-                    <tag>${project.version}</tag>
                 </configuration>
             </plugin>
             <plugin>
@@ -215,6 +144,36 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <dryRun>${coveralls.dryRun}</dryRun>
+                    <jacocoReports>
+                        <jacocoReport>fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-processing/target/site/jacoco/jacoco.xml</jacocoReport>
+                    </jacocoReports>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>travis</id>
+            <properties>
+                <coveralls.dryRun>false</coveralls.dryRun>
+            </properties>
+        </profile>
+    </profiles>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

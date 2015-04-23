@@ -13,17 +13,17 @@ fullstop:
     processor:
         properties:
             # The sqs url where you wish to pull CloudTrail notification from (required)
-            sqsUrl: 
+            sqsUrl: ${FULLSTOP_SQS_URL}
 
             # The SQS end point specific to a region
-            sqsRegion: 
+            sqsRegion: ${FULLSTOP_SQS_REGION}
 
             # A period of time during which Amazon SQS prevents other consuming components
             # from receiving and processing that message
             visibilityTimeout: 60
 
             # The S3 end point specific to a region
-            s3Region: 
+            s3Region: ${FULLSTOP_S3_REGION}
 
             # Number of threads to download S3 files in parallel when you enable thread mode
             threadCount: 1
@@ -36,9 +36,13 @@ fullstop:
 
             # Whether to include raw event in CloudTrailEventMetadata
             enableRawEventInfo: false
+    plugin:
+        properties:
+            # The whitelist of regions - TODO: spring and @value and yaml list are not wroking nicely
+            whitelistedRegions: 'eu-west-1'
 
             # The bucket, where our enriched data will be stored
-            s3bucket: 
+            s3bucket: ${FULLSTOP_S3_BUCKET}
 
             # Account containing whitelisted AMI
-            whitelistedAmiAccount: 
+            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT} 

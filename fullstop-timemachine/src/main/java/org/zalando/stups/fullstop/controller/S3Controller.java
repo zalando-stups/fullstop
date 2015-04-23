@@ -16,10 +16,6 @@
 
 package org.zalando.stups.fullstop.controller;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,15 +25,16 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
-import org.zalando.stups.fullstop.FullstopLoggingProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
 
@@ -60,10 +57,8 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 public class S3Controller {
 
     public static final String JSON_GZ = ".json.gz";
-    private final Logger log = getLogger(getClass());
-//
-// @Value("${fullstop.processor.properties.s3Region}")
-// private String s3Region;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String S3_REGION_KEY = "s3Region";
 
@@ -82,7 +77,7 @@ public class S3Controller {
         this.cloudTrailProcessingLibraryProperties = cloudTrailProcessingLibraryProperties;
     }
 
-    @RequestMapping(method = GET, value = "/read")
+    @RequestMapping(method = RequestMethod.GET, value = "/read")
     public void fetchS3() throws CallbackException, FileNotFoundException {
 
         log.info("Reading fullstop directory here: {}", fullstopLoggingProperties.getDir());
@@ -109,7 +104,7 @@ public class S3Controller {
         }
     }
 
-    @RequestMapping(method = GET, value = "/download")
+    @RequestMapping(method = RequestMethod.GET, value = "/download")
     public void downloadFiles(@RequestParam(value = "bucket") final String bucket,
             @RequestParam(value = "location") final String location,
             @RequestParam(value = "page") final int page) {
