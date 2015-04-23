@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Zalando-stups/fullstop.png?label=ready&title=Ready)](https://waffle.io/Zalando-stups/fullstop)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
 [![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
 
