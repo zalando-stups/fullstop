@@ -124,4 +124,25 @@ public class CloudTrailEventSupportTest {
         new EventNamePredicate(null);
     }
 
+    @Test
+    public void testCloudTrailEventPredicateComposite() {
+        when(cloudTrailEventData.getEventName()).thenReturn("RunInstances");
+        when(cloudTrailEventData.getEventSource()).thenReturn("ec2.amazonaws.com");
+
+        CloudTrailEventPredicate predicate = CloudTrailEventPredicate.fromSource("ec2.amazonaws.com");
+        predicate = predicate.and(CloudTrailEventPredicate.withName("RunInstances"));
+
+        assertThat(predicate.apply(cloudTrailEvent)).isTrue();
+    }
+
+    @Test
+    public void testCloudTrailEventPredicateCompositeResultsFalse() {
+        when(cloudTrailEventData.getEventName()).thenReturn("RunInstances");
+        when(cloudTrailEventData.getEventSource()).thenReturn("ec3.amazonaws.com");
+
+        CloudTrailEventPredicate predicate = CloudTrailEventPredicate.fromSource("ec2.amazonaws.com");
+        predicate = predicate.and(CloudTrailEventPredicate.withName("RunInstances"));
+
+        assertThat(predicate.apply(cloudTrailEvent)).isFalse();
+    }
 }

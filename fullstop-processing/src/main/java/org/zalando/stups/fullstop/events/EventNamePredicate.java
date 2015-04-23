@@ -26,9 +26,10 @@ import com.google.common.base.Predicate;
 /**
  * @author  jbellmann
  */
-public class EventNamePredicate implements Predicate<CloudTrailEvent> {
+final class EventNamePredicate extends CloudTrailEventPredicate {
 
     private static final String MESSAGE = "EventName should never be null or empty";
+
     private final String eventName;
 
     public EventNamePredicate(final String eventName) {
@@ -37,9 +38,10 @@ public class EventNamePredicate implements Predicate<CloudTrailEvent> {
     }
 
     @Override
-    public boolean apply(final CloudTrailEvent input) {
+    public boolean doApply(final CloudTrailEvent input) {
         return eventName.equals(Preconditions.checkNotNull(input.getEventData()).getEventName());
     }
 
+    @Deprecated
     public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
 }
