@@ -15,23 +15,46 @@
  */
 package org.zalando.stups.fullstop.plugin.keypair;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.stereotype.Component;
+
+import org.springframework.util.CollectionUtils;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
+import com.jayway.jsonpath.JsonPath;
+
 /**
  * @author  ljaeckel
  */
+@Component
 public class KeyPairPlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyPairPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
+
+    private final ClientProvider cachingClientProvider;
+
+    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
+    private String whitelistedAmiAccount;
+
+    @Autowired
+    public KeyPairPlugin(final ClientProvider cachingClientProvider) {
+        this.cachingClientProvider = cachingClientProvider;
+    }
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
@@ -43,5 +66,21 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     }
 
     @Override
-    public void processEvent(final CloudTrailEvent event) { }
+    public void processEvent(final CloudTrailEvent event) {
+
+        List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
+        if (!CollectionUtils.isEmpty(keyNames)) {
+            LOG.info("KeyPair must be blank, but was {}", keyNames);
+
+        }
+    }
+
+    private List<String> containsKeyNames(final String parameters) {
+
+        if (parameters == null) {
+            return null;
+        }
+
+        return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
+    }
 }
