@@ -39,5 +39,6 @@
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-nopasswords-plugin</module>
         <module>fullstop-publicVPC-plugin</module>
+        <module>fullstop-kio-plugins</module>
     </modules>
 </project>
