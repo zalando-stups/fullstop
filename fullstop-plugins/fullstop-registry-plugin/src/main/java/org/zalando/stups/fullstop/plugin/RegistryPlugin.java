@@ -153,15 +153,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(format("Application: %s is not present in pierone.", source));
+                violationStore.save(format("Source: %s is not present in pierone.", source));
                 return;
             }
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            if (response.getBody().get(applicationVersion) == null) {
-                violationStore.save(format("Application: %s is not present in pierone.", source));
-            }
+                violationStore.save(format("Source: %s is not present in pierone.", source));
+        } else if (response != null && response.getBody().get(applicationVersion) == null) {
+            violationStore.save(format("Source: %s is not present in pierone.", source));
         }
     }
 
