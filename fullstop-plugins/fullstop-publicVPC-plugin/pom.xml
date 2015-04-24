@@ -46,11 +46,12 @@
             <artifactId>json-path</artifactId>
         </dependency>
 
+        <!-- 
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
             <version>1.9.25</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-processing</artifactId>
