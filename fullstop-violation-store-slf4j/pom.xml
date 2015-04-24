@@ -6,6 +6,7 @@
         <version>0.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-violation-store-slf4j</artifactId>
+    <name>Fullstop -- Violation-Store-Slf4j</name>
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
@@ -38,18 +39,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>

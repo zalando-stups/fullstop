@@ -21,14 +21,13 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
-import com.google.common.base.Predicate;
-
 /**
  * @author  jbellmann
  */
-public class EventSourcePredicate implements Predicate<CloudTrailEvent> {
+final class EventSourcePredicate extends CloudTrailEventPredicate {
 
     private static final String MESSAGE = "EventSource should never be null or empty";
+
     private final String eventSourceName;
 
     public EventSourcePredicate(final String eventSourceName) {
@@ -37,10 +36,11 @@ public class EventSourcePredicate implements Predicate<CloudTrailEvent> {
     }
 
     @Override
-    public boolean apply(final CloudTrailEvent input) {
+    public boolean doTest(final CloudTrailEvent input) {
         return eventSourceName.equals(checkNotNull(input.getEventData()).getEventSource());
     }
 
-    public static Predicate<CloudTrailEvent> EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
+    @Deprecated
+    public static CloudTrailEventPredicate EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
 
 }
