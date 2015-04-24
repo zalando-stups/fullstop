@@ -51,3 +51,5 @@ fullstop:
 
         kio:
             url: ${FULLSTOP_KIO_URL}
+
+logging.level.org.springframework.web: DEBUG

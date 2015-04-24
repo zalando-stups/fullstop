@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * @author mrandi
  */
-@Component
+//@Component
 public class PublicVpc extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(PublicVpc.class);
