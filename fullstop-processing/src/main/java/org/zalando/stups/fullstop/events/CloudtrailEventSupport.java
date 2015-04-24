@@ -78,6 +78,15 @@ public abstract class CloudtrailEventSupport {
         return read(responseElements, INSTANCES_JSON_PATH);
     }
 
+    public static List<String> containsKeyNames(final String parameters) {
+
+        if (parameters == null) {
+            return null;
+        }
+
+        return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
+    }
+
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
