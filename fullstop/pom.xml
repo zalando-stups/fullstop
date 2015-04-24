@@ -86,14 +86,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-kio-plugin</artifactId>
+            <artifactId>fullstop-registry-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-pierone-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
 
         <!-- END PLUGINS -->
         <dependency>
