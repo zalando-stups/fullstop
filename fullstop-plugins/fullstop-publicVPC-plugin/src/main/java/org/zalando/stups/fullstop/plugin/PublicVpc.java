@@ -21,7 +21,14 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
+import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
@@ -30,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +55,15 @@ public class PublicVpc extends AbstractFullstopPlugin {
     private static final String EVENT_NAME = "RunInstances";
 
     private final ClientProvider cachingClientProvider;
+    private final ViolationStore violationstore;
 
-    @Value("${fullstop.processor.properties.whitelistedAmiAccount}")
+    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
     private String whitelistedAmiAccount;
 
     @Autowired
-    public PublicVpc(final ClientProvider cachingClientProvider) {
+    public PublicVpc(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
         this.cachingClientProvider = cachingClientProvider;
+        this.violationstore = violationStore;
     }
 
     @Override
@@ -66,28 +77,40 @@ public class PublicVpc extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        List<String> subnetIds = new ArrayList<>();
+        List<String> instanceIds = CloudtrailEventSupport.getInstanceIds(event);
+       // Filter filter = new Filter("instanceIds", instanceIds);
+        AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(), Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        String parameters = event.getEventData().getResponseElements();
+        DescribeInstancesResult describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
+        List<Reservation> reservations = describeInstancesResult.getReservations();
 
-        List<String> instanceIds = getInstanceId(parameters);
-        List<Vpc> vpcs = new ArrayList<Vpc>();
+        for (Reservation reservation : reservations) {
+            List<Instance> instances = reservation.getInstances();
+            for (Instance instance : instances) {
+                subnetIds.add(instance.getSubnetId());
+            }
 
-        for (String instanceId : instanceIds) {
-            AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(), Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
-            DescribeVpcsResult describeVpcsResult = amazonEC2Client.describeVpcs();
-            vpcs = describeVpcsResult.getVpcs();
         }
-        LOG.info("VPCs: " + vpcs.toString());
+        DescribeSubnetsRequest describeSubnetsRequest = new DescribeSubnetsRequest().withSubnetIds(subnetIds);
+        DescribeSubnetsResult  describeSubnetsResult = amazonEC2Client.describeSubnets(describeSubnetsRequest);
 
+
+
+        LOG.info("VPCs: " + describeSubnetsRequest.toString());
+       // violationstore.save("");
 
     }
 
 
-    private List<String> getInstanceId(final String parameters) {
+
+
+    /*private List<String> getInstanceId(final String parameters) {
         if (parameters == null) {
             return null;
         }
 
         return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-    }
+    }*/
 }
