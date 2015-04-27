@@ -16,51 +16,38 @@
 
 package org.zalando.stups.fullstop.plugin;
 
-import static java.lang.String.format;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.RequestEntity.get;
-
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import org.springframework.stereotype.Component;
-
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import org.yaml.snakeyaml.Yaml;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-
 import com.amazonaws.AmazonServiceException;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
-
 import com.amazonaws.util.Base64;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.yaml.snakeyaml.Yaml;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.violation.ViolationStore;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.RequestEntity.get;
+import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 /**
  * @author mrandi
@@ -117,7 +104,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Map userData = getUserData(event, instanceId);
 
             if (userData == null) {
-                violationStore.save(format("InstanceId: %s doesn't have any userData.", instanceId));
                 return;
             }
 
@@ -127,19 +113,22 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
             String source = getSource(userData, instanceId);
 
-            ResponseEntity<JsonNode> applicationFromKio = getAndValidateApplicationFromKio(applicationId);
+            if (applicationId != null) {
 
-            if (applicationFromKio != null) {
-                ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(applicationId,
-                        applicationVersion);
+                ResponseEntity<JsonNode> applicationFromKio = getAndValidateApplicationFromKio(applicationId);
 
-                if (versionFromKio != null) {
-                    validateSourceWithKio(applicationId, applicationVersion,
-                            applicationFromKio.getBody().get("team_id").asText(), source,
-                            versionFromKio.getBody().get("artifact").asText());
+                if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
+                    ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(applicationId,
+                            applicationVersion);
+
+                    if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
+                        validateSourceWithKio(applicationId, applicationVersion,
+                                applicationFromKio.getBody().get("team_id").asText(), source,
+                                versionFromKio.getBody().get("artifact").asText());
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -164,7 +153,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-                violationStore.save(format("Source: %s is not present in pierone.", source));
+            violationStore.save(format("Source: %s is not present in pierone.", source));
         } else if (response != null && response.getBody().get(applicationVersion) == null) {
             violationStore.save(format("Source: %s is not present in pierone.", source));
         }
@@ -236,6 +225,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
+        if (userData == null) {
+            violationStore.save(format("InstanceId: %s doesn't have any userData.", instanceId));
+            return null;
+        }
+
         byte[] bytesUserData = Base64.decode(userData);
         String decodedUserData = new String(bytesUserData);
 
@@ -252,7 +246,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     "No 'application_id' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
                     instanceId));
-            return "";
+            return null;
         }
 
         return applicationId;
@@ -266,7 +260,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     "No 'application_version' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
                     instanceId));
-            return "";
+            return null;
         }
 
         return applicationVersion;
@@ -281,7 +275,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     "No 'source' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
                     instanceId));
-            return "";
+            return null;
         }
 
         return source;
