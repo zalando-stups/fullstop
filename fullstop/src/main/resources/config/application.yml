@@ -4,7 +4,7 @@
 fullstop:
 
     logging:
-        dir: fullstop_logs
+        dir: ${FULLSTOP_LOGS}
 
     container:
         autoStart: true
