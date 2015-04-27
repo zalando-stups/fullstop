@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,25 +65,24 @@ public class S3Controller {
 
     private PluginEventsProcessor pluginEventsProcessor;
 
-    private FullstopLoggingProperties fullstopLoggingProperties;
-
     private final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties;
+
+    @Value("${fullstop.logging.dir}")
+    private String fullstopLoggingDir;
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,
-            final FullstopLoggingProperties fullstopLoggingProperties,
             final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties) {
         this.pluginEventsProcessor = pluginEventsProcessor;
-        this.fullstopLoggingProperties = fullstopLoggingProperties;
         this.cloudTrailProcessingLibraryProperties = cloudTrailProcessingLibraryProperties;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/read")
     public void fetchS3() throws CallbackException, FileNotFoundException {
 
-        log.info("Reading fullstop directory here: {}", fullstopLoggingProperties.getDir());
+        log.info("Reading fullstop directory here: {}", fullstopLoggingDir);
 
-        File directory = new File(fullstopLoggingProperties.getDir());
+        File directory = new File(fullstopLoggingDir);
 
         File[] files;
 
@@ -110,9 +110,9 @@ public class S3Controller {
             @RequestParam(value = "page") final int page) {
 
         try {
-            log.info("Creating fullstop directory here: {}", fullstopLoggingProperties.getDir());
+            log.info("Creating fullstop directory here: {}", fullstopLoggingDir);
 
-            boolean mkdirs = new File(fullstopLoggingProperties.getDir()).mkdirs();
+            boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
         } catch (SecurityException e) {
             // do nothing
         }
@@ -144,7 +144,7 @@ public class S3Controller {
             S3Object object = amazonS3Client.getObject(new GetObjectRequest(bucketName, key));
             InputStream inputStream = object.getObjectContent();
 
-            File file = new File(fullstopLoggingProperties.getDir(),
+            File file = new File(fullstopLoggingDir,
                     object.getBucketName() + object.getObjectMetadata().getETag() + JSON_GZ);
 
             copyInputStreamToFile(inputStream, file);
