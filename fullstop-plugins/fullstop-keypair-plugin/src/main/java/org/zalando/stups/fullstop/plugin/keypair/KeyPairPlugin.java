@@ -49,9 +49,6 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     private final ClientProvider cachingClientProvider;
     private final ViolationStore violationStore;
 
-    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
-    private String whitelistedAmiAccount;
-
     @Autowired
     public KeyPairPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
         this.cachingClientProvider = cachingClientProvider;
