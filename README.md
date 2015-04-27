@@ -29,6 +29,7 @@ by all other accounts in order to perform this operations.
 
 This enviroment variable should be set:
 
+    FULLSTOP_LOGS
     FULLSTOP_SQS_URL
     FULLSTOP_SQS_REGION
     FULLSTOP_S3_REGION
@@ -39,6 +40,7 @@ This enviroment variable should be set:
 
 Example:
 
+    $ export FULLSTOP_LOGS=/fullstop_logs_dir
     $ export FULLSTOP_SQS_URL=https://sqs.eu-central-1.amazonaws.com/ACCOUNT_ID/fullstop
     $ export FULLSTOP_SQS_REGION=eu-central-1
     $ export FULLSTOP_S3_REGION=eu-west-1
