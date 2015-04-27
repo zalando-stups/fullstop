@@ -22,9 +22,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -44,8 +47,15 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
+    private final ViolationStore violationStore;
+
     @Value("${fullstop.plugins.region.whitelistedRegions}")
     private String whitelistedRegions;
+
+    @Autowired
+    public RegionPlugin(final ViolationStore violationStore) {
+        this.violationStore = violationStore;
+    }
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
@@ -87,7 +97,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
             return instanceIds;
         } catch (Exception e) {
-            LOG.error("Cannot find InstanceIds in JSON " + e);
+            violationStore.save(String.format("Cannot find InstanceIds in JSON " + e));
         }
 
         return instanceIds;
