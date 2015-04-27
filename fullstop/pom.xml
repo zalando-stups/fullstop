@@ -89,6 +89,11 @@
             <artifactId>fullstop-registry-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-keypair-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 
         <!-- END PLUGINS -->
