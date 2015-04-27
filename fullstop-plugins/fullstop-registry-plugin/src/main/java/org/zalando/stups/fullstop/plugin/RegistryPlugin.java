@@ -116,6 +116,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         for (String instanceId : instanceIds) {
             Map userData = getUserData(event, instanceId);
 
+            if (userData == null) {
+                violationStore.save(format("InstanceId: %s doesn't have any userData.", instanceId));
+                return;
+            }
+
             String applicationId = getApplicationId(userData, instanceId);
 
             String applicationVersion = getApplicationVersion(userData, instanceId);
