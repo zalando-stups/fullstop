@@ -27,12 +27,13 @@ import org.zalando.stups.fullstop.violation.ViolationStore;
 public class Slf4jViolationStore implements ViolationStore {
 
     private static final String LOGGER_NAME = "fullstop.violations.store";
+    public static final String VIOLATION = "VIOLATION: ";
 
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     @Override
     public void save(final Object violation) {
-        logger.info(violation.toString());
+        logger.info(VIOLATION + violation.toString());
     }
 
 }

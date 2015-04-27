@@ -51,3 +51,6 @@ fullstop:
 
         kio:
             url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            url: ${FULLSTOP_PIERONE_URL}
