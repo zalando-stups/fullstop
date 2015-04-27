@@ -39,6 +39,7 @@
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-nopasswords-plugin</module>
         <module>fullstop-keyrotation-plugin</module>
-        <module>fullstop-kio-plugins</module>
+        <module>fullstop-registry-plugin</module>
+        <module>fullstop-keypair-plugin</module>
     </modules>
 </project>
