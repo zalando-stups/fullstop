@@ -2,10 +2,9 @@
 #
 #
 fullstop:
-    home: ${user.home}
 
     logging:
-        dir: ${fullstop.home}/fullstop_logs
+        dir: ${FULLSTOP_LOGS_DIR}
 
     container:
         autoStart: true
