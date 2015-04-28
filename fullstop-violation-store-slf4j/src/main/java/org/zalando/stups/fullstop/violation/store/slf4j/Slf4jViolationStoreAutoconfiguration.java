@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 public class Slf4jViolationStoreAutoconfiguration {
 
     @Bean
-// @Conditional(Bea)
     public Slf4jViolationStore slf4jViolationStore() {
         return new Slf4jViolationStore();
     }

@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.User;
+import org.zalando.stups.fullstop.violation.ViolationStoreDomain;
 
 /**
  * @author  jbellmann
@@ -37,7 +38,7 @@ class UsersConsumer implements Consumer<User> {
     @Override
     public void accept(final User t) {
         String message = String.format("Password was used by %s with accountId : %s", t.getUserName(), accountId);
-        violationStore.save(message);
+        violationStore.save(new ViolationStoreDomain(message));
     }
 
 }

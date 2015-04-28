@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationStoreDomain;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -70,10 +71,9 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
 
         // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
-        String parameters = event.getEventData().getResponseElements();
 
         String region = event.getEventData().getAwsRegion();
-        List<String> instances = getInstanceIds(parameters);
+        List<String> instances = getInstanceIds(event);
         if (instances.isEmpty()) {
             LOG.error("No instanceIds found, maybe autoscaling?");
         }
@@ -86,7 +86,9 @@ public class RegionPlugin extends AbstractFullstopPlugin {
         LOG.info("Region: correct region set.");
     }
 
-    private List<String> getInstanceIds(final String parameters) {
+    private List<String> getInstanceIds(final CloudTrailEvent event) {
+
+        String parameters = event.getEventData().getResponseElements();
 
         if (parameters == null) {
             return Lists.newArrayList();
@@ -97,7 +99,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
             return instanceIds;
         } catch (Exception e) {
-            violationStore.save(String.format("Cannot find InstanceIds in JSON " + e));
+            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
+                    event.getEventData().getAwsRegion(), "Cannot find InstanceIds in JSON " + e));
         }
 
         return instanceIds;

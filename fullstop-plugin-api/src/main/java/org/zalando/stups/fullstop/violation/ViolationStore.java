@@ -22,6 +22,6 @@ package org.zalando.stups.fullstop.violation;
  */
 public interface ViolationStore {
 
-    void save(Object violation);
+    void save(ViolationStoreDomain violation);
 
 }
