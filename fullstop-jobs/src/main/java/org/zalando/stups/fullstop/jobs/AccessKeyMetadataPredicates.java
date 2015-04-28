@@ -35,23 +35,11 @@ abstract class AccessKeyMetadataPredicates {
     static final Predicate<AccessKeyMetadata> IS_ACTIVE = activity(ACTIVE);
 
     static Predicate<AccessKeyMetadata> activity(final String value) {
-        return new Predicate<AccessKeyMetadata>() {
-
-            @Override
-            public boolean test(final AccessKeyMetadata t) {
-                return value.equals(t.getStatus());
-            }
-        };
+        return t -> value.equals(t.getStatus());
     }
 
     static Predicate<AccessKeyMetadata> withDaysOlderThan(final int days) {
-        return new Predicate<AccessKeyMetadata>() {
-            @Override
-            public boolean test(final AccessKeyMetadata t) {
-
-                return (t.getCreateDate().getTime() < LocalDate.now().minusDays(days).toDate().getTime());
-            }
-        };
+        return t -> (t.getCreateDate().getTime() < LocalDate.now().minusDays(days).toDate().getTime());
     }
 
     static Predicate<AccessKeyMetadata> isActiveAndWithDaysOlderThan(final int days) {

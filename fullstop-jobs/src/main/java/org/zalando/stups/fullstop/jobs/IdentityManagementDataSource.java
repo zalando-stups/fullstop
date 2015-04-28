@@ -63,7 +63,7 @@ class IdentityManagementDataSource {
                     AmazonIdentityManagementClient.class, accountId, Region.getRegion(Regions.EU_WEST_1));
             if (identityClient != null) {
 
-                result.add(new Tuple<String, ListAccessKeysResult>(accountId, identityClient.listAccessKeys()));
+                result.add(new Tuple<>(accountId, identityClient.listAccessKeys()));
             } else {
 
                 logger.error("Could not create 'AmazonIdentityManagementClient' for accountId : {}", accountId);
@@ -81,7 +81,7 @@ class IdentityManagementDataSource {
                     AmazonIdentityManagementClient.class, accountId, Region.getRegion(Regions.EU_WEST_1));
             if (identityClient != null) {
 
-                result.add(new Tuple<String, ListUsersResult>(accountId, identityClient.listUsers()));
+                result.add(new Tuple<>(accountId, identityClient.listUsers()));
             } else {
 
                 logger.error("Could not create 'AmazonIdentityManagementClient' for accountId : {}", accountId);

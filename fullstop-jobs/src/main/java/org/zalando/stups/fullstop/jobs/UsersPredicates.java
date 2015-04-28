@@ -24,11 +24,6 @@ import com.amazonaws.services.identitymanagement.model.User;
  */
 abstract class UsersPredicates {
 
-    static final Predicate<User> PASSWORD_LAST_USED_HAS_NON_NULL_DATE = new Predicate<User>() {
-        @Override
-        public boolean test(final User t) {
-            return t.getPasswordLastUsed() != null;
-        }
-    };
+    static final Predicate<User> PASSWORD_LAST_USED_HAS_NON_NULL_DATE = t -> t.getPasswordLastUsed() != null;
 
 }
