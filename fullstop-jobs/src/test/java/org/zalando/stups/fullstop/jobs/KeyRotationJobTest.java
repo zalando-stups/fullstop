@@ -1,0 +1,84 @@
+package org.zalando.stups.fullstop.jobs;
+
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Date;
+import java.util.List;
+
+import org.assertj.core.util.Lists;
+
+import org.joda.time.LocalDate;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import org.mockito.Mockito;
+
+import org.zalando.stups.fullstop.violation.ViolationStore;
+
+import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
+
+/**
+ * @author  jbellmann
+ */
+public class KeyRotationJobTest {
+
+    private IdentityManagementDataSource identityManagementDataSource;
+
+    private AccessKeyMetadataConsumer accessKeyMetadataConsumer;
+
+    private ViolationStore violationStore;
+
+    @Before
+    public void setUp() {
+        this.violationStore = Mockito.mock(ViolationStore.class);
+        this.accessKeyMetadataConsumer = new AccessKeyMetadataConsumer(this.violationStore);
+        this.identityManagementDataSource = Mockito.mock(IdentityManagementDataSource.class);
+    }
+
+    @Test
+    public void testSimple() {
+        when(identityManagementDataSource.getListAccessKeysResultPerAccountWithTuple()).thenReturn(getList());
+
+        KeyRotationJob job = new KeyRotationJob(identityManagementDataSource, accessKeyMetadataConsumer);
+
+        job.check();
+
+        verify(identityManagementDataSource, atLeastOnce()).getListAccessKeysResultPerAccountWithTuple();
+        verify(violationStore, atLeastOnce()).save(Mockito.anyObject());
+    }
+
+    protected List<Tuple<String, ListAccessKeysResult>> getList() {
+        List<Tuple<String, ListAccessKeysResult>> result = Lists.newArrayList();
+        for (int i = 0; i < 3; i++) {
+
+            ListAccessKeysResult listAccessKeysResult = buildAccessKeysResult();
+// ListAccessKeyResultPerAccount la = new ListAccessKeyResultPerAccount("123456" + i, listAccessKeysResult);
+            result.add(new Tuple<String, ListAccessKeysResult>("123456" + i, listAccessKeysResult));
+
+        }
+
+        return result;
+    }
+
+    protected ListAccessKeysResult buildAccessKeysResult() {
+        ListAccessKeysResult result = new ListAccessKeysResult();
+        List<AccessKeyMetadata> accessKeyMetadata = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            AccessKeyMetadata metadata = new AccessKeyMetadata();
+            metadata.setAccessKeyId("1234" + i);
+            metadata.setCreateDate(new Date(LocalDate.now().minusDays(5 + i).toDate().getTime()));
+            metadata.setUserName("tester-" + i);
+            metadata.setStatus(i % 2 == 0 ? "Active" : "Inactive");
+            accessKeyMetadata.add(metadata);
+        }
+
+        result.setAccessKeyMetadata(accessKeyMetadata);
+
+        return result;
+    }
+
+}
