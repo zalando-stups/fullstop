@@ -29,19 +29,25 @@ by all other accounts in order to perform this operations.
 
 This enviroment variable should be set:
 
+    FULLSTOP_LOGS
     FULLSTOP_SQS_URL
     FULLSTOP_SQS_REGION
     FULLSTOP_S3_REGION
     FULLSTOP_WHITELISTED_AMI_ACCOUNT
     FULLSTOP_S3_BUCKET
+    FULLSTOP_KIO_URL
+    FULLSTOP_PIERONE_URL
 
 Example:
 
+    $ export FULLSTOP_LOGS=/fullstop_logs_dir
     $ export FULLSTOP_SQS_URL=https://sqs.eu-central-1.amazonaws.com/ACCOUNT_ID/fullstop
     $ export FULLSTOP_SQS_REGION=eu-central-1
     $ export FULLSTOP_S3_REGION=eu-west-1
     $ export FULLSTOP_WHITELISTED_AMI_ACCOUNT=999999999999
     $ export FULLSTOP_S3_BUCKET=fullstop-bucket
+    $ export FULLSTOP_KIO_URL: https://application.registry.address
+    $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
 
 ##How to build
 

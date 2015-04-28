@@ -25,6 +25,5 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan(basePackages = {"org.zalando.stups.fullstop.controller"})
-@EnableConfigurationProperties({FullstopLoggingProperties.class})
 public class FullstopTimemachineAutoconfiguration {
 }
