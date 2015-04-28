@@ -5,8 +5,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.assertj.core.util.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +21,7 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
 import com.amazonaws.services.identitymanagement.model.ListUsersResult;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
