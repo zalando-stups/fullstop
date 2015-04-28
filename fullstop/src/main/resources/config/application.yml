@@ -2,10 +2,9 @@
 #
 #
 fullstop:
-    home: ${user.home}
 
     logging:
-        dir: ${fullstop.home}/fullstop_logs
+        dir: ${java.io.tmpdir}/fullstop_logs
 
     container:
         autoStart: true
@@ -51,6 +50,9 @@ fullstop:
 
         kio:
             url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            url: ${FULLSTOP_PIERONE_URL}
 
 logging:
     level:

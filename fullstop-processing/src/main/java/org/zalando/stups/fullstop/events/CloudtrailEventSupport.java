@@ -16,10 +16,14 @@
 package org.zalando.stups.fullstop.events;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -30,6 +34,9 @@ import com.jayway.jsonpath.JsonPath;
  * @author  jbellmann
  */
 public abstract class CloudtrailEventSupport {
+
+    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
+        "RegionString should never be null or empty";
 
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
         "CloudTrailEventData should never be null";
@@ -78,6 +85,15 @@ public abstract class CloudtrailEventSupport {
         return read(responseElements, INSTANCES_JSON_PATH);
     }
 
+    public static List<String> containsKeyNames(final String parameters) {
+
+        if (parameters == null) {
+            return null;
+        }
+
+        return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
+    }
+
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
@@ -88,12 +104,26 @@ public abstract class CloudtrailEventSupport {
         return JsonPath.read(responseElements, pattern);
     }
 
-    static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EventSourcePredicate.EC2_EVENT.apply(cloudTrailEvent);
+    public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
+        return EventSourcePredicate.EC2_EVENT.test(cloudTrailEvent);
     }
 
-    static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return EventNamePredicate.RUN_INSTANCES.apply(cloudTrailEvent);
+    public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
+        return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
+    }
+
+    public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
+        cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
+
+        CloudTrailEventData cloudTrailEventData = checkNotNull(cloudTrailEvent.getEventData(),
+                CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
+
+        return getRegion(cloudTrailEventData.getAwsRegion());
+    }
+
+    public static Region getRegion(final String regionString) {
+        checkState(!isNullOrEmpty(regionString), REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY);
+        return Region.getRegion(Regions.fromName(regionString));
     }
 
 }

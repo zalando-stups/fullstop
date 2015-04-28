@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.plugin.keypair;
 
-package org.zalando.stups.fullstop.plugin;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,33 +25,33 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Component;
 
+import org.springframework.util.CollectionUtils;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
-import com.google.common.collect.Lists;
-
-import com.jayway.jsonpath.JsonPath;
-
 /**
- * @author  gkneitschel
+ * @author  ljaeckel
  */
 @Component
-public class RegionPlugin extends AbstractFullstopPlugin {
+public class KeyPairPlugin extends AbstractFullstopPlugin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RegionPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KeyPairPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
+    private final ClientProvider cachingClientProvider;
     private final ViolationStore violationStore;
 
-    @Value("${fullstop.plugins.region.whitelistedRegions}")
-    private String whitelistedRegions;
-
     @Autowired
-    public RegionPlugin(final ViolationStore violationStore) {
+    public KeyPairPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
+        this.cachingClientProvider = cachingClientProvider;
         this.violationStore = violationStore;
     }
 
@@ -69,37 +67,11 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
-        String parameters = event.getEventData().getResponseElements();
-
-        String region = event.getEventData().getAwsRegion();
-        List<String> instances = getInstanceIds(parameters);
-        if (instances.isEmpty()) {
-            LOG.error("No instanceIds found, maybe autoscaling?");
-        }
-
-        if (!whitelistedRegions.equals(region)) {
-            LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
+        List<String> keyNames = CloudtrailEventSupport.containsKeyNames(event.getEventData().getRequestParameters());
+        if (!CollectionUtils.isEmpty(keyNames)) {
+            violationStore.save(String.format("KeyPair must be blank, but was %s", keyNames));
 
         }
-
-        LOG.info("Region: correct region set.");
     }
 
-    private List<String> getInstanceIds(final String parameters) {
-
-        if (parameters == null) {
-            return Lists.newArrayList();
-        }
-
-        List<String> instanceIds = new ArrayList<>();
-        try {
-            instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-            return instanceIds;
-        } catch (Exception e) {
-            violationStore.save(String.format("Cannot find InstanceIds in JSON " + e));
-        }
-
-        return instanceIds;
-    }
 }
