@@ -19,6 +19,11 @@ import static org.zalando.stups.fullstop.jobs.UsersPredicates.PASSWORD_LAST_USED
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
@@ -35,6 +40,8 @@ import com.amazonaws.services.identitymanagement.model.User;
 @Component
 public class NoPasswordsJob {
 
+    private final Logger log = LoggerFactory.getLogger(NoPasswordsJob.class);
+
     private final ViolationStore violationStore;
 
     private final IdentityManagementDataSource identityManagementDataSource;
@@ -44,6 +51,11 @@ public class NoPasswordsJob {
             final IdentityManagementDataSource identityManagementDataSource) {
         this.identityManagementDataSource = identityManagementDataSource;
         this.violationStore = violationStore;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("{} initialized", getClass().getSimpleName());
     }
 
     @EveryDayAtElevenPM

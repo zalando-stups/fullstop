@@ -20,6 +20,11 @@ import static org.zalando.stups.fullstop.jobs.AccessKeyMetadataPredicates.isActi
 import java.util.List;
 import java.util.function.Predicate;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
@@ -35,6 +40,8 @@ import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
 @Component
 public class KeyRotationJob {
 
+    private final Logger log = LoggerFactory.getLogger(KeyRotationJob.class);
+
     private final IdentityManagementDataSource dataSource;
 
     private final AccessKeyMetadataConsumer accessKeyMetadataConsumer;
@@ -46,6 +53,11 @@ public class KeyRotationJob {
             final AccessKeyMetadataConsumer accessKeyMeatadataConsumer) {
         this.accessKeyMetadataConsumer = accessKeyMeatadataConsumer;
         this.dataSource = dataSource;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("{} initialized", getClass().getSimpleName());
     }
 
     /**
