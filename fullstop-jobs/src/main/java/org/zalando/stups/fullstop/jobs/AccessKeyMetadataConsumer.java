@@ -19,6 +19,8 @@ import static java.lang.String.format;
 
 import java.util.function.Consumer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.violation.ViolationStore;
@@ -35,6 +37,7 @@ class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
 
     private final ViolationStore violationStore;
 
+    @Autowired
     AccessKeyMetadataConsumer(final ViolationStore violationStore) {
         this.violationStore = violationStore;
     }
