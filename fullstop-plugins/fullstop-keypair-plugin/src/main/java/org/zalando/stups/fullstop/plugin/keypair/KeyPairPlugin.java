@@ -69,7 +69,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = CloudtrailEventSupport.containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationStore.save(String.format("KeyPair must be blank, but was {}", keyNames));
+            violationStore.save(String.format("KeyPair must be blank, but was %s", keyNames));
 
         }
     }
