@@ -15,15 +15,12 @@
  */
 package org.zalando.stups.fullstop.controller;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- *
- * @author jbellmann
+ * @author  jbellmann
  */
 @Configuration
 @ComponentScan(basePackages = {"org.zalando.stups.fullstop.controller"})
-public class FullstopTimemachineAutoconfiguration {
-}
+public class FullstopTimemachineAutoconfiguration { }

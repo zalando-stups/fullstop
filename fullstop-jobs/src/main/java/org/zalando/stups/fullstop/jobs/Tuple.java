@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.jobs;
 
-package org.zalando.stups.fullstop.controller;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.Objects;
 
 /**
- * @author  mrandi
+ * Try out 'functional' style. ;-)
+ *
+ * @author  jbellmann
  */
-@RestController
-public class HomeController {
+class Tuple<U, B> {
 
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "Fullstop is here!";
+    final U _1;
+    final B _2;
+
+    Tuple(final U u, final B b) {
+        _1 = Objects.requireNonNull(u, "First Argument should never be null");
+        _2 = Objects.requireNonNull(b, "Second Argument should never be null");
     }
-
 }

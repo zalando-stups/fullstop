@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.jobs;
 
-package org.zalando.stups.fullstop.controller;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.zalando.stups.fullstop.jobs.annotation.TenSeconds;
 
 /**
- * @author  mrandi
+ * @author  jbellmann
  */
-@RestController
-public class HomeController {
+public class SimpleScheduledBean {
 
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "Fullstop is here!";
+    private int invocations;
+
+    @TenSeconds
+    public void run() {
+        invocations++;
+        System.out.println("CALLED");
+    }
+
+    public int getInvocationCount() {
+        return invocations;
     }
 
 }

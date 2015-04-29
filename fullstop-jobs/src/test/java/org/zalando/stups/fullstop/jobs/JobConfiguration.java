@@ -13,21 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.jobs;
 
-package org.zalando.stups.fullstop.controller;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-/**
- * @author  mrandi
- */
-@RestController
-public class HomeController {
-
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "Fullstop is here!";
-    }
-
-}
+public class JobConfiguration { }

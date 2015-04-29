@@ -15,21 +15,26 @@
  */
 package org.zalando.stups.fullstop.plugin.keypair;
 
+import static java.lang.String.format;
+
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.containsKeyNames;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
+
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Component;
 
 import org.springframework.util.CollectionUtils;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -67,9 +72,10 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        List<String> keyNames = CloudtrailEventSupport.containsKeyNames(event.getEventData().getRequestParameters());
+        List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationStore.save(String.format("KeyPair must be blank, but was %s", keyNames));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("KeyPair must be blank, but was %s", keyNames)));
 
         }
     }

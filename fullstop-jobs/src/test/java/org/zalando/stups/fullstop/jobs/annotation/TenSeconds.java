@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.jobs.annotation;
 
-package org.zalando.stups.fullstop.controller;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
- * @author  mrandi
+ * @author  jbellmann
  */
-@RestController
-public class HomeController {
-
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "Fullstop is here!";
-    }
-
-}
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Scheduled(initialDelay = 10 * 1000, fixedDelay = 10 * 1000)
+public @interface TenSeconds { }
