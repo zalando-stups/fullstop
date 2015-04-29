@@ -28,6 +28,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 
@@ -48,6 +49,8 @@ public class Slf4jViolationStoreIT {
     public void testViolationStoreCreation() {
         Assertions.assertThat(violationStore).isNotNull();
         Assertions.assertThat(violationStore.getClass()).isEqualTo(Slf4jViolationStore.class);
-        this.violationStore.save("JUST A TEST");
+
+        Violation violation = new Violation("ACCOUNT_ID", "REGION", "JUST A TEST");
+        this.violationStore.save(violation);
     }
 }

@@ -20,14 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
 @RestController
 public class HomeController {
 
-
     @RequestMapping({ "/", "/index" })
-    public String home(){
+    public String home() {
         return "Fullstop is here!";
     }
 

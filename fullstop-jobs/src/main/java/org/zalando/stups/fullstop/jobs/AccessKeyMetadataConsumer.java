@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
@@ -44,7 +45,7 @@ class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
 
     @Override
     public void accept(final AccessKeyMetadata input) {
-        violationStore.save(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId()));
+        violationStore.save(new Violation(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId())));
     }
 
 }

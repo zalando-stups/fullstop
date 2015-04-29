@@ -17,6 +17,8 @@ package org.zalando.stups.fullstop.violation.store.slf4j;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 /**
@@ -32,7 +34,7 @@ public class Slf4jViolationStore implements ViolationStore {
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     @Override
-    public void save(final Object violation) {
+    public void save(final Violation violation) {
         logger.info(VIOLATION + violation.toString());
     }
 
