@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
 
 @Component
@@ -55,6 +55,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
+    public static final String TAUPAGE = "Taupage-";
 
     private final ClientProvider cachingClientProvider;
 
@@ -94,7 +95,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         for (Image image : images) {
 
-            if (image.getName().startsWith("Taupage-")) {
+            if (image.getName().startsWith(TAUPAGE)) {
                 whitelistedAmis.add(image.getImageId());
             }
         }
@@ -120,7 +121,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
             LOG.info("Instances with ids: {} was started with wrong images: {}", getInstanceId(parameters),
-                    invalidAmis);
+                invalidAmis);
 
         } else {
             LOG.info("Ami for instance: {} is whitelisted.", getInstanceId(parameters));

@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.zalando.stups.fullstop.jobs;
 
-package org.zalando.stups.fullstop.controller;
+import java.util.function.Predicate;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.amazonaws.services.identitymanagement.model.User;
 
 /**
- * @author  mrandi
+ * @author  jbellmann
  */
-@RestController
-public class HomeController {
+abstract class UsersPredicates {
 
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "Fullstop is here!";
-    }
+    static final Predicate<User> PASSWORD_LAST_USED_HAS_NON_NULL_DATE = t -> t.getPasswordLastUsed() != null;
 
 }

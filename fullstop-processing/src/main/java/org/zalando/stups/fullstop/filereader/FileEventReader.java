@@ -25,13 +25,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.ProcessingLibraryException;
 import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultEventFilter;
+import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultExceptionHandler;
 import com.amazonaws.services.cloudtrail.processinglibrary.interfaces.EventFilter;
 import com.amazonaws.services.cloudtrail.processinglibrary.interfaces.EventsProcessor;
 import com.amazonaws.services.cloudtrail.processinglibrary.interfaces.ExceptionHandler;

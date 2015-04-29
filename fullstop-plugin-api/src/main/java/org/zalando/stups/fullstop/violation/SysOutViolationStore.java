@@ -23,7 +23,7 @@ package org.zalando.stups.fullstop.violation;
 public class SysOutViolationStore implements ViolationStore {
 
     @Override
-    public void save(final Object violation) {
+    public void save(final Violation violation) {
         System.out.println(violation.toString());
     }
 

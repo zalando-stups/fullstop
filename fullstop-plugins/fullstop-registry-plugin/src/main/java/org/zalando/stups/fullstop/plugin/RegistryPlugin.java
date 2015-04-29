@@ -16,41 +16,57 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import static java.lang.String.format;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.RequestEntity.get;
+
+import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.stereotype.Component;
+
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import org.yaml.snakeyaml.Yaml;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationStore;
+
 import com.amazonaws.AmazonServiceException;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
+
 import com.amazonaws.util.Base64;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.yaml.snakeyaml.Yaml;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.RequestEntity.get;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
 
 @Component
@@ -107,24 +123,24 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 return;
             }
 
-            String applicationId = getApplicationId(userData, instanceId);
+            String applicationId = getApplicationId(event, userData, instanceId);
 
-            String applicationVersion = getApplicationVersion(userData, instanceId);
+            String applicationVersion = getApplicationVersion(event, userData, instanceId);
 
-            String source = getSource(userData, instanceId);
+            String source = getSource(event, userData, instanceId);
 
             if (applicationId != null) {
 
-                ResponseEntity<JsonNode> applicationFromKio = getAndValidateApplicationFromKio(applicationId);
+                ResponseEntity<JsonNode> applicationFromKio = getAndValidateApplicationFromKio(event, applicationId);
 
                 if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
-                    ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(applicationId,
-                            applicationVersion);
+                    ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(event,
+                            applicationId, applicationVersion);
 
                     if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
-                        validateSourceWithKio(applicationId, applicationVersion,
-                                applicationFromKio.getBody().get("team_id").asText(), source,
-                                versionFromKio.getBody().get("artifact").asText());
+                        validateSourceWithKio(event, applicationId, applicationVersion,
+                            applicationFromKio.getBody().get("team_id").asText(), source,
+                            versionFromKio.getBody().get("artifact").asText());
                     }
                 }
 
@@ -132,73 +148,82 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
     }
 
-    private void validateSourceWithKio(final String applicationId, final String applicationVersion, final String team,
-                                       final String source, final String artifact) {
+    private void validateSourceWithKio(final CloudTrailEvent event, final String applicationId,
+            final String applicationVersion, final String team, final String source, final String artifact) {
 
         if (!source.equals(artifact)) {
-            violationStore.save(format("Application: %s has not a valid artifact for version: %s.", applicationId,
-                    applicationVersion));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Application: %s has not a valid artifact for version: %s.", applicationId,
+                        applicationVersion)));
         }
 
         ResponseEntity<JsonNode> response = null;
         try {
             response = restTemplate.exchange(get(
-                    fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
-                    APPLICATION_JSON).build(), JsonNode.class);
+                        fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
+                        APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(format("Source: %s is not present in pierone.", source));
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                        format("Source: %s is not present in pierone.", source)));
                 return;
             }
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(format("Source: %s is not present in pierone.", source));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Source: %s is not present in pierone.", source)));
         } else if (response != null && response.getBody().get(applicationVersion) == null) {
-            violationStore.save(format("Source: %s is not present in pierone.", source));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Source: %s is not present in pierone.", source)));
         }
     }
 
-    private ResponseEntity<JsonNode> getAndValidateApplicationFromKio(final String applicationId) {
+    private ResponseEntity<JsonNode> getAndValidateApplicationFromKio(final CloudTrailEvent event,
+            final String applicationId) {
 
         ResponseEntity<JsonNode> response = null;
         try {
             response = restTemplate.exchange(get(fromHttpUrl(kioApplicationUrl).buildAndExpand(applicationId).toUri())
-                    .accept(APPLICATION_JSON).build(), JsonNode.class);
+                        .accept(APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(format("Application: %s is not registered in kio.", applicationId));
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                        format("Application: %s is not registered in kio.", applicationId)));
                 return null;
             }
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(format("Application: %s is not registered in kio.", applicationId));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Application: %s is not registered in kio.", applicationId)));
         }
 
         return response;
     }
 
-    private ResponseEntity<JsonNode> getAndValidateApplicationVersionFromKio(final String applicationId,
-                                                                             final String applicationVersion) {
+    private ResponseEntity<JsonNode> getAndValidateApplicationVersionFromKio(final CloudTrailEvent event,
+            final String applicationId, final String applicationVersion) {
 
         ResponseEntity<JsonNode> response = null;
         try {
             response = restTemplate.exchange(get(
-                    fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
-                    .accept(APPLICATION_JSON).build(), JsonNode.class);
+                        fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
+                        .accept(APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(format("Version: %s for Application: %s is not registered in kio.",
-                        applicationVersion, applicationId));
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                        format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
+                            applicationId)));
                 return null;
             }
 
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-                    applicationId));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
+                        applicationId)));
         }
 
         return response;
@@ -219,14 +244,16 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
-            violationStore.save(format("InstanceId: %s doesn't have any userData.", instanceId));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("InstanceId: %s doesn't have any userData.", instanceId)));
             return null;
         }
 
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-            violationStore.save(format("InstanceId: %s doesn't have any userData.", instanceId));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("InstanceId: %s doesn't have any userData.", instanceId)));
             return null;
         }
 
@@ -238,43 +265,46 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         return (Map) yaml.load(decodedUserData);
     }
 
-    private String getApplicationId(final Map userDataMap, final String instanceId) {
+    private String getApplicationId(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
         String applicationId = (String) userDataMap.get(APPLICATION_ID);
 
         if (applicationId == null) {
-            violationStore.save(format(
-                    "No 'application_id' defined for this instance %s, "
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format(
+                        "No 'application_id' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                    instanceId));
+                        instanceId)));
             return null;
         }
 
         return applicationId;
     }
 
-    private String getApplicationVersion(final Map userDataMap, final String instanceId) {
+    private String getApplicationVersion(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
         String applicationVersion = (String) userDataMap.get(APPLICATION_VERSION);
 
         if (applicationVersion == null) {
-            violationStore.save(format(
-                    "No 'application_version' defined for this instance %s, "
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format(
+                        "No 'application_version' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                    instanceId));
+                        instanceId)));
             return null;
         }
 
         return applicationVersion;
     }
 
-    private String getSource(final Map userDataMap, final String instanceId) {
+    private String getSource(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
 
         String source = (String) userDataMap.get(SOURCE);
 
         if (source == null) {
-            violationStore.save(format(
-                    "No 'source' defined for this instance %s, "
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format(
+                        "No 'source' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                    instanceId));
+                        instanceId)));
             return null;
         }
 

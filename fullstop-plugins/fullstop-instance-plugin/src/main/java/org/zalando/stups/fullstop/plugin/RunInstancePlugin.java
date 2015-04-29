@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.AmazonClientException;
@@ -64,8 +65,6 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
-// private final Ec2DataSource ec2DataSource;
-
     private final ViolationStore violationStore;
 
     private final ClientProvider clientProvider;
@@ -91,7 +90,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
         for (String securityRule : securityRules) {
             String message = String.format("SAVING RESULT INTO MAGIC DB: %s", securityRule);
-            violationStore.save(message);
+            LOG.info("WHAT TO DO WITH THIS RULES : {}", message);
+// violationStore.save(message);
         }
     }
 
@@ -138,12 +138,13 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 // LOG.error(e.getMessage(), e);
 // throw new RuntimeException(e.getMessage(), e);
 
-                String message = String.format(
-                        "Unable to get SecurityGroups for SecurityGroupIds [%s] with accountId: %s in region: %s  | %s",
-                        securityGroupIds.toString(), accountId, region.getName(), e.getMessage());
-                violationStore.save(message);
+                String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
+                        securityGroupIds.toString(), e.getMessage());
+                Violation v = new Violation(accountId, region.getName(), message);
+                violationStore.save(v);
                 return Lists.newArrayList();
             }
+
         }
 
     }
