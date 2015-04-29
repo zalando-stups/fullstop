@@ -23,30 +23,33 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
-import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
-import com.amazonaws.services.ec2.model.DescribeVpcsResult;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
 import com.amazonaws.services.ec2.model.Filter;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.services.ec2.model.Vpc;
-import com.jayway.jsonpath.JsonPath;
+import com.amazonaws.services.ec2.model.Route;
+import com.amazonaws.services.ec2.model.RouteTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
+
 /**
  * @author mrandi
  */
-//@Component
+@Component
 public class PublicVpc extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(PublicVpc.class);
@@ -55,15 +58,13 @@ public class PublicVpc extends AbstractFullstopPlugin {
     private static final String EVENT_NAME = "RunInstances";
 
     private final ClientProvider cachingClientProvider;
-    private final ViolationStore violationstore;
+    private final ViolationStore violationStore;
 
-    @Value("${fullstop.plugin.properties.whitelistedAmiAccount}")
-    private String whitelistedAmiAccount;
 
     @Autowired
     public PublicVpc(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
         this.cachingClientProvider = cachingClientProvider;
-        this.violationstore = violationStore;
+        this.violationStore = violationStore;
     }
 
     @Override
@@ -77,15 +78,14 @@ public class PublicVpc extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
+        List subnetIds = new ArrayList<>();
+        List<Filter> filters = new ArrayList<Filter>();
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
-        List<String> subnetIds = new ArrayList<>();
-        List<String> instanceIds = CloudtrailEventSupport.getInstanceIds(event);
-       // Filter filter = new Filter("instanceIds", instanceIds);
+        List<String> instanceIds = getInstanceIds(event);
         AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(), Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesResult describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         List<Reservation> reservations = describeInstancesResult.getReservations();
-
         for (Reservation reservation : reservations) {
             List<Instance> instances = reservation.getInstances();
             for (Instance instance : instances) {
@@ -93,24 +93,28 @@ public class PublicVpc extends AbstractFullstopPlugin {
             }
 
         }
-        DescribeSubnetsRequest describeSubnetsRequest = new DescribeSubnetsRequest().withSubnetIds(subnetIds);
-        DescribeSubnetsResult  describeSubnetsResult = amazonEC2Client.describeSubnets(describeSubnetsRequest);
 
+        filters.add(new Filter().withName("association.subnet-id").withValues(subnetIds)); // filter by subnetId
+        DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest().withFilters(filters);
+        DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client.describeRouteTables(describeRouteTablesRequest);
+        List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
+        if (routeTables == null || routeTables.size() == 0) {
+            violationStore.save(
+                    new Violation(getAccountId(event), getRegionAsString(event),
+                            format("Instances %s have no routing information associated", instanceIds.toString())));
+            return;
+        }
+        for (RouteTable routeTable : routeTables) {
+            List<Route> routes = routeTable.getRoutes();
+            routes.stream().filter(route -> !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> {
+                violationStore.save(
+                        new Violation(getAccountId(event), getRegionAsString(event),
+                                format("ROUTES: instance %s is running in a public subnet %s", route.getInstanceId(), route.getNetworkInterfaceId()))
+                );
+            });
 
-
-        LOG.info("VPCs: " + describeSubnetsRequest.toString());
-       // violationstore.save("");
+        }
 
     }
 
-
-
-
-    /*private List<String> getInstanceId(final String parameters) {
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-    }*/
 }
