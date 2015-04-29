@@ -19,31 +19,31 @@ package org.zalando.stups.fullstop.violation;
 import com.google.common.base.MoreObjects;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
-public class ViolationStoreDomain {
+public class Violation {
 
     private String accountId;
     private String region;
     private String message;
     private Object violationObject;
 
-    public ViolationStoreDomain(Object violationObject) {
+    public Violation(final Object violationObject) {
         this.violationObject = violationObject;
     }
 
-    public ViolationStoreDomain(String accountId, String region) {
+    public Violation(final String accountId, final String region) {
         this.accountId = accountId;
         this.region = region;
     }
 
-    public ViolationStoreDomain(String accountId, String region,String message) {
+    public Violation(final String accountId, final String region, final String message) {
         this.accountId = accountId;
         this.region = region;
         this.message = message;
     }
 
-    public ViolationStoreDomain(String accountId, String region, String message, Object violationObject) {
+    public Violation(final String accountId, final String region, final String message, final Object violationObject) {
         this.accountId = accountId;
         this.region = region;
         this.message = message;
@@ -54,7 +54,7 @@ public class ViolationStoreDomain {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -62,7 +62,7 @@ public class ViolationStoreDomain {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -70,7 +70,7 @@ public class ViolationStoreDomain {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
@@ -78,17 +78,13 @@ public class ViolationStoreDomain {
         return violationObject;
     }
 
-    public void setViolationObject(Object violationObject) {
+    public void setViolationObject(final Object violationObject) {
         this.violationObject = violationObject;
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("accountId", accountId)
-                .add("region", region)
-                .add("message", message)
-                .add("violationObject", violationObject)
-                .toString();
+        return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
+                          .add("message", message).add("violationObject", violationObject).toString();
     }
 }

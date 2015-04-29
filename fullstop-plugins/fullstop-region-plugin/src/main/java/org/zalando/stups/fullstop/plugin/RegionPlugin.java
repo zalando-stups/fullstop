@@ -16,6 +16,9 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +30,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Component;
 
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.ViolationStoreDomain;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -99,8 +102,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
             return instanceIds;
         } catch (Exception e) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(), "Cannot find InstanceIds in JSON " + e));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    "Cannot find InstanceIds in JSON " + e));
         }
 
         return instanceIds;

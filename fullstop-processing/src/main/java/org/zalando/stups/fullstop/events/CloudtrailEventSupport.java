@@ -126,4 +126,11 @@ public abstract class CloudtrailEventSupport {
         return Region.getRegion(Regions.fromName(regionString));
     }
 
+    public static String getAccountId(final CloudTrailEvent event) {
+        return event.getEventData().getAccountId();
+    }
+
+    public static String getRegionAsString(final CloudTrailEvent event) {
+        return event.getEventData().getAwsRegion();
+    }
 }

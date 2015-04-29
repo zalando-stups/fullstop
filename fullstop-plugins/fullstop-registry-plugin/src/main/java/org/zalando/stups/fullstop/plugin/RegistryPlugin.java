@@ -23,7 +23,9 @@ import static org.springframework.http.RequestEntity.get;
 
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
 import java.util.List;
 import java.util.Map;
@@ -45,8 +47,8 @@ import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.ViolationStoreDomain;
 
 import com.amazonaws.AmazonServiceException;
 
@@ -150,8 +152,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             final String applicationVersion, final String team, final String source, final String artifact) {
 
         if (!source.equals(artifact)) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("Application: %s has not a valid artifact for version: %s.", applicationId,
                         applicationVersion)));
         }
@@ -163,18 +164,18 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                         APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                        event.getEventData().getAwsRegion(), format("Source: %s is not present in pierone.", source)));
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                        format("Source: %s is not present in pierone.", source)));
                 return;
             }
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(), format("Source: %s is not present in pierone.", source)));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Source: %s is not present in pierone.", source)));
         } else if (response != null && response.getBody().get(applicationVersion) == null) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(), format("Source: %s is not present in pierone.", source)));
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+                    format("Source: %s is not present in pierone.", source)));
         }
     }
 
@@ -187,16 +188,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                         .accept(APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                        event.getEventData().getAwsRegion(),
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                         format("Application: %s is not registered in kio.", applicationId)));
                 return null;
             }
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("Application: %s is not registered in kio.", applicationId)));
         }
 
@@ -213,8 +212,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                         .accept(APPLICATION_JSON).build(), JsonNode.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                        event.getEventData().getAwsRegion(),
+                violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                         format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
                             applicationId)));
                 return null;
@@ -223,8 +221,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
 
         if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
                         applicationId)));
         }
@@ -247,8 +244,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("InstanceId: %s doesn't have any userData.", instanceId)));
             return null;
         }
@@ -256,8 +252,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("InstanceId: %s doesn't have any userData.", instanceId)));
             return null;
         }
@@ -274,8 +269,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationId = (String) userDataMap.get(APPLICATION_ID);
 
         if (applicationId == null) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format(
                         "No 'application_id' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
@@ -290,8 +284,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationVersion = (String) userDataMap.get(APPLICATION_VERSION);
 
         if (applicationVersion == null) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format(
                         "No 'application_version' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
@@ -307,8 +300,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String source = (String) userDataMap.get(SOURCE);
 
         if (source == null) {
-            violationStore.save(new ViolationStoreDomain(event.getEventData().getAccountId(),
-                    event.getEventData().getAwsRegion(),
+            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format(
                         "No 'source' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
