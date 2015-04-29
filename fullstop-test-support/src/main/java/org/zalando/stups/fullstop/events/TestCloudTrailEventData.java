@@ -35,6 +35,7 @@ import com.google.common.base.Strings;
 public class TestCloudTrailEventData extends CloudTrailEventData {
 
     private String resource;
+    private String region = "us-west-1";
 
     public TestCloudTrailEventData(final String classpathResource) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(classpathResource),
@@ -45,6 +46,11 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     @Override
     public String getResponseElements() {
         return getResponseElementsFromClasspath(resource);
+    }
+
+    @Override
+    public String getAwsRegion() {
+        return region;
     }
 
     protected String getResponseElementsFromClasspath(final String resource) {

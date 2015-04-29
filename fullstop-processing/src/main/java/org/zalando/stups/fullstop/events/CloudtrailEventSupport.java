@@ -27,6 +27,10 @@ import com.amazonaws.regions.Regions;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -34,6 +38,10 @@ import com.jayway.jsonpath.JsonPath;
  * @author  jbellmann
  */
 public abstract class CloudtrailEventSupport {
+
+    private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
+
+    private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
     private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
         "RegionString should never be null or empty";
@@ -85,6 +93,13 @@ public abstract class CloudtrailEventSupport {
         return read(responseElements, INSTANCES_JSON_PATH);
     }
 
+    public static String getAccountId(final CloudTrailEvent event) {
+        CloudTrailEventData eventData = getEventData(event);
+        UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
+
+        return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
+    }
+
     public static List<String> containsKeyNames(final String parameters) {
 
         if (parameters == null) {
@@ -94,14 +109,42 @@ public abstract class CloudtrailEventSupport {
         return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
     }
 
+    public static List<String> readSecurityGroupIds(final String parameters) {
+        if (parameters == null) {
+            return null;
+        }
+
+        return read(parameters, "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
+    }
+
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
         return checkNotNull(event.getEventData(), CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
     }
 
-    public static List<String> read(final String responseElements, final String pattern) {
+    /**
+     * Reads the given 'responseElements' and extracts information based on given 'pattern'.<br/>
+     * If 'responseElements' is null or empty you can handle the {@link IllegalArgumentException} raised or got an empty
+     * list.
+     *
+     * @param   responseElements
+     * @param   pattern
+     * @param   emptyListOnNullOrEmptyResponse
+     *
+     * @return
+     */
+    public static List<String> read(final String responseElements, final String pattern,
+            final boolean emptyListOnNullOrEmptyResponse) {
+        if (Strings.isNullOrEmpty(responseElements) && emptyListOnNullOrEmptyResponse) {
+            return Lists.newArrayList();
+        }
+
         return JsonPath.read(responseElements, pattern);
+    }
+
+    public static List<String> read(final String responseElements, final String pattern) {
+        return read(responseElements, pattern, false);
     }
 
     public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
