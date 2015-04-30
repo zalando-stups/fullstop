@@ -38,9 +38,10 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
@@ -50,9 +51,9 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion
  * @author mrandi
  */
 @Component
-public class PublicVpc extends AbstractFullstopPlugin {
+public class SubnetPlugin extends AbstractFullstopPlugin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PublicVpc.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubnetPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
@@ -62,7 +63,7 @@ public class PublicVpc extends AbstractFullstopPlugin {
 
 
     @Autowired
-    public PublicVpc(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
+    public SubnetPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
         this.cachingClientProvider = cachingClientProvider;
         this.violationStore = violationStore;
     }
@@ -78,24 +79,23 @@ public class PublicVpc extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        List subnetIds = new ArrayList<>();
-        List<Filter> filters = new ArrayList<Filter>();
+        List<String> subnetIds = newArrayList();
+        List<Filter> SubnetIdFilters = newArrayList();
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         List<String> instanceIds = getInstanceIds(event);
-        AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(), Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+        AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(),
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesResult describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         List<Reservation> reservations = describeInstancesResult.getReservations();
         for (Reservation reservation : reservations) {
             List<Instance> instances = reservation.getInstances();
-            for (Instance instance : instances) {
-                subnetIds.add(instance.getSubnetId());
-            }
+            subnetIds.addAll(instances.stream().map(Instance::getSubnetId).collect(Collectors.toList()));
 
         }
 
-        filters.add(new Filter().withName("association.subnet-id").withValues(subnetIds)); // filter by subnetId
-        DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest().withFilters(filters);
+        SubnetIdFilters.add(new Filter().withName("association.subnet-id").withValues(subnetIds)); // filter by subnetId
+        DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest().withFilters(SubnetIdFilters);
         DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client.describeRouteTables(describeRouteTablesRequest);
         List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
         if (routeTables == null || routeTables.size() == 0) {
@@ -106,13 +106,12 @@ public class PublicVpc extends AbstractFullstopPlugin {
         }
         for (RouteTable routeTable : routeTables) {
             List<Route> routes = routeTable.getRoutes();
-            for (Route route : routes) {
-                if (route.getState() == "active" && route.getNetworkInterfaceId() != null && !route.getNetworkInterfaceId().startsWith("eni"))
-                    violationStore.save(
-                            new Violation(getAccountId(event), getRegionAsString(event),
-                                    format("ROUTES: instance %s is running in a public subnet %s", route.getInstanceId(), route.getNetworkInterfaceId()))
-                    );
-            }
+            routes.stream().filter(route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
+                    !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> violationStore.save(
+                    new Violation(getAccountId(event), getRegionAsString(event),
+                            format("ROUTES: instance %s is running in a public subnet %s",
+                                    route.getInstanceId(), route.getNetworkInterfaceId()))
+            ));
         }
 
     }

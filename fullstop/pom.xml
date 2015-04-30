@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>fullstop-publicVPC-plugin</artifactId>
+        <artifactId>fullstop-subnet-plugin</artifactId>
         <version>${project.version}</version>
     </dependency>
         <dependency>

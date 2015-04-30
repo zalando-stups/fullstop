@@ -23,8 +23,8 @@
         <version>0.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fullstop-publicVPC-plugin</artifactId>
-    <name>Fullstop -- public VPC plugin</name>
+    <artifactId>fullstop-subnet-plugin</artifactId>
+    <name>Fullstop -- subnet plugin</name>
 
     <properties>
         <main.basedir>${basedir}/../..</main.basedir>
@@ -45,13 +45,6 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
-
-        <!-- 
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>1.9.25</version>
-        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-processing</artifactId>
