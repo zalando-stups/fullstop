@@ -14,3 +14,4 @@ fullstop/src/main/resources/config/application-local.yml
 
 
 violations.log
+violations.*.log

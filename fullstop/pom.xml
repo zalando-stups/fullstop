@@ -31,6 +31,11 @@
 
     <dependencies>
         <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>fullstop-subnet-plugin</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-timemachine</artifactId>
             <version>${project.version}</version>

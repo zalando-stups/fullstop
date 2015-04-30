@@ -1,3 +1,4 @@
 -AMI-Plugin, extract utility methods for json-parsing
 -Region-Plugin, same
 -Instance-Plugin
+-Can Spring parse a list from application.yaml?

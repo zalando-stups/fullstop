@@ -39,5 +39,6 @@
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-registry-plugin</module>
         <module>fullstop-keypair-plugin</module>
+        <module>fullstop-subnet-plugin</module>
     </modules>
 </project>
