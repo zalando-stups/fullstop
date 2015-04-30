@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups;
+package org.zalando.stups.fullstop.plugin;
 
 import java.io.File;
 
@@ -29,11 +29,10 @@ import org.mockito.Mockito;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 
+import org.zalando.stups.LogFiles;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.FileEventReader;
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
-import org.zalando.stups.fullstop.plugin.RunInstancePlugin;
 
 import com.amazonaws.regions.Region;
 
@@ -58,7 +57,7 @@ public class FileEventReaderTest {
         clientProvider = Mockito.mock(ClientProvider.class);
 
         List<FullstopPlugin> plugins = new ArrayList<>();
-        plugin = new RunInstancePlugin(clientProvider);
+        plugin = new RunInstancePlugin(null, null);
         plugins.add(plugin);
         pluginRegistry = SimplePluginRegistry.create(plugins);
     }

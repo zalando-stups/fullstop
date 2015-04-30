@@ -15,8 +15,24 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.toList;
+
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
+import static org.zalando.stups.fullstop.plugin.Bool.not;
+import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
+
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +42,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.AmazonClientException;
 
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
+import com.google.common.collect.Sets;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
@@ -55,81 +72,129 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
+    private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
+
+    private final ViolationStore violationStore;
+
     private final ClientProvider clientProvider;
 
+    private final Function<SecurityGroup, String> transformer = new SecurityGroupToString();
+
+    Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
+
     @Autowired
-    public RunInstancePlugin(final ClientProvider cachingClientProvider) {
-        this.clientProvider = cachingClientProvider;
+    public RunInstancePlugin(final ClientProvider clientProvider, final ViolationStore violationStore) {
+        this.clientProvider = clientProvider;
+        this.violationStore = violationStore;
     }
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData eventData = event.getEventData();
 
-        String eventSource = eventData.getEventSource();
-        String eventName = eventData.getEventName();
-
-        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
+        return eventFilter.test(event);
     }
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        String parameters = event.getEventData().getResponseElements();
+        if (not(hasPublicIp(event))) {
 
-        List<String> securityGroupId = getSecuritygroup(parameters);
-        AmazonEC2Client client = clientProvider.getClient(AmazonEC2Client.class,
-                event.getEventData().getUserIdentity().getAccountId(),
-                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
-
-        List<String> securityRules = getSecuritySettings(securityGroupId, client);
-        if (securityRules.isEmpty()) {
-            LOG.error("No security groups found in event!");
+            // no public IP, so skip more checks
+            return;
         }
 
-        for (String securityRule : securityRules) {
-            LOG.info("SAVING RESULT INTO MAGIC DB: {}", securityRule);
+        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroups(event);
+        if (not(securityGroupList.isPresent())) {
+
+            // no securityGroups, maybe instance already down
+            return;
+        }
+
+        if (not(securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter)))) {
+
+            // everything fine
+            return;
+        } else {
+
+            Violation violation = new Violation(getAccountId(event), getRegionAsString(event));
+            violation.setMessage(String.format("SecurityGroups configured with ports not allowed: %s",
+                    getPorts(securityGroupList.get())));
+            violationStore.save(violation);
         }
     }
 
-    private List<String> getSecuritygroup(final String parameters) {
+    protected Set<String> getPorts(final List<SecurityGroup> securityGroups) {
 
-        if (parameters == null) {
-            return null; // autoscaling events return parameter as null
+        Set<String> result = Sets.newHashSet();
+        for (SecurityGroup sg : securityGroups) {
+            List<IpPermission> ipPermissions = sg.getIpPermissions();
+            for (IpPermission p : ipPermissions) {
+                result.add(p.getToPort().toString());
+            }
         }
 
-        List<String> securityGroups = new ArrayList<>();
-        try {
-            securityGroups = JsonPath.read(parameters,
-                    "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
-        } catch (PathNotFoundException e) {
-            LOG.error("could not fetch security groups from event");
-        }
-
-        return securityGroups;
+        return result;
     }
 
-    private List<String> getSecuritySettings(final List<String> securityGroupId,
-            final AmazonEC2Client amazonEC2Client) {
-        DescribeSecurityGroupsResult result;
-        List<SecurityGroup> securityGroups = new ArrayList<>();
-        try {
-            DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
-            request.setGroupIds(securityGroupId);
+    protected boolean hasPublicIp(final CloudTrailEvent cloudTrailEvent) {
+        return !read(cloudTrailEvent, PUBLIC_IP_JSON_PATH, true).isEmpty();
+    }
 
-            result = amazonEC2Client.describeSecurityGroups(request);
+    protected List<String> transformSecurityGroupsIntoStrings(final List<SecurityGroup> securityGroups) {
 
-            securityGroups = result.getSecurityGroups();
-        } catch (AmazonClientException e) {
-            LOG.error("Could not fetch security groups from Amazon");
+        return securityGroups.stream().map(transformer).collect(toList());
+    }
+
+    protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
+
+        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
+    }
+
+    protected Optional<List<SecurityGroup>> getSecurityGroups(final CloudTrailEvent event) {
+
+        List<String> securityGroupIds = readSecurityGroupIds(event);
+
+        return getSecurityGroupsForIds(securityGroupIds, event);
+    }
+
+    protected Optional<List<SecurityGroup>> getSecurityGroupsForIds(final List<String> securityGroupIds,
+            final CloudTrailEvent event) {
+
+        Region region = getRegion(event);
+        String accountId = getAccountId(event);
+
+        AmazonEC2Client amazonEC2Client = getClient(accountId, region);
+
+        if (amazonEC2Client == null) {
+            throw new RuntimeException(String.format(
+                    "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
+                    region.toString()));
+        } else {
+            try {
+                DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
+                request.setGroupIds(securityGroupIds);
+
+                DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
+
+                return Optional.of(result.getSecurityGroups());
+            } catch (AmazonClientException e) {
+                // TODO, better ways?
+// LOG.error(e.getMessage(), e);
+// throw new RuntimeException(e.getMessage(), e);
+
+                String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
+                        securityGroupIds.toString(), e.getMessage());
+                Violation v = new Violation(accountId, region.getName(), message);
+                violationStore.save(v);
+                return Optional.empty();
+            }
+
         }
 
-        List<String> securityRules = new ArrayList<>();
-        for (SecurityGroup securityGroup : securityGroups) {
-            securityRules.add(securityGroup.toString());
-        }
+    }
 
-        return securityRules;
+    protected AmazonEC2Client getClient(final String accountId, final Region region) {
+        return clientProvider.getClient(AmazonEC2Client.class, accountId, region);
     }
 
 }
