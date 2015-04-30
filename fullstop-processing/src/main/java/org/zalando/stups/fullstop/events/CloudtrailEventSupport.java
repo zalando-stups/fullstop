@@ -51,9 +51,16 @@ public abstract class CloudtrailEventSupport {
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
-    public static final String AMIS_JSON_PATH = "$.instancesSet.items[*].imageId";
+    public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
 
-    public static final String INSTANCES_JSON_PATH = "$.instancesSet.items[*].instanceId";
+    public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
+
+    public static final String PRIVATE_IP_JSON_PATH = "$.instancesSet.items[*].privateIpAddress";
+
+    public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
+
+    public static final String SECURITY_GROUP_IDS_JSON_PATH =
+        "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -71,7 +78,7 @@ public abstract class CloudtrailEventSupport {
             return newArrayList();
         }
 
-        return read(responseElements, AMIS_JSON_PATH);
+        return read(responseElements, IMAGE_ID_JSON_PATH);
     }
 
     /**
@@ -90,9 +97,16 @@ public abstract class CloudtrailEventSupport {
             return newArrayList();
         }
 
-        return read(responseElements, INSTANCES_JSON_PATH);
+        return read(responseElements, INSTANCE_ID_JSON_PATH);
     }
 
+    /**
+     * Extracts the 'accountId'.
+     *
+     * @param   event
+     *
+     * @return
+     */
     public static String getAccountId(final CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
         UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
@@ -100,6 +114,13 @@ public abstract class CloudtrailEventSupport {
         return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
     }
 
+    /**
+     * Extract the 'keyName'.
+     *
+     * @param   parameters
+     *
+     * @return
+     */
     public static List<String> containsKeyNames(final String parameters) {
 
         if (parameters == null) {
@@ -109,6 +130,13 @@ public abstract class CloudtrailEventSupport {
         return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
     }
 
+    /**
+     * Extracts ids of security-groups.
+     *
+     * @param   parameters
+     *
+     * @return
+     */
     public static List<String> readSecurityGroupIds(final String parameters) {
         if (parameters == null) {
             return null;
@@ -143,8 +171,27 @@ public abstract class CloudtrailEventSupport {
         return JsonPath.read(responseElements, pattern);
     }
 
+    /**
+     * Reads the given 'responseElements' and extracts information based on given 'pattern'.<br/>
+     * If 'responseElements' is null or empty raises {@link IllegalArgumentException}.
+     *
+     * @param   responseElements
+     * @param   pattern
+     * @param   emptyListOnNullOrEmptyResponse
+     *
+     * @return
+     */
     public static List<String> read(final String responseElements, final String pattern) {
         return read(responseElements, pattern, false);
+    }
+
+    public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern) {
+        return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, false);
+    }
+
+    public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern,
+            final boolean emptyListOnNullOrEmptyResponse) {
+        return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, emptyListOnNullOrEmptyResponse);
     }
 
     public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {

@@ -19,12 +19,20 @@ import static java.util.stream.Collectors.toList;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
+import static org.zalando.stups.fullstop.plugin.Bool.not;
+import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +54,10 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
@@ -71,6 +80,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     private final Function<SecurityGroup, String> transformer = new SecurityGroupToString();
 
+    Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
+
     @Autowired
     public RunInstancePlugin(final ClientProvider clientProvider, final ViolationStore violationStore) {
         this.clientProvider = clientProvider;
@@ -86,13 +97,47 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        List<String> securityRules = transformSecurityGroupsIntoStrings(getSecurityGroups(event));
+        if (not(hasPublicIp(event))) {
 
-        for (String securityRule : securityRules) {
-            String message = String.format("SAVING RESULT INTO MAGIC DB: %s", securityRule);
-            LOG.info("WHAT TO DO WITH THIS RULES : {}", message);
-// violationStore.save(message);
+            // no public IP, so skip more checks
+            return;
         }
+
+        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroups(event);
+        if (not(securityGroupList.isPresent())) {
+
+            // no securityGroups, maybe instance already down
+            return;
+        }
+
+        if (not(securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter)))) {
+
+            // everything fine
+            return;
+        } else {
+
+            Violation violation = new Violation(getAccountId(event), getRegionAsString(event));
+            violation.setMessage(String.format("SecurityGroups configured with ports not allowed: %s",
+                    getPorts(securityGroupList.get())));
+            violationStore.save(violation);
+        }
+    }
+
+    protected Set<String> getPorts(final List<SecurityGroup> securityGroups) {
+
+        Set<String> result = Sets.newHashSet();
+        for (SecurityGroup sg : securityGroups) {
+            List<IpPermission> ipPermissions = sg.getIpPermissions();
+            for (IpPermission p : ipPermissions) {
+                result.add(p.getToPort().toString());
+            }
+        }
+
+        return result;
+    }
+
+    protected boolean hasPublicIp(final CloudTrailEvent cloudTrailEvent) {
+        return !read(cloudTrailEvent, PUBLIC_IP_JSON_PATH, true).isEmpty();
     }
 
     protected List<String> transformSecurityGroupsIntoStrings(final List<SecurityGroup> securityGroups) {
@@ -102,18 +147,17 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
 
-        return read(cloudTrailEvent.getEventData().getResponseElements(),
-                "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId", true);
+        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
     }
 
-    protected List<SecurityGroup> getSecurityGroups(final CloudTrailEvent event) {
+    protected Optional<List<SecurityGroup>> getSecurityGroups(final CloudTrailEvent event) {
 
         List<String> securityGroupIds = readSecurityGroupIds(event);
 
         return getSecurityGroupsForIds(securityGroupIds, event);
     }
 
-    protected List<SecurityGroup> getSecurityGroupsForIds(final List<String> securityGroupIds,
+    protected Optional<List<SecurityGroup>> getSecurityGroupsForIds(final List<String> securityGroupIds,
             final CloudTrailEvent event) {
 
         Region region = getRegion(event);
@@ -122,9 +166,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         AmazonEC2Client amazonEC2Client = getClient(accountId, region);
 
         if (amazonEC2Client == null) {
-            LOG.error("Somehow we could not create an Client with accountId: {} and region: {}", accountId,
-                region.toString());
-            return Lists.newArrayList();
+            throw new RuntimeException(String.format(
+                    "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
+                    region.toString()));
         } else {
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
@@ -132,7 +176,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
                 DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
 
-                return result.getSecurityGroups();
+                return Optional.of(result.getSecurityGroups());
             } catch (AmazonClientException e) {
                 // TODO, better ways?
 // LOG.error(e.getMessage(), e);
@@ -142,7 +186,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                         securityGroupIds.toString(), e.getMessage());
                 Violation v = new Violation(accountId, region.getName(), message);
                 violationStore.save(v);
-                return Lists.newArrayList();
+                return Optional.empty();
             }
 
         }
