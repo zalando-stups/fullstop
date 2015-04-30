@@ -47,6 +47,7 @@ fullstop:
         ami:
             # Account containing whitelisted AMI
             whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
+            amiNameStartWith: ${FULLSTOP_AMI_NAME_START_WITH}
 
         kio:
             url: ${FULLSTOP_KIO_URL}

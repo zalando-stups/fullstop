@@ -64,10 +64,6 @@ public abstract class CloudtrailEventSupport {
 
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
-     *
-     * @param   event
-     *
-     * @return
      */
     public static List<String> getAmis(final CloudTrailEvent event) {
 
@@ -83,10 +79,6 @@ public abstract class CloudtrailEventSupport {
 
     /**
      * Extracts list of instanceIds from {@link CloudTrailEvent}s 'responseElements'.
-     *
-     * @param   event
-     *
-     * @return
      */
     public static List<String> getInstanceIds(final CloudTrailEvent event) {
 
@@ -102,10 +94,6 @@ public abstract class CloudtrailEventSupport {
 
     /**
      * Extracts the 'accountId'.
-     *
-     * @param   event
-     *
-     * @return
      */
     public static String getAccountId(final CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
@@ -116,10 +104,6 @@ public abstract class CloudtrailEventSupport {
 
     /**
      * Extract the 'keyName'.
-     *
-     * @param   parameters
-     *
-     * @return
      */
     public static List<String> containsKeyNames(final String parameters) {
 
@@ -132,10 +116,6 @@ public abstract class CloudtrailEventSupport {
 
     /**
      * Extracts ids of security-groups.
-     *
-     * @param   parameters
-     *
-     * @return
      */
     public static List<String> readSecurityGroupIds(final String parameters) {
         if (parameters == null) {
@@ -155,12 +135,6 @@ public abstract class CloudtrailEventSupport {
      * Reads the given 'responseElements' and extracts information based on given 'pattern'.<br/>
      * If 'responseElements' is null or empty you can handle the {@link IllegalArgumentException} raised or got an empty
      * list.
-     *
-     * @param   responseElements
-     * @param   pattern
-     * @param   emptyListOnNullOrEmptyResponse
-     *
-     * @return
      */
     public static List<String> read(final String responseElements, final String pattern,
             final boolean emptyListOnNullOrEmptyResponse) {
@@ -174,12 +148,6 @@ public abstract class CloudtrailEventSupport {
     /**
      * Reads the given 'responseElements' and extracts information based on given 'pattern'.<br/>
      * If 'responseElements' is null or empty raises {@link IllegalArgumentException}.
-     *
-     * @param   responseElements
-     * @param   pattern
-     * @param   emptyListOnNullOrEmptyResponse
-     *
-     * @return
      */
     public static List<String> read(final String responseElements, final String pattern) {
         return read(responseElements, pattern, false);
