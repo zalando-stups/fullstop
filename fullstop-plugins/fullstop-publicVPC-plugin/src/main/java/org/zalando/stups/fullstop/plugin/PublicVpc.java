@@ -106,13 +106,13 @@ public class PublicVpc extends AbstractFullstopPlugin {
         }
         for (RouteTable routeTable : routeTables) {
             List<Route> routes = routeTable.getRoutes();
-            routes.stream().filter(route -> !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> {
-                violationStore.save(
-                        new Violation(getAccountId(event), getRegionAsString(event),
-                                format("ROUTES: instance %s is running in a public subnet %s", route.getInstanceId(), route.getNetworkInterfaceId()))
-                );
-            });
-
+            for (Route route : routes) {
+                if (route.getState() == "active" && route.getNetworkInterfaceId() != null && !route.getNetworkInterfaceId().startsWith("eni"))
+                    violationStore.save(
+                            new Violation(getAccountId(event), getRegionAsString(event),
+                                    format("ROUTES: instance %s is running in a public subnet %s", route.getInstanceId(), route.getNetworkInterfaceId()))
+                    );
+            }
         }
 
     }
