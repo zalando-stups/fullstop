@@ -61,6 +61,7 @@ public class NoPasswordsJob {
     @EveryDayAtElevenPM
     public void check() {
 
+        log.info("Running Job {}", getClass().getSimpleName());
         for (Tuple<String, ListUsersResult> listUsersResultPerAccount : getListUsersResultPerAccount()) {
             filter(listUsersResultPerAccount._1, listUsersResultPerAccount._2.getUsers());
         }
