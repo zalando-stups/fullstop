@@ -65,6 +65,7 @@ public class KeyRotationJob {
      */
     @EveryDayAtElevenPM
     public void check() {
+        log.info("Running Job {}", getClass().getSimpleName());
         for (Tuple<String, ListAccessKeysResult> tuple : getListAccessKeyResultPerAccount()) {
             filter(tuple._2.getAccessKeyMetadata());
         }
