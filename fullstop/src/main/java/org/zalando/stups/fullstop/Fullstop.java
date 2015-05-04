@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
@@ -31,6 +32,7 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
  */
 @SpringBootApplication
 @EnablePluginRegistries({ FullstopPlugin.class })
+@EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
 public class Fullstop {
 
     public static void main(final String[] args) {

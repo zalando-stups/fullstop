@@ -33,16 +33,48 @@ public class ViolationEntity {
     private String accountId;
     private String region;
     private String message;
-    private Object violationObject;
+    private String violationObject;
 
     protected ViolationEntity(){}
 
-    public ViolationEntity(final String accountId, final String region, final String message, final Object violationObject){
+    public ViolationEntity(final String accountId, final String region, final String message, final String violationObject){
 
         this.accountId = accountId;
         this.region = region;
         this.message = message;
         this.violationObject = violationObject;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setViolationObject(String violationObject) {
+        this.violationObject = violationObject;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public String getViolationObject() {
+        return violationObject;
     }
 
     @Override
