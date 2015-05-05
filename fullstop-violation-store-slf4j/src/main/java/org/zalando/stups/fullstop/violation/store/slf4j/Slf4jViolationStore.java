@@ -15,11 +15,17 @@
  */
 package org.zalando.stups.fullstop.violation.store.slf4j;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.util.StringUtils;
+
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+
+import com.google.common.collect.Lists;
 
 /**
  * Simple implementation to use the logging-framework of choice to collection violations.
@@ -28,14 +34,34 @@ import org.zalando.stups.fullstop.violation.ViolationStore;
  */
 public class Slf4jViolationStore implements ViolationStore {
 
-    private static final String LOGGER_NAME = "fullstop.violations.store";
+    private static final String DEFAULT_LOGGER_NAME = "fullstop.violations.store";
     public static final String VIOLATION = "VIOLATION: ";
 
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    private final List<Logger> loggers = Lists.newArrayList();
+
+    /**
+     * Uses the default logger 'fullstop.violations.store'.
+     */
+    public Slf4jViolationStore() {
+        loggers.add(LoggerFactory.getLogger(DEFAULT_LOGGER_NAME));
+    }
+
+    public Slf4jViolationStore(final List<String> loggernames) {
+        for (String loggername : loggernames) {
+            if (StringUtils.hasText(loggername)) {
+                loggers.add(LoggerFactory.getLogger(loggername));
+            }
+        }
+    }
 
     @Override
     public void save(final Violation violation) {
-        logger.info(VIOLATION + violation.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append(VIOLATION);
+        sb.append(violation.toString());
+        for (Logger logger : loggers) {
+            logger.info(sb.toString());
+        }
     }
 
 }

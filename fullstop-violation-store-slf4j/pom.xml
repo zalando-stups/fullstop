@@ -27,13 +27,12 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>4.2</version>
         </dependency>
-    
-    <!-- TESTING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <scope>test</scope>
         </dependency>
+    
+    <!-- TESTING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

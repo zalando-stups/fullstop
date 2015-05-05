@@ -15,6 +15,11 @@
  */
 package org.zalando.stups.fullstop.violation.store.slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,11 +29,16 @@ import org.springframework.context.annotation.Configuration;
  * @author  jbellmann
  */
 @Configuration
+@EnableConfigurationProperties({ Slf4jViolationStoreProperties.class })
 public class Slf4jViolationStoreAutoconfiguration {
 
+    @Autowired
+    private Slf4jViolationStoreProperties slf4jViolationStoreProperties;
+
+    @ConditionalOnMissingBean
     @Bean
     public Slf4jViolationStore slf4jViolationStore() {
-        return new Slf4jViolationStore();
+        return new Slf4jViolationStore(slf4jViolationStoreProperties.getLoggernames());
     }
 
 }

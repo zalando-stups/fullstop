@@ -3,6 +3,7 @@
     <property name="VIOLATIONS_LOG_DIR" value="${user.dir}/target" />
 
     <!-- FOR CONSOLE-APPENDER -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <!-- YOU CAN ONLY HAVE ONE OF THESE INCLUDES -->
