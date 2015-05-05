@@ -121,9 +121,6 @@ public class AmiPlugin extends AbstractFullstopPlugin {
             violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
                     format("Instances with ids: %s was started with wrong images: %s", getInstanceIds(event),
                             invalidAmis)));
-        } else {
-            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-                    format("Ami for instance: %s is whitelisted.", getInstanceIds(event))));
         }
     }
 }
