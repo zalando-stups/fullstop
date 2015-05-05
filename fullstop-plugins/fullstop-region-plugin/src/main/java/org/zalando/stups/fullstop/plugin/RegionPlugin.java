@@ -24,20 +24,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.stereotype.Component;
-
+import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
 import com.google.common.collect.Lists;
-
 import com.jayway.jsonpath.JsonPath;
 
 /**
@@ -53,12 +48,15 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     private final ViolationStore violationStore;
 
-    @Value("${fullstop.plugins.region.whitelistedRegions}")
-    private String whitelistedRegions;
+// @Value("${fullstop.plugins.region.whitelistedRegions}")
+// private String whitelistedRegions;
+
+    private final RegionPluginProperties regionPluginProperties;
 
     @Autowired
-    public RegionPlugin(final ViolationStore violationStore) {
+    public RegionPlugin(final ViolationStore violationStore, final RegionPluginProperties regionPluginProperties) {
         this.violationStore = violationStore;
+        this.regionPluginProperties = regionPluginProperties;
     }
 
     @Override
@@ -81,7 +79,12 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             LOG.error("No instanceIds found, maybe autoscaling?");
         }
 
-        if (!whitelistedRegions.equals(region)) {
+// if (!whitelistedRegions.equals(region)) {
+// LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
+//
+// }
+
+        if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
             LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
 
         }
