@@ -16,24 +16,27 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.google.common.collect.Lists;
-import com.jayway.jsonpath.JsonPath;
 
 /**
  * @author  gkneitschel
@@ -48,6 +51,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     private final ViolationStore violationStore;
 
+    private CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
+
 // @Value("${fullstop.plugins.region.whitelistedRegions}")
 // private String whitelistedRegions;
 
@@ -61,11 +66,13 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
-        String eventName = cloudTrailEventData.getEventName();
+// CloudTrailEventData cloudTrailEventData = event.getEventData();
+// String eventSource = cloudTrailEventData.getEventSource();
+// String eventName = cloudTrailEventData.getEventName();
+//
+// return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
 
-        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
+        return eventFilter.test(event);
     }
 
     @Override
@@ -73,8 +80,11 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
         // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
 
-        String region = event.getEventData().getAwsRegion();
+        String accountId = getAccountId(event);
+        String region = getRegionAsString(event);
         List<String> instances = getInstanceIds(event);
+
+        // List<String> instances = getInstanceIds(event);
         if (instances.isEmpty()) {
             LOG.error("No instanceIds found, maybe autoscaling?");
         }
@@ -85,30 +95,33 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 // }
 
         if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
-            LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
-
+            String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
+                    instances.toString(), region);
+            Violation violation = new Violation(accountId, region, message);
+            violationStore.save(violation);
         }
 
+        // Do we need this?
         LOG.info("Region: correct region set.");
     }
 
-    private List<String> getInstanceIds(final CloudTrailEvent event) {
-
-        String parameters = event.getEventData().getResponseElements();
-
-        if (parameters == null) {
-            return Lists.newArrayList();
-        }
-
-        List<String> instanceIds = new ArrayList<>();
-        try {
-            instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-            return instanceIds;
-        } catch (Exception e) {
-            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-                    "Cannot find InstanceIds in JSON " + e));
-        }
-
-        return instanceIds;
-    }
+// private List<String> getInstanceIds(final CloudTrailEvent event) {
+//
+// String parameters = event.getEventData().getResponseElements();
+//
+// if (parameters == null) {
+// return Lists.newArrayList();
+// }
+//
+// List<String> instanceIds = new ArrayList<>();
+// try {
+// instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
+// return instanceIds;
+// } catch (Exception e) {
+// violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
+// "Cannot find InstanceIds in JSON " + e));
+// }
+//
+// return instanceIds;
+// }
 }
