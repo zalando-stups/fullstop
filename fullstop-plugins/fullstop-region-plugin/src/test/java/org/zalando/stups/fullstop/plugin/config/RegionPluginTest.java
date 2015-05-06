@@ -21,10 +21,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mockito;
-
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SysOutViolationStore;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -81,22 +78,6 @@ public class RegionPluginTest {
         plugin.processEvent(event);
 
         verify(violationStore, atLeastOnce()).save(Mockito.any(Violation.class));
-    }
-
-    static class RegionPluginTestCloudTrailEventData extends TestCloudTrailEventData {
-
-        private String region;
-
-        public RegionPluginTestCloudTrailEventData(final String classpathResource, final String region) {
-            super(classpathResource);
-            this.region = region;
-        }
-
-        @Override
-        public String getAwsRegion() {
-            return region;
-        }
-
     }
 
 }

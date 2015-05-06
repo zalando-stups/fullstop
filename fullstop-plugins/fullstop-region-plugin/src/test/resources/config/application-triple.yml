@@ -1,0 +1,10 @@
+#
+#
+#
+fullstop:
+    plugins:
+        region:
+            whitelistedRegions:
+                - us-west-1
+                - us-east-1
+                - us-west-2

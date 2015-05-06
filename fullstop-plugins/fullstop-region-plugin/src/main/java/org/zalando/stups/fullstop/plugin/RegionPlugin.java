@@ -84,10 +84,11 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
             violationStore.save(new Violation(accountId, region, message));
-        }
+        } else {
 
-        // Do we need this?
-        LOG.info("Region: correct region set.");
+            // Do we need this?
+            LOG.info("Region: correct region set.");
+        }
     }
 
 }
