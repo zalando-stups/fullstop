@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 /**
  * @author  jbellmann
  */
-@ConfigurationProperties(prefix = "fullstop.plugin.region")
+@ConfigurationProperties(prefix = "fullstop.plugins.region")
 public class RegionPluginProperties {
 
     private List<String> whitelistedRegions = Lists.newArrayList("eu-central-1", "eu-west-1");
