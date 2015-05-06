@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.plugin.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -26,7 +27,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "fullstop.plugin.region")
 public class RegionPluginProperties {
 
-    private List<String> whitelistedRegions = new ArrayList<String>();
+    private List<String> whitelistedRegions = Lists.newArrayList("eu-central-1", "eu-west-1");
 
     public List<String> getWhitelistedRegions() {
         return whitelistedRegions;
