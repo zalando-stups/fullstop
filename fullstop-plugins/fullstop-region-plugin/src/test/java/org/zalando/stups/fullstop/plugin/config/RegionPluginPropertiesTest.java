@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.fullstop.plugin.config;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.assertj.core.api.Assertions;
+
+import org.junit.Test;
 
 /**
- * Prints the 'violation' to system-out.
- *
  * @author  jbellmann
  */
-public class SysOutViolationStore implements ViolationStore {
+public class RegionPluginPropertiesTest {
 
-    private AtomicInteger counter = new AtomicInteger(0);
-
-    @Override
-    public void save(final Violation violation) {
-        counter.incrementAndGet();
-        System.out.println(violation.toString());
+    @Test
+    public void testDefaultRegions() {
+        RegionPluginProperties properties = new RegionPluginProperties();
+        Assertions.assertThat(properties.getWhitelistedRegions()).contains("eu-central-1", "eu-west-1");
     }
-
-    public int getInvocationCount() {
-        return counter.get();
-    }
-
 }
