@@ -53,9 +53,6 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     private CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
-// @Value("${fullstop.plugins.region.whitelistedRegions}")
-// private String whitelistedRegions;
-
     private final RegionPluginProperties regionPluginProperties;
 
     @Autowired
@@ -66,12 +63,6 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-// CloudTrailEventData cloudTrailEventData = event.getEventData();
-// String eventSource = cloudTrailEventData.getEventSource();
-// String eventName = cloudTrailEventData.getEventName();
-//
-// return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
-
         return eventFilter.test(event);
     }
 
@@ -84,44 +75,19 @@ public class RegionPlugin extends AbstractFullstopPlugin {
         String region = getRegionAsString(event);
         List<String> instances = getInstanceIds(event);
 
-        // List<String> instances = getInstanceIds(event);
         if (instances.isEmpty()) {
             LOG.error("No instanceIds found, maybe autoscaling?");
         }
 
-// if (!whitelistedRegions.equals(region)) {
-// LOG.error("Region: EC2 instances " + instances + " are running in the wrong region! (" + region + ")");
-//
-// }
-
         if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
+
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
-            Violation violation = new Violation(accountId, region, message);
-            violationStore.save(violation);
+            violationStore.save(new Violation(accountId, region, message));
         }
 
         // Do we need this?
         LOG.info("Region: correct region set.");
     }
 
-// private List<String> getInstanceIds(final CloudTrailEvent event) {
-//
-// String parameters = event.getEventData().getResponseElements();
-//
-// if (parameters == null) {
-// return Lists.newArrayList();
-// }
-//
-// List<String> instanceIds = new ArrayList<>();
-// try {
-// instanceIds = JsonPath.read(parameters, "$.instancesSet.items[*].instanceId");
-// return instanceIds;
-// } catch (Exception e) {
-// violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-// "Cannot find InstanceIds in JSON " + e));
-// }
-//
-// return instanceIds;
-// }
 }
