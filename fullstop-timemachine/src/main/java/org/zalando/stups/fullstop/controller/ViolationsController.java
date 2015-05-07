@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 public class ViolationsController {
     @Autowired
-    ViolationRepository violationRepository;
+    private ViolationRepository violationRepository;
 
     @RequestMapping(value = "/violations")
     public List<ViolationEntity> violations() {

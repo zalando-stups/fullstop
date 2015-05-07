@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
 /**
  * Created by gkneitschel.
  */
@@ -34,10 +35,14 @@ public class ViolationEntity {
     private String region;
     private String message;
     private String violationObject;
+    private String eventId;
+    private String comment;
+    private Boolean checked;
 
-    protected ViolationEntity(){}
+    protected ViolationEntity() {
+    }
 
-    public ViolationEntity(final String accountId, final String region, final String message, final String violationObject){
+    public ViolationEntity(final String accountId, final String region, final String message, final String violationObject) {
 
         this.accountId = accountId;
         this.region = region;
@@ -61,6 +66,30 @@ public class ViolationEntity {
         this.violationObject = violationObject;
     }
 
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
+    }
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public Boolean getChecked() {
+        return checked;
+    }
+
     public String getAccountId() {
         return accountId;
     }
@@ -82,4 +111,6 @@ public class ViolationEntity {
         return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
                 .add("message", message).add("violationObject", violationObject).toString();
     }
+
+
 }

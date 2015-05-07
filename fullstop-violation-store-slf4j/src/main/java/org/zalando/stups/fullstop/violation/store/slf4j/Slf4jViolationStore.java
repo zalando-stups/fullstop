@@ -40,12 +40,13 @@ public class Slf4jViolationStore implements ViolationStore {
 
     @Override
     public void save(final Violation violation) {
-        String violationObjectAsString ="";
         if (violation.getViolationObject() != null) {
-            violationObjectAsString = violation.getViolationObject().toString();
+            violationRepository.save(new ViolationEntity(violation.getAccountId(),violation.getRegion(),violation.getMessage(), violation.getViolationObject().toString()));
+        } else {
+            violationRepository.save(new ViolationEntity(violation.getAccountId(),violation.getRegion(),violation.getMessage(), null));
+
         }
         logger.info(VIOLATION + violation.toString());
-        violationRepository.save(new ViolationEntity(violation.getAccountId(),violation.getRegion(),violation.getMessage(), violationObjectAsString));
     }
 
 }
