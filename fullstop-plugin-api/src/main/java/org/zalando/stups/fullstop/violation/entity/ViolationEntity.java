@@ -22,14 +22,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by gkneitschel.
  */
+@Table(name = "fullstop", schema = "fullstop_violations")
 @Entity
 public class ViolationEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String accountId;
     private String region;
