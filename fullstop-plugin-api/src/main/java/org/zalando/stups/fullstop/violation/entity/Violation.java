@@ -14,19 +14,31 @@
  * limitations under the License.
  */
 
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.MoreObjects;
+import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author  mrandi
  */
-public class Violation {
+@Table(name = "violation", schema = "fullstop_data")
+@Entity
+public class Violation extends AbstractModifiableEntity {
 
     private String accountId;
     private String region;
     private String message;
     private Object violationObject;
+    private String eventId;
+    private String comment;
+    private Boolean checked;
+
+    private Violation() {
+    }
 
     public Violation(final Object violationObject) {
         this.violationObject = violationObject;
@@ -82,9 +94,40 @@ public class Violation {
         this.violationObject = violationObject;
     }
 
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
-                          .add("message", message).add("violationObject", violationObject).toString();
+        return MoreObjects.toStringHelper(this).omitNullValues()
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("message", message)
+                .add("violationObject", violationObject)
+                .add("eventId", eventId)
+                .add("comment", comment)
+                .add("checked", checked)
+                .toString();
     }
 }

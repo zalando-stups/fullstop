@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;

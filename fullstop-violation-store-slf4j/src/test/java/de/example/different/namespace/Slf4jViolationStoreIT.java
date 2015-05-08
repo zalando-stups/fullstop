@@ -28,7 +28,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 

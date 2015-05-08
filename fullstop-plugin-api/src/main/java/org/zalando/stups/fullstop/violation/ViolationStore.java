@@ -15,6 +15,8 @@
  */
 package org.zalando.stups.fullstop.violation;
 
+import org.zalando.stups.fullstop.violation.entity.Violation;
+
 /**
  * We to somehow/somewhere store the findings.
  *

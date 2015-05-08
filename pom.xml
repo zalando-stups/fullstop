@@ -36,6 +36,8 @@
         <java.source>1.8</java.source>
         <java.target>1.8</java.target>
 
+        <commons-lang3.version>3.3.2</commons-lang3.version>
+
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
         <argLine />
@@ -72,6 +74,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>

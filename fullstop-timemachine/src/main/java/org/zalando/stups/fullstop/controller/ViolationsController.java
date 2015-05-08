@@ -19,7 +19,7 @@ package org.zalando.stups.fullstop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class ViolationsController {
     private ViolationRepository violationRepository;
 
     @RequestMapping(value = "/violations")
-    public List<ViolationEntity> violations() {
+    public List<Violation> violations() {
         return violationRepository.findAll();
     }
 

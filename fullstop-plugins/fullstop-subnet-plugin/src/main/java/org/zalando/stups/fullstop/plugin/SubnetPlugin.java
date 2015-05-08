@@ -16,6 +16,7 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.util.List;
@@ -86,7 +87,17 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeInstancesResult describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
+        DescribeInstancesResult describeInstancesResult = null;
+        try {
+            describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
+        } catch (AmazonServiceException e){
+            violationStore.save(
+                    new Violation(getAccountId(event), getRegionAsString(event),
+                            e.getMessage()));
+            return;
+        }
+
+
         List<Reservation> reservations = describeInstancesResult.getReservations();
         for (Reservation reservation : reservations) {
             List<Instance> instances = reservation.getInstances();

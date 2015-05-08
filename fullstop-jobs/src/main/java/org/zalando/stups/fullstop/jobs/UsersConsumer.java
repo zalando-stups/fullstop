@@ -17,7 +17,7 @@ package org.zalando.stups.fullstop.jobs;
 
 import java.util.function.Consumer;
 
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.User;

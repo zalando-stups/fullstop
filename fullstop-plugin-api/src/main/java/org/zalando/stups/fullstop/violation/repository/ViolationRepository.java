@@ -18,7 +18,7 @@ package org.zalando.stups.fullstop.violation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * Created by gkneitschel.
  */
 @Repository
-public interface ViolationRepository extends JpaRepository<ViolationEntity, Integer> {
+public interface ViolationRepository extends JpaRepository<Violation, Integer> {
 
-    List<ViolationEntity> findByAccountId(String accountId);
+    List<Violation> findByAccountId(String accountId);
 }

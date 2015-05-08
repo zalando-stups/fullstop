@@ -18,20 +18,19 @@ package org.zalando.stups.fullstop.violation.store.slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 /**
  * Simple implementation to use the logging-framework of choice to collection violations.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class Slf4jViolationStore implements ViolationStore {
 
     @Autowired
-   private ViolationRepository violationRepository;
+    private ViolationRepository violationRepository;
 
     private static final String LOGGER_NAME = "fullstop.violations.store";
     public static final String VIOLATION = "VIOLATION: ";
@@ -40,12 +39,9 @@ public class Slf4jViolationStore implements ViolationStore {
 
     @Override
     public void save(final Violation violation) {
-        if (violation.getViolationObject() != null) {
-            violationRepository.save(new ViolationEntity(violation.getAccountId(),violation.getRegion(),violation.getMessage(), violation.getViolationObject().toString()));
-        } else {
-            violationRepository.save(new ViolationEntity(violation.getAccountId(),violation.getRegion(),violation.getMessage(), null));
 
-        }
+        violationRepository.save(violation);
+
         logger.info(VIOLATION + violation.toString());
     }
 

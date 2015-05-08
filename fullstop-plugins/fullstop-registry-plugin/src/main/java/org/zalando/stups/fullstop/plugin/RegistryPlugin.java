@@ -47,7 +47,7 @@ import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.AmazonServiceException;

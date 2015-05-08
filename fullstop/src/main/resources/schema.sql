@@ -1,6 +1,6 @@
-CREATE SCHEMA IF NOT EXISTS fullstop_violations;
+CREATE SCHEMA IF NOT EXISTS fullstop_data;
 
-CREATE TABLE IF NOT EXISTS fullstop_violations.fullstop (
+CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   id               SERIAL PRIMARY KEY NOT NULL,
   account_id       CHARACTER VARYING(255),
   checked          BOOLEAN,
