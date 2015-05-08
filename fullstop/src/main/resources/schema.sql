@@ -1,12 +1,17 @@
 CREATE SCHEMA IF NOT EXISTS fullstop_violations;
 
-CREATE TABLE IF NOT EXISTS fullstop (
-  id SERIAL PRIMARY KEY NOT NULL,
-  account_id character varying(255),
-  checked boolean,
-  comment character varying(255),
-  event_id character varying(255),
-  message character varying(255),
-  region character varying(255),
-  violation_object character varying(255)
+CREATE TABLE IF NOT EXISTS fullstop_violations.fullstop (
+  id               SERIAL PRIMARY KEY NOT NULL,
+  account_id       CHARACTER VARYING(255),
+  checked          BOOLEAN,
+  comment          CHARACTER VARYING(255),
+  event_id         CHARACTER VARYING(255),
+  message          CHARACTER VARYING(255),
+  region           CHARACTER VARYING(255),
+  violation_object CHARACTER VARYING(255),
+  created          TIMESTAMP,
+  created_by       VARCHAR(255),
+  last_modified    TIMESTAMP,
+  last_modified_by VARCHAR(255),
+  version          INTEGER            NOT NULL
 );

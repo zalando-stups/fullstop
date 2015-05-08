@@ -17,11 +17,9 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.MoreObjects;
+import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
@@ -29,10 +27,8 @@ import javax.persistence.Table;
  */
 @Table(name = "fullstop", schema = "fullstop_violations")
 @Entity
-public class ViolationEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class ViolationEntity extends AbstractModifiableEntity {
+
     private String accountId;
     private String region;
     private String message;
