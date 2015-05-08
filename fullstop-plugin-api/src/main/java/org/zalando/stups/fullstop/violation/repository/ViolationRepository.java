@@ -26,7 +26,7 @@ import java.util.List;
  * Created by gkneitschel.
  */
 @Repository
-public interface ViolationRepository extends JpaRepository<ViolationEntity, Long> {
+public interface ViolationRepository extends JpaRepository<ViolationEntity, Integer> {
 
     List<ViolationEntity> findByAccountId(String accountId);
 }
