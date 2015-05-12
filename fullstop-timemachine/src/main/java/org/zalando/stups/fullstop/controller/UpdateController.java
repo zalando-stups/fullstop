@@ -40,6 +40,7 @@ public class UpdateController {
         Violation dbViolation = violationRepository.findOne(id);
         dbViolation.setChecked(violation.getChecked());
         dbViolation.setComment(violation.getComment());
+        dbViolation.setVersion(violation.getVersion());
         violationRepository.save(dbViolation);
     }
 }
