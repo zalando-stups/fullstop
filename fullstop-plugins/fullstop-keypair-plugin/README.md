@@ -1,7 +1,7 @@
-##Subnet Plugin
+##Keypair Plugin
 
 ###Aim of plugin
-Find out if an instance is running in a public subnet.
+Find out if an instance has a keypair attached.
 
 ###Reacts on
 
