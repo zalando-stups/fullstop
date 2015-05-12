@@ -19,7 +19,7 @@ You can always configure fullstop via environment variable:
     $ export FULLSTOP_AMI_NAME_START_WITH=Taupage
 
 
-or modify [application.yml](fullstop/src/main/resources/config/application.yml)
+or modify [application.yml](../../fullstop/src/main/resources/config/application.yml)
 
 ```yml
 fullstop:
