@@ -50,8 +50,6 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
 import static org.zalando.stups.fullstop.plugin.Bool.not;
 import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
-p.violation.entity.ViolationBuilder;
-
 /**
  *
  * @author  jbellmann

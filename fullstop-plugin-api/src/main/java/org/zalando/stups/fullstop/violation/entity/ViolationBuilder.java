@@ -18,6 +18,7 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
  * Created by gkneitschel.
@@ -50,9 +51,22 @@ public class ViolationBuilder {
     }
 
     public ViolationBuilder withEvent(CloudTrailEvent event) {
-        this.eventId = event.getEventData().getEventId().toString();
-        this.region = event.getEventData().getAwsRegion();
-        this.accountId = event.getEventData().getUserIdentity().getAccountId();
+
+        if (event != null && event.getEventData() != null) {
+
+            CloudTrailEventData eventData = event.getEventData();
+
+            if (eventData.getEventId() != null) {
+                this.eventId = eventData.getEventId().toString();
+            }
+
+            if (eventData.getUserIdentity() != null) {
+                this.accountId = eventData.getUserIdentity().getAccountId();
+            }
+
+            this.region = eventData.getAwsRegion();
+        }
+
         return this;
     }
 

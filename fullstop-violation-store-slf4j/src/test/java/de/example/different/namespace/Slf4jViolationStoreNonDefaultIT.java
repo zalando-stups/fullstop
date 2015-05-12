@@ -16,21 +16,16 @@
 package de.example.different.namespace;
 
 import org.assertj.core.api.Assertions;
-
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStoreProperties;
 
@@ -59,7 +54,7 @@ public class Slf4jViolationStoreNonDefaultIT {
         Assertions.assertThat(violationStore).isNotNull();
         Assertions.assertThat(violationStore.getClass()).isEqualTo(Slf4jViolationStore.class);
 
-        Violation violation = new Violation("ACCOUNT_ID", "REGION", "JUST A TEST");
+        Violation violation = new ViolationBuilder("just a test").build();
         this.violationStore.save(violation);
     }
 }
