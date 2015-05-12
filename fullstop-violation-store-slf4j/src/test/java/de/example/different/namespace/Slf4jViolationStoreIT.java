@@ -30,6 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 
 /**
@@ -50,7 +51,7 @@ public class Slf4jViolationStoreIT {
         Assertions.assertThat(violationStore).isNotNull();
         Assertions.assertThat(violationStore.getClass()).isEqualTo(Slf4jViolationStore.class);
 
-        Violation violation = new Violation("ACCOUNT_ID", "REGION", "JUST A TEST");
+        Violation violation = new ViolationBuilder("JUST A TEST").withAccoundId("ACCOUNT_ID").withRegion("REGION").build();
         this.violationStore.save(violation);
     }
 }

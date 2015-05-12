@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,8 +93,7 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
             describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         } catch (AmazonServiceException e){
             violationStore.save(
-                    new Violation(getAccountId(event), getRegionAsString(event),
-                            e.getMessage()));
+                    new ViolationBuilder(e.getMessage()).withEvent(event).build());
             return;
         }
 
@@ -111,18 +111,19 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
         if (routeTables == null || routeTables.size() == 0) {
             violationStore.save(
-                    new Violation(getAccountId(event), getRegionAsString(event),
-                            format("Instances %s have no routing information associated", instanceIds.toString())));
+                    new ViolationBuilder(format("Instances %s have no routing information associated", instanceIds.toString())).
+                            withEvent(event).build());
             return;
         }
         for (RouteTable routeTable : routeTables) {
             List<Route> routes = routeTable.getRoutes();
             routes.stream().filter(route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
                     !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> violationStore.save(
-                    new Violation(getAccountId(event), getRegionAsString(event),
-                            format("ROUTES: instance %s is running in a public subnet %s",
-                                    route.getInstanceId(), route.getNetworkInterfaceId()))
-            ));
+
+                    new ViolationBuilder(format("ROUTES: instance %s is running in a public subnet %s",
+                            route.getInstanceId(), route.getNetworkInterfaceId())).
+                            withEvent(event).
+                            build()));
         }
 
     }

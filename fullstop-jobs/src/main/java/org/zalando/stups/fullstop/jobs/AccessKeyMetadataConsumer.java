@@ -27,6 +27,7 @@ import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  jbellmann
@@ -45,7 +46,7 @@ class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
 
     @Override
     public void accept(final AccessKeyMetadata input) {
-        violationStore.save(new Violation(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId())));
+        violationStore.save(new ViolationBuilder(format(VIOLATION_MESSAGE,input.getUserName(), input.getAccessKeyId())).build());
     }
 
 }
