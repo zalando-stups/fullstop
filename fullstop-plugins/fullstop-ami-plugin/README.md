@@ -1,16 +1,16 @@
-###AMI Plugin
+##AMI Plugin
 
-##Aim of plugin
+###Aim of plugin
 Find out if an instance was started with a wrong image.
 
-##Reacts on
+###Reacts on
 
 ```
 EVENT SOURCE = "ec2.amazonaws.com"
 EVENT NAME = "RunInstances"
 ```
 
-##Configuration
+###Configuration
 
 You can always configure fullstop via environment variable:
 
@@ -19,7 +19,7 @@ You can always configure fullstop via environment variable:
     $ export FULLSTOP_AMI_NAME_START_WITH=Taupage
 
 
-or modify ![application.yml](fullstop/src/main/resources/config/application.yml)
+or modify [application.yml](fullstop/src/main/resources/config/application.yml)
 
 ```yml
 fullstop:
