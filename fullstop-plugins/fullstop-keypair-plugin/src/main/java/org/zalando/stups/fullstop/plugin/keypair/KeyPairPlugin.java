@@ -39,6 +39,7 @@ import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  ljaeckel
@@ -74,8 +75,8 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-                    format("KeyPair must be blank, but was %s", keyNames)));
+            violationStore.save(
+                    new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEvent(event).build());
 
         }
     }

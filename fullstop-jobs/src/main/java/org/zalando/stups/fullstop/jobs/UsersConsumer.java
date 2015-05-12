@@ -21,6 +21,7 @@ import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.identitymanagement.model.User;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  jbellmann
@@ -37,8 +38,9 @@ class UsersConsumer implements Consumer<User> {
 
     @Override
     public void accept(final User t) {
-        String message = String.format("Password was used by %s with accountId : %s", t.getUserName(), accountId);
-        violationStore.save(new Violation(message));
+        String message = String.format("Password was used by %s", t.getUserName() );
+        violationStore.save(
+                new ViolationBuilder(message).withAccoundId(accountId).build());
     }
 
 }

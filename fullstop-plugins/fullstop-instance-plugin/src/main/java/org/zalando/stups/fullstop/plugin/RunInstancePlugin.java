@@ -22,6 +22,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withNam
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getEventId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
@@ -58,6 +59,7 @@ import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 
 import com.google.common.collect.Sets;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * This plugin only handles EC-2 Events where name of event starts with "Delete".
@@ -115,10 +117,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             // everything fine
             return;
         } else {
-
-            Violation violation = new Violation(getAccountId(event), getRegionAsString(event));
-            violation.setMessage(String.format("SecurityGroups configured with ports not allowed: %s",
-                    getPorts(securityGroupList.get())));
+            String message = String.format("SecurityGroups configured with ports not allowed: %s",
+                    getPorts(securityGroupList.get()));
+            Violation violation = new ViolationBuilder(message).withEvent(event).build();
             violationStore.save(violation);
         }
     }
@@ -184,7 +185,10 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
                 String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
                         securityGroupIds.toString(), e.getMessage());
-                Violation v = new Violation(accountId, region.getName(), message);
+                Violation v = new ViolationBuilder(message)
+                        .withAccoundId(accountId)
+                        .withRegion(region.getName())
+                        .build();
                 violationStore.save(v);
                 return Optional.empty();
             }

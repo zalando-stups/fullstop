@@ -29,37 +29,33 @@ import javax.persistence.Table;
 @Entity
 public class Violation extends AbstractModifiableEntity {
 
+    private String eventId;
     private String accountId;
     private String region;
     private String message;
     private Object violationObject;
-    private String eventId;
     private String comment;
     private Boolean checked;
 
-    private Violation() {
-    }
-
-    public Violation(final Object violationObject) {
-        this.violationObject = violationObject;
-    }
-
-    public Violation(final String accountId, final String region) {
-        this.accountId = accountId;
-        this.region = region;
-    }
-
-    public Violation(final String accountId, final String region, final String message) {
-        this.accountId = accountId;
-        this.region = region;
-        this.message = message;
-    }
-
-    public Violation(final String accountId, final String region, final String message, final Object violationObject) {
+    public Violation(String eventId, String accountId, String region, String message, Object violationObject, String comment, Boolean checked) {
+        this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
         this.message = message;
         this.violationObject = violationObject;
+        this.comment = comment;
+        this.checked = checked;
+    }
+
+    public Violation() {
+    }
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     public String getAccountId() {
@@ -92,14 +88,6 @@ public class Violation extends AbstractModifiableEntity {
 
     public void setViolationObject(final Object violationObject) {
         this.violationObject = violationObject;
-    }
-
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
     }
 
     public String getComment() {
