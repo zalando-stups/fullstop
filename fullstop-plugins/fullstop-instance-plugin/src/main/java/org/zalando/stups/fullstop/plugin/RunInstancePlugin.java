@@ -60,7 +60,6 @@ import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.google.common.collect.Sets;
 
 /**
- * This plugin only handles EC-2 Events where name of event starts with "Delete".
  *
  * @author  jbellmann
  */
@@ -110,11 +109,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        if (not(securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter)))) {
-
-            // everything fine
-            return;
-        } else {
+        if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
 
             Violation violation = new Violation(getAccountId(event), getRegionAsString(event));
             violation.setMessage(String.format("SecurityGroups configured with ports not allowed: %s",

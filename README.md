@@ -25,6 +25,16 @@ by all other accounts in order to perform this operations.
 
 ![Fullstop-Cross-Account-Role](images/fullstop-cross-account-role.png)
 
+##Plugins
+
+* [fullstop-hello-event-plugin](fullstop-plugins/fullstop-hello-event-plugin)
+* [fullstop-ami-plugin](fullstop-plugins/fullstop-ami-plugin)
+* [fullstop-instance-plugin](fullstop-plugins/fullstop-instance-plugin)
+* [fullstop-keypair-plugin](fullstop-plugins/fullstop-keypair-plugin)
+* [fullstop-region-plugin](fullstop-plugins/fullstop-region-plugin)
+* [fullstop-registry-plugin](fullstop-plugins/fullstop-registry-plugin)
+* [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
+
 ##Configuration
 
 This enviroment variable should be set:

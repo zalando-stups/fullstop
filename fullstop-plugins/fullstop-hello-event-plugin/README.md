@@ -1,12 +1,17 @@
-###Document this plugin!
+##Hello Event Plugin
 
-Lorem ipsum
+###Aim of plugin
+Provide a plugin example. 
+This plugin log a statement to console:
+    
+    HELLO EVENT - {eventId}
 
-###How can I configure it?
+###Reacts on
 
-```xml
-fullstop:
-    plugins:
-        hello-event:
-            property1: value
 ```
+ALL EVENTS
+```
+
+###Configuration
+
+No configuration is needed for this plugin.
