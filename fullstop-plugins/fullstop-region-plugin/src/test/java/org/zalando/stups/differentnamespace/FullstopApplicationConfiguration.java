@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.differentnamespace;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.SysOutViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationStore;
 
-/**
- * Prints the 'violation' to system-out.
- *
- * @author  jbellmann
- */
-public class SysOutViolationStore implements ViolationStore {
+@Configuration
+public class FullstopApplicationConfiguration {
 
-    private AtomicInteger counter = new AtomicInteger(0);
-
-    @Override
-    public void save(final Violation violation) {
-        counter.incrementAndGet();
-        System.out.println(violation.toString());
+    @Bean
+    public ViolationStore violationStore() {
+        return new SysOutViolationStore();
     }
-
-    public int getInvocationCount() {
-        return counter.get();
-    }
-
 }

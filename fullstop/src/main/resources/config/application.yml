@@ -53,8 +53,10 @@ fullstop:
             s3bucket: ${FULLSTOP_S3_BUCKET}
 
         region:
-            # The whitelist of regions - TODO: spring and @value and yaml list are not wroking nicely
-            whitelistedRegions: 'eu-west-1'
+            # The whitelist of regions
+            whitelistedRegions:
+              - 'eu-west-1'
+              - 'eu-central-1'
 
         ami:
             # Account containing whitelisted AMI

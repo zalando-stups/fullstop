@@ -26,23 +26,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStore;
 import org.zalando.stups.fullstop.violation.store.slf4j.Slf4jViolationStoreProperties;
 
 /**
- * Simple Test.
+ * Simple Test with yml-configuration.
  *
  * @author  jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @IntegrationTest
-public class Slf4jViolationStoreIT {
+@ActiveProfiles("nondefault")
+public class Slf4jViolationStoreNonDefaultIT {
 
     @Autowired
     private ViolationStore violationStore;
@@ -52,13 +53,13 @@ public class Slf4jViolationStoreIT {
 
     @Test
     public void testViolationStoreCreation() {
-
-        Assertions.assertThat(properties.getLoggernames()).contains("fullstop.violations.store");
+        Assertions.assertThat(properties.getLoggernames()).contains("fullstop.violations.store",
+            "fullstop.s3.violations.store");
 
         Assertions.assertThat(violationStore).isNotNull();
         Assertions.assertThat(violationStore.getClass()).isEqualTo(Slf4jViolationStore.class);
 
-        Violation violation = new ViolationBuilder("JUST A TEST").withAccoundId("ACCOUNT_ID").withRegion("REGION").build();
+        Violation violation = new Violation("ACCOUNT_ID", "REGION", "JUST A TEST");
         this.violationStore.save(violation);
     }
 }

@@ -15,19 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.util.stream.Collectors.toList;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getEventId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
-import static org.zalando.stups.fullstop.plugin.Bool.not;
-import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,34 +39,20 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.stream.Collectors.toList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
+import static org.zalando.stups.fullstop.plugin.Bool.not;
+import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.entity.Violation;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-
-import com.amazonaws.AmazonClientException;
-
-import com.amazonaws.regions.Region;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
-import com.google.common.collect.Sets;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+p.violation.entity.ViolationBuilder;
 
 /**
- * This plugin only handles EC-2 Events where name of event starts with "Delete".
  *
  * @author  jbellmann
  */
@@ -112,15 +102,11 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        if (not(securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter)))) {
+        if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
 
-            // everything fine
-            return;
-        } else {
             String message = String.format("SecurityGroups configured with ports not allowed: %s",
                     getPorts(securityGroupList.get()));
-            Violation violation = new ViolationBuilder(message).withEvent(event).build();
-            violationStore.save(violation);
+            violationStore.save(new ViolationBuilder(message).withEvent(event).build());
         }
     }
 
@@ -179,17 +165,14 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
                 return Optional.of(result.getSecurityGroups());
             } catch (AmazonClientException e) {
-                // TODO, better ways?
-// LOG.error(e.getMessage(), e);
-// throw new RuntimeException(e.getMessage(), e);
 
+                // TODO, better ways?
                 String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
                         securityGroupIds.toString(), e.getMessage());
-                Violation v = new ViolationBuilder(message)
-                        .withAccoundId(accountId)
-                        .withRegion(region.getName())
-                        .build();
-                violationStore.save(v);
+
+                violationStore.save(new ViolationBuilder(message)
+                        .withEvent(event)
+                        .build());
                 return Optional.empty();
             }
 

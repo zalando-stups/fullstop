@@ -1,0 +1,10 @@
+##
+##
+
+fullstop:
+    violation:
+        store:
+            slf4j:
+                loggernames:
+                    - fullstop.violations.store
+                    - fullstop.s3.violations.store

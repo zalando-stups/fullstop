@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.fullstop.plugin.config;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 
 /**
- * Prints the 'violation' to system-out.
- *
  * @author  jbellmann
  */
-public class SysOutViolationStore implements ViolationStore {
+public class RegionPluginTestCloudTrailEventData extends TestCloudTrailEventData {
 
-    private AtomicInteger counter = new AtomicInteger(0);
+    private String region;
 
-    @Override
-    public void save(final Violation violation) {
-        counter.incrementAndGet();
-        System.out.println(violation.toString());
+    public RegionPluginTestCloudTrailEventData(final String classpathResource, final String region) {
+        super(classpathResource);
+        this.region = region;
     }
 
-    public int getInvocationCount() {
-        return counter.get();
+    @Override
+    public String getAwsRegion() {
+        return region;
     }
 
 }

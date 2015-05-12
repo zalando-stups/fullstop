@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.fullstop.violation.store.slf4j;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import com.google.common.collect.Lists;
 
 /**
- * Prints the 'violation' to system-out.
- *
  * @author  jbellmann
  */
-public class SysOutViolationStore implements ViolationStore {
+@ConfigurationProperties(prefix = "fullstop.violation.store.slf4j")
+public class Slf4jViolationStoreProperties {
 
-    private AtomicInteger counter = new AtomicInteger(0);
+    private List<String> loggernames = Lists.newArrayList("fullstop.violations.store");
 
-    @Override
-    public void save(final Violation violation) {
-        counter.incrementAndGet();
-        System.out.println(violation.toString());
+    public List<String> getLoggernames() {
+        return loggernames;
     }
 
-    public int getInvocationCount() {
-        return counter.get();
+    public void setLoggernames(final List<String> loggernames) {
+        this.loggernames = loggernames;
     }
 
 }
