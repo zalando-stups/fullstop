@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -31,11 +32,6 @@
 
     <dependencies>
         <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>fullstop-subnet-plugin</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-timemachine</artifactId>
             <version>${project.version}</version>
@@ -43,11 +39,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-processing</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -60,7 +51,7 @@
             <artifactId>fullstop-violation-store-slf4j</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        
         <!-- START PLUGINS -->
         <!--
         <dependency>
@@ -69,6 +60,11 @@
             <version>${project.version}</version>
         </dependency>
          -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-subnet-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-instance-plugin</artifactId>
@@ -90,13 +86,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.zalando.stups</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-keypair-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
         <!-- END PLUGINS -->
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

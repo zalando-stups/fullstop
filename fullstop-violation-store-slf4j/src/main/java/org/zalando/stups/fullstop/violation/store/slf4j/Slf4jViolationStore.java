@@ -22,8 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.util.StringUtils;
 
-import org.zalando.stups.fullstop.violation.Violation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 import com.google.common.collect.Lists;
 
@@ -35,6 +37,9 @@ import com.google.common.collect.Lists;
 public class Slf4jViolationStore implements ViolationStore {
 
     private static final String DEFAULT_LOGGER_NAME = "fullstop.violations.store";
+    @Autowired
+    private ViolationRepository violationRepository;
+
     public static final String VIOLATION = "VIOLATION: ";
 
     private final List<Logger> loggers = Lists.newArrayList();
@@ -62,6 +67,8 @@ public class Slf4jViolationStore implements ViolationStore {
         for (Logger logger : loggers) {
             logger.info(sb.toString());
         }
+
+        violationRepository.save(violation);
     }
 
 }

@@ -33,10 +33,10 @@ import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  gkneitschel
@@ -71,7 +71,6 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
         // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
 
-        String accountId = getAccountId(event);
         String region = getRegionAsString(event);
         List<String> instances = getInstanceIds(event);
 
@@ -83,12 +82,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
-            violationStore.save(new Violation(accountId, region, message));
-        } else {
-
-            // Do we need this?
-            LOG.info("Region: correct region set.");
+            violationStore.save(new ViolationBuilder
+                    (message).withEvent(event).build());
         }
     }
-
 }

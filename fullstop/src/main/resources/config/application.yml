@@ -1,6 +1,18 @@
 #
 #
 #
+spring:
+    datasource:
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USER}
+        password: ${DATABASE_PASSWORD}
+        driver-class-name: ${DATABASE_DRIVER}
+#    jpa:
+#        hibernate:
+#            ddl-auto: create-drop
+#        show-sql: true
+# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
+
 fullstop:
 
     logging:

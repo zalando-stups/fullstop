@@ -24,13 +24,13 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SysOutViolationStore;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 
 /**
  * @author  jbellmann

@@ -32,8 +32,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,12 +119,11 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-                    format("Instances with ids: %s was started with wrong images: %s", getInstanceIds(event),
-                            invalidAmis)));
-        } else {
-            violationStore.save(new Violation(getAccountId(event), getRegionAsString(event),
-                    format("Ami for instance: %s is whitelisted.", getInstanceIds(event))));
+            violationStore.save(
+                    new ViolationBuilder(format("Instances with ids: %s was started with wrong images: %s", getInstanceIds(event),
+                            invalidAmis)).
+                            withEvent(event).
+                            build());
         }
     }
 }

@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
 
+package org.zalando.stups.fullstop.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+
+import java.util.List;
 
 /**
- * We to somehow/somewhere store the findings.
- *
- * @author  jbellmann
+ * Created by gkneitschel.
  */
-public interface ViolationStore {
+@RestController
+public class ViolationsController {
+    @Autowired
+    private ViolationRepository violationRepository;
 
-    void save(Violation violation);
+    @RequestMapping(value = "/violations")
+    public List<Violation> violations() {
+        return violationRepository.findAll();
+    }
 
 }
+
+

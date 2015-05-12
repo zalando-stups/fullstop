@@ -92,6 +92,11 @@ public abstract class CloudtrailEventSupport {
         return read(responseElements, INSTANCE_ID_JSON_PATH);
     }
 
+    public static String getEventId(final CloudTrailEvent event){
+        return event.getEventData().getEventId().toString();
+    }
+
+
     /**
      * Extracts the 'accountId'.
      */

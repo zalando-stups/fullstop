@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
 
+package org.zalando.stups.fullstop.violation.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.Violation;
 
+import java.util.List;
+
 /**
- * We to somehow/somewhere store the findings.
- *
- * @author  jbellmann
+ * Created by gkneitschel.
  */
-public interface ViolationStore {
+@Repository
+public interface ViolationRepository extends JpaRepository<Violation, Integer> {
 
-    void save(Violation violation);
-
+    List<Violation> findByAccountId(String accountId);
 }

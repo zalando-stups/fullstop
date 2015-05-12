@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
 
-import java.util.concurrent.atomic.AtomicInteger;
+package org.zalando.stups.fullstop.violation.converter;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Prints the 'violation' to system-out.
- *
- * @author  jbellmann
- */
-public class SysOutViolationStore implements ViolationStore {
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-    private AtomicInteger counter = new AtomicInteger(0);
+@Converter(autoApply = true)
+public class ViolationObjectConverter implements AttributeConverter<Object, String> {
 
     @Override
-    public void save(final Violation violation) {
-        counter.incrementAndGet();
-        System.out.println(violation.toString());
+    public String convertToDatabaseColumn(final Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return obj.toString();
     }
 
-    public int getInvocationCount() {
-        return counter.get();
+    @Override
+    public Object convertToEntityAttribute(final String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        return value;
     }
-
 }

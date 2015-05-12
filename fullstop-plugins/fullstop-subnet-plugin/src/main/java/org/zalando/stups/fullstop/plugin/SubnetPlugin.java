@@ -16,6 +16,7 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -35,8 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,7 +88,16 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, event.getEventData().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeInstancesResult describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
+        DescribeInstancesResult describeInstancesResult = null;
+        try {
+            describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
+        } catch (AmazonServiceException e){
+            violationStore.save(
+                    new ViolationBuilder(e.getMessage()).withEvent(event).build());
+            return;
+        }
+
+
         List<Reservation> reservations = describeInstancesResult.getReservations();
         for (Reservation reservation : reservations) {
             List<Instance> instances = reservation.getInstances();
@@ -100,18 +111,19 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
         if (routeTables == null || routeTables.size() == 0) {
             violationStore.save(
-                    new Violation(getAccountId(event), getRegionAsString(event),
-                            format("Instances %s have no routing information associated", instanceIds.toString())));
+                    new ViolationBuilder(format("Instances %s have no routing information associated", instanceIds.toString())).
+                            withEvent(event).build());
             return;
         }
         for (RouteTable routeTable : routeTables) {
             List<Route> routes = routeTable.getRoutes();
             routes.stream().filter(route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
                     !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> violationStore.save(
-                    new Violation(getAccountId(event), getRegionAsString(event),
-                            format("ROUTES: instance %s is running in a public subnet %s",
-                                    route.getInstanceId(), route.getNetworkInterfaceId()))
-            ));
+
+                    new ViolationBuilder(format("ROUTES: instance %s is running in a public subnet %s",
+                            route.getInstanceId(), route.getNetworkInterfaceId())).
+                            withEvent(event).
+                            build()));
         }
 
     }
