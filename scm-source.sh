@@ -2,7 +2,7 @@
 REV=$(git rev-parse HEAD)
 URL=$(git config --get remote.origin.url)
 STATUS=$(git status --porcelain)
-CREATED=
+
 if [ -n "$STATUS" ]; then
     REV="$REV (locally modified)"
 fi
