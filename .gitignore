@@ -1,3 +1,10 @@
+
+#####
+# DO NOT DELETE THESE (2) ENTRIES
+fullstop/src/main/resources/config/application-development.yml
+fullstop/src/main/resources/config/application-local.yml
+#####
+
 .project
 .classpath
 .settings
@@ -6,12 +13,5 @@ target
 .idea
 fullstop/src/main/resources/logs
 ERRORS*
-
-#
-# DO NOT DELETE THESE (2) ENTRIES
-fullstop/src/main/resources/config/application-development.yml
-fullstop/src/main/resources/config/application-local.yml
-
-
 violations.log
 violations.*.log

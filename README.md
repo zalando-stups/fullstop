@@ -77,6 +77,10 @@ Build fullstop:
 
     $ mvn clean install -U
     
+Build scm-source.json:
+
+    $ ./scm-source.sh
+    
 Build docker image:
 
     $ docker build -t registry/fullstop:0.1 fullstop
