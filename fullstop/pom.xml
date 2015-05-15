@@ -24,11 +24,13 @@
     </parent>
 
     <artifactId>fullstop</artifactId>
-    <name>Fullstop -- Example Audit reporting application</name>
+    <name>Fullstop -- Audit reporting application</name>
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
+        <spring-cloud-config.version>1.0.0.RELEASE</spring-cloud-config.version>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -103,6 +105,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>spring-cloud-config-aws-kms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
+            <version>${spring-cloud-config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-kms</artifactId>
+            <version>1.9.30</version>
         </dependency>
 
         <!-- TESTING -->

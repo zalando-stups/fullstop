@@ -66,6 +66,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>de.zalando</groupId>
+                <artifactId>spring-cloud-config-aws-kms</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-cloudtrail-processing-library</artifactId>
                 <version>1.0.0</version>
