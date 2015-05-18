@@ -1,0 +1,4 @@
+aws:
+    region: eu-west-1
+    kms:
+        keyId: ${AMAZON_KEY_ID}
