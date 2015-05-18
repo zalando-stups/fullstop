@@ -33,6 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>1.2.3.RELEASE</spring-boot.version>
         <aws-java-sdk.version>1.9.35</aws-java-sdk.version>
+        <spring-cloud-config-aws-kms.version>1.2</spring-cloud-config-aws-kms.version>
         <java.source>1.8</java.source>
         <java.target>1.8</java.target>
 
@@ -68,7 +69,7 @@
             <dependency>
                 <groupId>de.zalando</groupId>
                 <artifactId>spring-cloud-config-aws-kms</artifactId>
-                <version>1.1</version>
+                <version>${spring-cloud-config-aws-kms.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
