@@ -48,6 +48,11 @@ This enviroment variable should be set:
     FULLSTOP_S3_BUCKET
     FULLSTOP_KIO_URL
     FULLSTOP_PIERONE_URL
+    DATABASE_URL
+    DATABASE_USER
+    DATABASE_PASSWORD
+    DATABASE_DRIVER
+    AMAZON_KEY_ID
 
 Example:
 
@@ -60,6 +65,24 @@ Example:
     $ export FULLSTOP_S3_BUCKET=fullstop-bucket
     $ export FULLSTOP_KIO_URL: https://application.registry.address
     $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
+    $ export DATABASE_URL='jdbc:postgresql://localhost:5432/fullstop'
+    $ export DATABASE_USER=postgres
+    $ export DATABASE_PASSWORD='{cipher}234laksnfdlF83NHALF'
+    $ export DATABASE_DRIVER=org.postgresql.Driver
+    $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
+
+##Database setup
+Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables
+for you. The database itself, however, has to be created by you.
+Your database password is encrypted with [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html). 
+We are using our [Spring Cloud Config add-on](https://github.com/zalando/spring-cloud-config-aws-kms) to decrypt the
+the password on the fly. 
+To use Amazons KMS for de/encryption, you need to to provide a region and the key id for your key. In Fullstop, both
+will be provided via environment variables.
+
+The password should be already encrypted, when you store it in the ```DATABASE_PASSWORD``` environment variable. An 
+encrypted password always starts with ```{cipher}```. You can use our [CLI tool](https://github.com/zalando/spring-cloud-config-aws-kms/tree/master/encryption-cli)
+for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html#examples). 
 
 ##How to build
 

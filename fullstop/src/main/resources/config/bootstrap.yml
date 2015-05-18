@@ -1,4 +1,4 @@
 aws:
-    region: eu-west-1
+    region: ${ENCRYPT_REGION}
     kms:
         keyId: ${AMAZON_KEY_ID}
