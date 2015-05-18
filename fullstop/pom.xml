@@ -109,6 +109,7 @@
         <dependency>
             <groupId>de.zalando</groupId>
             <artifactId>spring-cloud-config-aws-kms</artifactId>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
