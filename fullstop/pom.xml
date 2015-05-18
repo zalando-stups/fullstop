@@ -116,11 +116,6 @@
             <artifactId>spring-cloud-config-client</artifactId>
             <version>${spring-cloud-config.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-kms</artifactId>
-            <version>1.9.30</version>
-        </dependency>
 
         <!-- TESTING -->
         <dependency>
