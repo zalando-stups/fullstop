@@ -34,14 +34,14 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 public class FullstopConfig {
 
     @Autowired
-    private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+    private PluginRegistry<FullstopPlugin, CloudTrailEvent> fullstopPluginRegistry;
 
     @Autowired
     private CloudTrailProcessingLibraryProperties cloudTrailsProcessingLibraryProperties;
 
     @Bean
     public PluginEventsProcessor pluginEventsProcessor() {
-        return new PluginEventsProcessor(pluginRegistry);
+        return new PluginEventsProcessor(fullstopPluginRegistry);
 
     }
 

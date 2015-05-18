@@ -51,7 +51,7 @@
             <artifactId>fullstop-violation-store-slf4j</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- START PLUGINS -->
         <!--
         <dependency>

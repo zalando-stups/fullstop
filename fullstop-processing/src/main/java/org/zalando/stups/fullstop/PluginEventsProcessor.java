@@ -42,11 +42,11 @@ public class PluginEventsProcessor implements EventsProcessor {
 
     private final Logger log = LoggerFactory.getLogger(PluginEventsProcessor.class);
 
-    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> fullstopPluginRegistry;
 
     @Autowired
-    public PluginEventsProcessor(final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry) {
-        this.pluginRegistry = pluginRegistry;
+    public PluginEventsProcessor(final PluginRegistry<FullstopPlugin, CloudTrailEvent> fullstopPluginRegistry) {
+        this.fullstopPluginRegistry = fullstopPluginRegistry;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class PluginEventsProcessor implements EventsProcessor {
      * @return  list of plugins configured
      */
     protected List<FullstopPlugin> getPluginsForEvent(final CloudTrailEvent event) {
-        return this.pluginRegistry.getPluginsFor(event);
+        return this.fullstopPluginRegistry.getPluginsFor(event);
     }
 
 }
