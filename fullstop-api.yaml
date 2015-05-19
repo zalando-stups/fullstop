@@ -40,7 +40,7 @@ definitions:
       checked:
         type: boolean
         example: "true"
-
+        
   LogObj:
     type: object
     properties:
@@ -56,13 +56,14 @@ definitions:
       region:
         type: string
         example: "eu-west-1"
-      bootstrap_date:
+      instance_boot_time:
         type: string
+        format: date-time
         example: 20150513T1044Z
-      log:
-        type: object
+      log_data:
+        type: string
         example: ""
-
+        
   Acknowledged:
     type: object
     properties:
@@ -131,8 +132,8 @@ paths:
             description: Acknowledged metadata and object
 
 
-  /v1/instances/logs:
-    put:
+  /instances/logs:
+    post:
       summary: Put instance log in S3
       description: Add log for instance in S3
       tags:
