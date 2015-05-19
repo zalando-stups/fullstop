@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.swagger.configuration;
 
+import com.google.common.base.Predicate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -32,19 +33,27 @@ public class SwaggerConfig {
     @Bean
     ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo(
-        "Fullstop API",
-        "Audit reporting",
-        "0.0.1-alpha",
-        "",
-        "foo@example.com",
-        "Apache 2.0",
-        "http://www.apache.org/licenses/LICENSE-2.0.html" );
+                "Fullstop API",
+                "Audit reporting",
+                "0.0.1-alpha",
+                "",
+                "foo@example.com",
+                "Apache 2.0",
+                "http://www.apache.org/licenses/LICENSE-2.0.html");
         return apiInfo;
     }
 
     @Bean
-    public Docket customImplementation(){
-        return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo());
+    public Docket customImplementation() {
+        return new Docket(DocumentationType.SWAGGER_2) //
+                .apiInfo(apiInfo())                    //
+                .select()                              //
+                .paths(fullstopOnlyEndpoints())        //
+                .build();
+    }
+
+    private Predicate<String> fullstopOnlyEndpoints() {
+        return input -> input.contains("/v1/");
     }
 
 }
