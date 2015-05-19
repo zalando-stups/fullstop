@@ -41,10 +41,7 @@ public class V1Api {
     @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all violations for one account")})
-    @RequestMapping(value = "/accountViolations/{account_id}",
-
-
-            method = RequestMethod.GET)
+    @RequestMapping(value = "/accountViolations/{account_id}", method = RequestMethod.GET)
     public ResponseEntity<Violation> orgZalandoStupsFullstopApiv1Violationsaccount(@ApiParam(value = "", required = true) @PathVariable("accountId") String accountId)
             throws NotFoundException {
         // do some magic!
@@ -55,10 +52,7 @@ public class V1Api {
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Logs saved successfully")})
-    @RequestMapping(value = "/instances/logs",
-
-
-            method = RequestMethod.PUT)
+    @RequestMapping(value = "/instances/logs", method = RequestMethod.PUT)
     public ResponseEntity<Void> orgZalandoStupsFullstopApiv1Instancelogs(@ApiParam(value = "", required = true) LogObj log)
             throws NotFoundException {
         // do some magic!
@@ -69,10 +63,7 @@ public class V1Api {
     @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all violations")})
-    @RequestMapping(value = "/violations",
-
-
-            method = RequestMethod.GET)
+    @RequestMapping(value = "/violations", method = RequestMethod.GET)
     public ResponseEntity<Violation> orgZalandoStupsFullstopApiv1Violations()
             throws NotFoundException {
         // do some magic!
@@ -83,10 +74,7 @@ public class V1Api {
     @ApiOperation(value = "Comment and acknowledged violation", notes = "Comment and acknowledged violation", response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Violation updated successfully")})
-    @RequestMapping(value = "/violations/{id}",
-
-
-            method = RequestMethod.PUT)
+    @RequestMapping(value = "/violations/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Void> orgZalandoStupsFullstopApiv1Violationsack(@ApiParam(value = "", required = true) @PathVariable("id") String id,
                                                                           @ApiParam(value = "", required = true) Acknowledged acknowledged)
             throws NotFoundException {
