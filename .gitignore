@@ -13,5 +13,7 @@ target
 .idea
 fullstop/src/main/resources/logs
 ERRORS*
+
+
 violations.log
 violations.*.log
