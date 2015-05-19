@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.zalando.stups.fullstop.swagger.model;
 
 
@@ -22,11 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @ApiModel(description = "")
 public class Acknowledged  {
-
+  
   private Boolean checked = null;
   private String message = null;
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -38,7 +39,7 @@ public class Acknowledged  {
     this.checked = checked;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -50,13 +51,13 @@ public class Acknowledged  {
     this.message = message;
   }
 
-
+  
 
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class Acknowledged {\n");
-
+    
     sb.append("  checked: ").append(checked).append("\n");
     sb.append("  message: ").append(message).append("\n");
     sb.append("}\n");

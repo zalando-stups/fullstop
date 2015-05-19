@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.zalando.stups.fullstop.swagger.model;
+
+import java.util.Date;
 
 import com.wordnik.swagger.annotations.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,15 +24,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @ApiModel(description = "")
 public class LogObj  {
-
+  
   private String logType = null;
   private String instanceId = null;
   private String accountId = null;
   private String region = null;
-  private String bootstrapDate = null;
-  private Object log = null;
+  private Date instanceBootTime = null;
+  private String logData = null;
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -41,7 +44,7 @@ public class LogObj  {
     this.logType = logType;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -53,7 +56,7 @@ public class LogObj  {
     this.instanceId = instanceId;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -65,7 +68,7 @@ public class LogObj  {
     this.accountId = accountId;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -77,43 +80,43 @@ public class LogObj  {
     this.region = region;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("bootstrapDate")
-  public String getBootstrapDate() {
-    return bootstrapDate;
+  @JsonProperty("instanceBootTime")
+  public Date getInstanceBootTime() {
+    return instanceBootTime;
   }
-  public void setBootstrapDate(String bootstrapDate) {
-    this.bootstrapDate = bootstrapDate;
+  public void setInstanceBootTime(Date instanceBootTime) {
+    this.instanceBootTime = instanceBootTime;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("log")
-  public Object getLog() {
-    return log;
+  @JsonProperty("logData")
+  public String getLogData() {
+    return logData;
   }
-  public void setLog(Object log) {
-    this.log = log;
+  public void setLogData(String logData) {
+    this.logData = logData;
   }
 
-
+  
 
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogObj {\n");
-
+    
     sb.append("  logType: ").append(logType).append("\n");
     sb.append("  instanceId: ").append(instanceId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
-    sb.append("  bootstrapDate: ").append(bootstrapDate).append("\n");
-    sb.append("  log: ").append(log).append("\n");
+    sb.append("  instanceBootTime: ").append(instanceBootTime).append("\n");
+    sb.append("  logData: ").append(logData).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.zalando.stups.fullstop.swagger.api;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -28,9 +29,9 @@ public class ApiResponseMessage {
 	int code;
 	String type;
 	String message;
-
+	
 	public ApiResponseMessage(){}
-
+	
 	public ApiResponseMessage(int code, String message){
 		this.code = code;
 		switch(code){

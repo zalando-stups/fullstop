@@ -53,7 +53,7 @@ public class SwaggerConfig {
     }
 
     private Predicate<String> fullstopOnlyEndpoints() {
-        return input -> input.contains("/v1/");
+        return input -> input.contains("/api/");
     }
 
 }

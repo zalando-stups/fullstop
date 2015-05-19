@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.zalando.stups.fullstop.swagger.model;
+
 
 import com.wordnik.swagger.annotations.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @ApiModel(description = "")
 public class Violation  {
-
+  
   private String eventId = null;
   private String accountId = null;
   private String region = null;
@@ -30,7 +32,7 @@ public class Violation  {
   private String comment = null;
   private Boolean checked = null;
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -42,7 +44,7 @@ public class Violation  {
     this.eventId = eventId;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -54,7 +56,7 @@ public class Violation  {
     this.accountId = accountId;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -66,7 +68,7 @@ public class Violation  {
     this.region = region;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -78,7 +80,7 @@ public class Violation  {
     this.message = message;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -90,7 +92,7 @@ public class Violation  {
     this.violationObject = violationObject;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -102,7 +104,7 @@ public class Violation  {
     this.comment = comment;
   }
 
-
+  
   /**
    **/
   @ApiModelProperty(value = "")
@@ -114,13 +116,13 @@ public class Violation  {
     this.checked = checked;
   }
 
-
+  
 
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class Violation {\n");
-
+    
     sb.append("  eventId: ").append(eventId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
