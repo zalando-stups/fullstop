@@ -24,11 +24,12 @@
     </parent>
 
     <artifactId>fullstop</artifactId>
-    <name>Fullstop -- Example Audit reporting application</name>
+    <name>Fullstop -- Audit reporting application</name>
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -104,6 +105,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.zalando</groupId>
+            <artifactId>spring-cloud-config-aws-kms</artifactId>
+        </dependency>
+       
 
         <!-- TESTING -->
         <dependency>
