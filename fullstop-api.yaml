@@ -8,7 +8,7 @@ info:
 schemes:
   - https
 
-basePath: /
+basePath: /api/
 
 consumes:
   - application/json
@@ -40,6 +40,7 @@ definitions:
       checked:
         type: boolean
         example: "true"
+  
         
   LogObj:
     type: object
@@ -78,28 +79,41 @@ paths:
 
   ## Fullstop API v1
 
-  /v1/violations:
+  /api/violations:
     get:
       summary: violations
       description: Get all violations
       tags:
-        - Fullstop API v1
-      operationId: org.zalando.stups.fullstop.api-v1/violations
+        - Fullstop API
+      operationId: violations
       responses:
         "200":
           description: List of all violations
           schema:
             $ref: "#/definitions/Violation"
+  
+  /api/accountIds:
+    get:
+      summary: accountIds
+      description: Get all account ids
+      tags:
+        - Fullstop API
+      operationId: accountId
+      responses:
+        "200":
+          description: List of all account Ids
+          schema:
+            type: string
 
-  /v1/accountViolations/{account_id}:
+  /api/accountViolations/{accountId}:
     get:
       summary: Violations for one account
       description: Get all violations for one account
       tags:
-        - Fullstop API v1
-      operationId: org.zalando.stups.fullstop.api-v1/violations-account
+        - Fullstop API
+      operationId: accountViolations
       parameters:
-        - name: account_id
+        - name: accountId
           in: path
           type: string
           required: true
@@ -109,20 +123,20 @@ paths:
           schema:
             $ref: "#/definitions/Violation"
 
-  /v1/violations/{id}:
+  /api/violations/{id}:
     put:
       summary: Comment and acknowledged violation
       description: Comment and acknowledged violation
       tags:
-        - Fullstop API v1
-      operationId: org.zalando.stups.fullstop.api-v1/violations-ack
+        - Fullstop API
+      operationId: acknowledgedViolations
       responses:
         "200":
           description: Violation updated successfully
       parameters:
         - name: id
           in: path
-          type: string
+          type: integer
           required: true
         - name: acknowledged
           in: body
@@ -132,13 +146,13 @@ paths:
             description: Acknowledged metadata and object
 
 
-  /instances/logs:
+  /api/instances/logs:
     post:
       summary: Put instance log in S3
       description: Add log for instance in S3
       tags:
-        - Fullstop API v1
-      operationId: org.zalando.stups.fullstop.api-v1/instance-logs
+        - Fullstop API
+      operationId: instanceLogs
       responses:
         "200":
           description: Logs saved successfully

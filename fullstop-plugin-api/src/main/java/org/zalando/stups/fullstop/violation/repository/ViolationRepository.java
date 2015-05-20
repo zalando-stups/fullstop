@@ -17,6 +17,7 @@
 package org.zalando.stups.fullstop.violation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.Violation;
 
@@ -29,4 +30,7 @@ import java.util.List;
 public interface ViolationRepository extends JpaRepository<Violation, Integer> {
 
     List<Violation> findByAccountId(String accountId);
+
+    @Query(value = "SELECT DISTINCT v.account_id FROM fullstop_data.violation v", nativeQuery = true)
+    List<String> findAccountId();
 }

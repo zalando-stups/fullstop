@@ -22,19 +22,13 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
@@ -43,7 +37,7 @@ import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Controller
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
@@ -51,6 +45,21 @@ import static org.springframework.http.MediaType.*;
 public class ApiApi {
     @Autowired
     ViolationRepository violationRepository;
+
+
+    @ApiOperation(value = "accountIds", notes = "Get all account ids", response = String.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "List of all account Ids") })
+    @RequestMapping(value = "/accountIds",
+
+
+            method = RequestMethod.GET)
+    public ResponseEntity<List<String>> accountId()
+            throws NotFoundException {
+        List<String> accountIds = violationRepository.findAccountId();
+        return new ResponseEntity<List<String>>(accountIds, HttpStatus.OK);
+    }
+
 
   @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
   @ApiResponses(value = { 
