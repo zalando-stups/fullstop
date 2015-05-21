@@ -47,7 +47,9 @@ definitions:
     properties:
       log_type:
         type: string
-        example: AUDIT_LOG or USER_DATA
+        enum:
+          - AUDIT_LOG
+          - USER_DATA
       instance_id:
         type: string
         example: "i-123kd"
