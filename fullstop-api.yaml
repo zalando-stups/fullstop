@@ -40,8 +40,8 @@ definitions:
       checked:
         type: boolean
         example: "true"
-  
-        
+
+
   LogObj:
     type: object
     properties:
@@ -64,7 +64,7 @@ definitions:
       log_data:
         type: string
         example: ""
-        
+
   Acknowledged:
     type: object
     properties:
@@ -90,8 +90,10 @@ paths:
         "200":
           description: List of all violations
           schema:
-            $ref: "#/definitions/Violation"
-  
+            type: array
+            items:
+              $ref: "#/definitions/Violation"
+
   /api/accountIds:
     get:
       summary: accountIds
@@ -103,7 +105,9 @@ paths:
         "200":
           description: List of all account Ids
           schema:
-            type: string
+            type: array
+            items:
+              type: string
 
   /api/accountViolations/{accountId}:
     get:
@@ -121,7 +125,9 @@ paths:
         "200":
           description: List of all violations for one account
           schema:
-            $ref: "#/definitions/Violation"
+            type: array
+            items:
+              $ref: "#/definitions/Violation"
 
   /api/violations/{id}:
     put:
