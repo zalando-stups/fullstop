@@ -217,7 +217,13 @@
             <id>mrandi</id>
             <name>Michele Randi</name>
             <organization>Zalando SE</organization>
-            <email>michele.randi@zalando.dem</email>
+            <email>michele.randi@zalando.de</email>
+        </developer>
+        <developer>
+            <id>gkneitschel</id>
+            <name>Gregor Kneitschel</name>
+            <organization>Zalando SE</organization>
+            <email>gregor.kneitschel@zalando.de</email>
         </developer>
     </developers>
 </project>
