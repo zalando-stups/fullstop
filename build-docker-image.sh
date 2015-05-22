@@ -22,14 +22,17 @@ boot2docker start
 echo '##### Docker build #####'
 docker build -t $FULL_IMAGE fullstop
 
+echo '##### Pierone login####'
+pierone login
+
 echo '##### Docker push #####'
 docker push $FULL_IMAGE
 
-echo '##### mai authentication with default profile #####'
-mai
-
 echo '##### Print stack configuration #####'
 senza print $SENZA_CONFIGURATION_YAML --region eu-west-1 $STACK_VERSION $APP_VERSION
+
+echo '##### mai authentication with default profile #####'
+mai
 
 echo '##### Create stack in aws with senza with --disable-rollback option #####'
 senza create $SENZA_CONFIGURATION_YAML --disable-rollback --region eu-west-1 $STACK_VERSION $APP_VERSION
