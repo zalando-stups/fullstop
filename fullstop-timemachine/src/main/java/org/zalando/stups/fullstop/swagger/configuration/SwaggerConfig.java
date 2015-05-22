@@ -37,7 +37,7 @@ public class SwaggerConfig {
                 "Audit reporting",
                 "0.0.1-alpha",
                 "",
-                "foo@example.com",
+                "",
                 "Apache 2.0",
                 "http://www.apache.org/licenses/LICENSE-2.0.html");
         return apiInfo;
