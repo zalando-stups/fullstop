@@ -52,7 +52,12 @@
             <artifactId>fullstop-violation-store-slf4j</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-s3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- START PLUGINS -->
         <!--
         <dependency>

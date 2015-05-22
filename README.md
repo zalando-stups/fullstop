@@ -54,6 +54,7 @@ This enviroment variable should be set:
     DATABASE_DRIVER
     AMAZON_KEY_ID
     ENCRYPT_REGION
+    INSTANCE_LOGS_S3_BUCKET
 
 Example:
 
@@ -72,6 +73,7 @@ Example:
     $ export DATABASE_DRIVER=org.postgresql.Driver
     $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
     $ export ENCRYPT_REGION=eu-west-1
+    $ export INSTANCE_LOGS_S3_BUCKET=my-s3-bucket
 
 ##Database setup
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables
