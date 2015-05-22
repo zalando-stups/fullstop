@@ -59,5 +59,4 @@
             <artifactId>assertj-core</artifactId>
         </dependency>
     </dependencies>
-
 </project>
