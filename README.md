@@ -1,3 +1,4 @@
+[![DUB](https://img.shields.io/badge/status-in%20development-orange.svg)](http://docs.stups.io/en/latest/components/fullstop.html)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
 [![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
 
