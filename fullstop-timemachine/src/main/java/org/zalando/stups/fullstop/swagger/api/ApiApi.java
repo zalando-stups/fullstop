@@ -1,12 +1,12 @@
 /**
  * Copyright 2015 Zalando SE
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,8 +22,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,12 +41,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
 @Api(value = "/api", description = "the api API")
 public class ApiApi {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApiApi.class);
 
     @Autowired
     private S3Writer s3Writer;
@@ -55,80 +60,64 @@ public class ApiApi {
 
     @ApiOperation(value = "accountIds", notes = "Get all account ids", response = String.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of all account Ids") })
-    @RequestMapping(value = "/accountIds",
-
-
-            method = RequestMethod.GET)
+            @ApiResponse(code = 200, message = "List of all account Ids")})
+    @RequestMapping(value = "/accountIds", method = RequestMethod.GET)
     public ResponseEntity<List<String>> accountId()
             throws NotFoundException {
         List<String> accountIds = violationRepository.findAccountId();
-        return new ResponseEntity<List<String>>(accountIds, HttpStatus.OK);
+        return new ResponseEntity<>(accountIds, OK);
     }
 
 
-  @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
-  @ApiResponses(value = { 
-    @ApiResponse(code = 200, message = "List of all violations for one account") })
-  @RequestMapping(value = "/accountViolations/{accountId}",
+    @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "List of all violations for one account")})
+    @RequestMapping(value = "/accountViolations/{accountId}", method = RequestMethod.GET)
+    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("accountId") String accountId)
+            throws NotFoundException {
+        List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
+        List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
+        return new ResponseEntity<>(frontendViolationsByAccount, OK);
+    }
 
-    
-    method = RequestMethod.GET)
-  public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "",required=true ) @PathVariable("accountId") String accountId)
-      throws NotFoundException {
-      List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
-      List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
-      return new ResponseEntity<List<Violation>>(frontendViolationsByAccount, HttpStatus.OK);
-  }
 
-  
-
-  @ApiOperation(value = "Put instance instanceLogs in S3", notes = "Add instanceLogs for instance in S3", response = Void.class)
-  @ApiResponses(value = { 
-    @ApiResponse(code = 200, message = "Logs saved successfully") })
-  @RequestMapping(value = "/instances/logs", 
-    
-    
-    method = RequestMethod.POST)
-  public ResponseEntity<Void> instanceLogs(@ApiParam(value = "" ,required=true )@RequestBody LogObj instanceLogs)
-      throws NotFoundException {
+    @ApiOperation(value = "Put instance instanceLogs in S3", notes = "Add instanceLogs for instance in S3", response = Void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Logs saved successfully")})
+    @RequestMapping(value = "/instances/logs", method = RequestMethod.POST)
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true) @RequestBody LogObj instanceLogs)
+            throws NotFoundException {
         saveLog(instanceLogs);
-      return new ResponseEntity<Void>(HttpStatus.OK); //TODO: HttpStatus.CREATED instead of OK?
-  }
+        return new ResponseEntity<>(CREATED);
+    }
 
     @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class)
-  @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "List of all violations") })
-  @RequestMapping(value = "/violations",
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "List of all violations")})
+    @RequestMapping(value = "/violations", method = RequestMethod.GET)
+    public ResponseEntity<List<Violation>> violations()
+            throws NotFoundException {
+        List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations = violationRepository.findAll();
+        List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
 
 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<Violation>> violations()
-      throws NotFoundException {
-      List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations = violationRepository.findAll();
-      List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
-
-
-      return new ResponseEntity<List<Violation>>(frontendViolations, HttpStatus.OK);
-  }
+        return new ResponseEntity<>(frontendViolations, OK);
+    }
 
 
     @ApiOperation(value = "Comment and acknowledged violation", notes = "Comment and acknowledged violation", response = Void.class)
-  @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Violation updated successfully") })
-  @RequestMapping(value = "/violations/{id}",
-
-
-    method = RequestMethod.PUT)
-  public ResponseEntity<Void> acknowledgedViolations(@ApiParam(value = "",required=true ) @PathVariable("id") Integer id,
-    @ApiParam(value = "" ,required=true ) Acknowledged acknowledged)
-      throws NotFoundException {
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Violation updated successfully")})
+    @RequestMapping(value = "/violations/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Void> acknowledgedViolations(@ApiParam(value = "", required = true) @PathVariable("id") Integer id,
+                                                       @ApiParam(value = "", required = true) Acknowledged acknowledged)
+            throws NotFoundException {
         org.zalando.stups.fullstop.violation.entity.Violation violation = violationRepository.findOne(id);
         violation.setChecked(acknowledged.getChecked());
         violation.setComment(acknowledged.getMessage());
         violationRepository.save(violation);
-        return new ResponseEntity<Void>(HttpStatus.OK);
-  }
+        return new ResponseEntity<>(OK);
+    }
 
     private List<Violation> mapBackendToFrontendViolations(List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations) {
         List<Violation> frontendViolations = new ArrayList<>();
@@ -150,11 +139,11 @@ public class ApiApi {
 
     private void saveLog(LogObj instanceLogs) {
         try {
-            s3Writer.writeToS3(instanceLogs.getAccountId(), instanceLogs.getRegion(), instanceLogs.getInstanceBootTime() , instanceLogs.getLogData(), instanceLogs.getLogType(), instanceLogs.getInstanceId());
+            s3Writer.writeToS3(instanceLogs.getAccountId(), instanceLogs.getRegion(), instanceLogs.getInstanceBootTime(), instanceLogs.getLogData(), instanceLogs.getLogType(), instanceLogs.getInstanceId());
         } catch (IOException e) {
-            e.printStackTrace(); //TODO logerror
+            logger.error(e.getMessage(), e);
         }
     }
 
-  
+
 }

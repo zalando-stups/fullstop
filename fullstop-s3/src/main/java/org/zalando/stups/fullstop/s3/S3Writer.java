@@ -45,7 +45,7 @@ public class S3Writer {
     private static final Logger logger = LoggerFactory.getLogger(S3Writer.class);
 
     @Value("${fullstop.instanceData.bucketName}")
-    private String bucketName; // = "zalando-instance-logs";
+    private String bucketName;
 
     public void writeToS3(String accountId, String region, Date instanceBootTime,  String logData, String logType, String instanceId) throws IOException {
         String fileName = null;
@@ -55,10 +55,10 @@ public class S3Writer {
         String keyName = accountId + "/" + region + "/" + localDate.getYear() + "/" + localDate.getMonthValue() + "/" + localDate.getDayOfMonth() + "/" + instanceId + "-" + isoDate;
 
         if (logType.equals("USER_DATA")){
-             fileName = "taupage.yml";
+             fileName = "taupage.yaml";
         } else if (logType.equals("AUDIT_LOG"))
         {
-            fileName = "audit-log";
+            fileName = "audit-log-"+bootTime.format(new Date())+".log";
         } else{
             logger.error("Wrong logType given: " +logType);
         }
