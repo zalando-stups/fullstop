@@ -11,4 +11,8 @@
       <module>fullstop-kio-client</module>
       <module>fullstop-pierone-client</module>
   </modules>
+
+  <properties>
+        <main.basedir>${basedir}/..</main.basedir>
+    </properties>
 </project>
