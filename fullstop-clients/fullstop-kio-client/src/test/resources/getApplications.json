@@ -1,0 +1,10 @@
+[
+  {
+    "id": "kio",
+    "team_id": "stups",
+    "name": "Kio",
+    "subtitle": "Application Registry",
+    "service_url": "https://kio.example.com/",
+    "matched_description": "string"
+  }
+]
