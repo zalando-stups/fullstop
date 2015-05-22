@@ -143,10 +143,7 @@ public class S3Controller {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/puts3")
-    public void putToS3() throws IOException {
-        s3Writer.writeToS3();
-    }
+
 
 
         private void copyInputStreamToFile(final InputStream in, final File file) {

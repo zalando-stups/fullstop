@@ -20,13 +20,21 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  * Created by mrandi
@@ -36,19 +44,33 @@ public class S3Writer {
 
     private static final Logger logger = LoggerFactory.getLogger(S3Writer.class);
 
-    private static String bucketName = "bucketname";
-    private static String keyName = "9999/region/2015/05/13/";
-    private static String uploadFileName = "/file/path/taupage.yaml";
+    @Value("${fullstop.instanceData.bucketName}")
+    private String bucketName; // = "zalando-instance-logs";
 
-    public void writeToS3() throws IOException {
+    public void writeToS3(String accountId, String region, Date instanceBootTime,  String logData, String logType, String instanceId) throws IOException {
+        String fileName = null;
+        LocalDate localDate = instanceBootTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        SimpleDateFormat bootTime = new SimpleDateFormat("YYYYMMdd'T'HHmm'Z'");
+        String isoDate = bootTime.format(instanceBootTime);
+        String keyName = accountId + "/" + region + "/" + localDate.getYear() + "/" + localDate.getMonthValue() + "/" + localDate.getDayOfMonth() + "/" + instanceId + "-" + isoDate;
+
+        if (logType.equals("USER_DATA")){
+             fileName = "taupage.yml";
+        } else if (logType.equals("AUDIT_LOG"))
+        {
+            fileName = "audit-log";
+        } else{
+            logger.error("Wrong logType given: " +logType);
+        }
 
         AmazonS3 s3client = new AmazonS3Client();
-
         try {
             logger.info("Uploading a new object to S3 from a file");
-            File file = new File(uploadFileName);
-            s3client.putObject(new PutObjectRequest(
-                    bucketName, keyName + "i-ddd3333-20150513T1044Z" + Math.random() + "/" + file.getName(), file));
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(logData.length());
+            InputStream stream = new ByteArrayInputStream(logData.getBytes(StandardCharsets.UTF_8));
+
+            s3client.putObject(new PutObjectRequest(bucketName, keyName + "/" + fileName, stream, metadata));
 
         } catch (AmazonServiceException ase) {
             logger.error("Caught an AmazonServiceException, which " +

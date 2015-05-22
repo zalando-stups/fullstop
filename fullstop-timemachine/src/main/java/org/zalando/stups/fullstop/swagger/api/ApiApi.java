@@ -25,26 +25,32 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
 @Api(value = "/api", description = "the api API")
 public class ApiApi {
+
     @Autowired
-    ViolationRepository violationRepository;
+    private S3Writer s3Writer;
+    @Autowired
+    private ViolationRepository violationRepository;
 
 
     @ApiOperation(value = "accountIds", notes = "Get all account ids", response = String.class)
@@ -77,17 +83,17 @@ public class ApiApi {
 
   
 
-  @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
+  @ApiOperation(value = "Put instance instanceLogs in S3", notes = "Add instanceLogs for instance in S3", response = Void.class)
   @ApiResponses(value = { 
     @ApiResponse(code = 200, message = "Logs saved successfully") })
   @RequestMapping(value = "/instances/logs", 
     
     
     method = RequestMethod.POST)
-  public ResponseEntity<Void> instanceLogs(@ApiParam(value = "" ,required=true ) LogObj log)
+  public ResponseEntity<Void> instanceLogs(@ApiParam(value = "" ,required=true )@RequestBody LogObj instanceLogs)
       throws NotFoundException {
-        saveLog(log);
-      return new ResponseEntity<Void>(HttpStatus.OK);
+        saveLog(instanceLogs);
+      return new ResponseEntity<Void>(HttpStatus.OK); //TODO: HttpStatus.CREATED instead of OK?
   }
 
     @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class)
@@ -142,8 +148,12 @@ public class ApiApi {
     }
 
 
-    private void saveLog(LogObj log) {
-        //TODO: implement me
+    private void saveLog(LogObj instanceLogs) {
+        try {
+            s3Writer.writeToS3(instanceLogs.getAccountId(), instanceLogs.getRegion(), instanceLogs.getInstanceBootTime() , instanceLogs.getLogData(), instanceLogs.getLogType(), instanceLogs.getInstanceId());
+        } catch (IOException e) {
+            e.printStackTrace(); //TODO logerror
+        }
     }
 
   
