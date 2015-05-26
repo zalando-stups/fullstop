@@ -14,13 +14,14 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups.build</groupId>
         <artifactId>stups-parent</artifactId>
         <version>1</version>
-        <relativePath />
+        <relativePath/>
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
@@ -41,7 +42,7 @@
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine />
+        <argLine/>
     </properties>
 
     <modules>
@@ -55,6 +56,7 @@
         <module>fullstop-violation-store-slf4j</module>
         <module>fullstop-jobs</module>
         <module>fullstop-clients</module>
+        <module>fullstop-s3</module>
     </modules>
 
     <dependencyManagement>
@@ -176,7 +178,8 @@
                     <jacocoReports>
                         <jacocoReport>fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml
+                        </jacocoReport>
                         <jacocoReport>fullstop-processing/target/site/jacoco/jacoco.xml</jacocoReport>
                     </jacocoReports>
                 </configuration>
@@ -199,4 +202,34 @@
         <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <repositories>
+        <repository>
+            <id>jcenter-snapshots</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>mrandi</id>
+            <name>Michele Randi</name>
+            <organization>Zalando SE</organization>
+            <email>michele.randi@zalando.de</email>
+        </developer>
+        <developer>
+            <id>gkneitschel</id>
+            <name>Gregor Kneitschel</name>
+            <organization>Zalando SE</organization>
+            <email>gregor.kneitschel@zalando.de</email>
+        </developer>
+    </developers>
 </project>

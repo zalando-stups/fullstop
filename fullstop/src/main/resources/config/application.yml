@@ -47,6 +47,10 @@ fullstop:
 
             # Whether to include raw event in CloudTrailEventMetadata
             enableRawEventInfo: false
+    instanceData:
+      # Bucket, where USER_DATA and AUDIT_LOG will be stored
+      bucketName: ${INSTANCE_LOGS_S3_BUCKET}
+
     plugins:
         properties:
             # The bucket, where our enriched data will be stored

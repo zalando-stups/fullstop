@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package org.zalando.stups.fullstop.controller;
+package org.zalando.stups.fullstop.swagger.api;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-/**
- * @author  mrandi
- */
-@Controller
-public class HomeController {
-
-    @RequestMapping({ "/", "/index" })
-    public String home() {
-        return "swagger-ui.html";
-    }
-
+public class ApiException extends Exception{
+	private int code;
+	public ApiException (int code, String msg) {
+		super(msg);
+		this.code = code;
+	}
 }

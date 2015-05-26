@@ -1,3 +1,4 @@
+[![DUB](https://img.shields.io/badge/status-in%20development-orange.svg)](http://docs.stups.io/en/latest/components/fullstop.html)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
 [![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
 
@@ -54,6 +55,7 @@ This enviroment variable should be set:
     DATABASE_DRIVER
     AMAZON_KEY_ID
     ENCRYPT_REGION
+    INSTANCE_LOGS_S3_BUCKET
 
 Example:
 
@@ -72,6 +74,7 @@ Example:
     $ export DATABASE_DRIVER=org.postgresql.Driver
     $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
     $ export ENCRYPT_REGION=eu-west-1
+    $ export INSTANCE_LOGS_S3_BUCKET=my-s3-bucket
 
 ##Database setup
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables

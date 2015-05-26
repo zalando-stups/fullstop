@@ -36,17 +36,17 @@ public class RegisteredPluginLogger {
 
     private final Logger log = LoggerFactory.getLogger(RegisteredPluginLogger.class);
 
-    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+    private final PluginRegistry<FullstopPlugin, CloudTrailEvent> fullstopPluginRegistry;
 
     @Autowired
-    public RegisteredPluginLogger(final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry) {
-        this.pluginRegistry = pluginRegistry;
+    public RegisteredPluginLogger(final PluginRegistry<FullstopPlugin, CloudTrailEvent> fullstopPluginRegistry) {
+        this.fullstopPluginRegistry = fullstopPluginRegistry;
     }
 
     public void logRegisteredPlugins() {
         log.info("---- REGISTERED PLUGINS START----");
 
-        for (FullstopPlugin p : this.pluginRegistry.getPlugins()) {
+        for (FullstopPlugin p : this.fullstopPluginRegistry.getPlugins()) {
             log.info(p.getMetadata().toString());
         }
 
