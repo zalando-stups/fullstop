@@ -1,0 +1,12 @@
+{
+  "specification_url": "https://github.com/zalando-stups/kio/issues",
+  "documentation_url": "https://github.com/zalando-stups/kio",
+  "team_id": "stups",
+  "id": "kio",
+  "name": "Kio",
+  "subtitle": "Application Registry",
+  "scm_url": "https://github.com/zalando-stups/kio.git",
+  "active": true,
+  "service_url": "https://kio.example.com/",
+  "description": "Kio manages all application base information."
+}
