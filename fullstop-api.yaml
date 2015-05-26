@@ -162,7 +162,7 @@ paths:
         - Fullstop API
       operationId: instanceLogs
       responses:
-        "200":
+        "201":
           description: Logs saved successfully
       parameters:
         - name: log
