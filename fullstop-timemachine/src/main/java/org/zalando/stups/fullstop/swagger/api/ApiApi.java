@@ -58,10 +58,10 @@ public class ApiApi {
     private ViolationRepository violationRepository;
 
 
-    @ApiOperation(value = "account_ids", notes = "Get all account ids", response = String.class)
+    @ApiOperation(value = "account-ids", notes = "Get all account ids", response = String.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all account Ids")})
-    @RequestMapping(value = "/account_ids", method = RequestMethod.GET)
+    @RequestMapping(value = "/account-ids", method = RequestMethod.GET)
     public ResponseEntity<List<String>> accountId()
             throws NotFoundException {
         List<String> accountIds = violationRepository.findAccountId();
@@ -72,8 +72,8 @@ public class ApiApi {
     @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all violations for one account")})
-    @RequestMapping(value = "/account_violations/{account_id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("account_id") String accountId)
+    @RequestMapping(value = "/account-violations/{account-id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("account-id") String accountId)
             throws NotFoundException {
         List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
         List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
@@ -84,7 +84,7 @@ public class ApiApi {
     @ApiOperation(value = "Put instance instanceLogs in S3", notes = "Add instanceLogs for instance in S3", response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Logs saved successfully")})
-    @RequestMapping(value = "/instances/logs", method = RequestMethod.POST)
+    @RequestMapping(value = "/instances-logs", method = RequestMethod.POST)
     public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true) @RequestBody LogObj instanceLogs)
             throws NotFoundException {
         saveLog(instanceLogs);
