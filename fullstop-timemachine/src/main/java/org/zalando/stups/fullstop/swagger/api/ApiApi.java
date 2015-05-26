@@ -17,20 +17,12 @@
 package org.zalando.stups.fullstop.swagger.api;
 
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
@@ -81,13 +73,13 @@ public class ApiApi {
     }
 
 
-    @ApiOperation(value = "Put instance instanceLogs in S3", notes = "Add instanceLogs for instance in S3", response = Void.class)
+    @ApiOperation(value = "Post instance instance log in S3", notes = "Add instance log for instance in S3", response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Logs saved successfully")})
     @RequestMapping(value = "/instances-logs", method = RequestMethod.POST)
-    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true) @RequestBody LogObj instanceLogs)
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "instance-log", required = true) @RequestBody LogObj instanceLog)
             throws NotFoundException {
-        saveLog(instanceLogs);
+        saveLog(instanceLog);
         return new ResponseEntity<>(CREATED);
     }
 
@@ -137,9 +129,11 @@ public class ApiApi {
     }
 
 
-    private void saveLog(LogObj instanceLogs) {
+    private void saveLog(LogObj instanceLog) {
         try {
-            s3Writer.writeToS3(instanceLogs.getAccountId(), instanceLogs.getRegion(), instanceLogs.getInstanceBootTime(), instanceLogs.getLogData(), instanceLogs.getLogType(), instanceLogs.getInstanceId());
+            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(),
+                    instanceLog.getInstanceBootTime(), instanceLog.getLogData(),
+                    instanceLog.getLogType(), instanceLog.getInstanceId());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
