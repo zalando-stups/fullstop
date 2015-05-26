@@ -22,6 +22,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -55,10 +55,10 @@ public class S3Writer {
         String keyName = accountId + "/" + region + "/" + localDate.getYear() + "/" + localDate.getMonthValue() + "/" + localDate.getDayOfMonth() + "/" + instanceId + "-" + isoDate;
 
         if (logType.equals("USER_DATA")){
-             fileName = "taupage.yaml";
+             fileName = "taupage.yaml.gz";
         } else if (logType.equals("AUDIT_LOG"))
         {
-            fileName = "audit-log-"+bootTime.format(new Date())+".log";
+            fileName = "audit-log-"+bootTime.format(new Date())+".log.gz";
         } else{
             logger.error("Wrong logType given: " +logType);
         }
@@ -67,8 +67,10 @@ public class S3Writer {
         try {
             logger.info("Uploading a new object to S3 from a file");
             ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(logData.length());
-            InputStream stream = new ByteArrayInputStream(logData.getBytes(StandardCharsets.UTF_8));
+            byte[] decodedLogData = Base64.decode(logData);
+            metadata.setContentLength(decodedLogData.length);
+
+            InputStream stream = new ByteArrayInputStream(decodedLogData);
 
             s3client.putObject(new PutObjectRequest(bucketName, keyName + "/" + fileName, stream, metadata));
 
