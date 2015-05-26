@@ -75,7 +75,7 @@ public class ApiApi {
 
     @ApiOperation(value = "Post instance instance log in S3", notes = "Add instance log for instance in S3", response = Void.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Logs saved successfully")})
+            @ApiResponse(code = 201, message = "Logs saved successfully")})
     @RequestMapping(value = "/instances-logs", method = RequestMethod.POST)
     public ResponseEntity<Void> instanceLogs(@ApiParam(value = "instance-log", required = true) @RequestBody LogObj instanceLog)
             throws NotFoundException {
