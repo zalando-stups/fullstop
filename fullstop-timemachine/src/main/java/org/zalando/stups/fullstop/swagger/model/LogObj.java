@@ -16,10 +16,11 @@
 
 package org.zalando.stups.fullstop.swagger.model;
 
-import java.util.Date;
-
-import com.wordnik.swagger.annotations.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
 
 
 @ApiModel(description = "")
@@ -36,7 +37,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("log_type")
+  @JsonProperty("log-type")
   public String getLogType() {
     return logType;
   }
@@ -48,7 +49,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("instance_id")
+  @JsonProperty("instance-id")
   public String getInstanceId() {
     return instanceId;
   }
@@ -60,7 +61,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("account_id")
+  @JsonProperty("account-id")
   public String getAccountId() {
     return accountId;
   }
@@ -84,7 +85,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("instance_boot_time")
+  @JsonProperty("instance-boot-time")
   public Date getInstanceBootTime() {
     return instanceBootTime;
   }
@@ -93,10 +94,10 @@ public class LogObj  {
   }
 
   
-  /**
+ /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("log_data")
+  @JsonProperty("log-data")
   public String getLogData() {
     return logData;
   }
@@ -111,12 +112,12 @@ public class LogObj  {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogObj {\n");
     
-    sb.append("  log_type: ").append(logType).append("\n");
-    sb.append("  instance_id: ").append(instanceId).append("\n");
-    sb.append("  account_id: ").append(accountId).append("\n");
+    sb.append("  log-type: ").append(logType).append("\n");
+    sb.append("  instance-id: ").append(instanceId).append("\n");
+    sb.append("  account-id: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
-    sb.append("  instance_boot_time: ").append(instanceBootTime).append("\n");
-    sb.append("  log_data: ").append(logData).append("\n");
+    sb.append("  instance-boot-time: ").append(instanceBootTime).append("\n");
+    sb.append("  log-data: ").append(logData).append("\n");
     sb.append("}\n");
     return sb.toString();
   }
