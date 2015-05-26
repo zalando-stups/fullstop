@@ -58,10 +58,10 @@ public class ApiApi {
     private ViolationRepository violationRepository;
 
 
-    @ApiOperation(value = "accountIds", notes = "Get all account ids", response = String.class)
+    @ApiOperation(value = "account_ids", notes = "Get all account ids", response = String.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all account Ids")})
-    @RequestMapping(value = "/accountIds", method = RequestMethod.GET)
+    @RequestMapping(value = "/account_ids", method = RequestMethod.GET)
     public ResponseEntity<List<String>> accountId()
             throws NotFoundException {
         List<String> accountIds = violationRepository.findAccountId();
@@ -72,8 +72,8 @@ public class ApiApi {
     @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all violations for one account")})
-    @RequestMapping(value = "/accountViolations/{accountId}", method = RequestMethod.GET)
-    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("accountId") String accountId)
+    @RequestMapping(value = "/account_violations/{account_id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("account_id") String accountId)
             throws NotFoundException {
         List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
         List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
