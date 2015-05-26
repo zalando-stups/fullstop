@@ -43,5 +43,5 @@ senza events $SENZA_CONFIGURATION_YAML $STACK_VERSION --region eu-west-1 -w 2
 echo '##### Show senza traffic #####'
 senza traffic $SENZA_CONFIGURATION_YAML
 
-echo '##### Show senza traffic #####'
+echo '##### Set 100% traffic to new version #####'
 senza traffic $SENZA_CONFIGURATION_YAML $STACK_VERSION 100
