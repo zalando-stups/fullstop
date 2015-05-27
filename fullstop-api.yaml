@@ -62,7 +62,7 @@ definitions:
       instance-boot-time:
         type: string
         format: date-time
-        example: 20150513T1044Z
+        example: 2015-05-21T10:24:47.788-02:00
       log-data:
         type: string
         example: ""
@@ -154,7 +154,7 @@ paths:
             description: Acknowledged metadata and object
 
 
-  /api/instances-logs:
+  /api/instance-logs:
     post:
       summary: Put instance log in S3
       description: Add log for instance in S3

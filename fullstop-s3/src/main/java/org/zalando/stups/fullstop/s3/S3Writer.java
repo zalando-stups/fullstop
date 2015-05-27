@@ -23,6 +23,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.util.Base64;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +32,9 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
+
+import static org.joda.time.DateTimeZone.UTC;
 
 /**
  * Created by mrandi
@@ -47,20 +47,19 @@ public class S3Writer {
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
 
-    public void writeToS3(String accountId, String region, Date instanceBootTime,  String logData, String logType, String instanceId) throws IOException {
+    public void writeToS3(String accountId, String region, Date instanceBootTime, String logData, String logType, String instanceId) throws IOException {
         String fileName = null;
-        LocalDate localDate = instanceBootTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        SimpleDateFormat bootTime = new SimpleDateFormat("YYYYMMdd'T'HHmm'Z'");
-        String isoDate = bootTime.format(instanceBootTime);
-        String keyName = accountId + "/" + region + "/" + localDate.getYear() + "/" + localDate.getMonthValue() + "/" + localDate.getDayOfMonth() + "/" + instanceId + "-" + isoDate;
 
-        if (logType.equals("USER_DATA")){
-             fileName = "taupage.yaml.gz";
-        } else if (logType.equals("AUDIT_LOG"))
-        {
-            fileName = "audit-log-"+bootTime.format(new Date())+".log.gz";
-        } else{
-            logger.error("Wrong logType given: " +logType);
+        DateTime dateTime = new DateTime(instanceBootTime, UTC);
+
+        String keyName = accountId + "/" + region + "/" + dateTime.getYear() + "/" + dateTime.getMonthOfYear() + "/" + dateTime.getDayOfMonth() + "/" + instanceId + "-" + dateTime;
+
+        if (logType.equals("USER_DATA")) {
+            fileName = "taupage.yaml.gz";
+        } else if (logType.equals("AUDIT_LOG")) {
+            fileName = "audit-log-" + new DateTime(UTC) + ".log.gz";
+        } else {
+            logger.error("Wrong logType given: " + logType);
         }
 
         AmazonS3 s3client = new AmazonS3Client();
