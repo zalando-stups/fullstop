@@ -18,7 +18,7 @@ package org.zalando.stups.fullstop.clients.pierone.spring;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
+import org.springframework.web.client.RestOperations;
 
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 
@@ -29,12 +29,12 @@ import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
  */
 public class RestTemplatePieroneOperations implements PieroneOperations {
 
-    private final OAuth2RestOperations restTemplate;
+    private final RestOperations restOperations;
 
     private final String baseUrl;
 
-    public RestTemplatePieroneOperations(final OAuth2RestOperations restTemplate, final String baseUrl) {
-        this.restTemplate = restTemplate;
+    public RestTemplatePieroneOperations(final RestOperations restTemplate, final String baseUrl) {
+        this.restOperations = restTemplate;
         this.baseUrl = baseUrl;
     }
 
@@ -44,8 +44,8 @@ public class RestTemplatePieroneOperations implements PieroneOperations {
         uriVariables.put("team", team);
         uriVariables.put("artifact", artifact);
 
-        Map<String, String> result = this.restTemplate.getForObject(baseUrl + "/v1/repositories/{team}/{artifact}/tags",
-                Map.class, uriVariables);
+        Map<String, String> result = this.restOperations.getForObject(baseUrl
+                    + "/v1/repositories/{team}/{artifact}/tags", Map.class, uriVariables);
 
         return result;
     }
