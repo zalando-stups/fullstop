@@ -37,7 +37,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("log-type")
+  @JsonProperty("log_type")
   public String getLogType() {
     return logType;
   }
@@ -49,7 +49,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("instance-id")
+  @JsonProperty("instance_id")
   public String getInstanceId() {
     return instanceId;
   }
@@ -61,7 +61,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("account-id")
+  @JsonProperty("account_id")
   public String getAccountId() {
     return accountId;
   }
@@ -85,7 +85,7 @@ public class LogObj  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("instance-boot-time")
+  @JsonProperty("instance_boot_time")
   public Date getInstanceBootTime() {
     return instanceBootTime;
   }
@@ -97,7 +97,7 @@ public class LogObj  {
  /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("log-data")
+  @JsonProperty("log_data")
   public String getLogData() {
     return logData;
   }
@@ -112,12 +112,12 @@ public class LogObj  {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogObj {\n");
     
-    sb.append("  log-type: ").append(logType).append("\n");
-    sb.append("  instance-id: ").append(instanceId).append("\n");
-    sb.append("  account-id: ").append(accountId).append("\n");
+    sb.append("  log_type: ").append(logType).append("\n");
+    sb.append("  instance_id: ").append(instanceId).append("\n");
+    sb.append("  account_id: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
-    sb.append("  instance-boot-time: ").append(instanceBootTime).append("\n");
-    sb.append("  log-data: ").append(logData).append("\n");
+    sb.append("  instance_boot_time: ").append(instanceBootTime).append("\n");
+    sb.append("  log_data: ").append(logData).append("\n");
     sb.append("}\n");
     return sb.toString();
   }
