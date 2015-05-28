@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Date;
 
 import static org.joda.time.DateTimeZone.UTC;
@@ -42,24 +43,36 @@ import static org.joda.time.DateTimeZone.UTC;
 @Service
 public class S3Writer {
 
+    public static final String USER_DATA = "USER_DATA";
+    public static final String AUDIT_LOG = "AUDIT_LOG";
+    public static final String TAUPAGE_YAML = "taupage.yaml";
+    public static final String AUDIT_LOG_FILE_NAME = "audit-log-";
+    public static final String LOG_GZ = ".log.gz";
+
     private static final Logger logger = LoggerFactory.getLogger(S3Writer.class);
 
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
 
-    public void writeToS3(String accountId, String region, Date instanceBootTime, String logData, String logType, String instanceId) throws IOException {
+    public void writeToS3(String accountId, String region, Date instanceBootTime, String logData, String logType,
+                          String instanceId) throws IOException {
         String fileName = null;
 
         DateTime dateTime = new DateTime(instanceBootTime, UTC);
 
-        String keyName = accountId + "/" + region + "/" + dateTime.getYear() + "/" + dateTime.getMonthOfYear() + "/" + dateTime.getDayOfMonth() + "/" + instanceId + "-" + dateTime;
+        String keyName = Paths.get(accountId, region, Integer.toString(dateTime.getYear()), Integer.toString(dateTime
+                .getMonthOfYear()), Integer.toString(dateTime.getDayOfMonth()), instanceId + "-" + dateTime).toString();
 
-        if (logType.equals("USER_DATA")) {
-            fileName = "taupage.yaml";
-        } else if (logType.equals("AUDIT_LOG")) {
-            fileName = "audit-log-" + new DateTime(UTC) + ".log.gz";
-        } else {
-            logger.error("Wrong logType given: " + logType);
+        switch (logType) {
+            case USER_DATA:
+                fileName = TAUPAGE_YAML;
+                break;
+            case AUDIT_LOG:
+                fileName = AUDIT_LOG_FILE_NAME + new DateTime(UTC) + LOG_GZ;
+                break;
+            default:
+                logger.error("Wrong logType given: " + logType);
+                break;
         }
         ObjectMetadata metadata = new ObjectMetadata();
         byte[] decodedLogData = Base64.decode(logData);
@@ -70,13 +83,14 @@ public class S3Writer {
         putObjectToS3(bucketName, fileName, keyName, metadata, stream);
     }
 
-    public void putObjectToS3(String bucket, String fileName, String keyName, ObjectMetadata metadata, InputStream stream) {
+    public void putObjectToS3(String bucket, String fileName, String keyName, ObjectMetadata metadata, InputStream
+            stream) {
         AmazonS3 s3client = new AmazonS3Client();
         try {
             logger.info("Uploading a new object to S3 from a file");
 
 
-            s3client.putObject(new PutObjectRequest(bucket, keyName + "/" + fileName, stream, metadata));
+            s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
         } catch (AmazonServiceException ase) {
             logger.error("Caught an AmazonServiceException, which " +
