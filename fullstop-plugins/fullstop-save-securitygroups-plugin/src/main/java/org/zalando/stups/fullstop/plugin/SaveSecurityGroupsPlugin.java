@@ -95,9 +95,9 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        String prefix = Paths.get(accountId, region.getName(), Integer.toString(instanceLaunchTime.getYear()),
-                Integer.toString(instanceLaunchTime.getMonthOfYear()), Integer.toString(instanceLaunchTime
-                        .getDayOfMonth()), "/").toString();
+        String prefix = Paths.get(accountId, region.getName(), instanceLaunchTime.toString("YYYY"),
+                instanceLaunchTime.toString("MM"), instanceLaunchTime.toString("dd"), "/")
+                .toString();
 
         List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 

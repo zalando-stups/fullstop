@@ -60,8 +60,8 @@ public class S3Writer {
 
         DateTime dateTime = new DateTime(instanceBootTime, UTC);
 
-        String keyName = Paths.get(accountId, region, Integer.toString(dateTime.getYear()), Integer.toString(dateTime
-                .getMonthOfYear()), Integer.toString(dateTime.getDayOfMonth()), instanceId + "-" + dateTime).toString();
+        String keyName = Paths.get(accountId, region, dateTime.toString("YYYY"), dateTime.toString("MM"),
+                dateTime.toString("dd"), instanceId + "-" + dateTime).toString();
 
         switch (logType) {
             case USER_DATA:
