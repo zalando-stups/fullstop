@@ -30,7 +30,6 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -40,22 +39,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.s3.S3Writer;
-import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.joda.time.DateTimeZone.UTC;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceLaunchTime;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
 
 /**
  * @author gkneitschel
@@ -63,25 +56,22 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
 @Component
 public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SaveSecurityGroupsPlugin.class);
+
+    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+    private static final String EVENT_NAME = "RunInstances";
+    private final ClientProvider cachingClientProvider;
+
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
 
     @Autowired
     private S3Writer s3Writer;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SaveSecurityGroupsPlugin.class);
-
-    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
-    private static final String EVENT_NAME = "RunInstances";
-
-    private final ClientProvider cachingClientProvider;
-    private final ViolationStore violationStore; //TODO not needed here
-
 
     @Autowired
-    public SaveSecurityGroupsPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
+    public SaveSecurityGroupsPlugin(final ClientProvider cachingClientProvider) {
         this.cachingClientProvider = cachingClientProvider;
-        this.violationStore = violationStore;
     }
 
     @Override
@@ -105,14 +95,17 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        String prefix = accountId + "/" + region + "/" + instanceLaunchTime.getYear() + "/" + instanceLaunchTime.getMonthOfYear() + "/" + instanceLaunchTime.getDayOfMonth() + "/";
-        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
+        String prefix = Paths.get(accountId, region.getName(), Integer.toString(instanceLaunchTime.getYear()),
+                Integer.toString(instanceLaunchTime.getMonthOfYear()), Integer.toString(instanceLaunchTime
+                        .getDayOfMonth()), "/").toString();
 
+        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
 
         for (String instanceId : instanceIds) {
 
-            List<String> instanceBuckets = s3InstanceObjects.stream().filter(s -> s.startsWith(instanceId)).collect(Collectors.toList());
+            List<String> instanceBuckets = s3InstanceObjects.stream().filter(s -> s.startsWith(instanceId)).collect
+                    (Collectors.toList());
 
             if (instanceBuckets.isEmpty()) {
                 continue;
@@ -123,35 +116,31 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
             for (String instanceBucket : instanceBuckets) {
 
-                List<String> currentBucketName = Lists.newArrayList(Splitter.on('-')
+                List<String> currentBucket = Lists.newArrayList(Splitter.on('-')
                         .limit(3)
                         .trimResults()
                         .omitEmptyStrings()
                         .split(instanceBucket));
 
+                String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
+                DateTime currentBucketDate = new DateTime(currentBucket.get(2), UTC);
 
-                if (instanceBucketNameControlElement != null && instanceBootTimeControlElement != null) {
-//TODO we should use absolute values
-                    if (instanceLaunchTime.getMillis() - new DateTime(currentBucketName.get(2), UTC).getMillis() <
+                //TODO we should use absolute values
+                if (instanceBucketNameControlElement != null || instanceBootTimeControlElement != null) {
+                    if (instanceLaunchTime.getMillis() - currentBucketDate.getMillis() <
                             instanceLaunchTime.getMillis() - instanceBootTimeControlElement.getMillis()) {
 
-                        instanceBootTimeControlElement = new DateTime(currentBucketName.get(2), UTC);
-                        instanceBucketNameControlElement = currentBucketName.get(0) + "-" + currentBucketName.get(1);
+                        instanceBucketNameControlElement = currentBucketName;
+                        instanceBootTimeControlElement = currentBucketDate;
                     }
-
                 } else {
-
-                    instanceBootTimeControlElement = new DateTime(currentBucketName.get(2), UTC);
-                    instanceBucketNameControlElement = currentBucketName.get(0) + currentBucketName.get(1);
+                    instanceBucketNameControlElement = currentBucketName;
+                    instanceBootTimeControlElement = currentBucketDate;
                 }
-
             }
-
             prefix = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
             writeToS3(securityGroup, prefix);
         }
-
-
     }
 
     public String getSecurityGroup(List<String> securityGroupIds, Region region, String accountId) {
