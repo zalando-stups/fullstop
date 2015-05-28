@@ -62,6 +62,8 @@ public abstract class CloudtrailEventSupport {
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
         "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
+    public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.launchTime";
+
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
      */
@@ -173,6 +175,15 @@ public abstract class CloudtrailEventSupport {
 
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
         return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
+    }
+
+    public static String getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent){
+        cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
+        CloudTrailEventData eventData = getEventData(cloudTrailEvent);
+
+        String responseElements = eventData.getResponseElements();
+
+        return JsonPath.read(responseElements, INSTANCE_LAUNCH_TIME);
     }
 
     public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
