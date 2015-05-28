@@ -72,3 +72,28 @@ fullstop:
 
         pierone:
             url: ${FULLSTOP_PIERONE_URL}
+
+    clients:
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            url: ${FULLSTOP_PIERONE_URL}
+
+#
+# OAuth2
+#
+tokens:
+    accessTokenUri: ${ACCESS_TOKEN_URI}
+    credentialsDirectory: ${CREDENTIALS_DIR}
+
+    token-configuration-list:
+        - tokenId: kio
+          scopes:
+              - write_all
+              - uid
+        - tokenId: pierone
+          scopes:
+              - write_all
+              - uid
+
