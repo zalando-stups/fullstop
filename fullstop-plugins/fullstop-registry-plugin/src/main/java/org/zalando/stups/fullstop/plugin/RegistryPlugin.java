@@ -18,14 +18,9 @@ package org.zalando.stups.fullstop.plugin;
 
 import static java.lang.String.format;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.RequestEntity.get;
 
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
 import java.util.List;
 import java.util.Map;
@@ -34,21 +29,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.stereotype.Component;
 
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
 import org.yaml.snakeyaml.Yaml;
 
+import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import com.amazonaws.AmazonServiceException;
 
@@ -64,7 +58,6 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.util.Base64;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  mrandi
@@ -87,21 +80,28 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final ViolationStore violationStore;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+// private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${fullstop.plugins.kio.url}/apps/{appId}")
-    private String kioApplicationUrl;
+// @Value("${fullstop.plugins.kio.url}/apps/{appId}")
+// private String kioApplicationUrl;
 
-    @Value("${fullstop.plugins.kio.url}/apps/{appId}/versions/{version_id}")
-    private String kioApplicationVersionUrl;
+// @Value("${fullstop.plugins.kio.url}/apps/{appId}/versions/{version_id}")
+// private String kioApplicationVersionUrl;
 
-    @Value("${fullstop.plugins.pierone.url}/v1/repositories/{team}/{application}/tags")
-    private String pieroneApplicationUrl;
+// @Value("${fullstop.plugins.pierone.url}/v1/repositories/{team}/{application}/tags")
+// private String pieroneApplicationUrl;
+
+    private final PieroneOperations pieroneOperations;
+
+    private final KioOperations kioOperations;
 
     @Autowired
-    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
+    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore,
+            final PieroneOperations pieroneOperations, final KioOperations kioOperations) {
         this.cachingClientProvider = cachingClientProvider;
         this.violationStore = violationStore;
+        this.pieroneOperations = pieroneOperations;
+        this.kioOperations = kioOperations;
     }
 
     @Override
@@ -154,96 +154,100 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (!source.equals(artifact)) {
             violationStore.save(
-                    new ViolationBuilder(format("Application: %s has not a valid artifact for version: %s.", applicationId,
-                            applicationVersion)).
-                            withEvent(event).
-                            build());
+                new ViolationBuilder(
+                    format("Application: %s has not a valid artifact for version: %s.", applicationId,
+                        applicationVersion)).withEvent(event).build());
         }
 
-        ResponseEntity<JsonNode> response = null;
-        try {
-            response = restTemplate.exchange(get(
-                        fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
-                        APPLICATION_JSON).build(), JsonNode.class);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(
-                        new ViolationBuilder(format("Source: %s is not present in pierone.", source)).
-                                withEvent(event).
-                                build());
-                return;
-            }
-        }
+        Map<String, String> tags = this.pieroneOperations.listTags(team, applicationId);
 
-        if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(
-                    new ViolationBuilder(format("Source: %s is not present in pierone.", source)).
-                            withEvent(event).
-                            build());
-        } else if (response != null && response.getBody().get(applicationVersion) == null) {
-            violationStore.save(
-                    new ViolationBuilder(format("Source: %s is not present in pierone.", source)).
-                            withEvent(event).
-                            build());
-        }
+        // TODO, this code is hard to read, please refactor it
+
+// ResponseEntity<JsonNode> response = null;
+// try {
+// response = restTemplate.exchange(get(
+// fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
+// APPLICATION_JSON).build(), JsonNode.class);
+// } catch (HttpClientErrorException e) {
+// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
+// .withEvent(event).build());
+// return;
+// }
+// }
+//
+// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
+// event).build());
+// } else if (response != null && response.getBody().get(applicationVersion) == null) {
+// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
+// event).build());
+// }
     }
 
     private ResponseEntity<JsonNode> getAndValidateApplicationFromKio(final CloudTrailEvent event,
             final String applicationId) {
 
-        ResponseEntity<JsonNode> response = null;
-        try {
-            response = restTemplate.exchange(get(fromHttpUrl(kioApplicationUrl).buildAndExpand(applicationId).toUri())
-                        .accept(APPLICATION_JSON).build(), JsonNode.class);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(
-                        new ViolationBuilder(format("Application: %s is not registered in kio.", applicationId)).
-                                withEvent(event).
-                                build());
-                return null;
-            }
-        }
+        Application application = kioOperations.getApplicationById(applicationId);
 
-        if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(
-                    new ViolationBuilder(format("Application: %s is not registered in kio.", applicationId)).
-                            withEvent(event).
-                            build());
-        }
+        return null;
 
-        return response;
+            // TODO, don't get the point, hard to read
+
+// ResponseEntity<JsonNode> response = null;
+// try {
+// response = restTemplate.exchange(get(fromHttpUrl(kioApplicationUrl).buildAndExpand(applicationId).toUri())
+// .accept(APPLICATION_JSON).build(), JsonNode.class);
+// } catch (HttpClientErrorException e) {
+// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+// violationStore.save(
+// new ViolationBuilder(format("Application: %s is not registered in kio.", applicationId)).withEvent(
+// event).build());
+// return null;
+// }
+// }
+//
+// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+// violationStore.save(new ViolationBuilder(
+// format("Application: %s is not registered in kio.", applicationId)).withEvent(event).build());
+// }
+//
+// return response;
     }
 
     private ResponseEntity<JsonNode> getAndValidateApplicationVersionFromKio(final CloudTrailEvent event,
             final String applicationId, final String applicationVersion) {
 
-        ResponseEntity<JsonNode> response = null;
-        try {
-            response = restTemplate.exchange(get(
-                        fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
-                        .accept(APPLICATION_JSON).build(), JsonNode.class);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                violationStore.save(
-                        new ViolationBuilder(format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-                                applicationId)).
-                                withEvent(event).
-                                build());
-                return null;
-            }
+        Version version = kioOperations.getApplicationVersion(applicationId, applicationVersion);
 
-        }
+        return null;
 
-        if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-            violationStore.save(
-                    new ViolationBuilder(format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-                            applicationId)).
-                            withEvent(event).
-                            build());
-        }
+            // TODO, same as above
 
-        return response;
+// ResponseEntity<JsonNode> response = null;
+// try {
+// response = restTemplate.exchange(get(
+// fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
+// .accept(APPLICATION_JSON).build(), JsonNode.class);
+// } catch (HttpClientErrorException e) {
+// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+// violationStore.save(
+// new ViolationBuilder(
+// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
+// applicationId)).withEvent(event).build());
+// return null;
+// }
+//
+// }
+//
+// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+// violationStore.save(
+// new ViolationBuilder(
+// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
+// applicationId)).withEvent(event).build());
+// }
+//
+// return response;
     }
 
     private Map getUserData(final CloudTrailEvent event, final String instanceId) {
@@ -261,20 +265,16 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
-            violationStore.save(
-                    new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId)).
-                            withEvent(event).
-                            build());
+            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+                    .withEvent(event).build());
             return null;
         }
 
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-            violationStore.save(
-                    new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId)).
-                            withEvent(event).
-                            build());
+            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+                    .withEvent(event).build());
             return null;
         }
 
@@ -291,12 +291,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationId == null) {
             violationStore.save(
-                    new ViolationBuilder(format(
-                            "No 'application_id' defined for this instance %s, "
-                                    + "please change the userData configuration for this instance and add this information.",
-                            instanceId)).
-                            withEvent(event).
-                            build());
+                new ViolationBuilder(
+                    format(
+                        "No 'application_id' defined for this instance %s, "
+                            + "please change the userData configuration for this instance and add this information.",
+                        instanceId)).withEvent(event).build());
             return null;
         }
 
@@ -308,12 +307,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationVersion == null) {
             violationStore.save(
-                    new ViolationBuilder(format(
-                            "No 'application_version' defined for this instance %s, "
-                                    + "please change the userData configuration for this instance and add this information.",
-                            instanceId)).
-                            withEvent(event).
-                            build());
+                new ViolationBuilder(
+                    format(
+                        "No 'application_version' defined for this instance %s, "
+                            + "please change the userData configuration for this instance and add this information.",
+                        instanceId)).withEvent(event).build());
             return null;
         }
 
@@ -326,12 +324,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (source == null) {
             violationStore.save(
-                    new ViolationBuilder(format(
-                            "No 'source' defined for this instance %s, "
-                                    + "please change the userData configuration for this instance and add this information.",
-                            instanceId)).
-                            withEvent(event).
-                            build());
+                new ViolationBuilder(
+                    format(
+                        "No 'source' defined for this instance %s, "
+                            + "please change the userData configuration for this instance and add this information.",
+                        instanceId)).withEvent(event).build());
             return null;
         }
 
