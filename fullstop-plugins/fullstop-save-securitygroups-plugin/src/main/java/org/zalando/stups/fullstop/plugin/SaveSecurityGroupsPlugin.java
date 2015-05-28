@@ -29,6 +29,8 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
@@ -153,6 +155,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
     public String getSecurityGroup(List<String> securityGroupIds, Region region, String accountId) {
 
         DescribeSecurityGroupsResult result = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String securityGroups = null;
 
         AmazonEC2Client amazonEC2Client = cachingClientProvider.getClient(AmazonEC2Client.class, accountId, region);
 
@@ -165,14 +169,16 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
-
                 result = amazonEC2Client.describeSecurityGroups(request);
-
             } catch (AmazonClientException e) {
                 LOG.error(e.getMessage());
             }
-
-            return result != null ? result.toString() : null;
+            try {
+                securityGroups = objectMapper.writeValueAsString(result);
+            } catch (JsonProcessingException e) {
+                LOG.error(e.getMessage());
+            }
+            return securityGroups;
         }
     }
 
