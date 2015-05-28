@@ -45,7 +45,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.joda.time.DateTimeZone.UTC;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
@@ -60,6 +59,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
+    public static final String SECURITY_GROUPS = "SecurityGroups-";
+    public static final String JSON = ".json";
     private final ClientProvider cachingClientProvider;
 
     @Value("${fullstop.instanceData.bucketName}")
@@ -97,15 +98,21 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String prefix = Paths.get(accountId, region.getName(), instanceLaunchTime.toString("YYYY"),
                 instanceLaunchTime.toString("MM"), instanceLaunchTime.toString("dd"))
-                .toString();
+                .toString() + "/";
 
-        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix + "/");
+        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
 
         for (String instanceId : instanceIds) {
 
-            List<String> instanceBuckets = s3InstanceObjects.stream().filter(s -> s.startsWith(instanceId)).collect
-                    (Collectors.toList());
+            List<String> instanceBuckets = Lists.newArrayList();
+
+            for (String s3InstanceObject : s3InstanceObjects) {
+                String s = Paths.get(s3InstanceObject).getFileName().toString();
+                if (s.startsWith(instanceId)) {
+                    instanceBuckets.add(s);
+                }
+            }
 
             if (instanceBuckets.isEmpty()) {
                 continue;
@@ -179,7 +186,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(content.length());
-        String fileName = "SecurityGroups" + new DateTime(UTC) + ".json";
+        String fileName = SECURITY_GROUPS + new DateTime(UTC) + JSON;
         s3Writer.putObjectToS3(bucketName, fileName, prefix, metadata, stream);
     }
 
@@ -187,6 +194,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         final List<String> commonPrefixes = Lists.newArrayList();
 
         AmazonS3Client s3client = new AmazonS3Client();
+
         try {
             System.out.println("Listing objects");
 
