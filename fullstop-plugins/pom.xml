@@ -40,5 +40,6 @@
         <module>fullstop-registry-plugin</module>
         <module>fullstop-keypair-plugin</module>
         <module>fullstop-subnet-plugin</module>
+        <module>fullstop-save-securitygroups-plugin</module>
     </modules>
 </project>

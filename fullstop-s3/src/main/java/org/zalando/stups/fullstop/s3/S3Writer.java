@@ -55,23 +55,28 @@ public class S3Writer {
         String keyName = accountId + "/" + region + "/" + dateTime.getYear() + "/" + dateTime.getMonthOfYear() + "/" + dateTime.getDayOfMonth() + "/" + instanceId + "-" + dateTime;
 
         if (logType.equals("USER_DATA")) {
-            fileName = "taupage.yaml.gz";
+            fileName = "taupage.yaml";
         } else if (logType.equals("AUDIT_LOG")) {
             fileName = "audit-log-" + new DateTime(UTC) + ".log.gz";
         } else {
             logger.error("Wrong logType given: " + logType);
         }
+        ObjectMetadata metadata = new ObjectMetadata();
+        byte[] decodedLogData = Base64.decode(logData);
+        metadata.setContentLength(decodedLogData.length);
 
+        InputStream stream = new ByteArrayInputStream(decodedLogData);
+
+        putObjectToS3(bucketName, fileName, keyName, metadata, stream);
+    }
+
+    public void putObjectToS3(String bucket, String fileName, String keyName, ObjectMetadata metadata, InputStream stream) {
         AmazonS3 s3client = new AmazonS3Client();
         try {
             logger.info("Uploading a new object to S3 from a file");
-            ObjectMetadata metadata = new ObjectMetadata();
-            byte[] decodedLogData = Base64.decode(logData);
-            metadata.setContentLength(decodedLogData.length);
 
-            InputStream stream = new ByteArrayInputStream(decodedLogData);
 
-            s3client.putObject(new PutObjectRequest(bucketName, keyName + "/" + fileName, stream, metadata));
+            s3client.putObject(new PutObjectRequest(bucket, keyName + "/" + fileName, stream, metadata));
 
         } catch (AmazonServiceException ase) {
             logger.error("Caught an AmazonServiceException, which " +
