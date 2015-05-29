@@ -130,12 +130,12 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-client</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-server</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
