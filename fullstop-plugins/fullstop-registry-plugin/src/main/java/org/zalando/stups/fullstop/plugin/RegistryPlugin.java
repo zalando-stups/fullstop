@@ -18,8 +18,6 @@ package org.zalando.stups.fullstop.plugin;
 
 import static java.lang.String.format;
 
-import static org.springframework.http.RequestEntity.get;
-
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 import java.util.List;
@@ -29,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.http.ResponseEntity;
 
 import org.springframework.stereotype.Component;
 
@@ -56,8 +52,6 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 
 import com.amazonaws.util.Base64;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * @author  mrandi
@@ -132,18 +126,30 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
             if (applicationId != null) {
 
-                ResponseEntity<JsonNode> applicationFromKio = getAndValidateApplicationFromKio(event, applicationId);
+                Application applicationFromKio = getAndValidateApplicationFromKio(event, applicationId);
 
-                if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
-                    ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(event,
-                            applicationId, applicationVersion);
+                if (applicationFromKio != null) {
 
-                    if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
-                        validateSourceWithKio(event, applicationId, applicationVersion,
-                            applicationFromKio.getBody().get("team_id").asText(), source,
-                            versionFromKio.getBody().get("artifact").asText());
+                    Version applicationVersionFromKio = getAndValidateApplicationVersionFromKio(event, applicationId,
+                            applicationVersion);
+
+                    if (applicationVersionFromKio != null) {
+
+                        validateSourceWithKio(event, applicationId, applicationVersion, applicationFromKio.getTeamId(),
+                            source, applicationVersionFromKio.getArtifact());
                     }
                 }
+
+// if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
+// ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(event,
+// applicationId, applicationVersion);
+//
+// if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
+// validateSourceWithKio(event, applicationId, applicationVersion,
+// applicationFromKio.getBody().get("team_id").asText(), source,
+// versionFromKio.getBody().get("artifact").asText());
+// }
+// }
 
             }
         }
@@ -160,6 +166,16 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
 
         Map<String, String> tags = this.pieroneOperations.listTags(team, applicationId);
+        if (tags.isEmpty()) {
+            violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
+                    event).build());
+        } else {
+            String value = tags.get(applicationVersion);
+            if (value == null) {
+                violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
+                        .withEvent(event).build());
+            }
+        }
 
         // TODO, this code is hard to read, please refactor it
 
@@ -185,12 +201,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 // }
     }
 
-    private ResponseEntity<JsonNode> getAndValidateApplicationFromKio(final CloudTrailEvent event,
-            final String applicationId) {
+    private Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
 
         Application application = kioOperations.getApplicationById(applicationId);
 
-        return null;
+        return application;
 
             // TODO, don't get the point, hard to read
 
@@ -215,12 +230,12 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 // return response;
     }
 
-    private ResponseEntity<JsonNode> getAndValidateApplicationVersionFromKio(final CloudTrailEvent event,
-            final String applicationId, final String applicationVersion) {
+    private Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
+            final String applicationVersion) {
 
         Version version = kioOperations.getApplicationVersion(applicationId, applicationVersion);
 
-        return null;
+        return version;
 
             // TODO, same as above
 
