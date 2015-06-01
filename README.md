@@ -93,6 +93,14 @@ The password should be already encrypted, when you store it in the ```DATABASE_P
 encrypted password always starts with ```{cipher}```. You can use our [CLI tool](https://github.com/zalando/spring-cloud-config-aws-kms/tree/master/encryption-cli)
 for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html#examples). 
 
+##Propose API changes
+
+**Important** all changes should be swagger 2.0 spec copliant. 
+
+* Click here [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/) to edit the API definition.
+* Copy your changes and paste it in the [Github web editor: fullstop-api.yaml](https://github.com/zalando-stups/fullstop/edit/master/fullstop-api.yaml).
+* Create a pull request with the new swagger 2.0 spec.
+
 ##How to build
 
     $ mvn clean install
