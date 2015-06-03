@@ -77,9 +77,10 @@ definitions:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
 
-
-## Fullstop API v1
 paths:
+
+  ## Fullstop API v1
+
   /api/violations:
     get:
       summary: violations
@@ -104,7 +105,8 @@ paths:
         - name: last_violation
           in: query
           required: false
-          type: long
+          type: integer
+          format: int64
           description: Include only violations after the one with this id
         - name: checked
           in: query
