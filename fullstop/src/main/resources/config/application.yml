@@ -2,6 +2,9 @@
 #
 #
 spring:
+    oauth2:
+        resource:
+            tokenInfoUri: ${TOKEN_INFO_URI}
     datasource:
         url: ${DATABASE_URL}
         username: ${DATABASE_USER}
@@ -90,10 +93,7 @@ tokens:
     token-configuration-list:
         - tokenId: kio
           scopes:
-              - write_all
               - uid
         - tokenId: pierone
           scopes:
-              - write_all
               - uid
-

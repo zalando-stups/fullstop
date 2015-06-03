@@ -43,8 +43,6 @@ import static org.joda.time.DateTimeZone.UTC;
 @Service
 public class S3Writer {
 
-    public static final String USER_DATA = "USER_DATA";
-    public static final String AUDIT_LOG = "AUDIT_LOG";
     public static final String TAUPAGE_YAML = "taupage.yaml";
     public static final String AUDIT_LOG_FILE_NAME = "audit-log-";
     public static final String LOG_GZ = ".log.gz";
@@ -63,7 +61,7 @@ public class S3Writer {
         String keyName = Paths.get(accountId, region, dateTime.toString("YYYY"), dateTime.toString("MM"),
                 dateTime.toString("dd"), instanceId + "-" + dateTime).toString();
 
-        switch (logType) {
+        switch (LogType.valueOf(logType)) {
             case USER_DATA:
                 fileName = TAUPAGE_YAML;
                 break;

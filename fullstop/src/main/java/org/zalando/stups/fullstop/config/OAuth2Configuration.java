@@ -55,9 +55,9 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                     .antMatchers("/api/**", "/s3/**")
             .and()
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/api/**").access("#oauth2.hasScope('uid', 'write_all') ")
-                    .antMatchers(HttpMethod.POST, "/api/**").access("#oauth2.hasScope('uid', 'write_all')")
-                    .antMatchers(HttpMethod.GET, "/s3/**").access("#oauth2.hasScope('uid', 'write_all')");
+                    .antMatchers(HttpMethod.GET, "/api/**").access("#oauth2.hasScope('uid') ")
+                    .antMatchers(HttpMethod.POST, "/api/**").access("#oauth2.hasScope('uid')")
+                    .antMatchers(HttpMethod.GET, "/s3/**").access("#oauth2.hasScope('uid')");
         //J+
     }
 
