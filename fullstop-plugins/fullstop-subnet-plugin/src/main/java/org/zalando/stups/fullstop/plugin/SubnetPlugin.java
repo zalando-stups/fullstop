@@ -16,6 +16,13 @@
 
 package org.zalando.stups.fullstop.plugin;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -31,23 +38,14 @@ import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Route;
 import com.amazonaws.services.ec2.model.RouteTable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
 import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
 /**
  * @author mrandi
@@ -93,7 +91,10 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
             describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         } catch (AmazonServiceException e){
             violationStore.save(
-                    new ViolationBuilder(e.getMessage()).withEvent(event).build());
+                    new ViolationBuilder(e.getMessage()).withEventId(getCloudTrailEventId(event))
+                    .withRegion(getCloudTrailEventRegion(event))
+                    .withAccoundId(getCloudTrailEventAccountId(event))
+                    .build());
             return;
         }
 
@@ -112,7 +113,10 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         if (routeTables == null || routeTables.size() == 0) {
             violationStore.save(
                     new ViolationBuilder(format("Instances %s have no routing information associated", instanceIds.toString())).
-                            withEvent(event).build());
+                    withEventId(getCloudTrailEventId(event))
+                    .withRegion(getCloudTrailEventRegion(event))
+                    .withAccoundId(getCloudTrailEventAccountId(event))
+                    .build());
             return;
         }
         for (RouteTable routeTable : routeTables) {
@@ -122,8 +126,10 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
 
                     new ViolationBuilder(format("ROUTES: instance %s is running in a public subnet %s",
                             route.getInstanceId(), route.getNetworkInterfaceId())).
-                            withEvent(event).
-                            build()));
+                            withEventId(getCloudTrailEventId(event))
+                            .withRegion(getCloudTrailEventRegion(event))
+                            .withAccoundId(getCloudTrailEventAccountId(event))
+                            .build()));
         }
 
     }

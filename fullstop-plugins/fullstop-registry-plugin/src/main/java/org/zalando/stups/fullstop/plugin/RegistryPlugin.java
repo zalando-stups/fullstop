@@ -162,18 +162,21 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             violationStore.save(
                 new ViolationBuilder(
                     format("Application: %s has not a valid artifact for version: %s.", applicationId,
-                        applicationVersion)).withEvent(event).build());
+                        applicationVersion)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
         }
 
         Map<String, String> tags = this.pieroneOperations.listTags(team, applicationId);
         if (tags.isEmpty()) {
-            violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-                    event).build());
+            violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
+                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
         } else {
             String value = tags.get(applicationVersion);
             if (value == null) {
                 violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
-                        .withEvent(event).build());
+                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                        .withAccoundId(getCloudTrailEventAccountId(event)).build());
             }
         }
 
@@ -281,7 +284,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
             violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
-                    .withEvent(event).build());
+                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -289,7 +293,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (userData == null) {
             violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
-                    .withEvent(event).build());
+                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -310,7 +315,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     format(
                         "No 'application_id' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -326,7 +332,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     format(
                         "No 'application_version' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -343,7 +350,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     format(
                         "No 'source' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 

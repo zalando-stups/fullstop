@@ -122,8 +122,10 @@ public class AmiPlugin extends AbstractFullstopPlugin {
             violationStore.save(
                     new ViolationBuilder(format("Instances with ids: %s was started with wrong images: %s", getInstanceIds(event),
                             invalidAmis)).
-                            withEvent(event).
-                            build());
+                            withEventId(getCloudTrailEventId(event))
+                            .withRegion(getCloudTrailEventRegion(event))
+                            .withAccoundId(getCloudTrailEventAccountId(event))
+                            .build());
         }
     }
 }

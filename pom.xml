@@ -57,6 +57,7 @@
         <module>fullstop-jobs</module>
         <!-- <module>fullstop-clients</module>-->
         <module>fullstop-s3</module>
+        <module>fullstop-violation</module>
     </modules>
 
     <dependencyManagement>

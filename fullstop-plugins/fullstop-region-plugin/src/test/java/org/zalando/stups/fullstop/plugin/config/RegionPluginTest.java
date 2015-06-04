@@ -19,18 +19,22 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mockito;
+
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SysOutViolationStore;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.Violation;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-import org.zalando.stups.fullstop.violation.entity.Violation;
 
 /**
  * @author  jbellmann
@@ -70,6 +74,7 @@ public class RegionPluginTest {
         UserIdentity userIdentity = new UserIdentity();
         userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
         data.add(CloudTrailEventField.userIdentity.name(), userIdentity);
+        data.add(CloudTrailEventField.eventID.name(), UUID.randomUUID());
 
         CloudTrailEvent event = new CloudTrailEvent(data, null);
 

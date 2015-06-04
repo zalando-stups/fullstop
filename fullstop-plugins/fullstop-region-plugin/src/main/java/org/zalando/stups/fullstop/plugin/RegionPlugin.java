@@ -18,7 +18,6 @@ package org.zalando.stups.fullstop.plugin;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
@@ -34,9 +33,9 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  gkneitschel
@@ -82,8 +81,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
-            violationStore.save(new ViolationBuilder
-                    (message).withEvent(event).build());
+            violationStore.save(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
         }
     }
 }

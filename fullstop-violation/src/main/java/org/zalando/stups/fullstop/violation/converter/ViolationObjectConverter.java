@@ -16,10 +16,10 @@
 
 package org.zalando.stups.fullstop.violation.converter;
 
-import org.apache.commons.lang3.StringUtils;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+
+import org.springframework.util.StringUtils;
 
 @Converter(autoApply = true)
 public class ViolationObjectConverter implements AttributeConverter<Object, String> {
@@ -29,14 +29,16 @@ public class ViolationObjectConverter implements AttributeConverter<Object, Stri
         if (obj == null) {
             return null;
         }
+
         return obj.toString();
     }
 
     @Override
     public Object convertToEntityAttribute(final String value) {
-        if (StringUtils.isBlank(value)) {
-            return null;
+        if (StringUtils.hasText(value)) {
+            return value;
         }
-        return value;
+
+        return null;
     }
 }

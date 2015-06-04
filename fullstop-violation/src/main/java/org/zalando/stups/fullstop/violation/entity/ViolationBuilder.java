@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-
 package org.zalando.stups.fullstop.violation.entity;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
  * Created by gkneitschel.
@@ -32,7 +28,7 @@ public class ViolationBuilder {
     private String comment;
     private Boolean checked;
 
-    public ViolationBuilder(String message) {
+    public ViolationBuilder(final String message) {
         this.message = message;
     }
 
@@ -50,56 +46,39 @@ public class ViolationBuilder {
         return violation;
     }
 
-    public ViolationBuilder withEvent(CloudTrailEvent event) {
-
-        if (event != null && event.getEventData() != null) {
-
-            CloudTrailEventData eventData = event.getEventData();
-
-            if (eventData.getEventId() != null) {
-                this.eventId = eventData.getEventId().toString();
-            }
-
-            if (eventData.getUserIdentity() != null) {
-                this.accountId = eventData.getUserIdentity().getAccountId();
-            }
-
-            this.region = eventData.getAwsRegion();
-        }
-
+    public ViolationBuilder withEventId(final String eventId) {
+        this.eventId = eventId;
         return this;
     }
 
-    public ViolationBuilder withAccoundId(String accoundId) {
+    public ViolationBuilder withAccoundId(final String accoundId) {
         this.accountId = accoundId;
         return this;
     }
 
-    public ViolationBuilder withRegion(String region) {
+    public ViolationBuilder withRegion(final String region) {
         this.region = region;
         return this;
     }
 
-    public ViolationBuilder withMessage(String message) {
+    public ViolationBuilder withMessage(final String message) {
         this.message = message;
         return this;
     }
 
-
-    public ViolationBuilder withViolationObject(Object violationObject) {
+    public ViolationBuilder withViolationObject(final Object violationObject) {
         this.violationObject = violationObject;
         return this;
     }
 
-    public ViolationBuilder withComment(String comment) {
+    public ViolationBuilder withComment(final String comment) {
         this.comment = comment;
         return this;
     }
 
-    public ViolationBuilder isChecked(Boolean checked) {
+    public ViolationBuilder isChecked(final Boolean checked) {
         this.checked = checked;
         return this;
     }
-
 
 }
