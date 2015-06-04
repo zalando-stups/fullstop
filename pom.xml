@@ -58,6 +58,8 @@
         <!-- <module>fullstop-clients</module>-->
         <module>fullstop-s3</module>
         <module>fullstop-violation</module>
+        <module>fullstop-violation-sink</module>
+        <module>fullstop-violation-sink-reactor</module>
     </modules>
 
     <dependencyManagement>
