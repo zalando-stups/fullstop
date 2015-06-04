@@ -37,10 +37,11 @@ definitions:
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
-      checked:
+      resolved:
         type: boolean
         example: "true"
-
+      resolution:
+        $ref: "#/definitions/Resolution"
 
   LogObj:
     type: object
@@ -67,15 +68,19 @@ definitions:
         type: string
         example: ""
 
-  Acknowledged:
+  Resolution:
     type: object
     properties:
-      checked:
-        type: boolean
-        example: true
+      user:
+        type: string
+        example: npiccolotto
       message:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
+      timestamp:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
 
 paths:
 
@@ -131,28 +136,26 @@ paths:
             items:
               $ref: "#/definitions/Violation"
 
-  /api/violations/{id}:
-    put:
-      summary: Comment and acknowledged violation
-      description: Comment and acknowledged violation
+  /api/resolution/{id}:
+    post:
+      summary: Resolve and explain this violation
+      description: Resolve and explain violation
       tags:
         - Fullstop API
-      operationId: acknowledgedViolations
+      operationId: resolvedViolations
       responses:
         "200":
-          description: Violation updated successfully
+          description: Violation resolved successfully
       parameters:
         - name: id
           in: path
           type: integer
           required: true
-        - name: acknowledged
+        - name: message
           in: body
           required: true
           schema:
-            $ref: "#/definitions/Acknowledged"
-            description: Acknowledged metadata and object
-
+            $ref: "#/definitions/Resolution"
 
   /api/instance-logs:
     post:
