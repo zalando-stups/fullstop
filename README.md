@@ -141,6 +141,13 @@ Push docker image:
 
     $ docker push registry/fullstop:0.1
 
+## Project TODO:
+- [ ] Oauth 2.0 spring configuration
+- [ ] Implement API for FE
+- [ ] Auditing on entity
+- [ ] Pageable
+- [ ] Plugin plugin plugin ;)
+- [ ] ...
 
 ## License
 
