@@ -155,7 +155,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: "#/definitions/Resolution"
+            type: string
 
   /api/instance-logs:
     post:
