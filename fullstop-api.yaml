@@ -22,7 +22,7 @@ definitions:
       eventId:
         type: string
         example: cd768599e1bb41c38279c26254feff5cf57bf967
-      account-id:
+      accountId:
         type: string
         example: 123456789
       region:
@@ -50,20 +50,20 @@ definitions:
         enum:
           - AUDIT_LOG
           - USER_DATA
-      instance-id:
+      instanceId:
         type: string
         example: "i-123kd"
-      account-id:
+      accountId:
         type: string
         example: "1233456568"
       region:
         type: string
         example: "eu-west-1"
-      instance-boot-time:
+      instanceBootTime:
         type: string
         format: date-time
         example: 2015-05-21T10:24:47.788-02:00
-      log-data:
+      logData:
         type: string
         example: ""
 
