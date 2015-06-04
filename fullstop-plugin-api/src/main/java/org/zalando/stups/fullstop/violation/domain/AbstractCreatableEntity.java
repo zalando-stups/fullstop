@@ -17,14 +17,17 @@
 package org.zalando.stups.fullstop.violation.domain;
 
 import com.google.common.base.Objects;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author  ahartmann
@@ -34,10 +37,12 @@ import javax.persistence.MappedSuperclass;
 public abstract class AbstractCreatableEntity extends AbstractEntity {
 
     @CreatedDate
+    @NotNull(groups = {PersistenceOnly.class})
     @Column(nullable = false)
     private DateTime created;
 
     @CreatedBy
+    @NotEmpty(groups = {PersistenceOnly.class})
     @Column(nullable = false)
     protected String createdBy;
 

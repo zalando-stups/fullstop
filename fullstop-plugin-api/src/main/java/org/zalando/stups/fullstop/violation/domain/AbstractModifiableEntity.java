@@ -17,13 +17,16 @@
 package org.zalando.stups.fullstop.violation.domain;
 
 import com.google.common.base.Objects;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author  ahartmann
@@ -38,10 +41,12 @@ public abstract class AbstractModifiableEntity extends AbstractCreatableEntity {
     private Integer version;
 
     @LastModifiedDate
+    @NotNull(groups = {PersistenceOnly.class})
     @Column(nullable = false)
     private DateTime lastModified;
 
     @LastModifiedBy
+    @NotEmpty(groups = {PersistenceOnly.class})
     @Column(nullable = false)
     protected String lastModifiedBy;
 

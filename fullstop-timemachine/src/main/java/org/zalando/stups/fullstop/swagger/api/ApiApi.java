@@ -21,7 +21,12 @@ import com.wordnik.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
@@ -33,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -40,6 +46,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
 @Api(value = "/api", description = "the api API")
+@PreAuthorize("#oauth2.hasScope('uid')")
 public class ApiApi {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiApi.class);
@@ -87,13 +94,18 @@ public class ApiApi {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of all violations")})
     @RequestMapping(value = "/violations", method = RequestMethod.GET)
-    public ResponseEntity<List<Violation>> violations()
+    @PreAuthorize("permitAll")
+    public Page<org.zalando.stups.fullstop.violation.entity.Violation> violations(@PageableDefault(page = 0,
+            size = 10, sort = "id", direction =
+            ASC) final Pageable pageable, @AuthenticationPrincipal(errorOnInvalidType = true) String uid)
             throws NotFoundException {
-        List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations = violationRepository.findAll();
-        List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
+        logger.info("this is my username: {}", uid);
+        Page<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations = violationRepository.findAll
+                (pageable);
+//        List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
 
 
-        return new ResponseEntity<>(frontendViolations, OK);
+        return backendViolations;
     }
 
 
@@ -115,6 +127,15 @@ public class ApiApi {
         List<Violation> frontendViolations = new ArrayList<>();
         for (org.zalando.stups.fullstop.violation.entity.Violation backendViolation : backendViolations) {
             Violation violation = new Violation();
+
+//            violation.setId(backendViolation.getId());
+//            violation.setVersion(backendViolation.getVersion());
+//
+//            backendViolation.getCreated();
+//            backendViolation.getCreatedBy();
+//            backendViolation.getLastModified();
+//            backendViolation.getLastModifiedBy();
+
             violation.setAccountId(backendViolation.getAccountId());
             violation.setEventId(backendViolation.getEventId());
             violation.setMessage(backendViolation.getMessage());

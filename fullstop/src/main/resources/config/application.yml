@@ -1,6 +1,3 @@
-#
-#
-#
 spring:
     oauth2:
         resource:
@@ -97,3 +94,14 @@ tokens:
         - tokenId: pierone
           scopes:
               - uid
+
+
+javax:
+    persistence:
+        validation:
+            # force validation - fail fast if something goes wrong
+            mode: CALLBACK
+            group:
+                pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
