@@ -136,7 +136,7 @@ paths:
             items:
               $ref: "#/definitions/Violation"
 
-  /api/resolution/{id}:
+  /api/violations/{id}/resolution:
     post:
       summary: Resolve and explain this violation
       description: Resolve and explain violation
