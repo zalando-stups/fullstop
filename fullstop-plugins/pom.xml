@@ -41,5 +41,6 @@
         <module>fullstop-keypair-plugin</module>
         <module>fullstop-subnet-plugin</module>
         <module>fullstop-save-securitygroups-plugin</module>
+        <module>fullstop-count-events-plugin</module>
     </modules>
 </project>
