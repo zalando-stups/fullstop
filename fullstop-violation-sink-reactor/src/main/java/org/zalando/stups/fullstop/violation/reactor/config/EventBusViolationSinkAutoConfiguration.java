@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.sink.reactor.config;
+package org.zalando.stups.fullstop.violation.reactor.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.zalando.stups.fullstop.sink.reactor.EventBusViolationSink;
+import org.zalando.stups.fullstop.violation.reactor.EventBusViolationSink;
 
 import reactor.Environment;
-
 import reactor.bus.EventBus;
 
 /**

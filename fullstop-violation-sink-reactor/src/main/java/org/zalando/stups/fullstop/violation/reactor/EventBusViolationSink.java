@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.sink.reactor;
+package org.zalando.stups.fullstop.violation.reactor;
 
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
