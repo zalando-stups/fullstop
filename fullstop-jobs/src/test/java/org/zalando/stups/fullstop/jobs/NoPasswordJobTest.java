@@ -29,20 +29,20 @@ import org.junit.Test;
 
 import org.mockito.Mockito;
 
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.identitymanagement.model.ListUsersResult;
 import com.amazonaws.services.identitymanagement.model.User;
 
 public class NoPasswordJobTest {
 
-    private ViolationStore violationStore;
+    private ViolationSink violationSink;
 
     private IdentityManagementDataSource identityManagementDataSource;
 
     @Before
     public void setUp() {
-        violationStore = mock(ViolationStore.class);
+        violationSink = mock(ViolationSink.class);
         identityManagementDataSource = mock(IdentityManagementDataSource.class);
     }
 
@@ -52,12 +52,12 @@ public class NoPasswordJobTest {
         Mockito.when(identityManagementDataSource.getListUsersResultPerAccountWithTuple()).thenReturn(
             getListUsersResultPerAccount());
 
-        NoPasswordsJob job = new NoPasswordsJob(violationStore, identityManagementDataSource);
+        NoPasswordsJob job = new NoPasswordsJob(violationSink, identityManagementDataSource);
 
         job.check();
 
         verify(identityManagementDataSource, atLeastOnce()).getListUsersResultPerAccountWithTuple();
-        verify(violationStore, atLeastOnce()).save(Mockito.any());
+        verify(violationSink, atLeastOnce()).put(Mockito.any());
     }
 
     protected List<Tuple<String, ListUsersResult>> getListUsersResultPerAccount() {

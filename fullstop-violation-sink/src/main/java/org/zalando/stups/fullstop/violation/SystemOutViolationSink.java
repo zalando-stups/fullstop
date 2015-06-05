@@ -15,15 +15,11 @@
  */
 package org.zalando.stups.fullstop.violation;
 
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+public class SystemOutViolationSink implements ViolationSink {
 
-/**
- * We to somehow/somewhere store the findings.
- *
- * @author  jbellmann
- */
-public interface ViolationStore {
-
-    void save(ViolationEntity violation);
+    @Override
+    public void put(final Violation violation) {
+        System.out.println(violation.toString());
+    }
 
 }

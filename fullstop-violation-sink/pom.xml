@@ -10,4 +10,11 @@
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
 </project>

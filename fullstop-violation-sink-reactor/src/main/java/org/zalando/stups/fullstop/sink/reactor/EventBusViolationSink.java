@@ -15,7 +15,8 @@
  */
 package org.zalando.stups.fullstop.sink.reactor;
 
-import org.zalando.stups.fullstop.violation.sink.ViolationSink;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -27,6 +28,7 @@ import reactor.bus.EventBus;
  */
 public class EventBusViolationSink implements ViolationSink {
 
+    private final String DEFAULT_VIOLATIONS_TOPIC = "/violations";
     private final EventBus eventBus;
 
     public EventBusViolationSink(final EventBus eventBus) {
@@ -34,13 +36,8 @@ public class EventBusViolationSink implements ViolationSink {
     }
 
     @Override
-    public void put(final Object violation) {
-        put(DEFAULT_VIOLATIONS_TOPIC, violation);
-    }
-
-    @Override
-    public void put(final Object selector, final Object violation) {
-        eventBus.notify(selector, Event.wrap(violation));
+    public void put(final Violation violation) {
+        eventBus.notify(DEFAULT_VIOLATIONS_TOPIC, Event.wrap(violation));
     }
 
 }

@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.identitymanagement.model.ListUsersResult;
 import com.amazonaws.services.identitymanagement.model.User;
@@ -42,15 +42,15 @@ public class NoPasswordsJob {
 
     private final Logger log = LoggerFactory.getLogger(NoPasswordsJob.class);
 
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     private final IdentityManagementDataSource identityManagementDataSource;
 
     @Autowired
-    public NoPasswordsJob(final ViolationStore violationStore,
+    public NoPasswordsJob(final ViolationSink violationSink,
             final IdentityManagementDataSource identityManagementDataSource) {
         this.identityManagementDataSource = identityManagementDataSource;
-        this.violationStore = violationStore;
+        this.violationSink = violationSink;
     }
 
     @PostConstruct
@@ -69,7 +69,7 @@ public class NoPasswordsJob {
     }
 
     protected void filter(final String accountId, final List<User> users) {
-        final UsersConsumer consumer = new UsersConsumer(violationStore, accountId);
+        final UsersConsumer consumer = new UsersConsumer(violationSink, accountId);
         users.stream().filter(PASSWORD_LAST_USED_HAS_NON_NULL_DATE).forEach(consumer);
     }
 

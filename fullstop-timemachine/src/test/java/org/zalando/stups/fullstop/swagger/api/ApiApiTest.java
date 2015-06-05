@@ -16,41 +16,57 @@
 
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.google.common.collect.Lists;
-import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.zalando.stups.fullstop.common.RestControllerTestSupport;
-import org.zalando.stups.fullstop.s3.S3Writer;
-import org.zalando.stups.fullstop.swagger.model.LogObj;
-import org.zalando.stups.fullstop.violation.entity.Violation;
-import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
-import sun.misc.BASE64Encoder;
-
-import java.util.Date;
-import java.util.UUID;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
 import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
+
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.Date;
+import java.util.UUID;
+
+import org.joda.time.DateTime;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.http.MediaType;
+
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+
+import org.zalando.stups.fullstop.common.RestControllerTestSupport;
+import org.zalando.stups.fullstop.s3.S3Writer;
+import org.zalando.stups.fullstop.swagger.model.LogObj;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+
+import com.google.common.collect.Lists;
+
+import sun.misc.BASE64Encoder;
 
 /**
  * Created by mrandi.
@@ -72,7 +88,7 @@ public class ApiApiTest extends RestControllerTestSupport {
     @Autowired
     private ViolationRepository violationRepositoryMock;
 
-    private Violation violationResult;
+    private ViolationEntity violationResult;
 
     private LogObj logObjResult;
 
@@ -80,7 +96,7 @@ public class ApiApiTest extends RestControllerTestSupport {
     public void setUp() throws Exception {
         reset(violationRepositoryMock);
 
-        violationResult = new Violation();
+        violationResult = new ViolationEntity();
         violationResult.setAccountId(ACCOUNT_ID);
         violationResult.setMessage(MESSAGE);
         violationResult.setRegion(REGION);
@@ -97,23 +113,19 @@ public class ApiApiTest extends RestControllerTestSupport {
 
     @Test
     public void testAccountId() throws Exception {
-        when(violationRepositoryMock.findAccountId()).thenReturn(Lists.newArrayList
-                ("123"));
+        when(violationRepositoryMock.findAccountId()).thenReturn(Lists.newArrayList("123"));
 
-        ResultActions resultActions = this.mockMvc.perform(get("/api/account-ids")).andExpect(status()
-                .isOk()).andDo(
+        ResultActions resultActions = this.mockMvc.perform(get("/api/account-ids")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
         resultActions.andExpect(jsonPath("$").value(hasSize(1)));
     }
 
     @Test
     public void testAccountViolations() throws Exception {
-        when(violationRepositoryMock.findByAccountId(any(String.class))).thenReturn(newArrayList
-                (violationResult));
+        when(violationRepositoryMock.findByAccountId(any(String.class))).thenReturn(newArrayList(violationResult));
 
-        ResultActions resultActions = this.mockMvc.perform(get("/api/account-violations/123")).andExpect(status()
-                .isOk()).andDo(
-                MockMvcResultHandlers.print());
+        ResultActions resultActions = this.mockMvc.perform(get("/api/account-violations/123"))
+                                                  .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
         resultActions.andExpect(jsonPath("$").value(hasSize(1)));
     }
 
@@ -123,8 +135,8 @@ public class ApiApiTest extends RestControllerTestSupport {
         byte[] bytes = objectMapper.writeValueAsBytes(logObjResult);
 
         this.mockMvc.perform(post("/api/instance-logs").contentType(MediaType.APPLICATION_JSON).content(bytes))
-                .andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated()).andDo(MockMvcResultHandlers
-                .print());
+                    .andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated()).andDo(MockMvcResultHandlers
+                            .print());
     }
 
     @Test
@@ -135,11 +147,9 @@ public class ApiApiTest extends RestControllerTestSupport {
     @Test
     @Ignore
     public void testViolations() throws Exception {
-        when(violationRepositoryMock.findAll()).thenReturn(newArrayList
-                (violationResult));
+        when(violationRepositoryMock.findAll()).thenReturn(newArrayList(violationResult));
 
-        ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status()
-                .isOk()).andDo(
+        ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
         resultActions.andExpect(jsonPath("$").value(hasSize(1)));
     }
@@ -155,13 +165,13 @@ public class ApiApiTest extends RestControllerTestSupport {
         byte[] bytes = objectMapper.writeValueAsBytes(violationResult);
 
         this.mockMvc.perform(put("/api/violations/156").contentType(MediaType.APPLICATION_JSON).content(bytes))
-                .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(MockMvcResultHandlers
-                .print());
+                    .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(MockMvcResultHandlers
+                            .print());
     }
 
     @Override
     protected Object[] mockMvcControllers() {
-        return new Object[]{apiApiController};
+        return new Object[] {apiApiController};
     }
 
     @Configuration

@@ -30,10 +30,9 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.util.CollectionUtils;
 
-import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -49,13 +48,11 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final ClientProvider cachingClientProvider;
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     @Autowired
-    public KeyPairPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore) {
-        this.cachingClientProvider = cachingClientProvider;
-        this.violationStore = violationStore;
+    public KeyPairPlugin(final ViolationSink violationSink) {
+        this.violationSink = violationSink;
     }
 
     @Override
@@ -72,7 +69,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationStore.save(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
+            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
                     getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
                     getCloudTrailEventAccountId(event)).build());
 

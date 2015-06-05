@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
+            <artifactId>fullstop-violation-sink</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

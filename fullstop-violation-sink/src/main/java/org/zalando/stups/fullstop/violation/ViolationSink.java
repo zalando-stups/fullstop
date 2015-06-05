@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation.sink;
+package org.zalando.stups.fullstop.violation;
 
 /**
  * All Violations have to be written into this.
@@ -24,6 +24,6 @@ public interface ViolationSink {
 
     String DEFAULT_VIOLATIONS_TOPIC = "/violations";
 
-    void put(Object violation);
+    void put(Violation violation);
 
 }

@@ -16,20 +16,17 @@
 
 package org.zalando.stups.fullstop.builder.domain;
 
-
-import org.zalando.stups.fullstop.builder.AbstractModifiableEntityBuilder;
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.util.UUID;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import org.zalando.stups.fullstop.builder.AbstractModifiableEntityBuilder;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 /**
- * Created by mrandi.
- *
- * Builder example
+ * Created by mrandi. Builder example
  */
-public class ViolationBuilder extends AbstractModifiableEntityBuilder<Violation, ViolationBuilder> {
+public class ViolationBuilder extends AbstractModifiableEntityBuilder<ViolationEntity, ViolationBuilder> {
 
     private String eventId;
     private String accountId;
@@ -40,7 +37,7 @@ public class ViolationBuilder extends AbstractModifiableEntityBuilder<Violation,
     private Boolean checked;
 
     public ViolationBuilder() {
-        super(Violation.class);
+        super(ViolationEntity.class);
     }
 
     public static ViolationBuilder violation() {
@@ -48,8 +45,8 @@ public class ViolationBuilder extends AbstractModifiableEntityBuilder<Violation,
     }
 
     @Override
-    public Violation build() {
-        final Violation entity = super.build();
+    public ViolationEntity build() {
+        final ViolationEntity entity = super.build();
 
         entity.setEventId(firstNonNull(eventId, UUID.randomUUID().toString()));
         entity.setAccountId(firstNonNull(accountId, "my account id" + Math.random()));

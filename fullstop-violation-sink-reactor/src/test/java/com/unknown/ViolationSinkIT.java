@@ -15,6 +15,7 @@
  */
 package com.unknown;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.zalando.stups.fullstop.violation.sink.ViolationSink;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import reactor.bus.EventBus;
 import reactor.bus.selector.Selectors;
@@ -59,7 +61,14 @@ public class ViolationSinkIT {
 
     @Test
     public void handleViolation() throws InterruptedException {
-        violationSink.put("HELLO_TEST");
+
+        ViolationBuilder vBuilder = new ViolationBuilder("Hello_TEST");
+        vBuilder.withAccoundId("1234567");
+        vBuilder.withEventId(UUID.randomUUID().toString());
+        vBuilder.withRegion("sig-west-13");
+        vBuilder.withViolationObject("{\"key\": \"value\"}");
+
+        violationSink.put(vBuilder.build());
 
         latch.await(5, TimeUnit.SECONDS);
     }

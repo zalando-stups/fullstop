@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.zalando.stups.fullstop.violation.entity;
+package org.zalando.stups.fullstop.violation;
 
 /**
  * Created by gkneitschel.
@@ -25,23 +25,19 @@ public class ViolationBuilder {
     private String region;
     private String message;
     private Object violationObject;
-    private String comment;
-    private Boolean checked;
 
     public ViolationBuilder(final String message) {
         this.message = message;
     }
 
     public Violation build() {
-        Violation violation = new Violation();
+        DefaultViolation violation = new DefaultViolation();
 
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
         violation.setRegion(region);
         violation.setMessage(message);
         violation.setViolationObject(violationObject);
-        violation.setComment(comment);
-        violation.setChecked(checked);
 
         return violation;
     }
@@ -68,16 +64,6 @@ public class ViolationBuilder {
 
     public ViolationBuilder withViolationObject(final Object violationObject) {
         this.violationObject = violationObject;
-        return this;
-    }
-
-    public ViolationBuilder withComment(final String comment) {
-        this.comment = comment;
-        return this;
-    }
-
-    public ViolationBuilder isChecked(final Boolean checked) {
-        this.checked = checked;
         return this;
     }
 

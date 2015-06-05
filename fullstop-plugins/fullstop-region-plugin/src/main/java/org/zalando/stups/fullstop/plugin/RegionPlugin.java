@@ -32,8 +32,8 @@ import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
@@ -48,15 +48,16 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final ViolationStore violationStore;
+// s
+    private final ViolationSink violationSink;
 
     private CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
     private final RegionPluginProperties regionPluginProperties;
 
     @Autowired
-    public RegionPlugin(final ViolationStore violationStore, final RegionPluginProperties regionPluginProperties) {
-        this.violationStore = violationStore;
+    public RegionPlugin(final ViolationSink violationSink, final RegionPluginProperties regionPluginProperties) {
+        this.violationSink = violationSink;
         this.regionPluginProperties = regionPluginProperties;
     }
 
@@ -81,7 +82,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
-            violationStore.save(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+            violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
                     getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
         }
     }

@@ -38,8 +38,8 @@ import org.mockito.Mockito;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
-import org.zalando.stups.fullstop.violation.SysOutViolationStore;
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
@@ -54,20 +54,20 @@ import com.google.common.collect.Lists;
 public class RunInstancePluginTest {
 
     private ClientProvider clientProvider;
-    private ViolationStore violationStore;
+    private ViolationSink violationSink;
 
     @Before
     public void setUp() {
         clientProvider = Mockito.mock(ClientProvider.class);
-        violationStore = new SysOutViolationStore();
-        violationStore = Mockito.spy(violationStore);
+        violationSink = new SystemOutViolationSink();
+        violationSink = Mockito.spy(violationSink);
     }
 
     @Test
     public void hasOnlyPrivateIp() {
         CloudTrailEvent event = new CloudTrailEvent(new TestCloudTrailEventData("/responseElements.json"), null);
 
-        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationStore);
+        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
 
         Assertions.assertThat(plugin.hasPublicIp(event)).isFalse();
 
@@ -76,7 +76,7 @@ public class RunInstancePluginTest {
     @Test
     public void filteringSecurityGroups() {
 
-        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationStore);
+        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
 
         Set<String> result = plugin.getPorts(getSecurityGroupsForTesting().get());
         Assertions.assertThat(result).isNotEmpty();
@@ -133,7 +133,7 @@ public class RunInstancePluginTest {
     public void runInstancePluginTestWithSubclass() {
 
         // prepare
-        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationStore);
+        RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
         UserIdentity userIdentity = Mockito.mock(UserIdentity.class);
         Mockito.when(userIdentity.getAccountId()).thenReturn("1234567");
 
@@ -147,7 +147,7 @@ public class RunInstancePluginTest {
         plugin.processEvent(event);
 
         // verify
-// verify(violationStore, atLeastOnce()).save(Mockito.any());
+// verify(violationSink, atLeastOnce()).save(Mockito.any());
     }
 
     /**
@@ -179,8 +179,8 @@ public class RunInstancePluginTest {
      */
     static class TestRunInstancePlugin extends RunInstancePlugin {
 
-        public TestRunInstancePlugin(final ClientProvider clientProvider, final ViolationStore violationStore) {
-            super(clientProvider, violationStore);
+        public TestRunInstancePlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
+            super(clientProvider, violationSink);
         }
 
         @Override

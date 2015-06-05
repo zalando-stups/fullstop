@@ -37,8 +37,8 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.AmazonServiceException;
 
@@ -72,8 +72,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-    private final ViolationStore violationStore;
-
+// private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 // private final RestTemplate restTemplate = new RestTemplate();
 
 // @Value("${fullstop.plugins.kio.url}/apps/{appId}")
@@ -90,10 +90,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     private final KioOperations kioOperations;
 
     @Autowired
-    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore,
+    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationSink violationSink,
             final PieroneOperations pieroneOperations, final KioOperations kioOperations) {
         this.cachingClientProvider = cachingClientProvider;
-        this.violationStore = violationStore;
+        this.violationSink = violationSink;
         this.pieroneOperations = pieroneOperations;
         this.kioOperations = kioOperations;
     }
@@ -159,7 +159,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             final String applicationVersion, final String team, final String source, final String artifact) {
 
         if (!source.equals(artifact)) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format("Application: %s has not a valid artifact for version: %s.", applicationId,
                         applicationVersion)).withEventId(getCloudTrailEventId(event)).withRegion(
@@ -168,13 +168,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         Map<String, String> tags = this.pieroneOperations.listTags(team, applicationId);
         if (tags.isEmpty()) {
-            violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
-                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+            violationSink.put(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEventId(
+                    getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
                     getCloudTrailEventAccountId(event)).build());
         } else {
             String value = tags.get(applicationVersion);
             if (value == null) {
-                violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
+                violationSink.put(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
                         .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
                         .withAccoundId(getCloudTrailEventAccountId(event)).build());
             }
@@ -283,7 +283,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
-            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
                     .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
                     getCloudTrailEventAccountId(event)).build());
             return null;
@@ -292,7 +292,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
                     .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
                     getCloudTrailEventAccountId(event)).build());
             return null;
@@ -310,7 +310,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationId = (String) userDataMap.get(APPLICATION_ID);
 
         if (applicationId == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'application_id' defined for this instance %s, "
@@ -327,7 +327,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationVersion = (String) userDataMap.get(APPLICATION_VERSION);
 
         if (applicationVersion == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'application_version' defined for this instance %s, "
@@ -345,7 +345,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String source = (String) userDataMap.get(SOURCE);
 
         if (source == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'source' defined for this instance %s, "

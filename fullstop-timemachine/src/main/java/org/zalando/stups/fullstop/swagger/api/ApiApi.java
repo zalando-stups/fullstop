@@ -16,32 +16,49 @@
 
 package org.zalando.stups.fullstop.swagger.api;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
-import com.wordnik.swagger.annotations.*;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
@@ -56,109 +73,107 @@ public class ApiApi {
     @Autowired
     private ViolationRepository violationRepository;
 
-
     @ApiOperation(value = "account-ids", notes = "Get all account ids", response = String.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of all account Ids")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all account Ids")})
     @RequestMapping(value = "/account-ids", method = RequestMethod.GET)
-    public ResponseEntity<List<String>> accountId()
-            throws NotFoundException {
+    public ResponseEntity<List<String>> accountId() throws NotFoundException {
         List<String> accountIds = violationRepository.findAccountId();
         return new ResponseEntity<>(accountIds, OK);
     }
 
-
-    @ApiOperation(value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of all violations for one account")})
+    @ApiOperation(
+        value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations for one account")})
     @RequestMapping(value = "/account-violations/{account-id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Violation>> accountViolations(@ApiParam(value = "", required = true) @PathVariable("account-id") String accountId)
-            throws NotFoundException {
-        List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
+    public ResponseEntity<List<Violation>> accountViolations(
+            @ApiParam(value = "", required = true)
+            @PathVariable("account-id")
+            final String accountId) throws NotFoundException {
+        List<ViolationEntity> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
         List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
         return new ResponseEntity<>(frontendViolationsByAccount, OK);
     }
 
-
-    @ApiOperation(value = "Post instance instance log in S3", notes = "Add instance log for instance in S3", response = Void.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Logs saved successfully")})
+    @ApiOperation(
+        value = "Post instance instance log in S3", notes = "Add instance log for instance in S3",
+        response = Void.class
+    )
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Logs saved successfully")})
     @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "instance-log", required = true) @RequestBody LogObj instanceLog)
-            throws NotFoundException {
+    public ResponseEntity<Void> instanceLogs(
+            @ApiParam(value = "instance-log", required = true)
+            @RequestBody final LogObj instanceLog) throws NotFoundException {
         saveLog(instanceLog);
         return new ResponseEntity<>(CREATED);
     }
 
     @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of all violations")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
     @RequestMapping(value = "/violations", method = RequestMethod.GET)
     @PreAuthorize("permitAll")
-    public Page<org.zalando.stups.fullstop.violation.entity.Violation> violations(@PageableDefault(page = 0,
-            size = 10, sort = "id", direction =
-            ASC) final Pageable pageable, @AuthenticationPrincipal(errorOnInvalidType = true) String uid)
-            throws NotFoundException {
+    public Page<ViolationEntity> violations(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
+            @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         logger.info("this is my username: {}", uid);
-        Page<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations = violationRepository.findAll
-                (pageable);
-//        List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
 
+        Page<ViolationEntity> backendViolations = violationRepository.findAll(pageable);
+// List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
 
         return backendViolations;
     }
 
-
-    @ApiOperation(value = "Comment and acknowledged violation", notes = "Comment and acknowledged violation", response = Void.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Violation updated successfully")})
+    @ApiOperation(
+        value = "Comment and acknowledged violation", notes = "Comment and acknowledged violation",
+        response = Void.class
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation updated successfully")})
     @RequestMapping(value = "/violations/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> acknowledgedViolations(@ApiParam(value = "", required = true) @PathVariable("id") Integer id,
-                                                       @ApiParam(value = "", required = true) Acknowledged acknowledged)
-            throws NotFoundException {
-        org.zalando.stups.fullstop.violation.entity.Violation violation = violationRepository.findOne(id);
+    public ResponseEntity<Void> acknowledgedViolations(
+            @ApiParam(value = "", required = true)
+            @PathVariable("id")
+            final Integer id,
+            @ApiParam(value = "", required = true) final Acknowledged acknowledged) throws NotFoundException {
+        ViolationEntity violation = violationRepository.findOne(id);
         violation.setChecked(acknowledged.getChecked());
         violation.setComment(acknowledged.getMessage());
         violationRepository.save(violation);
         return new ResponseEntity<>(OK);
     }
 
-    private List<Violation> mapBackendToFrontendViolations(List<org.zalando.stups.fullstop.violation.entity.Violation> backendViolations) {
+    private List<Violation> mapBackendToFrontendViolations(final List<ViolationEntity> backendViolations) {
         List<Violation> frontendViolations = new ArrayList<>();
-        for (org.zalando.stups.fullstop.violation.entity.Violation backendViolation : backendViolations) {
+        for (ViolationEntity entity : backendViolations) {
             Violation violation = new Violation();
 
-//            violation.setId(backendViolation.getId());
-//            violation.setVersion(backendViolation.getVersion());
+// violation.setId(backendViolation.getId());
+// violation.setVersion(backendViolation.getVersion());
 //
-//            backendViolation.getCreated();
-//            backendViolation.getCreatedBy();
-//            backendViolation.getLastModified();
-//            backendViolation.getLastModifiedBy();
+// backendViolation.getCreated();
+// backendViolation.getCreatedBy();
+// backendViolation.getLastModified();
+// backendViolation.getLastModifiedBy();
 
-            violation.setAccountId(backendViolation.getAccountId());
-            violation.setEventId(backendViolation.getEventId());
-            violation.setMessage(backendViolation.getMessage());
-            violation.setRegion(backendViolation.getRegion());
-            violation.setChecked(backendViolation.getChecked());
-            violation.setComment(backendViolation.getComment());
-            violation.setViolationObject(backendViolation.getViolationObject());
+            violation.setAccountId(entity.getAccountId());
+            violation.setEventId(entity.getEventId());
+            violation.setMessage(entity.getMessage());
+            violation.setRegion(entity.getRegion());
+            violation.setChecked(entity.getChecked());
+            violation.setComment(entity.getComment());
+            violation.setViolationObject(entity.getViolationObject());
             frontendViolations.add(violation);
         }
 
         return frontendViolations;
     }
 
-
-    private void saveLog(LogObj instanceLog) {
+    private void saveLog(final LogObj instanceLog) {
         try {
-            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(),
-                    instanceLog.getInstanceBootTime(), instanceLog.getLogData(),
-                    instanceLog.getLogType(), instanceLog.getInstanceId());
+            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
+                instanceLog.getLogData(), instanceLog.getLogType(), instanceLog.getInstanceId());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
     }
-
 
 }

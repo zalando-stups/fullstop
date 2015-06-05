@@ -27,7 +27,7 @@ import javax.persistence.Table;
  */
 @Table(name = "violation", schema = "fullstop_data")
 @Entity
-public class Violation extends AbstractModifiableEntity {
+public class ViolationEntity extends AbstractModifiableEntity {
 
     private String eventId;
     private String accountId;
@@ -37,7 +37,7 @@ public class Violation extends AbstractModifiableEntity {
     private String comment;
     private Boolean checked;
 
-    public Violation(String eventId, String accountId, String region, String message, Object violationObject, String comment, Boolean checked) {
+    public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject, String comment, Boolean checked) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
@@ -47,7 +47,7 @@ public class Violation extends AbstractModifiableEntity {
         this.checked = checked;
     }
 
-    public Violation() {
+    public ViolationEntity() {
     }
 
     public String getEventId() {

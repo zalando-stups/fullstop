@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import org.mockito.Mockito;
 
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
 import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
@@ -45,12 +45,12 @@ public class KeyRotationJobTest {
 
     private AccessKeyMetadataConsumer accessKeyMetadataConsumer;
 
-    private ViolationStore violationStore;
+    private ViolationSink violationSink;
 
     @Before
     public void setUp() {
-        this.violationStore = Mockito.mock(ViolationStore.class);
-        this.accessKeyMetadataConsumer = new AccessKeyMetadataConsumer(this.violationStore);
+        this.violationSink = Mockito.mock(ViolationSink.class);
+        this.accessKeyMetadataConsumer = new AccessKeyMetadataConsumer(this.violationSink);
         this.identityManagementDataSource = Mockito.mock(IdentityManagementDataSource.class);
     }
 
@@ -63,7 +63,7 @@ public class KeyRotationJobTest {
         job.check();
 
         verify(identityManagementDataSource, atLeastOnce()).getListAccessKeysResultPerAccountWithTuple();
-        verify(violationStore, atLeastOnce()).save(Mockito.anyObject());
+        verify(violationSink, atLeastOnce()).put(Mockito.anyObject());
     }
 
     protected List<Tuple<String, ListAccessKeysResult>> getList() {

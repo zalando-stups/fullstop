@@ -27,9 +27,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
-import org.zalando.stups.fullstop.violation.SysOutViolationStore;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
@@ -41,14 +41,14 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserId
  */
 public class RegionPluginTest {
 
-    private ViolationStore violationStore = new SysOutViolationStore();
+    private ViolationSink violationSink = new SystemOutViolationSink();
     ;
 
     private RegionPluginProperties regionPluginProperties;
 
     @Before
     public void setUp() {
-        violationStore = Mockito.spy(violationStore);
+        violationSink = Mockito.spy(violationSink);
         regionPluginProperties = new RegionPluginProperties();
     }
 
@@ -62,10 +62,10 @@ public class RegionPluginTest {
         CloudTrailEvent event = new CloudTrailEvent(data, null);
 
         //
-        RegionPlugin plugin = new RegionPlugin(violationStore, regionPluginProperties);
+        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
         plugin.processEvent(event);
 
-        verify(violationStore, never()).save(Mockito.any(Violation.class));
+        verify(violationSink, never()).put(Mockito.any(Violation.class));
     }
 
     @Test
@@ -79,10 +79,10 @@ public class RegionPluginTest {
         CloudTrailEvent event = new CloudTrailEvent(data, null);
 
         //
-        RegionPlugin plugin = new RegionPlugin(violationStore, regionPluginProperties);
+        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
         plugin.processEvent(event);
 
-        verify(violationStore, atLeastOnce()).save(Mockito.any(Violation.class));
+        verify(violationSink, atLeastOnce()).put(Mockito.any(Violation.class));
     }
 
 }

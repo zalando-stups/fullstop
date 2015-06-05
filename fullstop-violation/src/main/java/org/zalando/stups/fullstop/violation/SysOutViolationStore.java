@@ -17,7 +17,7 @@ package org.zalando.stups.fullstop.violation;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 /**
  * Prints the 'violation' to system-out.
@@ -29,7 +29,7 @@ public class SysOutViolationStore implements ViolationStore {
     private AtomicInteger counter = new AtomicInteger(0);
 
     @Override
-    public void save(final Violation violation) {
+    public void save(final ViolationEntity violation) {
         counter.incrementAndGet();
         System.out.println(violation.toString());
     }

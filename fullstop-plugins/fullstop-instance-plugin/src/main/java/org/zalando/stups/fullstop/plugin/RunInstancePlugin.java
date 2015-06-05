@@ -42,8 +42,8 @@ import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.AmazonClientException;
 
@@ -71,7 +71,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     private final ClientProvider clientProvider;
 
@@ -80,9 +80,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
 
     @Autowired
-    public RunInstancePlugin(final ClientProvider clientProvider, final ViolationStore violationStore) {
+    public RunInstancePlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
         this.clientProvider = clientProvider;
-        this.violationStore = violationStore;
+        this.violationSink = violationSink;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
             String message = String.format("SecurityGroups configured with ports not allowed: %s",
                     getPorts(securityGroupList.get()));
-            violationStore.save(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+            violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
                     getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
 
         }
@@ -177,7 +177,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
                         securityGroupIds.toString(), e.getMessage());
 
-                violationStore.save(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
                         getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
                 return Optional.empty();
             }

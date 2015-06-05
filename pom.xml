@@ -53,7 +53,7 @@
         <module>fullstop-processing</module>
         <module>docs</module>
         <module>fullstop-timemachine</module>
-        <module>fullstop-violation-store-slf4j</module>
+        <!-- <module>fullstop-violation-store-slf4j</module> -->
         <module>fullstop-jobs</module>
         <!-- <module>fullstop-clients</module>-->
         <module>fullstop-s3</module>

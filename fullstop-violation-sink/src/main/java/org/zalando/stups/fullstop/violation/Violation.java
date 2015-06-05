@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.zalando.stups.fullstop.violation;
 
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-
 /**
- * We to somehow/somewhere store the findings.
- *
- * @author  jbellmann
+ * @author  mrandi
  */
-public interface ViolationStore {
 
-    void save(ViolationEntity violation);
+public interface Violation {
 
+    String getEventId();
+
+    String getAccountId();
+
+    String getRegion();
+
+    String getMessage();
+
+    Object getViolationObject();
 }

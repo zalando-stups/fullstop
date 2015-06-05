@@ -20,11 +20,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.util.StringUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.Violation;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
 public class Slf4jViolationStore implements ViolationStore {
 
     private static final String DEFAULT_LOGGER_NAME = "fullstop.violations.store";
+
     @Autowired
     private ViolationRepository violationRepository;
 

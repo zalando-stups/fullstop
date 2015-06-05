@@ -23,11 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
-import org.zalando.stups.fullstop.violation.entity.Violation;
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  jbellmann
@@ -37,16 +36,17 @@ class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
 
     private static final String VIOLATION_MESSAGE = "User [%s] has an active key [%s] older than 1 week.";
 
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     @Autowired
-    AccessKeyMetadataConsumer(final ViolationStore violationStore) {
-        this.violationStore = violationStore;
+    AccessKeyMetadataConsumer(final ViolationSink violationSink) {
+        this.violationSink = violationSink;
     }
 
     @Override
     public void accept(final AccessKeyMetadata input) {
-        violationStore.save(new ViolationBuilder(format(VIOLATION_MESSAGE,input.getUserName(), input.getAccessKeyId())).build());
+        violationSink.put(new ViolationBuilder(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId()))
+                .build());
     }
 
 }
