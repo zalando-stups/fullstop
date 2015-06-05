@@ -26,6 +26,4 @@ public interface ViolationSink {
 
     void put(Object violation);
 
-    void put(Object selector, Object violation);
-
 }
