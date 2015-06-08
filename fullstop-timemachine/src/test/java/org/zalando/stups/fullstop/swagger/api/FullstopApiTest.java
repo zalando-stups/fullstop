@@ -16,57 +16,39 @@
 
 package org.zalando.stups.fullstop.swagger.api;
 
-import static org.joda.time.DateTimeZone.UTC;
-
-import static org.mockito.Matchers.any;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
-import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
-
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.Date;
-import java.util.UUID;
-
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.http.MediaType;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
-
-import com.google.common.collect.Lists;
-
+import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
+
+import java.util.Date;
+import java.util.UUID;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.joda.time.DateTimeZone.UTC;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
+import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
 
 /**
  * Created by mrandi.
@@ -86,7 +68,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
     private FullstopApi fullstopApiController;
 
     @Autowired
-    private ViolationRepository violationRepositoryMock;
+    private ViolationService violationServiceMock;
 
     private ViolationEntity violationResult;
 
@@ -94,7 +76,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        reset(violationRepositoryMock);
+        reset(violationServiceMock);
 
         violationResult = new ViolationEntity();
         violationResult.setAccountId(ACCOUNT_ID);
@@ -113,7 +95,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Test
     public void testAccountId() throws Exception {
-        when(violationRepositoryMock.findAccountId()).thenReturn(Lists.newArrayList("123"));
+        when(violationServiceMock.findAccountId()).thenReturn(Lists.newArrayList("123"));
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/account-ids")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
@@ -122,7 +104,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Test
     public void testAccountViolations() throws Exception {
-        when(violationRepositoryMock.findByAccountId(any(String.class))).thenReturn(newArrayList(violationResult));
+        when(violationServiceMock.findByAccountId(any(String.class))).thenReturn(newArrayList(violationResult));
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/account-violations/123"))
                                                   .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
@@ -147,7 +129,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     @Ignore
     public void testViolations() throws Exception {
-        when(violationRepositoryMock.findAll()).thenReturn(newArrayList(violationResult));
+        when(violationServiceMock.findAll()).thenReturn(newArrayList(violationResult));
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
@@ -160,7 +142,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         violationResult.setChecked(true);
         violationResult.setComment("my comment");
 
-        when(violationRepositoryMock.findOne(any(Integer.class))).thenReturn(violationResult);
+        when(violationServiceMock.findOne(any(Integer.class))).thenReturn(violationResult);
 
         byte[] bytes = objectMapper.writeValueAsBytes(violationResult);
 
@@ -183,8 +165,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
         }
 
         @Bean
-        public ViolationRepository violationRepository() {
-            return mock(ViolationRepository.class);
+        public ViolationService violationService() {
+            return mock(ViolationService.class);
         }
 
         @Bean

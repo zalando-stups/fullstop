@@ -51,6 +51,11 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
+    public List<ViolationEntity> findAll() {
+        return violationRepository.findAll();
+    }
+
+    @Override
     public void save(ViolationEntity violation) {
         violationRepository.save(violation);
     }

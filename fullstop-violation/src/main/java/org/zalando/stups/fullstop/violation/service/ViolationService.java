@@ -33,6 +33,8 @@ public interface ViolationService {
 
     Page<ViolationEntity> findAll(Pageable pageable);
 
+    List<ViolationEntity> findAll();
+
     void save(ViolationEntity violation);
 
     ViolationEntity findOne(Integer id);
