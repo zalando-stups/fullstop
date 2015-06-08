@@ -43,6 +43,8 @@
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
         <argLine/>
+
+        <json-path.version>2.0.0</json-path.version>
     </properties>
 
     <modules>
@@ -84,7 +86,7 @@
                 <version>${spring-cloud-config-aws-kms.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.amazonaws</groupId>
+                <groupId>org.zalando.stups</groupId>
                 <artifactId>aws-cloudtrail-processing-library</artifactId>
                 <version>1.0.0</version>
             </dependency>
@@ -108,6 +110,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${json-path.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
