@@ -19,6 +19,9 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.unknown.comp.SimpleDemonstrationViolationHandler;
+
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +52,9 @@ public class ViolationSinkIT {
     @Autowired
     private EventBus eventBus;
 
+    @Autowired
+    private SimpleDemonstrationViolationHandler handler;
+    
     private CountDownLatch latch;
 
     @Before
@@ -71,5 +77,8 @@ public class ViolationSinkIT {
         violationSink.put(vBuilder.build());
 
         latch.await(5, TimeUnit.SECONDS);
+        
+        int count = handler.getCount();
+        Assertions.assertThat(count).isGreaterThan(0);
     }
 }
