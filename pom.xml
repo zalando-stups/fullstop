@@ -60,6 +60,7 @@
         <module>fullstop-violation</module>
         <module>fullstop-violation-sink</module>
         <module>fullstop-violation-sink-reactor</module>
+        <module>fullstop-violation-persister-jpa</module>
     </modules>
 
     <dependencyManagement>
