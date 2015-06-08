@@ -9,7 +9,10 @@
 
 #Fullstop - Audit reporting
 
+###Fullstop Aws overview
 ![Fullstop](images/fullstop.png)
+###Fullstop Architecture overview
+![Fullstop Architecture](images/fullstop-architecture.png)
 
 Aim of the project is to enrich CloudTrail log events.
 
