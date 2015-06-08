@@ -73,7 +73,7 @@ import sun.misc.BASE64Encoder;
  */
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ApiApiTest extends RestControllerTestSupport {
+public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
     public static final String MESSAGE = "my message";
@@ -83,7 +83,7 @@ public class ApiApiTest extends RestControllerTestSupport {
     public static final String REGION = "eu-west-1";
 
     @Autowired
-    private ApiApi apiApiController;
+    private FullstopApi fullstopApiController;
 
     @Autowired
     private ViolationRepository violationRepositoryMock;
@@ -171,15 +171,15 @@ public class ApiApiTest extends RestControllerTestSupport {
 
     @Override
     protected Object[] mockMvcControllers() {
-        return new Object[] {apiApiController};
+        return new Object[] {fullstopApiController};
     }
 
     @Configuration
     static class TestConfig {
 
         @Bean
-        public ApiApi apiApi() {
-            return new ApiApi();
+        public FullstopApi apiApi() {
+            return new FullstopApi();
         }
 
         @Bean

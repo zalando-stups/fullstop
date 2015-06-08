@@ -16,68 +16,51 @@
 
 package org.zalando.stups.fullstop.swagger.api;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.wordnik.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+import org.zalando.stups.fullstop.violation.service.ViolationService;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
 @Api(value = "/api", description = "the api API")
 @PreAuthorize("#oauth2.hasScope('uid')")
-public class ApiApi {
+public class FullstopApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
 
     @Autowired
     private S3Writer s3Writer;
     @Autowired
-    private ViolationRepository violationRepository;
+    private ViolationService violationService;
 
     @ApiOperation(value = "account-ids", notes = "Get all account ids", response = String.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all account Ids")})
     @RequestMapping(value = "/account-ids", method = RequestMethod.GET)
     public ResponseEntity<List<String>> accountId() throws NotFoundException {
-        List<String> accountIds = violationRepository.findAccountId();
+        List<String> accountIds = violationService.findAccountId();
         return new ResponseEntity<>(accountIds, OK);
     }
 
@@ -90,7 +73,7 @@ public class ApiApi {
             @ApiParam(value = "", required = true)
             @PathVariable("account-id")
             final String accountId) throws NotFoundException {
-        List<ViolationEntity> backendViolationsByAccount = violationRepository.findByAccountId(accountId);
+        List<ViolationEntity> backendViolationsByAccount = violationService.findByAccountId(accountId);
         List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
         return new ResponseEntity<>(frontendViolationsByAccount, OK);
     }
@@ -117,7 +100,7 @@ public class ApiApi {
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         logger.info("this is my username: {}", uid);
 
-        Page<ViolationEntity> backendViolations = violationRepository.findAll(pageable);
+        Page<ViolationEntity> backendViolations = violationService.findAll(pageable);
 // List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
 
         return backendViolations;
@@ -134,10 +117,10 @@ public class ApiApi {
             @PathVariable("id")
             final Integer id,
             @ApiParam(value = "", required = true) final Acknowledged acknowledged) throws NotFoundException {
-        ViolationEntity violation = violationRepository.findOne(id);
+        ViolationEntity violation = violationService.findOne(id);
         violation.setChecked(acknowledged.getChecked());
         violation.setComment(acknowledged.getMessage());
-        violationRepository.save(violation);
+        violationService.save(violation);
         return new ResponseEntity<>(OK);
     }
 
