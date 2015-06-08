@@ -38,7 +38,7 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>aws-cloudtrail-processing-library</artifactId>
         </dependency>
     </dependencies>

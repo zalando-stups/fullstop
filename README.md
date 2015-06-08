@@ -9,7 +9,10 @@
 
 #Fullstop - Audit reporting
 
+###Fullstop AWS overview
 ![Fullstop](images/fullstop.png)
+###Fullstop Architecture overview
+![Fullstop Architecture](images/fullstop-architecture.png)
 
 Aim of the project is to enrich CloudTrail log events.
 
@@ -142,6 +145,12 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
+    
+##How to deploy
+
+    $ mvn release:prepare
+    
+    $ mvn release:perform
 
 ## Project TODO:
 - [ ] Oauth 2.0 spring configuration
