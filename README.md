@@ -9,7 +9,7 @@
 
 #Fullstop - Audit reporting
 
-###Fullstop Aws overview
+###Fullstop AWS overview
 ![Fullstop](images/fullstop.png)
 ###Fullstop Architecture overview
 ![Fullstop Architecture](images/fullstop-architecture.png)
