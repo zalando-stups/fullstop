@@ -7,6 +7,10 @@
     </parent>
     <artifactId>fullstop-violation-persister-jpa</artifactId>
 
+    <properties>
+        <main.basedir>${basedir}/..</main.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
