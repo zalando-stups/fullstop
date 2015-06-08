@@ -115,7 +115,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.zalando</groupId>
+            <groupId>org.zalando</groupId>
             <artifactId>spring-cloud-config-aws-kms</artifactId>
         </dependency>
         <dependency>
