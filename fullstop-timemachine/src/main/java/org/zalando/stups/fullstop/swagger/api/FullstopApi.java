@@ -116,7 +116,7 @@ public class FullstopApi {
             value = "",
             required = true
         )
-        LogObj log) throws NotFoundException {
+        @RequestBody LogObj log) throws NotFoundException {
         saveLog(log);
 
         return new ResponseEntity<>(CREATED);
@@ -204,7 +204,7 @@ public class FullstopApi {
         @ApiParam(
             value = "",
             required = true
-        ) String message) throws NotFoundException {
+        ) @RequestBody String message) throws NotFoundException {
         ViolationEntity violation = violationService.findOne(id);
 
         violation.setComment(message);
