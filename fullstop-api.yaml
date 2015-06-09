@@ -128,27 +128,6 @@ paths:
             items:
               $ref: "#/definitions/Violation"
 
-
-  /api/account-violations/{account-id}:
-    get:
-      summary: Violations for one account
-      description: Get all violations for one account
-      tags:
-        - Fullstop API
-      operationId: accountViolations
-      parameters:
-        - name: account-id
-          in: path
-          type: string
-          required: true
-      responses:
-        "200":
-          description: List of all violations for one account
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Violation"
-
   /api/violations/{id}/resolution:
     post:
       summary: Resolve and explain this violation

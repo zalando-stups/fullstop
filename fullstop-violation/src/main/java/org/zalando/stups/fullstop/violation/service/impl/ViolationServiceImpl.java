@@ -23,6 +23,7 @@ import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,5 +63,11 @@ public class ViolationServiceImpl implements ViolationService {
     @Override
     public ViolationEntity findOne(Integer id) {
         return violationRepository.findOne(id);
+    }
+
+    @Override
+    public Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked, Pageable pageable) {
+
+        throw new UnsupportedOperationException("method not implemented yet");
     }
 }

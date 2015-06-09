@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,4 +38,6 @@ public interface ViolationService {
     void save(ViolationEntity violation);
 
     ViolationEntity findOne(Integer id);
+
+    Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked, Pageable pageable);
 }

@@ -62,37 +62,6 @@ public class FullstopApi {
     @Autowired private ViolationService violationService;
 
     @ApiOperation(
-        value = "Violations for one account",
-        notes = "Get all violations for one account",
-        response = Violation.class,
-        responseContainer = "List"
-    )
-    @ApiResponses(
-        value = {
-                @ApiResponse(
-                    code = 200,
-                    message = "List of all violations for one account"
-                )
-            }
-    )
-    @RequestMapping(
-        value = "/account-violations/{account-id}",
-        method = RequestMethod.GET
-    )
-    public List<Violation> accountViolations(
-        @ApiParam(
-            value = "",
-            required = true
-        )
-        @PathVariable("account-id")
-        String accountId) throws NotFoundException {
-        List<ViolationEntity> backendViolationsByAccount = violationService.findByAccountId(accountId);
-        List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
-
-        return frontendViolationsByAccount;
-    }
-
-    @ApiOperation(
         value = "Put instance log in S3",
         notes = "Add log for instance in S3",
         response = Void.class
@@ -166,13 +135,10 @@ public class FullstopApi {
         throws NotFoundException {
         logger.info("this is my username: {}", uid);
 
-        Page<ViolationEntity> backendViolations = violationService.findAll(
-                pageable);
+        Page<ViolationEntity> backendViolations = violationService.queryViolations(accounts,since,lastViolation,
+                checked,pageable);
 
-        List<Violation> frontendViolations = mapBackendToFrontendViolations(
-                backendViolations.getContent());
-
-        return frontendViolations;
+        return mapBackendToFrontendViolations(backendViolations.getContent());
     }
 
     @ApiOperation(
