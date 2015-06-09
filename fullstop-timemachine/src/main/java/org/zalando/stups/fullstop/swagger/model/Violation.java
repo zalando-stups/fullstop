@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.swagger.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wordnik.swagger.annotations.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,8 +24,9 @@ import java.util.Date;
 
 
 @ApiModel(description = "")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Violation  {
-  
+
   private String eventId = null;
   private String accountId = null;
   private String region = null;
@@ -67,7 +69,7 @@ public class Violation  {
     this.eventId = eventId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -79,7 +81,7 @@ public class Violation  {
     this.accountId = accountId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -91,7 +93,7 @@ public class Violation  {
     this.region = region;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -103,7 +105,7 @@ public class Violation  {
     this.message = message;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -115,7 +117,7 @@ public class Violation  {
     this.violationObject = violationObject;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -174,13 +176,13 @@ public class Violation  {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  
+
 
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class Violation {\n");
-    
+
     sb.append("  id: ").append(id).append("\n");
     sb.append("  version: ").append(version).append("\n");
     sb.append("  eventId: ").append(eventId).append("\n");

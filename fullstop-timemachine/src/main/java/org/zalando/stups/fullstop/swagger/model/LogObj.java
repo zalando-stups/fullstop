@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
@@ -24,8 +25,9 @@ import java.util.Date;
 
 
 @ApiModel(description = "")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LogObj  {
-  
+
   private LogType logType = null;
   private String instanceId = null;
   private String accountId = null;
@@ -44,7 +46,7 @@ public class LogObj  {
     this.logType = logType;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -56,7 +58,7 @@ public class LogObj  {
     this.instanceId = instanceId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -68,7 +70,7 @@ public class LogObj  {
     this.accountId = accountId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -80,7 +82,7 @@ public class LogObj  {
     this.region = region;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -92,7 +94,7 @@ public class LogObj  {
     this.instanceBootTime = instanceBootTime;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -108,7 +110,7 @@ public class LogObj  {
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogObj {\n");
-    
+
     sb.append("  logType: ").append(logType).append("\n");
     sb.append("  instanceId: ").append(instanceId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
