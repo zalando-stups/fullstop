@@ -136,15 +136,18 @@ public class FullstopApiTest extends RestControllerTestSupport {
     }
 
     @Test
-    public void testAcknowledgedViolations() throws Exception {
+    public void testResolutionViolation() throws Exception {
 
         violationRequest.setComment("my comment");
 
         when(violationServiceMock.findOne(any(Integer.class))).thenReturn(violationResult);
 
-        byte[] bytes = objectMapper.writeValueAsBytes(violationRequest);
+        String message = "test";
 
-        this.mockMvc.perform(put("/api/violations/156").contentType(MediaType.APPLICATION_JSON).content(bytes))
+        byte[] bytes = objectMapper.writeValueAsBytes(message);
+
+        this.mockMvc.perform(post("/api/violations/156/resolution").contentType(MediaType.APPLICATION_JSON).content
+                (bytes))
                 .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(MockMvcResultHandlers
                 .print());
     }
