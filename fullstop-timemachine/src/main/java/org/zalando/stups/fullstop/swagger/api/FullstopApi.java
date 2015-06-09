@@ -84,12 +84,10 @@ public class FullstopApi {
             value = "",
             required = true
         )
-        @PathVariable("account-Id")
+        @PathVariable("account-id")
         String accountId) throws NotFoundException {
-        List<ViolationEntity> backendViolationsByAccount =
-            violationService.findByAccountId(accountId);
-        List<Violation> frontendViolationsByAccount =
-            mapBackendToFrontendViolations(backendViolationsByAccount);
+        List<ViolationEntity> backendViolationsByAccount = violationService.findByAccountId(accountId);
+        List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
 
         return frontendViolationsByAccount;
     }
