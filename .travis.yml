@@ -10,3 +10,10 @@ after_success:
 notifications:
     email:
       on_failure: change
+    webhooks:
+        urls:
+          - https://webhooks.gitter.im/e/c3da3727316a21be0f19
+        on_success: change
+        on_failure: always
+        on_start: false
+
