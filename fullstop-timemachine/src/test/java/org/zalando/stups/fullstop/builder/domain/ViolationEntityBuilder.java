@@ -15,17 +15,17 @@
  */
 package org.zalando.stups.fullstop.builder.domain;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import org.zalando.stups.fullstop.builder.AbstractModifiableEntityBuilder;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 import java.util.UUID;
 
-import org.zalando.stups.fullstop.builder.AbstractModifiableEntityBuilder;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  * Created by mrandi. Builder example
  */
-public class ViolationBuilder extends AbstractModifiableEntityBuilder<ViolationEntity, ViolationBuilder> {
+public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<ViolationEntity, ViolationEntityBuilder> {
 
     private String eventId;
     private String accountId;
@@ -35,12 +35,12 @@ public class ViolationBuilder extends AbstractModifiableEntityBuilder<ViolationE
     private String comment;
     private Boolean checked;
 
-    public ViolationBuilder() {
+    public ViolationEntityBuilder() {
         super(ViolationEntity.class);
     }
 
-    public static ViolationBuilder violation() {
-        return new ViolationBuilder();
+    public static ViolationEntityBuilder violation() {
+        return new ViolationEntityBuilder();
     }
 
     @Override
@@ -57,37 +57,37 @@ public class ViolationBuilder extends AbstractModifiableEntityBuilder<ViolationE
         return entity;
     }
 
-    public ViolationBuilder eventId(final String eventId) {
+    public ViolationEntityBuilder eventId(final String eventId) {
         this.eventId = eventId;
         return this;
     }
 
-    public ViolationBuilder accountId(final String accountId) {
+    public ViolationEntityBuilder accountId(final String accountId) {
         this.accountId = accountId;
         return this;
     }
 
-    public ViolationBuilder region(final String region) {
+    public ViolationEntityBuilder region(final String region) {
         this.region = region;
         return this;
     }
 
-    public ViolationBuilder message(final String message) {
+    public ViolationEntityBuilder message(final String message) {
         this.message = message;
         return this;
     }
 
-    public ViolationBuilder violationObject(final Object violationObject) {
+    public ViolationEntityBuilder violationObject(final Object violationObject) {
         this.violationObject = violationObject;
         return this;
     }
 
-    public ViolationBuilder comment(final String comment) {
+    public ViolationEntityBuilder comment(final String comment) {
         this.comment = comment;
         return this;
     }
 
-    public ViolationBuilder checked(final Boolean checked) {
+    public ViolationEntityBuilder checked(final Boolean checked) {
         this.checked = checked;
         return this;
     }

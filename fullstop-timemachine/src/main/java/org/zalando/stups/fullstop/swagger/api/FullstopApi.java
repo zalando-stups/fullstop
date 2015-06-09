@@ -15,37 +15,17 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
-
+import com.wordnik.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import org.springframework.data.web.PageableDefault;
-
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Writer;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
@@ -53,10 +33,14 @@ import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.io.IOException;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @RestController
@@ -102,10 +86,8 @@ public class FullstopApi {
         )
         @PathVariable("account-id")
         String accountId) throws NotFoundException {
-        List<ViolationEntity> backendViolationsByAccount =
-            violationService.findByAccountId(accountId);
-        List<Violation> frontendViolationsByAccount =
-            mapBackendToFrontendViolations(backendViolationsByAccount);
+        List<ViolationEntity> backendViolationsByAccount = violationService.findByAccountId(accountId);
+        List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
 
         return frontendViolationsByAccount;
     }
@@ -131,7 +113,8 @@ public class FullstopApi {
         @ApiParam(
             value = "",
             required = true
-        ) LogObj log) throws NotFoundException {
+        )
+        @RequestBody LogObj log) throws NotFoundException {
         saveLog(log);
 
         return new ResponseEntity<>(CREATED);
@@ -160,7 +143,7 @@ public class FullstopApi {
         Date since,
         @ApiParam(value = "Include only violations after the one with this id")
         @RequestParam(
-            value = "lastViolation",
+            value = "last-violation",
             required = false
         )
         Long lastViolation,
@@ -209,7 +192,7 @@ public class FullstopApi {
         value = "/violations/{id}/resolution",
         method = RequestMethod.POST
     )
-    public ResponseEntity<Void> resolvedViolations(
+    public ResponseEntity<Void> resolveViolations(
         @ApiParam(
             value = "",
             required = true
@@ -230,7 +213,7 @@ public class FullstopApi {
 
     private List<Violation> mapBackendToFrontendViolations(
         final List<ViolationEntity> backendViolations) {
-        List<Violation> frontendViolations = new ArrayList<>();
+        List<Violation> frontendViolations = newArrayList();
 
         for (ViolationEntity entity : backendViolations) {
             Violation violation = new Violation();
@@ -256,6 +239,11 @@ public class FullstopApi {
     }
 
     private void saveLog(final LogObj instanceLog) {
+
+        if (instanceLog.getLogType() == null) {
+            logger.error("You should use one of the allowed types.");
+            throw new IllegalArgumentException("You should use one of the allowed types.");
+        }
 
         try {
             s3Writer.writeToS3(instanceLog.getAccountId(),
