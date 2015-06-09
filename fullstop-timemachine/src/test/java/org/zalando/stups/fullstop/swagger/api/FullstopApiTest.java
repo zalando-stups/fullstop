@@ -101,15 +101,6 @@ public class FullstopApiTest extends RestControllerTestSupport {
     }
 
     @Test
-    public void testAccountViolations() throws Exception {
-        when(violationServiceMock.findByAccountId(any(String.class))).thenReturn(newArrayList(violationResult));
-
-        ResultActions resultActions = this.mockMvc.perform(get("/api/account-violations/123"))
-                .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
-        resultActions.andExpect(jsonPath("$").value(hasSize(1)));
-    }
-
-    @Test
     public void testInstanceLogs() throws Exception {
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
