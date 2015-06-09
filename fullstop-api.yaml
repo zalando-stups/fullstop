@@ -22,7 +22,7 @@ definitions:
       eventId:
         type: string
         example: cd768599e1bb41c38279c26254feff5cf57bf967
-      account-id:
+      account_id:
         type: string
         example: 123456789
       region:
@@ -31,7 +31,7 @@ definitions:
       message:
         type: string
         example: "The instance i-3w4fdsa is running in the wrong region"
-      violationObject:
+      violation_object:
         type: object
         example: ""
       comment:
@@ -40,47 +40,62 @@ definitions:
       resolved:
         type: boolean
         example: "true"
-      resolution:
-        $ref: "#/definitions/Resolution"
+      created:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      created_by:
+        type: string
+        example: "John Die"
+      last_modified:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      last_modified_by:
+        type: string
+        example: "John Dae"
+      
 
   LogObj:
     type: object
     properties:
-      log-type:
+      log_type:
         type: string
         enum:
           - AUDIT_LOG
           - USER_DATA
-      instance-id:
+      instance_id:
         type: string
         example: "i-123kd"
-      account-id:
+      account_id:
         type: string
         example: "1233456568"
       region:
         type: string
         example: "eu-west-1"
-      instance-boot-time:
+      instance_boot_time:
         type: string
         format: date-time
         example: 2015-05-21T10:24:47.788-02:00
-      log-data:
+      log_data:
         type: string
         example: ""
-
-  Resolution:
-    type: object
-    properties:
-      user:
-        type: string
-        example: npiccolotto
-      message:
-        type: string
-        example: "Was a patch on Friday and I was alone in the office"
-      timestamp:
+      created:
         type: string
         format: date-time
         example: 2015-05-21T10:24:47.788-02:00
+      created_by:
+        type: string
+        example: "John Die"
+      last_modified:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      last_modified_by:
+        type: string
+        example: "John Dae"
+      
+
 
 paths:
 
@@ -199,3 +214,4 @@ paths:
           schema:
             $ref: "#/definitions/LogObj"
             description: log metadata and object
+changed
