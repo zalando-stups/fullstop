@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,124 +15,233 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.wordnik.swagger.annotations.*;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import org.springframework.data.web.PageableDefault;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import org.zalando.stups.fullstop.s3.S3Writer;
-import org.zalando.stups.fullstop.swagger.model.Acknowledged;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
-@Api(value = "/api", description = "the api API")
+@RequestMapping(
+    value = "/api",
+    produces = { APPLICATION_JSON_VALUE }
+)
+@Api(
+    value = "/api",
+    description = "the api API"
+)
 @PreAuthorize("#oauth2.hasScope('uid')")
 public class FullstopApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            FullstopApi.class);
 
-    @Autowired
-    private S3Writer s3Writer;
-    @Autowired
-    private ViolationService violationService;
+    @Autowired private S3Writer s3Writer;
+    @Autowired private ViolationService violationService;
 
     @ApiOperation(
-        value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class
+        value = "Violations for one account",
+        notes = "Get all violations for one account",
+        response = Violation.class,
+        responseContainer = "List"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations for one account")})
-    @RequestMapping(value = "/account-violations/{account-id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Violation>> accountViolations(
-            @ApiParam(value = "", required = true)
-            @PathVariable("account-id")
-            final String accountId) throws NotFoundException {
-        List<ViolationEntity> backendViolationsByAccount = violationService.findByAccountId(accountId);
-        List<Violation> frontendViolationsByAccount = mapBackendToFrontendViolations(backendViolationsByAccount);
-        return new ResponseEntity<>(frontendViolationsByAccount, OK);
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "List of all violations for one account"
+                )
+            }
+    )
+    @RequestMapping(
+        value = "/account-violations/{account-id}",
+        method = RequestMethod.GET
+    )
+    public List<Violation> accountViolations(
+        @ApiParam(
+            value = "",
+            required = true
+        )
+        @PathVariable("account-Id")
+        String accountId) throws NotFoundException {
+        List<ViolationEntity> backendViolationsByAccount =
+            violationService.findByAccountId(accountId);
+        List<Violation> frontendViolationsByAccount =
+            mapBackendToFrontendViolations(backendViolationsByAccount);
+
+        return frontendViolationsByAccount;
     }
 
     @ApiOperation(
-        value = "Post instance instance log in S3", notes = "Add instance log for instance in S3",
+        value = "Put instance log in S3",
+        notes = "Add log for instance in S3",
         response = Void.class
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Logs saved successfully")})
-    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 201,
+                    message = "Logs saved successfully"
+                )
+            }
+    )
+    @RequestMapping(
+        value = "/instance-logs",
+        method = RequestMethod.POST
+    )
     public ResponseEntity<Void> instanceLogs(
-            @ApiParam(value = "instance-log", required = true)
-            @RequestBody final LogObj instanceLog) throws NotFoundException {
-        saveLog(instanceLog);
+        @ApiParam(
+            value = "",
+            required = true
+        ) LogObj log) throws NotFoundException {
+        saveLog(log);
+
         return new ResponseEntity<>(CREATED);
     }
 
-    @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
-    @RequestMapping(value = "/violations", method = RequestMethod.GET)
-    @PreAuthorize("permitAll")
-    public Page<ViolationEntity> violations(
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
-            @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
+
+    public List<Violation> violations(
+        @ApiParam(value = "Include only violations in these accounts")
+        @RequestParam(
+            value = "accounts",
+            required = false
+        )
+        List<String> accounts,
+        @ApiParam(
+            value =
+                "Include only violations that happened after this point in time"
+        )
+        @RequestParam(
+            value = "since",
+            required = false
+        )
+        Date since,
+        @ApiParam(value = "Include only violations after the one with this id")
+        @RequestParam(
+            value = "lastViolation",
+            required = false
+        )
+        Long lastViolation,
+        @ApiParam(
+            value =
+                "Include only violations where checked field equals this value"
+        )
+        @RequestParam(
+            value = "checked",
+            required = false
+        )
+        Boolean checked,
+        @PageableDefault(
+            page = 0,
+            size = 10,
+            sort = "id",
+            direction = ASC
+        ) final Pageable pageable,
+        @AuthenticationPrincipal(errorOnInvalidType = true) final String uid)
+        throws NotFoundException {
         logger.info("this is my username: {}", uid);
 
-        Page<ViolationEntity> backendViolations = violationService.findAll(pageable);
-// List<Violation> frontendViolations = mapBackendToFrontendViolations(backendViolations);
+        Page<ViolationEntity> backendViolations = violationService.findAll(
+                pageable);
 
-        return backendViolations;
+        List<Violation> frontendViolations = mapBackendToFrontendViolations(
+                backendViolations.getContent());
+
+        return frontendViolations;
     }
 
     @ApiOperation(
-        value = "Comment and acknowledged violation", notes = "Comment and acknowledged violation",
+        value = "Resolve and explain this violation",
+        notes = "Resolve and explain violation",
         response = Void.class
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation updated successfully")})
-    @RequestMapping(value = "/violations/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Void> acknowledgedViolations(
-            @ApiParam(value = "", required = true)
-            @PathVariable("id")
-            final Integer id,
-            @ApiParam(value = "", required = true) final Acknowledged acknowledged) throws NotFoundException {
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Violation resolved successfully"
+                )
+            }
+    )
+    @RequestMapping(
+        value = "/violations/{id}/resolution",
+        method = RequestMethod.POST
+    )
+    public ResponseEntity<Void> resolvedViolations(
+        @ApiParam(
+            value = "",
+            required = true
+        )
+        @PathVariable("id")
+        Integer id,
+        @ApiParam(
+            value = "",
+            required = true
+        ) String message) throws NotFoundException {
         ViolationEntity violation = violationService.findOne(id);
-        violation.setChecked(acknowledged.getChecked());
-        violation.setComment(acknowledged.getMessage());
+
+        violation.setComment(message);
         violationService.save(violation);
+
         return new ResponseEntity<>(OK);
     }
 
-    private List<Violation> mapBackendToFrontendViolations(final List<ViolationEntity> backendViolations) {
+    private List<Violation> mapBackendToFrontendViolations(
+        final List<ViolationEntity> backendViolations) {
         List<Violation> frontendViolations = new ArrayList<>();
+
         for (ViolationEntity entity : backendViolations) {
             Violation violation = new Violation();
 
-// violation.setId(backendViolation.getId());
-// violation.setVersion(backendViolation.getVersion());
-//
-// backendViolation.getCreated();
-// backendViolation.getCreatedBy();
-// backendViolation.getLastModified();
-// backendViolation.getLastModifiedBy();
+            violation.setId(entity.getId());
+            violation.setVersion(entity.getVersion());
+
+            violation.setCreated(entity.getCreated().toDate());
+            violation.setCreatedBy(entity.getCreatedBy());
+            violation.setLastModified(entity.getLastModified().toDate());
+            violation.setLastModifiedBy(entity.getLastModifiedBy());
 
             violation.setAccountId(entity.getAccountId());
             violation.setEventId(entity.getEventId());
             violation.setMessage(entity.getMessage());
             violation.setRegion(entity.getRegion());
-            violation.setChecked(entity.getChecked());
             violation.setComment(entity.getComment());
             violation.setViolationObject(entity.getViolationObject());
             frontendViolations.add(violation);
@@ -142,9 +251,12 @@ public class FullstopApi {
     }
 
     private void saveLog(final LogObj instanceLog) {
+
         try {
-            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
-                instanceLog.getLogData(), instanceLog.getLogType(), instanceLog.getInstanceId());
+            s3Writer.writeToS3(instanceLog.getAccountId(),
+                instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
+                instanceLog.getLogData(), instanceLog.getLogType().toString(),
+                instanceLog.getInstanceId());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

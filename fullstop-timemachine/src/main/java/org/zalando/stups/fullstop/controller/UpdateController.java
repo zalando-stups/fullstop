@@ -40,7 +40,6 @@ public class UpdateController {
     @RequestMapping(value = {"/violations/{id}"}, method = PUT)
     public void update(@PathVariable final Integer id, @RequestBody final Violation violation) {
         ViolationEntity dbViolation = violationRepository.findOne(id);
-        dbViolation.setChecked(violation.getChecked());
         dbViolation.setComment(violation.getComment());
 // dbViolation.setVersion(violation.getVersion());
         violationRepository.save(dbViolation);

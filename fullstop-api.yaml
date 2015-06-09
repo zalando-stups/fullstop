@@ -19,6 +19,12 @@ definitions:
   Violation:
     type: object
     properties:
+      id:
+        type: integer
+        example: 1
+      version:
+        type: integer
+        example: 3
       eventId:
         type: string
         example: cd768599e1bb41c38279c26254feff5cf57bf967
@@ -37,9 +43,6 @@ definitions:
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
-      resolved:
-        type: boolean
-        example: "true"
       created:
         type: string
         format: date-time
@@ -80,20 +83,6 @@ definitions:
       log_data:
         type: string
         example: ""
-      created:
-        type: string
-        format: date-time
-        example: 2015-05-21T10:24:47.788-02:00
-      created_by:
-        type: string
-        example: "John Die"
-      last_modified:
-        type: string
-        format: date-time
-        example: 2015-05-21T10:24:47.788-02:00
-      last_modified_by:
-        type: string
-        example: "John Dae"
 
 paths:
 

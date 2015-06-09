@@ -87,7 +87,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         logObjResult.setAccountId(ACCOUNT_ID);
         logObjResult.setLogData(ENCODED_LOG_FILE);
         logObjResult.setInstanceBootTime(INSTANCE_BOOT_TIME);
-        logObjResult.setLogType(USER_DATA.toString());
+        logObjResult.setLogType(USER_DATA);
         logObjResult.setInstanceId(INSTANCE_ID);
         logObjResult.setRegion(REGION);
     }
@@ -138,7 +138,6 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testAcknowledgedViolations() throws Exception {
 
-        violationResult.setChecked(true);
         violationResult.setComment("my comment");
 
         when(violationServiceMock.findOne(any(Integer.class))).thenReturn(violationResult);

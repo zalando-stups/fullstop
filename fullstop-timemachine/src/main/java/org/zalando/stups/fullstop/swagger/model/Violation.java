@@ -19,6 +19,8 @@ package org.zalando.stups.fullstop.swagger.model;
 import com.wordnik.swagger.annotations.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Date;
+
 
 @ApiModel(description = "")
 public class Violation  {
@@ -29,9 +31,31 @@ public class Violation  {
   private String message = null;
   private Object violationObject = null;
   private String comment = null;
-  private Boolean checked = null;
+  private Date created = null;
+  private String createdBy = null;
+  private Date lastModified = null;
+  private String lastModifiedBy = null;
+  private Integer id;
+  private Integer version;
 
-  
+  @ApiModelProperty(value = "")
+  @JsonProperty("id")
+  public Integer getId() {
+    return id;
+  }
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  @ApiModelProperty(value = "")
+  @JsonProperty("version")
+  public Integer getVersion() {
+    return version;
+  }
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -103,16 +127,51 @@ public class Violation  {
     this.comment = comment;
   }
 
-  
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("checked")
-  public Boolean getChecked() {
-    return checked;
+  @JsonProperty("created")
+  public Date getCreated() {
+    return created;
   }
-  public void setChecked(Boolean checked) {
-    this.checked = checked;
+  public void setCreated(Date created) {
+    this.created = created;
+  }
+
+
+  /**
+   **/
+  @ApiModelProperty(value = "")
+  @JsonProperty("created_by")
+  public String getCreatedBy() {
+    return createdBy;
+  }
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+
+  /**
+   **/
+  @ApiModelProperty(value = "")
+  @JsonProperty("last_modified")
+  public Date getLastModified() {
+    return lastModified;
+  }
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified;
+  }
+
+
+  /**
+   **/
+  @ApiModelProperty(value = "")
+  @JsonProperty("last_modified_by")
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
   }
 
   
@@ -122,13 +181,18 @@ public class Violation  {
     StringBuilder sb = new StringBuilder();
     sb.append("class Violation {\n");
     
+    sb.append("  id: ").append(id).append("\n");
+    sb.append("  version: ").append(version).append("\n");
     sb.append("  eventId: ").append(eventId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
     sb.append("  message: ").append(message).append("\n");
     sb.append("  violationObject: ").append(violationObject).append("\n");
     sb.append("  comment: ").append(comment).append("\n");
-    sb.append("  checked: ").append(checked).append("\n");
+    sb.append("  created: ").append(created).append("\n");
+    sb.append("  createdBy: ").append(createdBy).append("\n");
+    sb.append("  lastModified: ").append(lastModified).append("\n");
+    sb.append("  lastModifiedBy: ").append(lastModifiedBy).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

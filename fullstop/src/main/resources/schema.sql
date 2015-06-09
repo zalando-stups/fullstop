@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS fullstop_data;
 CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   id               SERIAL  NOT NULL PRIMARY KEY,
   account_id       TEXT,
-  checked          BOOLEAN,
+  resolved          BOOLEAN,
   comment          TEXT,
   event_id         TEXT,
   message          TEXT    NOT NULL,

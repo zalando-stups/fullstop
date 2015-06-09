@@ -53,7 +53,6 @@ public class ViolationBuilder extends AbstractModifiableEntityBuilder<ViolationE
         entity.setMessage(firstNonNull(message, "my message" + Math.random()));
         entity.setViolationObject(firstNonNull(violationObject, new Object()));
         entity.setComment(firstNonNull(comment, "my comment" + Math.random()));
-        entity.setChecked(firstNonNull(checked, false));
 
         return entity;
     }

@@ -34,16 +34,14 @@ public class ViolationEntity extends AbstractModifiableEntity {
     private String message;
     private Object violationObject;
     private String comment;
-    private Boolean checked;
 
-    public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject, String comment, Boolean checked) {
+    public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject, String comment, Boolean resolved) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
         this.message = message;
         this.violationObject = violationObject;
         this.comment = comment;
-        this.checked = checked;
     }
 
     public ViolationEntity() {
@@ -97,14 +95,6 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.comment = comment;
     }
 
-    public Boolean getChecked() {
-        return checked;
-    }
-
-    public void setChecked(Boolean checked) {
-        this.checked = checked;
-    }
-
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
@@ -114,7 +104,6 @@ public class ViolationEntity extends AbstractModifiableEntity {
                 .add("violationObject", violationObject)
                 .add("eventId", eventId)
                 .add("comment", comment)
-                .add("checked", checked)
                 .toString();
     }
 }
