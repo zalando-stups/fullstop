@@ -94,8 +94,6 @@ definitions:
       last_modified_by:
         type: string
         example: "John Dae"
-      
-
 
 paths:
 
@@ -141,20 +139,6 @@ paths:
             items:
               $ref: "#/definitions/Violation"
 
-  /api/account-ids:
-    get:
-      summary: accountIds
-      description: Get all account ids
-      tags:
-        - Fullstop API
-      operationId: account-id
-      responses:
-        "200":
-          description: List of all account Ids
-          schema:
-            type: array
-            items:
-              type: string
 
   /api/account-violations/{account-id}:
     get:
@@ -214,4 +198,3 @@ paths:
           schema:
             $ref: "#/definitions/LogObj"
             description: log metadata and object
-changed

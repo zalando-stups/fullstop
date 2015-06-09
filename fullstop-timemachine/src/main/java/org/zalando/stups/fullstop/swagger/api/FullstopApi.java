@@ -55,14 +55,6 @@ public class FullstopApi {
     @Autowired
     private ViolationService violationService;
 
-    @ApiOperation(value = "account-ids", notes = "Get all account ids", response = String.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all account Ids")})
-    @RequestMapping(value = "/account-ids", method = RequestMethod.GET)
-    public ResponseEntity<List<String>> accountId() throws NotFoundException {
-        List<String> accountIds = violationService.findAccountId();
-        return new ResponseEntity<>(accountIds, OK);
-    }
-
     @ApiOperation(
         value = "Violations for one account", notes = "Get all violations for one account", response = Violation.class
     )
