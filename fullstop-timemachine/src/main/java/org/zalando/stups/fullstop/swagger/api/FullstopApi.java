@@ -40,6 +40,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -99,7 +100,7 @@ public class FullstopApi {
             value = "",
             required = true
         )
-        @PathVariable("account-Id")
+        @PathVariable("account-id")
         String accountId) throws NotFoundException {
         List<ViolationEntity> backendViolationsByAccount =
             violationService.findByAccountId(accountId);
@@ -218,7 +219,7 @@ public class FullstopApi {
         @ApiParam(
             value = "",
             required = true
-        ) String message) throws NotFoundException {
+        ) @RequestBody String message) throws NotFoundException {
         ViolationEntity violation = violationService.findOne(id);
 
         violation.setComment(message);

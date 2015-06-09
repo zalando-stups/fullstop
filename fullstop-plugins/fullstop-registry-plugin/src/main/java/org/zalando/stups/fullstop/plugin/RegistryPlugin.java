@@ -71,18 +71,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-// private final ViolationStore violationStore;
     private final ViolationSink violationSink;
-// private final RestTemplate restTemplate = new RestTemplate();
-
-// @Value("${fullstop.plugins.kio.url}/apps/{appId}")
-// private String kioApplicationUrl;
-
-// @Value("${fullstop.plugins.kio.url}/apps/{appId}/versions/{version_id}")
-// private String kioApplicationVersionUrl;
-
-// @Value("${fullstop.plugins.pierone.url}/v1/repositories/{team}/{application}/tags")
-// private String pieroneApplicationUrl;
 
     private final PieroneOperations pieroneOperations;
 
@@ -138,18 +127,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             source, applicationVersionFromKio.getArtifact());
                     }
                 }
-
-// if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
-// ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(event,
-// applicationId, applicationVersion);
-//
-// if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
-// validateSourceWithKio(event, applicationId, applicationVersion,
-// applicationFromKio.getBody().get("team_id").asText(), source,
-// versionFromKio.getBody().get("artifact").asText());
-// }
-// }
-
             }
         }
     }
@@ -178,29 +155,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                         .withAccoundId(getCloudTrailEventAccountId(event)).build());
             }
         }
-
-        // TODO, this code is hard to read, please refactor it
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(
-// fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
-// APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
-// .withEvent(event).build());
-// return;
-// }
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-// event).build());
-// } else if (response != null && response.getBody().get(applicationVersion) == null) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-// event).build());
-// }
     }
 
     private Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
@@ -208,28 +162,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         Application application = kioOperations.getApplicationById(applicationId);
 
         return application;
-
-            // TODO, don't get the point, hard to read
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(fromHttpUrl(kioApplicationUrl).buildAndExpand(applicationId).toUri())
-// .accept(APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(
-// new ViolationBuilder(format("Application: %s is not registered in kio.", applicationId)).withEvent(
-// event).build());
-// return null;
-// }
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(new ViolationBuilder(
-// format("Application: %s is not registered in kio.", applicationId)).withEvent(event).build());
-// }
-//
-// return response;
     }
 
     private Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
@@ -239,32 +171,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         return version;
 
-            // TODO, same as above
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(
-// fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
-// .accept(APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(
-// new ViolationBuilder(
-// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-// applicationId)).withEvent(event).build());
-// return null;
-// }
-//
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(
-// new ViolationBuilder(
-// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-// applicationId)).withEvent(event).build());
-// }
-//
-// return response;
     }
 
     private Map getUserData(final CloudTrailEvent event, final String instanceId) {

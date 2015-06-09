@@ -93,7 +93,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         Region region = getRegion(event);
         String accountId = getAccountId(event);
         List<String> instanceIds = getInstanceIds(event);
-        DateTime instanceLaunchTime = new DateTime(getInstanceLaunchTime(event));
+        DateTime instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 

@@ -43,7 +43,7 @@ public abstract class AbstractFullstopPlugin implements FullstopPlugin {
     }
 
     protected String getCloudTrailEventRegion(final CloudTrailEvent event) {
-        return CloudtrailEventSupport.getAccountId(event);
+        return CloudtrailEventSupport.getRegionAsString(event);
     }
 
 }
