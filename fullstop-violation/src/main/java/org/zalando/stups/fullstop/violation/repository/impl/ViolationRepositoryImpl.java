@@ -62,8 +62,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             mainPredicates.add(qViolationEntity.id.goe(lastViolation));
         }
 
-        if (checked) {
+        if (checked != null && checked) {
             mainPredicates.add(qViolationEntity.comment.isNotEmpty());
+        } else {
+            // both right?
         }
 
         List<ViolationEntity> list = query.where(allOf(mainPredicates)).orderBy(qViolationEntity.id.asc(),
