@@ -21,9 +21,11 @@ definitions:
     properties:
       id:
         type: integer
+        format: int64
         example: 1
       version:
         type: integer
+        format: int64
         example: 3
       eventId:
         type: string

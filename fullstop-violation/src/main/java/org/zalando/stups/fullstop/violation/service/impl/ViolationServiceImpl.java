@@ -61,13 +61,12 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
-    public ViolationEntity findOne(Integer id) {
+    public ViolationEntity findOne(Long id) {
         return violationRepository.findOne(id);
     }
 
     @Override
     public Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked, Pageable pageable) {
-
-        throw new UnsupportedOperationException("method not implemented yet");
+        return violationRepository.queryViolations(accounts,since,lastViolation,checked,pageable);
     }
 }

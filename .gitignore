@@ -17,3 +17,5 @@ ERRORS*
 
 violations.log
 violations.*.log
+
+**/src/generated

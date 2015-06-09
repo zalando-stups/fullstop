@@ -37,7 +37,7 @@ public interface ViolationService {
 
     void save(ViolationEntity violation);
 
-    ViolationEntity findOne(Integer id);
+    ViolationEntity findOne(Long id);
 
     Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked, Pageable pageable);
 }

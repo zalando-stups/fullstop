@@ -164,7 +164,7 @@ public class FullstopApi {
             required = true
         )
         @PathVariable("id")
-        Integer id,
+        Long id,
         @ApiParam(
             value = "",
             required = true

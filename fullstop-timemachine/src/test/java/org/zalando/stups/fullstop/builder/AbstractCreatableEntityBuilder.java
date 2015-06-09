@@ -32,7 +32,7 @@ public abstract class AbstractCreatableEntityBuilder<ENTITY_TYPE extends Abstrac
 
     private static final String DEFAULT_CREATED_BY = "unit.test";
 
-    private Optional<Integer> optionalId = absent();
+    private Optional<Long> optionalId = absent();
     private Optional<DateTime> optionalCreated = absent();
     private Optional<String> optionalCreatedBy = absent();
 
@@ -59,7 +59,7 @@ public abstract class AbstractCreatableEntityBuilder<ENTITY_TYPE extends Abstrac
         return (BUILDER_TYPE) this;
     }
 
-    public BUILDER_TYPE id(final Integer id){
+    public BUILDER_TYPE id(final Long id){
         optionalId = fromNullable(id);
         return (BUILDER_TYPE) this;
     }

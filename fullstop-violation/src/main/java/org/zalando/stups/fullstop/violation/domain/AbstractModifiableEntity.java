@@ -37,7 +37,7 @@ public abstract class AbstractModifiableEntity extends AbstractCreatableEntity {
      * Enables optimistic locking.
      */
     @Version
-    private Integer version;
+    private Long version;
 
     @LastModifiedDate
     @NotNull(groups = {PersistenceOnly.class})
@@ -57,11 +57,11 @@ public abstract class AbstractModifiableEntity extends AbstractCreatableEntity {
         this.lastModified = lastModified;
     }
 
-    public Integer getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(final Integer version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 

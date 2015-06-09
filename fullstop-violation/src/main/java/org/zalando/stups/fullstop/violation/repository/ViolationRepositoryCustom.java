@@ -15,22 +15,19 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by gkneitschel.
  */
 @Repository
-public interface ViolationRepository extends JpaRepository<ViolationEntity, Long>, ViolationRepositoryCustom {
+public interface ViolationRepositoryCustom {
 
-    List<ViolationEntity> findByAccountId(String accountId);
-
-    @Query(value = "SELECT DISTINCT v.account_id FROM fullstop_data.violation v", nativeQuery = true)
-    List<String> findAccountId();
-
+    Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked, Pageable pageable);
 }

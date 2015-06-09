@@ -34,7 +34,7 @@ public abstract class AbstractModifiableEntityBuilder<ENTITY_TYPE extends Abstra
 
     private Optional<DateTime> optionalLastModified = absent();
     private Optional<String> optionalLastModifiedBy = absent();
-    private Optional<Integer> optionalVersion = absent();
+    private Optional<Long> optionalVersion = absent();
 
     public AbstractModifiableEntityBuilder(final Class<ENTITY_TYPE> entityClass) {
         super(entityClass);
@@ -59,7 +59,7 @@ public abstract class AbstractModifiableEntityBuilder<ENTITY_TYPE extends Abstra
         return (BUILDER_TYPE) this;
     }
 
-    public BUILDER_TYPE version(final Integer version) {
+    public BUILDER_TYPE version(final Long version) {
         optionalVersion = fromNullable(version);
         return (BUILDER_TYPE) this;
     }

@@ -88,8 +88,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
         violationRequest.setEventId(UUID.randomUUID().toString());
 
         violationResult = testDataInitializer.create(violation()
-                          .id(0)
-                          .version(0));
+                          .id(0L)
+                          .version(0L));
 
         logObjRequest = new LogObj();
         logObjRequest.setAccountId(ACCOUNT_ID);
@@ -117,8 +117,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.findAll(any(Pageable.class))).thenReturn(new PageImpl<>
-                (newArrayList(violationResult)));
+        when(violationServiceMock.queryViolations(any(), any(),any(),any(),any())).thenReturn(new PageImpl<>(newArrayList
+                (violationResult)));
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
@@ -130,7 +130,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         violationRequest.setComment("my comment");
 
-        when(violationServiceMock.findOne(any(Integer.class))).thenReturn(violationResult);
+        when(violationServiceMock.findOne(any(Long.class))).thenReturn(violationResult);
 
         String message = "test";
 

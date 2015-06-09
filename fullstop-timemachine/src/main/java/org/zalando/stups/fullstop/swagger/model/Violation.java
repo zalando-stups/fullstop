@@ -27,6 +27,8 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Violation  {
 
+  private Long id = null;
+  private Long version = null;
   private String eventId = null;
   private String accountId = null;
   private String region = null;
@@ -37,24 +39,22 @@ public class Violation  {
   private String createdBy = null;
   private Date lastModified = null;
   private String lastModifiedBy = null;
-  private Integer id;
-  private Integer version;
 
   @ApiModelProperty(value = "")
   @JsonProperty("id")
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
-  public void setId(Integer id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
   @ApiModelProperty(value = "")
   @JsonProperty("version")
-  public Integer getVersion() {
+  public Long getVersion() {
     return version;
   }
-  public void setVersion(Integer version) {
+  public void setVersion(Long version) {
     this.version = version;
   }
 
