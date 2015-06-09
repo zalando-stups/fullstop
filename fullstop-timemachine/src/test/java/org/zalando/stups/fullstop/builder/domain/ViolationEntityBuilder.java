@@ -20,20 +20,17 @@ import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 import java.util.UUID;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 /**
  * Created by mrandi. Builder example
  */
 public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<ViolationEntity, ViolationEntityBuilder> {
 
-    private String eventId;
-    private String accountId;
-    private String region;
-    private String message;
+    private String eventId = UUID.randomUUID().toString();
+    private String accountId = "my account id" + Math.random();
+    private String region ="my region" + Math.random();
+    private String message ="my message" + Math.random();
     private Object violationObject;
-    private String comment;
-    private Boolean checked;
+    private String comment = "my comment" + Math.random();
 
     public ViolationEntityBuilder() {
         super(ViolationEntity.class);
@@ -47,12 +44,12 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
     public ViolationEntity build() {
         final ViolationEntity entity = super.build();
 
-        entity.setEventId(firstNonNull(eventId, UUID.randomUUID().toString()));
-        entity.setAccountId(firstNonNull(accountId, "my account id" + Math.random()));
-        entity.setRegion(firstNonNull(region, "my region" + Math.random()));
-        entity.setMessage(firstNonNull(message, "my message" + Math.random()));
-        entity.setViolationObject(firstNonNull(violationObject, new Object()));
-        entity.setComment(firstNonNull(comment, "my comment" + Math.random()));
+        entity.setEventId(eventId);
+        entity.setAccountId(accountId);
+        entity.setRegion(region);
+        entity.setMessage(message);
+        entity.setViolationObject(violationObject);
+        entity.setComment(comment);
 
         return entity;
     }
@@ -84,11 +81,6 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     public ViolationEntityBuilder comment(final String comment) {
         this.comment = comment;
-        return this;
-    }
-
-    public ViolationEntityBuilder checked(final Boolean checked) {
-        this.checked = checked;
         return this;
     }
 }

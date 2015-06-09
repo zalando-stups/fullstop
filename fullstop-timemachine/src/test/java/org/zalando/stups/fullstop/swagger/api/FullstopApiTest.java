@@ -87,10 +87,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
         violationRequest.setRegion(REGION);
         violationRequest.setEventId(UUID.randomUUID().toString());
 
-        violationResult = violation()
+        violationResult = testDataInitializer.create(violation()
                           .id(0)
-                          .version(0)
-                          .build();
+                          .version(0));
 
         logObjRequest = new LogObj();
         logObjRequest.setAccountId(ACCOUNT_ID);
