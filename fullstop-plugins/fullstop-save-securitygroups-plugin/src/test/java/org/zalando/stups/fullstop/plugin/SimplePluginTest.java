@@ -22,8 +22,11 @@ import org.assertj.core.api.Assertions;
 
 import org.junit.Test;
 
+import org.mockito.Mockito;
+
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.s3.S3Service;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
@@ -32,17 +35,25 @@ public class SimplePluginTest {
     @Test
     public void createCloudTrailEvent() {
 
+        SecurityGroupProvider provider = Mockito.mock(SecurityGroupProvider.class);
+        S3Service writer = Mockito.mock(S3Service.class);
+
+        CloudTrailEvent event = buildEvent();
+
+        // we expect RunInstance and ec2 as source not, autoscaling
+        SaveSecurityGroupsPlugin plugin = new SaveSecurityGroupsPlugin(provider, writer);
+        boolean result = plugin.supports(event);
+        Assertions.assertThat(result).isFalse();
+    }
+
+    protected CloudTrailEvent buildEvent() {
         List<Map<String, Object>> records = Records.fromClasspath("/record.json");
 
         Map<String, Object> record = records.get(0);
         System.out.println(record.toString());
 
         CloudTrailEvent event = TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-
-        // we expect RunInstance and ec2 as source not, autoscaling
-        SaveSecurityGroupsPlugin plugin = new SaveSecurityGroupsPlugin(null);
-        boolean result = plugin.supports(event);
-        Assertions.assertThat(result).isFalse();
+        return event;
     }
 
 }

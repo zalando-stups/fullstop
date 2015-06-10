@@ -15,26 +15,40 @@
  */
 package org.zalando.stups.fullstop.controller;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
-import org.zalando.stups.fullstop.s3.S3Writer;
+import org.zalando.stups.fullstop.s3.S3Service;
 
-import java.io.*;
-import java.util.List;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 /**
  * Created by gkneitschel.
@@ -57,7 +71,7 @@ public class S3Controller {
     private String fullstopLoggingDir;
 
     @Autowired
-    private S3Writer s3Writer;
+    private S3Service s3Writer;
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,
@@ -142,10 +156,7 @@ public class S3Controller {
         }
     }
 
-
-
-
-        private void copyInputStreamToFile(final InputStream in, final File file) {
+    private void copyInputStreamToFile(final InputStream in, final File file) {
         try {
             OutputStream out = new FileOutputStream(file);
             byte[] buf = new byte[1024];
