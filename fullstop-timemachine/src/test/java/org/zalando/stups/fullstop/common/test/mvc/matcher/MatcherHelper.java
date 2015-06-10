@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import java.util.Collection;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * @author  mrandi
+ * @author mrandi
  */
 public final class MatcherHelper {
 
@@ -37,7 +37,8 @@ public final class MatcherHelper {
                 final int actualSize = actual.size();
                 if (actualSize == expectedSize) {
                     return true;
-                } else {
+                }
+                else {
                     mismatchDescription.appendText("size was ").appendValue(actualSize);
                     return false;
                 }
@@ -56,7 +57,8 @@ public final class MatcherHelper {
             protected boolean matchesSafely(final CharSequence item, final Description mismatchDescription) {
                 if (item.length() == 0) {
                     return true;
-                } else {
+                }
+                else {
                     mismatchDescription.appendText("was ").appendValue(item);
                     return false;
                 }
@@ -78,7 +80,8 @@ public final class MatcherHelper {
                 try {
                     assertions.doAssertions(item);
                     return true;
-                } catch (final AssertionError e) {
+                }
+                catch (final AssertionError e) {
                     log.error("Assertions failed", e);
                     return false;
                 }

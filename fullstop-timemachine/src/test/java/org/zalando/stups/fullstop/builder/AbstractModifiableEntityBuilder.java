@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,16 +24,18 @@ import static com.google.common.base.Optional.fromNullable;
 import static org.joda.time.DateTime.now;
 
 /**
- * @author  ahartmann
+ * @author ahartmann
  */
 @SuppressWarnings({ "unchecked", "unused" })
 public abstract class AbstractModifiableEntityBuilder<ENTITY_TYPE extends AbstractModifiableEntity, BUILDER_TYPE extends AbstractModifiableEntityBuilder>
-    extends AbstractCreatableEntityBuilder<ENTITY_TYPE, BUILDER_TYPE> {
+        extends AbstractCreatableEntityBuilder<ENTITY_TYPE, BUILDER_TYPE> {
 
     private static final String DEFAULT_MODIFIER = "unit.test";
 
     private Optional<DateTime> optionalLastModified = absent();
+
     private Optional<String> optionalLastModifiedBy = absent();
+
     private Optional<Long> optionalVersion = absent();
 
     public AbstractModifiableEntityBuilder(final Class<ENTITY_TYPE> entityClass) {

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,40 +15,26 @@
  */
 package org.zalando.stups.fullstop.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.util.List;
-
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
 import org.zalando.stups.fullstop.s3.S3Service;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import java.io.*;
+import java.util.List;
 
 /**
  * Created by gkneitschel.
@@ -59,13 +45,13 @@ public class S3Controller {
 
     public static final String JSON_GZ = ".json.gz";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private static final String S3_REGION_KEY = "s3Region";
 
-    private PluginEventsProcessor pluginEventsProcessor;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties;
+
+    private PluginEventsProcessor pluginEventsProcessor;
 
     @Value("${fullstop.logging.dir}")
     private String fullstopLoggingDir;
@@ -91,7 +77,8 @@ public class S3Controller {
 
         try {
             files = directory.listFiles();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new FileNotFoundException("You should download the file before read these.");
         }
 
@@ -116,7 +103,8 @@ public class S3Controller {
             log.info("Creating fullstop directory here: {}", fullstopLoggingDir);
 
             boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
-        } catch (SecurityException e) {
+        }
+        catch (SecurityException e) {
             // do nothing
         }
 
@@ -125,9 +113,9 @@ public class S3Controller {
                 Regions.fromName((String) cloudTrailProcessingLibraryProperties.getAsProperties().get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
-            new ListObjectsRequest().withBucketName(bucket) //
-                                    .withPrefix(location)   //
-                                    .withMaxKeys(page);
+                new ListObjectsRequest().withBucketName(bucket) //
+                        .withPrefix(location)   //
+                        .withMaxKeys(page);
 
         ObjectListing objectListing = amazonS3Client.listObjects(listObjectsRequest);
 
@@ -167,7 +155,8 @@ public class S3Controller {
 
             out.close();
             in.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

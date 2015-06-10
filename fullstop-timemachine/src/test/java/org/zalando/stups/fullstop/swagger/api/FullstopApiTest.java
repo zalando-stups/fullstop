@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,57 +15,41 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import static org.joda.time.DateTimeZone.UTC;
-
-import static org.mockito.Matchers.any;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
-import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
-import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
-
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.Date;
-import java.util.UUID;
-
 import org.joda.time.DateTime;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.data.domain.PageImpl;
-
 import org.springframework.http.MediaType;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
-
 import sun.misc.BASE64Encoder;
+
+import java.util.Date;
+import java.util.UUID;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.joda.time.DateTimeZone.UTC;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
+import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
+import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
 
 /**
  * Created by mrandi.
@@ -75,10 +59,15 @@ import sun.misc.BASE64Encoder;
 public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
+
     public static final String MESSAGE = "my message";
+
     public static final String ENCODED_LOG_FILE = new BASE64Encoder().encode("this is my log".getBytes());
+
     public static final Date INSTANCE_BOOT_TIME = new DateTime(UTC).toDate();
+
     public static final String INSTANCE_ID = "i-123ds";
+
     public static final String REGION = "eu-west-1";
 
     @Autowired
@@ -120,8 +109,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
         this.mockMvc.perform(post("/api/instance-logs").contentType(MediaType.APPLICATION_JSON).content(bytes))
-                    .andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated()).andDo(MockMvcResultHandlers
-                            .print());
+                .andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated()).andDo(MockMvcResultHandlers
+                .print());
     }
 
     @Test
@@ -151,13 +140,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
         byte[] bytes = objectMapper.writeValueAsBytes(message);
 
         this.mockMvc.perform(post("/api/violations/156/resolution").contentType(MediaType.APPLICATION_JSON).content(
-                            bytes)).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(
-                        MockMvcResultHandlers.print());
+                bytes)).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(
+                MockMvcResultHandlers.print());
     }
 
     @Override
     protected Object[] mockMvcControllers() {
-        return new Object[] {fullstopApiController};
+        return new Object[] { fullstopApiController };
     }
 
     @Configuration

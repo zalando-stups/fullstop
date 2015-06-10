@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,30 +15,25 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Mockito.when;
-
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAmis;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.EventNamePredicate.RUN_INSTANCES;
 import static org.zalando.stups.fullstop.events.EventSourcePredicate.EC2_EVENT;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
-import java.util.List;
-
-import org.assertj.core.api.Assertions;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class CloudTrailEventSupportTest {
 

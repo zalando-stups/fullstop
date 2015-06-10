@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,11 +15,20 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.util.stream.Collectors.toList;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.mockito.Mockito.spy;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,33 +37,52 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Assertions;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
-import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
-import com.google.common.collect.Lists;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class RunInstancePluginTest {
 
     private ClientProvider clientProvider;
+
     private ViolationSink violationSink;
+
+    public static Function<IpPermission, String> toPortToString() {
+        return new Function<IpPermission, String>() {
+
+            @Override
+            public String apply(final IpPermission t) {
+                return t.getToPort().toString();
+            }
+        };
+    }
+
+    /**
+     * Prepare some {@link SecurityGroup}s.
+     *
+     * @return
+     */
+    protected static Optional<List<SecurityGroup>> getSecurityGroupsForTesting() {
+        List<SecurityGroup> result = Lists.newArrayList();
+        for (int i = 0; i < 2; i++) {
+            SecurityGroup g = new SecurityGroup();
+            g.setOwnerId("OWNER_" + i);
+            g.setGroupId("GROUP_" + i);
+
+            for (int j = 0; j < 3; j++) {
+                IpPermission permission = new IpPermission();
+                permission.setToPort(441 + j);
+                g.getIpPermissions().add(permission);
+            }
+
+            result.add(g);
+        }
+
+        return Optional.of(result);
+    }
 
     @Before
     public void setUp() {
@@ -89,11 +117,11 @@ public class RunInstancePluginTest {
     public void testSecurityGroupFiltering() {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
         Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                    .withToPort(22).negate());
+                .withToPort(22).negate());
 
         List<SecurityGroup> filteredSecGroups = secGroups.get().stream()
-                                                         .filter(SecurityGroupPredicates.anyMatch(filter)).collect(
-                                                             toList());
+                .filter(SecurityGroupPredicates.anyMatch(filter)).collect(
+                        toList());
 
         System.out.println(filteredSecGroups.size());
         assertThat(filteredSecGroups).isEmpty();
@@ -105,7 +133,7 @@ public class RunInstancePluginTest {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
 
         Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                    .withToPort(22).negate());
+                .withToPort(22).negate());
 
         Assertions.assertThat(secGroups.isPresent()).isTrue();
 
@@ -117,16 +145,6 @@ public class RunInstancePluginTest {
 
         System.out.println(secGroups.get().size());
         assertThat(secGroups.get()).isEmpty();
-    }
-
-    public static Function<IpPermission, String> toPortToString() {
-        return new Function<IpPermission, String>() {
-
-            @Override
-            public String apply(final IpPermission t) {
-                return t.getToPort().toString();
-            }
-        };
     }
 
     @Test
@@ -151,31 +169,7 @@ public class RunInstancePluginTest {
     }
 
     /**
-     * Prepare some {@link SecurityGroup}s.
-     *
-     * @return
-     */
-    protected static Optional<List<SecurityGroup>> getSecurityGroupsForTesting() {
-        List<SecurityGroup> result = Lists.newArrayList();
-        for (int i = 0; i < 2; i++) {
-            SecurityGroup g = new SecurityGroup();
-            g.setOwnerId("OWNER_" + i);
-            g.setGroupId("GROUP_" + i);
-
-            for (int j = 0; j < 3; j++) {
-                IpPermission permission = new IpPermission();
-                permission.setToPort(441 + j);
-                g.getIpPermissions().add(permission);
-            }
-
-            result.add(g);
-        }
-
-        return Optional.of(result);
-    }
-
-    /**
-     * @author  jbellmann
+     * @author jbellmann
      */
     static class TestRunInstancePlugin extends RunInstancePlugin {
 

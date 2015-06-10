@@ -1,12 +1,12 @@
 /**
  * Copyright 2015 Zalando SE
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,17 +15,16 @@
  */
 package org.zalando.stups.fullstop.clients.pierone.spring;
 
+import org.springframework.web.client.RestOperations;
+import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.web.client.RestOperations;
-
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 
 /**
  * Implemtation of {@link PieroneOperations} with spring and oauth2.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class RestTemplatePieroneOperations implements PieroneOperations {
 
@@ -45,7 +44,7 @@ public class RestTemplatePieroneOperations implements PieroneOperations {
         uriVariables.put("artifact", artifact);
 
         Map<String, String> result = this.restOperations.getForObject(baseUrl
-                    + "/v1/repositories/{team}/{artifact}/tags", Map.class, uriVariables);
+                + "/v1/repositories/{team}/{artifact}/tags", Map.class, uriVariables);
 
         return result;
     }

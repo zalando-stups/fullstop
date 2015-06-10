@@ -16,7 +16,7 @@
   -->
 
 <configuration debug="true">
-    <property name="VIOLATIONS_LOG_DIR" value="${user.dir}/target" />
+    <property name="VIOLATIONS_LOG_DIR" value="${user.dir}/target"/>
 
 
     <!-- FOR CONSOLE-APPENDER -->

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,11 @@ import org.zalando.stups.fullstop.common.test.support.TestObjectBuilder;
 import org.zalando.stups.fullstop.violation.domain.AbstractEntity;
 
 /**
- * @author  ahartmann
+ * @author ahartmann
  */
 @SuppressWarnings({ "unchecked", "unused" })
 public abstract class AbstractEntityBuilder<ENTITY_TYPE extends AbstractEntity, BUILDER_TYPE extends AbstractEntityBuilder>
-    implements TestObjectBuilder<ENTITY_TYPE> {
+        implements TestObjectBuilder<ENTITY_TYPE> {
 
     private final Class<ENTITY_TYPE> entityClass;
 
@@ -38,7 +38,8 @@ public abstract class AbstractEntityBuilder<ENTITY_TYPE extends AbstractEntity, 
 
         try {
             entity = entityClass.newInstance();
-        } catch (final InstantiationException | IllegalAccessException e) {
+        }
+        catch (final InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 

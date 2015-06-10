@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,21 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.Properties;
-
 import org.springframework.plugin.metadata.MetadataProvider;
 import org.springframework.plugin.metadata.PluginMetadata;
 import org.springframework.plugin.metadata.SimplePluginMetadata;
 
+import java.util.Properties;
+
 /**
  * Reads the version from classpath.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class DefaultMetadataProvider implements MetadataProvider {
 
     private static final String PROPERTY_NAME = "version";
+
     private static final String UNDEFINED = "UNDEFINED";
+
     private static final String META_INF_FULLSTOP = "/META-INF/fullstop/";
 
     private final String pluginDescriptorName;
@@ -56,7 +58,8 @@ public class DefaultMetadataProvider implements MetadataProvider {
             }
 
             return UNDEFINED;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return UNDEFINED;
         }
     }

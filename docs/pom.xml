@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -94,7 +95,7 @@
                                 <configuration>
                                     <tasks>
                                         <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip">
-                                            <fileset dir="${project.build.directory}/generated-docs" excludes="*.sh" />
+                                            <fileset dir="${project.build.directory}/generated-docs" excludes="*.sh"/>
                                         </zip>
                                     </tasks>
                                 </configuration>
@@ -108,18 +109,23 @@
                                 <configuration>
                                     <exportAntProperties>true</exportAntProperties>
                                     <target>
-                                        <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
-                                        <taskdef name="stringutil" classname="ise.antelope.tasks.StringUtilTask" />
-                                        <var name="version-type" value="${project.version}" />
-                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp=".*\.(.*)" replace="\1" />
-                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="(M)\d+" replace="MILESTONE" />
-                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="(RC)\d+" replace="MILESTONE" />
-                                        <propertyregex property="version-type" override="true" input="${version-type}" regexp="BUILD-(.*)" replace="SNAPSHOT" />
+                                        <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+                                        <taskdef name="stringutil" classname="ise.antelope.tasks.StringUtilTask"/>
+                                        <var name="version-type" value="${project.version}"/>
+                                        <propertyregex property="version-type" override="true" input="${version-type}"
+                                                       regexp=".*\.(.*)" replace="\1"/>
+                                        <propertyregex property="version-type" override="true" input="${version-type}"
+                                                       regexp="(M)\d+" replace="MILESTONE"/>
+                                        <propertyregex property="version-type" override="true" input="${version-type}"
+                                                       regexp="(RC)\d+" replace="MILESTONE"/>
+                                        <propertyregex property="version-type" override="true" input="${version-type}"
+                                                       regexp="BUILD-(.*)" replace="SNAPSHOT"/>
                                         <stringutil string="${version-type}" property="spring-cloud-repo">
-                                            <lowercase />
+                                            <lowercase/>
                                         </stringutil>
-                                        <var name="github-tag" value="v${project.version}" />
-                                        <propertyregex property="github-tag" override="true" input="${github-tag}" regexp=".*SNAPSHOT" replace="master" />
+                                        <var name="github-tag" value="v${project.version}"/>
+                                        <propertyregex property="github-tag" override="true" input="${github-tag}"
+                                                       regexp=".*SNAPSHOT" replace="master"/>
                                     </target>
                                 </configuration>
                             </execution>

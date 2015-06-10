@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,26 +15,21 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
 import com.amazonaws.AmazonClientException;
-
 import com.amazonaws.regions.Region;
-
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
+import java.util.List;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class SecurityGroupProvider {
 
@@ -58,19 +53,22 @@ public class SecurityGroupProvider {
             throw new RuntimeException(String.format(
                     "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
                     region.toString()));
-        } else {
+        }
+        else {
 
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
                 result = amazonEC2Client.describeSecurityGroups(request);
-            } catch (AmazonClientException e) {
+            }
+            catch (AmazonClientException e) {
                 log.error(e.getMessage());
             }
 
             try {
                 securityGroups = objectMapper.writeValueAsString(result);
-            } catch (JsonProcessingException e) {
+            }
+            catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
 

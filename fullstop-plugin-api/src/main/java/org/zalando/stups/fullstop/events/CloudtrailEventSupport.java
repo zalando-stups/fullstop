@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,41 +15,26 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.jayway.jsonpath.JsonPath;
+
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 
-import java.util.List;
-
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
-import com.jayway.jsonpath.JsonPath;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class CloudtrailEventSupport {
-
-    private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
-
-    private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
-
-    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-        "RegionString should never be null or empty";
-
-    private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
-        "CloudTrailEventData should never be null";
-
-    private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
     public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
 
@@ -60,9 +45,21 @@ public abstract class CloudtrailEventSupport {
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
-        "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
+
+    private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
+
+    private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
+
+    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
+            "RegionString should never be null or empty";
+
+    private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
+            "CloudTrailEventData should never be null";
+
+    private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -94,10 +91,9 @@ public abstract class CloudtrailEventSupport {
         return read(responseElements, INSTANCE_ID_JSON_PATH);
     }
 
-    public static String getEventId(final CloudTrailEvent event){
+    public static String getEventId(final CloudTrailEvent event) {
         return event.getEventData().getEventId().toString();
     }
-
 
     /**
      * Extracts the 'accountId'.
@@ -177,7 +173,7 @@ public abstract class CloudtrailEventSupport {
         return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
     }
 
-    public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent){
+    public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
         cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
         CloudTrailEventData eventData = getEventData(cloudTrailEvent);
 

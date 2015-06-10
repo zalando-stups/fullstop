@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,19 +15,16 @@
  */
 package org.zalando.stups.fullstop.plugin.hello;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 /**
  * Just for testing.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class HelloEventPlugin extends AbstractFullstopPlugin {

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,29 +15,23 @@
  */
 package org.zalando.stups.fullstop.aws;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.stereotype.Service;
-
 import com.amazonaws.AmazonWebServiceClient;
-
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
-
 import com.amazonaws.regions.Region;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Service
 public class CachingClientProvider implements ClientProvider {
@@ -50,13 +44,15 @@ public class CachingClientProvider implements ClientProvider {
 
     private LoadingCache<Key<?>, Object> cache = null;
 
-    public CachingClientProvider() { }
+    public CachingClientProvider() {
+    }
 
     @Override
     public <T> T getClient(final Class<T> type, final String accountId, final Region region) {
         try {
             return type.cast(cache.get(new Key(type, accountId, region)));
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e) {
             throw new RuntimeException("Unable to create client.", e);
         }
     }
@@ -76,7 +72,7 @@ public class CachingClientProvider implements ClientProvider {
 
                         Object client = key.region.createClient(key.type,
                                 new STSAssumeRoleSessionCredentialsProvider(buildRoleArn(key.accountId),
-                                    ROLE_SESSION_NAME), null);
+                                        ROLE_SESSION_NAME), null);
                         return client;
                     }
                 });
@@ -88,7 +84,9 @@ public class CachingClientProvider implements ClientProvider {
 
     static final class Key<K extends AmazonWebServiceClient> {
         private final Class<K> type;
+
         private final String accountId;
+
         private final Region region;
 
         Key(final Class<K> type, final String accountId, final Region region) {
@@ -123,7 +121,7 @@ public class CachingClientProvider implements ClientProvider {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).add("type", type.getName()).add("accountId", accountId)
-                              .add("region", region.getName()).toString();
+                    .add("region", region.getName()).toString();
         }
 
     }

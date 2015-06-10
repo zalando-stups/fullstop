@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,30 +15,24 @@
  */
 package org.zalando.stups.fullstop.plugin.keypair;
 
-import static java.lang.String.format;
-
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.containsKeyNames;
-
-import java.util.List;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.springframework.util.CollectionUtils;
-
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import java.util.List;
+
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.containsKeyNames;
 
 /**
- * @author  ljaeckel
+ * @author ljaeckel
  */
 @Component
 public class KeyPairPlugin extends AbstractFullstopPlugin {
@@ -46,6 +40,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(KeyPairPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+
     private static final String EVENT_NAME = "RunInstances";
 
     private final ViolationSink violationSink;

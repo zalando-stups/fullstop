@@ -15,7 +15,7 @@
     </appender>
 
     <logger name="fullstop.violations.store" level="info" additivity="true">
-        <appender-ref ref="fullstop_violations_store" />
+        <appender-ref ref="fullstop_violations_store"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 </included>

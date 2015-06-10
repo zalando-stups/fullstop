@@ -1,1 +1,104 @@
-{"reservationId":"r-3f5ba4db", "ownerId": "123456789", "groupSet":{}, "instancesSet":{"items":[{"instanceId": "i-abf9ac4f", "imageId": "ami-234ecc54", "instanceState":{"code": 0, "name": "pending"}, "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal", "keyName": "kmeier", "amiLaunchIndex": 0, "productCodes":{}, "instanceType":"t2.micro", "launchTime": 1428413616000, "placement":{"availabilityZone": "us-west-1a", "tenancy": "default"}, "monitoring":{"state": "disabled"}, "subnetId": "subnet-a82ebdcd","vpcId": "vpc-ebf389bd", "privateIpAddress": "172.31.12.21", "stateReason":{"code": "pending", "message": "pending"},"architecture": "x86_64", "rootDeviceType": "ebs", "rootDeviceName":"/dev/sda1", "blockDeviceMapping":{}, "virtualizationType": "hvm", "hypervisor": "xen", "clientToken": "eLLtU1428413615752", "interfaceId": "interface-0f8a156b", "groupSet":{"items":[{"groupId": "sg-6ff2bd0a", "groupName": "kmeier-network-test"}]}, "sourceDestCheck": true, "networkInterfaceSet":{"items":[{"networkInterfaceId": "eni-0f8a156b", "internalInterfaceId": "interface-0f8a156b", "subnetId": "subnet-a82ebdcd", "vpcId": "vpc-ebf389bd", "availabilityZone": "us-west-1a", "description": "Primary network interface", "ownerId": "123456789", "requesterManaged": false, "status": "in-use", "macAddress": "02:74:3a:23:1e:a1", "privateIpAddress": "172.31.12.21", "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal", "sourceDestCheck": true, "groupSet":{"items":[{"groupId": "sg-6ff2bd0a", "groupName": "kmeier-network-test"}]}, "attachment":{"attachmentId": "eni-attach-86f2edc8", "instanceId": "2377182287", "instanceOwnerId": "123456789", "deviceIndex": 0, "status": "attaching", "attachTime": 1428413616000, "deleteOnTermination": true}, "attachableToInstanceBySet":{}, "associableWithElasticIpBySet":{}, "privateIpAddressesSet":{"item":[{"privateIpAddress": "172.31.12.21", "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal", "primary": true}]}, "tagSet":{}}]}, "ebsOptimized": false}]}}, eventVersion=1.02, eventName=RunInstances, eventTime=Tue Apr 07 15: 33: 35 CEST 2015, recipientAccountId=123456789}}
+{
+  "reservationId": "r-3f5ba4db",
+  "ownerId": "123456789",
+  "groupSet": {},
+  "instancesSet": {
+    "items": [
+      {
+        "instanceId": "i-abf9ac4f",
+        "imageId": "ami-234ecc54",
+        "instanceState": {
+          "code": 0,
+          "name": "pending"
+        },
+        "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal",
+        "keyName": "kmeier",
+        "amiLaunchIndex": 0,
+        "productCodes": {},
+        "instanceType": "t2.micro",
+        "launchTime": 1428413616000,
+        "placement": {
+          "availabilityZone": "us-west-1a",
+          "tenancy": "default"
+        },
+        "monitoring": {
+          "state": "disabled"
+        },
+        "subnetId": "subnet-a82ebdcd",
+        "vpcId": "vpc-ebf389bd",
+        "privateIpAddress": "172.31.12.21",
+        "stateReason": {
+          "code": "pending",
+          "message": "pending"
+        },
+        "architecture": "x86_64",
+        "rootDeviceType": "ebs",
+        "rootDeviceName": "/dev/sda1",
+        "blockDeviceMapping": {},
+        "virtualizationType": "hvm",
+        "hypervisor": "xen",
+        "clientToken": "eLLtU1428413615752",
+        "interfaceId": "interface-0f8a156b",
+        "groupSet": {
+          "items": [
+            {
+              "groupId": "sg-6ff2bd0a",
+              "groupName": "kmeier-network-test"
+            }
+          ]
+        },
+        "sourceDestCheck": true,
+        "networkInterfaceSet": {
+          "items": [
+            {
+              "networkInterfaceId": "eni-0f8a156b",
+              "internalInterfaceId": "interface-0f8a156b",
+              "subnetId": "subnet-a82ebdcd",
+              "vpcId": "vpc-ebf389bd",
+              "availabilityZone": "us-west-1a",
+              "description": "Primary network interface",
+              "ownerId": "123456789",
+              "requesterManaged": false,
+              "status": "in-use",
+              "macAddress": "02:74:3a:23:1e:a1",
+              "privateIpAddress": "172.31.12.21",
+              "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal",
+              "sourceDestCheck": true,
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-6ff2bd0a",
+                    "groupName": "kmeier-network-test"
+                  }
+                ]
+              },
+              "attachment": {
+                "attachmentId": "eni-attach-86f2edc8",
+                "instanceId": "2377182287",
+                "instanceOwnerId": "123456789",
+                "deviceIndex": 0,
+                "status": "attaching",
+                "attachTime": 1428413616000,
+                "deleteOnTermination": true
+              },
+              "attachableToInstanceBySet": {},
+              "associableWithElasticIpBySet": {},
+              "privateIpAddressesSet": {
+                "item": [
+                  {
+                    "privateIpAddress": "172.31.12.21",
+                    "privateDnsName": "ip-172-31-7-83.us-west-1.compute.internal",
+                    "primary": true
+                  }
+                ]
+              },
+              "tagSet": {}
+            }
+          ]
+        },
+        "ebsOptimized": false
+      }
+    ]
+  }
+}, eventVersion=1.02, eventName=RunInstances, eventTime=Tue Apr 07 15: 33: 35 CEST 2015, recipientAccountId=123456789
+}}

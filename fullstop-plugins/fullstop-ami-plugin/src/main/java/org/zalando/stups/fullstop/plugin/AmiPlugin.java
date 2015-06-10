@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +31,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-import org.zalando.stups.fullstop.violation.ViolationStore;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,10 +40,8 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAmis;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
 /**
  * @author mrandi
@@ -58,6 +53,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+
     private static final String EVENT_NAME = "RunInstances";
 
     private final CloudTrailEventPredicate eventFilter = fromSource(

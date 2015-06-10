@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,16 +15,13 @@
  */
 package org.zalando.stups.fullstop.jpa.auditing;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import org.slf4j.Logger;
-
 import org.springframework.data.domain.AuditorAware;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.util.Assert;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author  <a href="mailto:michele.randi@zalando.de" title="Michele Randi">mrandi</a>
@@ -38,7 +35,8 @@ public final class SpringSecurityAuditorAware implements AuditorAware<String> {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return "FULLSTOP";
-        } else {
+        }
+        else {
             Assert.notNull(authentication, "Current authentication is null; could not gather user details from it");
 
             final String userName = authentication.getName();

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,18 @@ package org.zalando.stups.fullstop.violation.reactor;
 
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
 /**
  * Uses the {@link EventBus} to transport Violations to interested Consumers.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class EventBusViolationSink implements ViolationSink {
 
     private final String DEFAULT_VIOLATIONS_TOPIC = "/violations";
+
     private final EventBus eventBus;
 
     public EventBusViolationSink(final EventBus eventBus) {

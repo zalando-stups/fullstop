@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,101 +23,106 @@ import org.zalando.stups.fullstop.s3.LogType;
 
 import java.util.Date;
 
-
 @ApiModel(description = "")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LogObj  {
+public class LogObj {
 
-  private LogType logType = null;
-  private String instanceId = null;
-  private String accountId = null;
-  private String region = null;
-  private Date instanceBootTime = null;
-  private String logData = null;
+    private LogType logType = null;
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("log_type")
-  public LogType getLogType() {
-    return logType;
-  }
-  public void setLogType(LogType logType) {
-    this.logType = logType;
-  }
+    private String instanceId = null;
 
+    private String accountId = null;
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("instance_id")
-  public String getInstanceId() {
-    return instanceId;
-  }
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
-  }
+    private String region = null;
 
+    private Date instanceBootTime = null;
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("account_id")
-  public String getAccountId() {
-    return accountId;
-  }
-  public void setAccountId(String accountId) {
-    this.accountId = accountId;
-  }
+    private String logData = null;
 
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("log_type")
+    public LogType getLogType() {
+        return logType;
+    }
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("region")
-  public String getRegion() {
-    return region;
-  }
-  public void setRegion(String region) {
-    this.region = region;
-  }
+    public void setLogType(LogType logType) {
+        this.logType = logType;
+    }
 
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("instance_id")
+    public String getInstanceId() {
+        return instanceId;
+    }
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("instance_boot_time")
-  public Date getInstanceBootTime() {
-    return instanceBootTime;
-  }
-  public void setInstanceBootTime(Date instanceBootTime) {
-    this.instanceBootTime = instanceBootTime;
-  }
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
 
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("account_id")
+    public String getAccountId() {
+        return accountId;
+    }
 
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("log_data")
-  public String getLogData() {
-    return logData;
-  }
-  public void setLogData(String logData) {
-    this.logData = logData;
-  }
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
 
-  @Override
-  public String toString()  {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class LogObj {\n");
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("region")
+    public String getRegion() {
+        return region;
+    }
 
-    sb.append("  logType: ").append(logType).append("\n");
-    sb.append("  instanceId: ").append(instanceId).append("\n");
-    sb.append("  accountId: ").append(accountId).append("\n");
-    sb.append("  region: ").append(region).append("\n");
-    sb.append("  instanceBootTime: ").append(instanceBootTime).append("\n");
-    sb.append("  logData: ").append(logData).append("\n");
-    sb.append("}\n");
-    return sb.toString();
-  }
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("instance_boot_time")
+    public Date getInstanceBootTime() {
+        return instanceBootTime;
+    }
+
+    public void setInstanceBootTime(Date instanceBootTime) {
+        this.instanceBootTime = instanceBootTime;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    @JsonProperty("log_data")
+    public String getLogData() {
+        return logData;
+    }
+
+    public void setLogData(String logData) {
+        this.logData = logData;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class LogObj {\n");
+
+        sb.append("  logType: ").append(logType).append("\n");
+        sb.append("  instanceId: ").append(instanceId).append("\n");
+        sb.append("  accountId: ").append(accountId).append("\n");
+        sb.append("  region: ").append(region).append("\n");
+        sb.append("  instanceBootTime: ").append(instanceBootTime).append("\n");
+        sb.append("  logData: ").append(logData).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
 }

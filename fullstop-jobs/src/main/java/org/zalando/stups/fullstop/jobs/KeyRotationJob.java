@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,27 +15,22 @@
  */
 package org.zalando.stups.fullstop.jobs;
 
-import static org.zalando.stups.fullstop.jobs.AccessKeyMetadataPredicates.isActiveAndWithDaysOlderThan;
+import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
-
-import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
+import static org.zalando.stups.fullstop.jobs.AccessKeyMetadataPredicates.isActiveAndWithDaysOlderThan;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class KeyRotationJob {
