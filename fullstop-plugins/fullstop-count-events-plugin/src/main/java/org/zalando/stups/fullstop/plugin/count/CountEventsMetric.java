@@ -50,7 +50,7 @@ public class CountEventsMetric {
 
     protected Meter getOrCreateMeter(final Map<String, Meter> meters, final String name) {
         Meter m = meters.get(name);
-        if (null != null) {
+        if (m != null) {
             return m;
         }
 
