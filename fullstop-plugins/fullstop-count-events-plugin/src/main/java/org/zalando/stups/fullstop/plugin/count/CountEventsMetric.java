@@ -38,7 +38,6 @@ public class CountEventsMetric {
     private final MetricRegistry metricRegistry;
 
     private final Map<String, Meter> eventMeters = new HashMap<String, Meter>();
-// private final Map<String, Counter> eventCounter = new HashMap<String, Counter>();
 
     @Autowired
     public CountEventsMetric(final MetricRegistry metricRegistry) {
@@ -66,24 +65,6 @@ public class CountEventsMetric {
             }
         }
     }
-
-// protected Counter getOrCreateCounter(final Map<String, Counter> counters, final String name) {
-// Counter c = counters.get(name);
-// if (c != null) {
-// return c;
-// }
-//
-// synchronized (this) {
-// c = counters.get(name);
-// if (c != null) {
-// return c;
-// } else {
-// Counter created = metricRegistry.counter(name);
-// counters.put(name, created);
-// return created;
-// }
-// }
-// }
 
     public void markEvent(final String event) {
         getOrCreateMeter(eventMeters, METER + event).mark();
