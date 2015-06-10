@@ -16,12 +16,14 @@
 package org.zalando.stups.fullstop.swagger.api;
 
 import com.wordnik.swagger.annotations.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
@@ -33,11 +35,11 @@ import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -77,7 +79,8 @@ public class FullstopApi {
             final List<String> accounts,
             @ApiParam(value = "Include only violations that happened after this point in time")
             @RequestParam(value = "since", required = false)
-            final Date since,
+            @DateTimeFormat(iso = DATE_TIME)
+            final DateTime since,
             @ApiParam(value = "Include only violations after the one with this id")
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,

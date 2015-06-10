@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation.service.impl;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,6 @@ import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,7 +56,7 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked,
+    public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
             Pageable pageable) {
         return violationRepository.queryViolations(accounts, since, lastViolation, checked, pageable);
     }

@@ -26,7 +26,6 @@ import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -42,7 +41,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean
+    public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean
             checked, Pageable pageable) {
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
 
@@ -55,7 +54,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         }
 
         if (since != null) {
-            mainPredicates.add(qViolationEntity.created.after(new DateTime(since)));
+            mainPredicates.add(qViolationEntity.created.after(since));
         }
 
         if (lastViolation != null) {

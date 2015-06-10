@@ -37,6 +37,7 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -125,6 +126,19 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
+        resultActions.andExpect(jsonPath("$").value(hasSize(1)));
+    }
+
+    @Test
+    public void testViolationsWithParams() throws Exception {
+
+        when(violationServiceMock.queryViolations(any(List.class), any(DateTime.class), eq(0L), eq(true), any()))
+                .thenReturn(new PageImpl<>(newArrayList(violationResult)));
+
+        ResultActions resultActions = this.mockMvc.perform(
+                get("/api/violations?accounts=123&checked=true&last-violation=0&since=" + new DateTime(UTC)))
+                .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
+
         resultActions.andExpect(jsonPath("$").value(hasSize(1)));
     }
 
