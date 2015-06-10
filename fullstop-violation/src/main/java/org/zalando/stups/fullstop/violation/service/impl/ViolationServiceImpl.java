@@ -36,16 +36,6 @@ public class ViolationServiceImpl implements ViolationService {
     private ViolationRepository violationRepository;
 
     @Override
-    public List<ViolationEntity> findByAccountId(String accountId) {
-      return violationRepository.findByAccountId(accountId);
-    }
-
-    @Override
-    public List<String> findAccountId() {
-        return violationRepository.findAccountId();
-    }
-
-    @Override
     public Page<ViolationEntity> findAll(Pageable pageable) {
         return violationRepository.findAll(pageable);
     }

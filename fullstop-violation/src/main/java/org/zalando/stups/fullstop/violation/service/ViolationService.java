@@ -27,10 +27,6 @@ import java.util.List;
  */
 public interface ViolationService {
 
-    List<ViolationEntity> findByAccountId(String accountId);
-
-    List<String> findAccountId();
-
     Page<ViolationEntity> findAll(Pageable pageable);
 
     List<ViolationEntity> findAll();
