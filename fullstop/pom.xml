@@ -48,24 +48,24 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation-store-slf4j</artifactId>
+            <artifactId>fullstop-s3</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-s3</artifactId>
+            <artifactId>fullstop-violation-sink-reactor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation-persister-jpa</artifactId>
             <version>${project.version}</version>
         </dependency>
 
 
         <!-- START PLUGINS -->
-        <!--
-
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-hello-event-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-save-securitygroups-plugin</artifactId>
@@ -120,7 +120,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.zalando</groupId>
+            <groupId>org.zalando</groupId>
             <artifactId>spring-cloud-config-aws-kms</artifactId>
         </dependency>
         <dependency>

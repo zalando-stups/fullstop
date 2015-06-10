@@ -1,0 +1,4 @@
+#
+#
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.zalando.stups.fullstop.violation.reactor.config.EventBusViolationSinkAutoConfiguration

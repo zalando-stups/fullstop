@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.s3;
 
 import com.amazonaws.AmazonClientException;
@@ -43,8 +42,6 @@ import static org.joda.time.DateTimeZone.UTC;
 @Service
 public class S3Writer {
 
-    public static final String USER_DATA = "USER_DATA";
-    public static final String AUDIT_LOG = "AUDIT_LOG";
     public static final String TAUPAGE_YAML = "taupage.yaml";
     public static final String AUDIT_LOG_FILE_NAME = "audit-log-";
     public static final String LOG_GZ = ".log.gz";
@@ -63,7 +60,7 @@ public class S3Writer {
         String keyName = Paths.get(accountId, region, dateTime.toString("YYYY"), dateTime.toString("MM"),
                 dateTime.toString("dd"), instanceId + "-" + dateTime).toString();
 
-        switch (logType) {
+        switch (LogType.valueOf(logType)) {
             case USER_DATA:
                 fileName = TAUPAGE_YAML;
                 break;

@@ -6,10 +6,15 @@
 
 ![swagger-validator](http://online.swagger.io/validator/?url=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml)
 
+[![Join the chat at https://gitter.im/zalando-stups/fullstop](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/zalando-stups/fullstop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 #Fullstop - Audit reporting
 
+###Fullstop AWS overview
 ![Fullstop](images/fullstop.png)
+###Fullstop Architecture overview
+![Fullstop Architecture](images/fullstop-architecture.png)
 
 Aim of the project is to enrich CloudTrail log events.
 
@@ -62,6 +67,7 @@ This enviroment variable should be set:
     INSTANCE_LOGS_S3_BUCKET
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
+    TOKEN_INFO_URI
 
 Example:
 
@@ -81,8 +87,9 @@ Example:
     $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
     $ export ENCRYPT_REGION=eu-west-1
     $ export INSTANCE_LOGS_S3_BUCKET=my-s3-bucket
-    $ export ACCESS_TOKEN_URI=url
+    $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
+    $ export TOKEN_INFO_URI=tokenInfoUri
 
 ##Database setup
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables
@@ -140,13 +147,18 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
+    
+##How to deploy
+
+    $ mvn release:prepare
+    
+    $ mvn release:perform
 
 ## Project TODO:
-- [ ] Oauth 2.0 spring configuration
-- [ ] Implement API for FE
-- [ ] Auditing on entity
+- [x] Oauth 2.0 spring configuration
+- [x] Implement API for FE
+- [x] Auditing on entity
 - [ ] Pageable
-- [ ] Plugin plugin plugin ;)
 - [ ] ...
 
 ## License

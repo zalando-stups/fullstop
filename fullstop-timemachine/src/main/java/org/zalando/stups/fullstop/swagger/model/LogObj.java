@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,39 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
+import org.zalando.stups.fullstop.s3.LogType;
 
 import java.util.Date;
 
 
 @ApiModel(description = "")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LogObj  {
-  
-  private String logType = null;
+
+  private LogType logType = null;
   private String instanceId = null;
   private String accountId = null;
   private String region = null;
   private Date instanceBootTime = null;
   private String logData = null;
 
-  
   /**
    **/
   @ApiModelProperty(value = "")
   @JsonProperty("log_type")
-  public String getLogType() {
+  public LogType getLogType() {
     return logType;
   }
-  public void setLogType(String logType) {
+  public void setLogType(LogType logType) {
     this.logType = logType;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -57,7 +58,7 @@ public class LogObj  {
     this.instanceId = instanceId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -69,7 +70,7 @@ public class LogObj  {
     this.accountId = accountId;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -81,7 +82,7 @@ public class LogObj  {
     this.region = region;
   }
 
-  
+
   /**
    **/
   @ApiModelProperty(value = "")
@@ -93,8 +94,8 @@ public class LogObj  {
     this.instanceBootTime = instanceBootTime;
   }
 
-  
- /**
+
+  /**
    **/
   @ApiModelProperty(value = "")
   @JsonProperty("log_data")
@@ -105,19 +106,17 @@ public class LogObj  {
     this.logData = logData;
   }
 
-  
-
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class LogObj {\n");
-    
-    sb.append("  log_type: ").append(logType).append("\n");
-    sb.append("  instance_id: ").append(instanceId).append("\n");
-    sb.append("  account_id: ").append(accountId).append("\n");
+
+    sb.append("  logType: ").append(logType).append("\n");
+    sb.append("  instanceId: ").append(instanceId).append("\n");
+    sb.append("  accountId: ").append(accountId).append("\n");
     sb.append("  region: ").append(region).append("\n");
-    sb.append("  instance_boot_time: ").append(instanceBootTime).append("\n");
-    sb.append("  log_data: ").append(logData).append("\n");
+    sb.append("  instanceBootTime: ").append(instanceBootTime).append("\n");
+    sb.append("  logData: ").append(logData).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

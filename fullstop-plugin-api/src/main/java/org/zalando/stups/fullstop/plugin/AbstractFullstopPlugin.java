@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,10 @@
 package org.zalando.stups.fullstop.plugin;
 
 import org.springframework.plugin.metadata.PluginMetadata;
+
+import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 /**
  * Base that can be used to implement a {@link FullstopPlugin}.
@@ -28,6 +32,18 @@ public abstract class AbstractFullstopPlugin implements FullstopPlugin {
     public PluginMetadata getMetadata() {
 
         return new DefaultMetadataProvider(getClass().getName()).getMetadata();
+    }
+
+    protected String getCloudTrailEventId(final CloudTrailEvent event) {
+        return CloudtrailEventSupport.getEventId(event);
+    }
+
+    protected String getCloudTrailEventAccountId(final CloudTrailEvent event) {
+        return CloudtrailEventSupport.getAccountId(event);
+    }
+
+    protected String getCloudTrailEventRegion(final CloudTrailEvent event) {
+        return CloudtrailEventSupport.getRegionAsString(event);
     }
 
 }
