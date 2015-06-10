@@ -177,6 +177,9 @@ Push docker image:
     
     $ mvn release:perform
 
+## Contributing
+Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
+
 ## Project TODO:
 - [x] Oauth 2.0 spring configuration
 - [x] Implement API for FE
