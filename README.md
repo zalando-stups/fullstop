@@ -155,11 +155,10 @@ Push docker image:
     $ mvn release:perform
 
 ## Project TODO:
-- [ ] Oauth 2.0 spring configuration
-- [ ] Implement API for FE
-- [ ] Auditing on entity
+- [x] Oauth 2.0 spring configuration
+- [x] Implement API for FE
+- [x] Auditing on entity
 - [ ] Pageable
-- [ ] Plugin plugin plugin ;)
 - [ ] ...
 
 ## License
