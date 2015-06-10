@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -54,16 +53,18 @@ import com.google.common.collect.Lists;
  * Created by mrandi.
  */
 @Service
-public class S3Writer {
+public class S3Service {
 
     public static final String TAUPAGE_YAML = "taupage.yaml";
     public static final String AUDIT_LOG_FILE_NAME = "audit-log-";
     public static final String LOG_GZ = ".log.gz";
 
-    private static final Logger logger = LoggerFactory.getLogger(S3Writer.class);
+    private static final Logger logger = LoggerFactory.getLogger(S3Service.class);
 
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
+
+    private final AmazonS3Client s3client = new AmazonS3Client();
 
     public void writeToS3(final String accountId, final String region, final Date instanceBootTime,
             final String logData, final String logType, final String instanceId) throws IOException {
@@ -100,7 +101,7 @@ public class S3Writer {
 
     public void putObjectToS3(final String bucket, final String fileName, final String keyName,
             final ObjectMetadata metadata, final InputStream stream) {
-        AmazonS3 s3client = new AmazonS3Client();
+// AmazonS3 s3client = new AmazonS3Client();
         try {
             logger.info("Uploading a new object to S3 from a file");
 
@@ -125,10 +126,10 @@ public class S3Writer {
     public List<String> listS3Objects(final String buckestName, final String prefix) {
         final List<String> commonPrefixes = Lists.newArrayList();
 
-        AmazonS3Client s3client = new AmazonS3Client();
+// AmazonS3Client s3client = new AmazonS3Client();
 
         try {
-            System.out.println("Listing objects");
+            logger.info("Listing objects");
 
             ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withDelimiter("/")
                                                                             .withBucketName(bucketName).withPrefix(
@@ -148,18 +149,18 @@ public class S3Writer {
             } while (objectListing.isTruncated());
 
         } catch (AmazonServiceException ase) {
-            System.out.println("Caught an AmazonServiceException, " + "which means your request made it "
+            logger.error("Caught an AmazonServiceException, " + "which means your request made it "
                     + "to Amazon S3, but was rejected with an error response " + "for some reason.");
-            System.out.println("Error Message:    " + ase.getMessage());
-            System.out.println("HTTP Status Code: " + ase.getStatusCode());
-            System.out.println("AWS Error Code:   " + ase.getErrorCode());
-            System.out.println("Error Type:       " + ase.getErrorType());
-            System.out.println("Request ID:       " + ase.getRequestId());
+            logger.error("Error Message:    " + ase.getMessage());
+            logger.error("HTTP Status Code: " + ase.getStatusCode());
+            logger.error("AWS Error Code:   " + ase.getErrorCode());
+            logger.error("Error Type:       " + ase.getErrorType());
+            logger.error("Request ID:       " + ase.getRequestId());
         } catch (AmazonClientException ace) {
-            System.out.println("Caught an AmazonClientException, " + "which means the client encountered "
+            logger.error("Caught an AmazonClientException, " + "which means the client encountered "
                     + "an internal error while trying to communicate" + " with S3, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message: " + ace.getMessage());
+            logger.error("Error Message: " + ace.getMessage());
         }
 
         return commonPrefixes;

@@ -15,160 +15,114 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.wordnik.swagger.annotations.*;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.io.IOException;
+
+import java.util.Date;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.zalando.stups.fullstop.s3.S3Writer;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(
-    value = "/api",
-    produces = { APPLICATION_JSON_VALUE }
-)
-@Api(
-    value = "/api",
-    description = "the api API"
-)
+@RequestMapping(value = "/api", produces = {APPLICATION_JSON_VALUE})
+@Api(value = "/api", description = "the api API")
 @PreAuthorize("#oauth2.hasScope('uid')")
 public class FullstopApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            FullstopApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
 
-    @Autowired private S3Writer s3Writer;
-    @Autowired private ViolationService violationService;
+    @Autowired
+    private S3Service s3Writer;
+    @Autowired
+    private ViolationService violationService;
 
-    @ApiOperation(
-        value = "Put instance log in S3",
-        notes = "Add log for instance in S3",
-        response = Void.class
-    )
-    @ApiResponses(
-        value = {
-                @ApiResponse(
-                    code = 201,
-                    message = "Logs saved successfully"
-                )
-            }
-    )
-    @RequestMapping(
-        value = "/instance-logs",
-        method = RequestMethod.POST
-    )
-    public ResponseEntity<Void> instanceLogs(
-        @ApiParam(
-            value = "",
-            required = true
-        )
-        @RequestBody LogObj log) throws NotFoundException {
+    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Logs saved successfully")})
+    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
+            @RequestBody final LogObj log) throws NotFoundException {
         saveLog(log);
 
         return new ResponseEntity<>(CREATED);
     }
 
-    @ApiOperation(value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of all violations") })
-    @RequestMapping(value = "/violations",
-            method = RequestMethod.GET)
+    @ApiOperation(
+        value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
+    @RequestMapping(value = "/violations", method = RequestMethod.GET)
     public List<Violation> violations(
-        @ApiParam(value = "Include only violations in these accounts")
-        @RequestParam(
-            value = "accounts",
-            required = false
-        )
-        List<String> accounts,
-        @ApiParam(
-            value =
-                "Include only violations that happened after this point in time"
-        )
-        @RequestParam(
-            value = "since",
-            required = false
-        )
-        Date since,
-        @ApiParam(value = "Include only violations after the one with this id")
-        @RequestParam(
-            value = "last-violation",
-            required = false
-        )
-        Long lastViolation,
-        @ApiParam(
-            value =
-                "Include only violations where checked field equals this value"
-        )
-        @RequestParam(
-            value = "checked",
-            required = false
-        )
-        Boolean checked,
-        @PageableDefault(
-            page = 0,
-            size = 10,
-            sort = "id",
-            direction = ASC
-        ) final Pageable pageable,
-        @AuthenticationPrincipal(errorOnInvalidType = true) final String uid)
-        throws NotFoundException {
+            @ApiParam(value = "Include only violations in these accounts")
+            @RequestParam(value = "accounts", required = false)
+            final List<String> accounts,
+            @ApiParam(value = "Include only violations that happened after this point in time")
+            @RequestParam(value = "since", required = false)
+            final Date since,
+            @ApiParam(value = "Include only violations after the one with this id")
+            @RequestParam(value = "last-violation", required = false)
+            final Long lastViolation,
+            @ApiParam(value = "Include only violations where checked field equals this value")
+            @RequestParam(value = "checked", required = false)
+            final Boolean checked,
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
+            @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         logger.info("this is my username: {}", uid);
 
-        Page<ViolationEntity> backendViolations = violationService.queryViolations(accounts,since,lastViolation,
-                checked,pageable);
+        Page<ViolationEntity> backendViolations = violationService.queryViolations(accounts, since, lastViolation,
+                checked, pageable);
 
         return mapBackendToFrontendViolations(backendViolations.getContent());
     }
 
     @ApiOperation(
-        value = "Resolve and explain this violation",
-        notes = "Resolve and explain violation",
-        response = Void.class
+        value = "Resolve and explain this violation", notes = "Resolve and explain violation", response = Void.class
     )
-    @ApiResponses(
-        value = {
-                @ApiResponse(
-                    code = 200,
-                    message = "Violation resolved successfully"
-                )
-            }
-    )
-    @RequestMapping(
-        value = "/violations/{id}/resolution",
-        method = RequestMethod.POST
-    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation resolved successfully")})
+    @RequestMapping(value = "/violations/{id}/resolution", method = RequestMethod.POST)
     public ResponseEntity<Void> resolveViolations(
-        @ApiParam(
-            value = "",
-            required = true
-        )
-        @PathVariable("id")
-        Long id,
-        @ApiParam(
-            value = "",
-            required = true
-        ) @RequestBody String message) throws NotFoundException {
+            @ApiParam(value = "", required = true)
+            @PathVariable("id")
+            final Long id,
+            @ApiParam(value = "", required = true)
+            @RequestBody final String message) throws NotFoundException {
         ViolationEntity violation = violationService.findOne(id);
 
         violation.setComment(message);
@@ -177,8 +131,7 @@ public class FullstopApi {
         return new ResponseEntity<>(OK);
     }
 
-    private List<Violation> mapBackendToFrontendViolations(
-        final List<ViolationEntity> backendViolations) {
+    private List<Violation> mapBackendToFrontendViolations(final List<ViolationEntity> backendViolations) {
         List<Violation> frontendViolations = newArrayList();
 
         for (ViolationEntity entity : backendViolations) {
@@ -212,10 +165,8 @@ public class FullstopApi {
         }
 
         try {
-            s3Writer.writeToS3(instanceLog.getAccountId(),
-                instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
-                instanceLog.getLogData(), instanceLog.getLogType().toString(),
-                instanceLog.getInstanceId());
+            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
+                instanceLog.getLogData(), instanceLog.getLogType().toString(), instanceLog.getInstanceId());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
