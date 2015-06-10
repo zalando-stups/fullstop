@@ -35,17 +35,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>aws-cloudtrail-processing-library</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
         </dependency>
 
         <dependency>

@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,31 +15,8 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 import static java.util.stream.Collectors.toList;
+
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
@@ -50,8 +27,38 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
 import static org.zalando.stups.fullstop.plugin.Bool.not;
 import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import com.amazonaws.AmazonClientException;
+
+import com.amazonaws.regions.Region;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+
+import com.google.common.collect.Sets;
+
 /**
- *
  * @author  jbellmann
  */
 @Component
@@ -64,7 +71,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
     private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     private final ClientProvider clientProvider;
 
@@ -73,9 +80,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
 
     @Autowired
-    public RunInstancePlugin(final ClientProvider clientProvider, final ViolationStore violationStore) {
+    public RunInstancePlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
         this.clientProvider = clientProvider;
-        this.violationStore = violationStore;
+        this.violationSink = violationSink;
     }
 
     @Override
@@ -104,7 +111,9 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
             String message = String.format("SecurityGroups configured with ports not allowed: %s",
                     getPorts(securityGroupList.get()));
-            violationStore.save(new ViolationBuilder(message).withEvent(event).build());
+            violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
+
         }
     }
 
@@ -168,9 +177,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
                         securityGroupIds.toString(), e.getMessage());
 
-                violationStore.save(new ViolationBuilder(message)
-                        .withEvent(event)
-                        .build());
+                violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                        getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
                 return Optional.empty();
             }
 

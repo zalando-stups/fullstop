@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegionAsString;
 
@@ -33,10 +31,10 @@ import org.springframework.stereotype.Component;
 
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
 
 /**
  * @author  gkneitschel
@@ -49,15 +47,16 @@ public class RegionPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
     private static final String EVENT_NAME = "RunInstances";
 
-    private final ViolationStore violationStore;
+// s
+    private final ViolationSink violationSink;
 
     private CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
     private final RegionPluginProperties regionPluginProperties;
 
     @Autowired
-    public RegionPlugin(final ViolationStore violationStore, final RegionPluginProperties regionPluginProperties) {
-        this.violationStore = violationStore;
+    public RegionPlugin(final ViolationSink violationSink, final RegionPluginProperties regionPluginProperties) {
+        this.violationSink = violationSink;
         this.regionPluginProperties = regionPluginProperties;
     }
 
@@ -82,8 +81,8 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
-            violationStore.save(new ViolationBuilder
-                    (message).withEvent(event).build());
+            violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
         }
     }
 }

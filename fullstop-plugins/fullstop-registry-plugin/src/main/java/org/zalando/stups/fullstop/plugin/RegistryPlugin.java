@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin;
 
 import static java.lang.String.format;
@@ -37,8 +36,8 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.violation.ViolationStore;
-import org.zalando.stups.fullstop.violation.entity.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.AmazonServiceException;
 
@@ -72,28 +71,17 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final ClientProvider cachingClientProvider;
 
-    private final ViolationStore violationStore;
-
-// private final RestTemplate restTemplate = new RestTemplate();
-
-// @Value("${fullstop.plugins.kio.url}/apps/{appId}")
-// private String kioApplicationUrl;
-
-// @Value("${fullstop.plugins.kio.url}/apps/{appId}/versions/{version_id}")
-// private String kioApplicationVersionUrl;
-
-// @Value("${fullstop.plugins.pierone.url}/v1/repositories/{team}/{application}/tags")
-// private String pieroneApplicationUrl;
+    private final ViolationSink violationSink;
 
     private final PieroneOperations pieroneOperations;
 
     private final KioOperations kioOperations;
 
     @Autowired
-    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationStore violationStore,
+    public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationSink violationSink,
             final PieroneOperations pieroneOperations, final KioOperations kioOperations) {
         this.cachingClientProvider = cachingClientProvider;
-        this.violationStore = violationStore;
+        this.violationSink = violationSink;
         this.pieroneOperations = pieroneOperations;
         this.kioOperations = kioOperations;
     }
@@ -139,18 +127,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             source, applicationVersionFromKio.getArtifact());
                     }
                 }
-
-// if (applicationFromKio != null && applicationFromKio.getBody() != null && applicationVersion != null) {
-// ResponseEntity<JsonNode> versionFromKio = getAndValidateApplicationVersionFromKio(event,
-// applicationId, applicationVersion);
-//
-// if (versionFromKio != null && versionFromKio.getBody() != null && source != null) {
-// validateSourceWithKio(event, applicationId, applicationVersion,
-// applicationFromKio.getBody().get("team_id").asText(), source,
-// versionFromKio.getBody().get("artifact").asText());
-// }
-// }
-
             }
         }
     }
@@ -159,46 +135,26 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             final String applicationVersion, final String team, final String source, final String artifact) {
 
         if (!source.equals(artifact)) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format("Application: %s has not a valid artifact for version: %s.", applicationId,
-                        applicationVersion)).withEvent(event).build());
+                        applicationVersion)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
         }
 
         Map<String, String> tags = this.pieroneOperations.listTags(team, applicationId);
         if (tags.isEmpty()) {
-            violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-                    event).build());
+            violationSink.put(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEventId(
+                    getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
         } else {
             String value = tags.get(applicationVersion);
             if (value == null) {
-                violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
-                        .withEvent(event).build());
+                violationSink.put(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
+                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                        .withAccoundId(getCloudTrailEventAccountId(event)).build());
             }
         }
-
-        // TODO, this code is hard to read, please refactor it
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(
-// fromHttpUrl(pieroneApplicationUrl).buildAndExpand(team, applicationId).toUri()).accept(
-// APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source))
-// .withEvent(event).build());
-// return;
-// }
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-// event).build());
-// } else if (response != null && response.getBody().get(applicationVersion) == null) {
-// violationStore.save(new ViolationBuilder(format("Source: %s is not present in pierone.", source)).withEvent(
-// event).build());
-// }
     }
 
     private Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
@@ -206,28 +162,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         Application application = kioOperations.getApplicationById(applicationId);
 
         return application;
-
-            // TODO, don't get the point, hard to read
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(fromHttpUrl(kioApplicationUrl).buildAndExpand(applicationId).toUri())
-// .accept(APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(
-// new ViolationBuilder(format("Application: %s is not registered in kio.", applicationId)).withEvent(
-// event).build());
-// return null;
-// }
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(new ViolationBuilder(
-// format("Application: %s is not registered in kio.", applicationId)).withEvent(event).build());
-// }
-//
-// return response;
     }
 
     private Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
@@ -237,32 +171,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         return version;
 
-            // TODO, same as above
-
-// ResponseEntity<JsonNode> response = null;
-// try {
-// response = restTemplate.exchange(get(
-// fromHttpUrl(kioApplicationVersionUrl).buildAndExpand(applicationId, applicationVersion).toUri())
-// .accept(APPLICATION_JSON).build(), JsonNode.class);
-// } catch (HttpClientErrorException e) {
-// if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-// violationStore.save(
-// new ViolationBuilder(
-// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-// applicationId)).withEvent(event).build());
-// return null;
-// }
-//
-// }
-//
-// if (response != null && !response.getStatusCode().is2xxSuccessful()) {
-// violationStore.save(
-// new ViolationBuilder(
-// format("Version: %s for Application: %s is not registered in kio.", applicationVersion,
-// applicationId)).withEvent(event).build());
-// }
-//
-// return response;
     }
 
     private Map getUserData(final CloudTrailEvent event, final String instanceId) {
@@ -280,16 +188,18 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
         } catch (AmazonServiceException e) {
             LOG.error(e.getMessage());
-            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
-                    .withEvent(event).build());
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-            violationStore.save(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
-                    .withEvent(event).build());
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", instanceId))
+                    .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
+                    getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -305,12 +215,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationId = (String) userDataMap.get(APPLICATION_ID);
 
         if (applicationId == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'application_id' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -321,12 +232,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String applicationVersion = (String) userDataMap.get(APPLICATION_VERSION);
 
         if (applicationVersion == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'application_version' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 
@@ -338,12 +250,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         String source = (String) userDataMap.get(SOURCE);
 
         if (source == null) {
-            violationStore.save(
+            violationSink.put(
                 new ViolationBuilder(
                     format(
                         "No 'source' defined for this instance %s, "
                             + "please change the userData configuration for this instance and add this information.",
-                        instanceId)).withEvent(event).build());
+                        instanceId)).withEventId(getCloudTrailEventId(event)).withRegion(
+                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         }
 

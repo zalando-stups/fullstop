@@ -1,7 +1,7 @@
-#
-#
-#
 spring:
+    oauth2:
+        resource:
+            tokenInfoUri: ${TOKEN_INFO_URI}
     datasource:
         url: ${DATABASE_URL}
         username: ${DATABASE_USER}
@@ -90,10 +90,18 @@ tokens:
     token-configuration-list:
         - tokenId: kio
           scopes:
-              - write_all
               - uid
         - tokenId: pierone
           scopes:
-              - write_all
               - uid
 
+
+javax:
+    persistence:
+        validation:
+            # force validation - fail fast if something goes wrong
+            mode: CALLBACK
+            group:
+                pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly

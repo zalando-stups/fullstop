@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,20 +29,20 @@ import org.junit.Test;
 
 import org.mockito.Mockito;
 
-import org.zalando.stups.fullstop.violation.ViolationStore;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.identitymanagement.model.ListUsersResult;
 import com.amazonaws.services.identitymanagement.model.User;
 
 public class NoPasswordJobTest {
 
-    private ViolationStore violationStore;
+    private ViolationSink violationSink;
 
     private IdentityManagementDataSource identityManagementDataSource;
 
     @Before
     public void setUp() {
-        violationStore = mock(ViolationStore.class);
+        violationSink = mock(ViolationSink.class);
         identityManagementDataSource = mock(IdentityManagementDataSource.class);
     }
 
@@ -52,12 +52,12 @@ public class NoPasswordJobTest {
         Mockito.when(identityManagementDataSource.getListUsersResultPerAccountWithTuple()).thenReturn(
             getListUsersResultPerAccount());
 
-        NoPasswordsJob job = new NoPasswordsJob(violationStore, identityManagementDataSource);
+        NoPasswordsJob job = new NoPasswordsJob(violationSink, identityManagementDataSource);
 
         job.check();
 
         verify(identityManagementDataSource, atLeastOnce()).getListUsersResultPerAccountWithTuple();
-        verify(violationStore, atLeastOnce()).save(Mockito.any());
+        verify(violationSink, atLeastOnce()).put(Mockito.any());
     }
 
     protected List<Tuple<String, ListUsersResult>> getListUsersResultPerAccount() {
