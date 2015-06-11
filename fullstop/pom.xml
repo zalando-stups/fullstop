@@ -92,11 +92,12 @@
             <artifactId>fullstop-ami-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-registry-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--not working, so deactivated-->
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>fullstop-registry-plugin</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-keypair-plugin</artifactId>
