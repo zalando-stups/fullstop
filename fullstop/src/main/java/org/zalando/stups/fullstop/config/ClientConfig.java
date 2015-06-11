@@ -17,20 +17,25 @@ package org.zalando.stups.fullstop.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
+
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
-import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 @Configuration
 public class ClientConfig {
@@ -54,7 +59,8 @@ public class ClientConfig {
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("kio", accessTokens));
+        restTemplate.setAccessTokenProvider((new StupsAccessTokenProvider(
+                    new AutoRefreshTokenProvider("kio", accessTokens))));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return new RestTemplateKioOperations(restTemplate, kioBaseUrl);
@@ -70,7 +76,8 @@ public class ClientConfig {
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("pierone", accessTokens));
+        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
+                new AutoRefreshTokenProvider("pierone", accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return new RestTemplatePieroneOperations(restTemplate, pieroneBaseUrl);
