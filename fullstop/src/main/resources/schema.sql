@@ -17,3 +17,5 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   -- TODO: we should think about that
   CONSTRAINT unique_violation UNIQUE (account_id, region, event_id, message)
 );
+
+--ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
