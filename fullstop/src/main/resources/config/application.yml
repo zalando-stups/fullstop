@@ -1,4 +1,12 @@
 spring:
+    # JACKSON (JacksonProperties)
+    jackson:
+        property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+        date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+        serialization:
+              write-dates-as-timestamps: false
+        deserialization:
+            fail-on-unknown-properties: false
     oauth2:
         resource:
             tokenInfoUri: ${TOKEN_INFO_URI}

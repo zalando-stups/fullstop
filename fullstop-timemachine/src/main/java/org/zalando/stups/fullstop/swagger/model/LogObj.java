@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
@@ -24,7 +23,6 @@ import org.zalando.stups.fullstop.s3.LogType;
 import java.util.Date;
 
 @ApiModel(description = "")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class LogObj {
 
     private LogType logType = null;

@@ -15,15 +15,12 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 @ApiModel(description = "")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Violation {
 
     private Long id = null;
@@ -42,11 +39,11 @@ public class Violation {
 
     private String comment = null;
 
-    private Date created = null;
+    private DateTime created = null;
 
     private String createdBy = null;
 
-    private Date lastModified = null;
+    private DateTime lastModified = null;
 
     private String lastModifiedBy = null;
 
@@ -73,7 +70,7 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("eventId")
+    @JsonProperty("event_id")
     public String getEventId() {
         return eventId;
     }
@@ -85,7 +82,7 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("accountId")
+    @JsonProperty("account_id")
     public String getAccountId() {
         return accountId;
     }
@@ -121,7 +118,7 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("violationObject")
+    @JsonProperty("violation_object")
     public Object getViolationObject() {
         return violationObject;
     }
@@ -146,11 +143,11 @@ public class Violation {
      **/
     @ApiModelProperty(value = "")
     @JsonProperty("created")
-    public Date getCreated() {
+    public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(DateTime created) {
         this.created = created;
     }
 
@@ -170,11 +167,11 @@ public class Violation {
      **/
     @ApiModelProperty(value = "")
     @JsonProperty("last_modified")
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
+    public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
     }
 

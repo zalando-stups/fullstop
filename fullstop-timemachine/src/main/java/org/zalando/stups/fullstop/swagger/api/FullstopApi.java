@@ -125,9 +125,9 @@ public class FullstopApi {
             violation.setId(entity.getId());
             violation.setVersion(entity.getVersion());
 
-            violation.setCreated(entity.getCreated().toDate());
+            violation.setCreated(entity.getCreated());
             violation.setCreatedBy(entity.getCreatedBy());
-            violation.setLastModified(entity.getLastModified().toDate());
+            violation.setLastModified(entity.getLastModified());
             violation.setLastModifiedBy(entity.getLastModifiedBy());
 
             violation.setAccountId(entity.getAccountId());
