@@ -15,15 +15,11 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 @ApiModel(description = "")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Violation {
 
     private Long id = null;
@@ -42,16 +38,15 @@ public class Violation {
 
     private String comment = null;
 
-    private Date created = null;
+    private DateTime created = null;
 
     private String createdBy = null;
 
-    private Date lastModified = null;
+    private DateTime lastModified = null;
 
     private String lastModifiedBy = null;
 
     @ApiModelProperty(value = "")
-    @JsonProperty("id")
     public Long getId() {
         return id;
     }
@@ -61,7 +56,6 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    @JsonProperty("version")
     public Long getVersion() {
         return version;
     }
@@ -73,7 +67,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("eventId")
     public String getEventId() {
         return eventId;
     }
@@ -85,7 +78,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("accountId")
     public String getAccountId() {
         return accountId;
     }
@@ -97,7 +89,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("region")
     public String getRegion() {
         return region;
     }
@@ -109,7 +100,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("message")
     public String getMessage() {
         return message;
     }
@@ -121,7 +111,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("violationObject")
     public Object getViolationObject() {
         return violationObject;
     }
@@ -133,7 +122,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("comment")
     public String getComment() {
         return comment;
     }
@@ -145,19 +133,17 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("created")
-    public Date getCreated() {
+    public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(DateTime created) {
         this.created = created;
     }
 
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("created_by")
     public String getCreatedBy() {
         return createdBy;
     }
@@ -169,19 +155,17 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("last_modified")
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
+    public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("last_modified_by")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }

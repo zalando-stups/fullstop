@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.zalando.stups.fullstop.s3.LogType;
@@ -24,7 +22,6 @@ import org.zalando.stups.fullstop.s3.LogType;
 import java.util.Date;
 
 @ApiModel(description = "")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class LogObj {
 
     private LogType logType = null;
@@ -42,7 +39,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("log_type")
     public LogType getLogType() {
         return logType;
     }
@@ -54,7 +50,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("instance_id")
     public String getInstanceId() {
         return instanceId;
     }
@@ -66,7 +61,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("account_id")
     public String getAccountId() {
         return accountId;
     }
@@ -78,7 +72,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("region")
     public String getRegion() {
         return region;
     }
@@ -90,7 +83,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("instance_boot_time")
     public Date getInstanceBootTime() {
         return instanceBootTime;
     }
@@ -102,7 +94,6 @@ public class LogObj {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("log_data")
     public String getLogData() {
         return logData;
     }
