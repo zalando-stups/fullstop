@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.swagger.api;
 
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,7 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -103,6 +105,11 @@ public class FullstopApiTest extends RestControllerTestSupport {
         logObjRequest.setRegion(REGION);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(violationServiceMock);
+    }
+
     @Test
     public void testInstanceLogs() throws Exception {
 
@@ -125,7 +132,29 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
+
         resultActions.andExpect(jsonPath("$").value(hasSize(1)));
+
+        verify(violationServiceMock).queryViolations(isNull(List.class),isNull(DateTime.class),isNull(Long.class),isNull(Boolean.class),any());
+    }
+
+    @Test
+    public void testViolationsWithParams() throws Exception {
+
+        DateTime dateTime = new DateTime(UTC);
+        long lastViolation = 0L;
+
+        when(violationServiceMock.queryViolations(eq(newArrayList("123")), any(DateTime.class), eq(lastViolation), eq(true), any()))
+                .thenReturn(new PageImpl<>(newArrayList(violationResult)));
+
+        ResultActions resultActions = this.mockMvc.perform(
+                get("/api/violations?accounts=123&checked=true&last-violation=0&since=" + dateTime))
+                .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
+
+        resultActions.andExpect(jsonPath("$").value(hasSize(1)));
+
+        verify(violationServiceMock).queryViolations(eq(newArrayList("123")),any(DateTime.class),eq(lastViolation),eq(
+                true),any());
     }
 
     @Test
@@ -134,6 +163,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         violationRequest.setComment("my comment");
 
         when(violationServiceMock.findOne(any(Long.class))).thenReturn(violationResult);
+        doNothing().when(violationServiceMock).save(eq(violationResult));
 
         String message = "test";
 
@@ -142,6 +172,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
         this.mockMvc.perform(post("/api/violations/156/resolution").contentType(MediaType.APPLICATION_JSON).content(
                 bytes)).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
+
+        verify(violationServiceMock).findOne(eq(156L));
+        verify(violationServiceMock).save(eq(violationResult));
     }
 
     @Override

@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.violation.service;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +35,6 @@ public interface ViolationService {
 
     ViolationEntity findOne(Long id);
 
-    Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked,
+    Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
             Pageable pageable);
 }

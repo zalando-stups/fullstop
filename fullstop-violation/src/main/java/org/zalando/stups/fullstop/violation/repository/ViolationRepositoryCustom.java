@@ -15,12 +15,12 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +29,6 @@ import java.util.List;
 @Repository
 public interface ViolationRepositoryCustom {
 
-    Page<ViolationEntity> queryViolations(List<String> accounts, Date since, Long lastViolation, Boolean checked,
+    Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
             Pageable pageable);
 }
