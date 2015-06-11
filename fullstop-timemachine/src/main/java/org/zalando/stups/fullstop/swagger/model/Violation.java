@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
@@ -48,7 +47,6 @@ public class Violation {
     private String lastModifiedBy = null;
 
     @ApiModelProperty(value = "")
-    @JsonProperty("id")
     public Long getId() {
         return id;
     }
@@ -58,7 +56,6 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    @JsonProperty("version")
     public Long getVersion() {
         return version;
     }
@@ -70,7 +67,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("event_id")
     public String getEventId() {
         return eventId;
     }
@@ -82,7 +78,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("account_id")
     public String getAccountId() {
         return accountId;
     }
@@ -94,7 +89,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("region")
     public String getRegion() {
         return region;
     }
@@ -106,7 +100,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("message")
     public String getMessage() {
         return message;
     }
@@ -118,7 +111,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("violation_object")
     public Object getViolationObject() {
         return violationObject;
     }
@@ -130,7 +122,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("comment")
     public String getComment() {
         return comment;
     }
@@ -142,7 +133,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("created")
     public DateTime getCreated() {
         return created;
     }
@@ -154,7 +144,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("created_by")
     public String getCreatedBy() {
         return createdBy;
     }
@@ -166,7 +155,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("last_modified")
     public DateTime getLastModified() {
         return lastModified;
     }
@@ -178,7 +166,6 @@ public class Violation {
     /**
      **/
     @ApiModelProperty(value = "")
-    @JsonProperty("last_modified_by")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
