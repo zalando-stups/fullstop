@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
