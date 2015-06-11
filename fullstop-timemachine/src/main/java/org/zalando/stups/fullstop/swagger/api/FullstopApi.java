@@ -89,7 +89,6 @@ public class FullstopApi {
             final Boolean checked,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
-        logger.info("this is my username: {}", uid);
 
         Page<ViolationEntity> backendViolations = violationService.queryViolations(accounts, since, lastViolation,
                 checked, pageable);
