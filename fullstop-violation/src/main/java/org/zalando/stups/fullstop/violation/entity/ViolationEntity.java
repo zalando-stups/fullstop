@@ -41,7 +41,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
     private String comment;
 
     public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject,
-            String comment, Boolean resolved) {
+            String comment) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
