@@ -15,17 +15,23 @@
  */
 package org.zalando.stups.fullstop.violation.reactor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
 /**
  * Uses the {@link EventBus} to transport Violations to interested Consumers.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class EventBusViolationSink implements ViolationSink {
+
+    private final Logger log = LoggerFactory.getLogger(EventBusViolationSink.class);
 
     private final String DEFAULT_VIOLATIONS_TOPIC = "/violations";
 
@@ -37,7 +43,9 @@ public class EventBusViolationSink implements ViolationSink {
 
     @Override
     public void put(final Violation violation) {
+        log.info("PUT VIOLATION INTO EVENTBUS");
         eventBus.notify(DEFAULT_VIOLATIONS_TOPIC, Event.wrap(violation));
+        log.info("VIOLATION IN EVENTBUS");
     }
 
 }

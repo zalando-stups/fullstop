@@ -15,17 +15,22 @@
  */
 package org.zalando.stups.fullstop.plugin.count;
 
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Maps;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+
+import com.google.common.collect.Maps;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 @Component
 public class CountEventsMetric {
@@ -39,6 +44,10 @@ public class CountEventsMetric {
     @Autowired
     public CountEventsMetric(final MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
+
+        ConsoleReporter reporter = ConsoleReporter.forRegistry(this.metricRegistry).convertRatesTo(TimeUnit.SECONDS)
+                                                  .convertDurationsTo(TimeUnit.MILLISECONDS).build();
+        reporter.start(10, TimeUnit.SECONDS);
     }
 
     public Map<String, Meter> getEventMeters() {
@@ -55,8 +64,7 @@ public class CountEventsMetric {
             m = meters.get(name);
             if (m != null) {
                 return m;
-            }
-            else {
+            } else {
                 Meter created = metricRegistry.meter(name);
                 meters.put(name, created);
                 return created;
