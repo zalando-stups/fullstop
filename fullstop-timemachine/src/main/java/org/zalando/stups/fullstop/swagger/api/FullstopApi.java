@@ -38,7 +38,6 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -54,7 +53,11 @@ public class FullstopApi {
 
     private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
 
-    private static final Function<ViolationEntity, Violation> TO_DTO = entity -> mapToDto(entity);
+    @Autowired
+    private S3Service s3Writer;
+
+    @Autowired
+    private ViolationService violationService;
 
     private static Violation mapToDto(ViolationEntity entity) {
         Violation violation = new Violation();
@@ -75,12 +78,6 @@ public class FullstopApi {
         violation.setViolationObject(entity.getViolationObject());
         return violation;
     }
-
-    @Autowired
-    private S3Service s3Writer;
-
-    @Autowired
-    private ViolationService violationService;
 
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
@@ -141,7 +138,7 @@ public class FullstopApi {
                 backendViolations.getSize(),
                 backendViolations.getSort());
         return new PageImpl<>(
-                backendViolations.getContent().stream().map(TO_DTO).collect(toList()),
+                backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
                 currentPageRequest,
                 backendViolations.getTotalElements());
     }
