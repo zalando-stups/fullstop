@@ -15,34 +15,46 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.wordnik.swagger.annotations.*;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
@@ -51,6 +63,26 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FullstopApi {
 
     private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
+
+    private static final Function<ViolationEntity, Violation> TO_DTO = entity -> {
+        Violation violation = new Violation();
+
+        violation.setId(entity.getId());
+        violation.setVersion(entity.getVersion());
+
+        violation.setCreated(entity.getCreated());
+        violation.setCreatedBy(entity.getCreatedBy());
+        violation.setLastModified(entity.getLastModified());
+        violation.setLastModifiedBy(entity.getLastModifiedBy());
+
+        violation.setAccountId(entity.getAccountId());
+        violation.setEventId(entity.getEventId());
+        violation.setMessage(entity.getMessage());
+        violation.setRegion(entity.getRegion());
+        violation.setComment(entity.getComment());
+        violation.setViolationObject(entity.getViolationObject());
+        return violation;
+    };
 
     @Autowired
     private S3Service s3Writer;
@@ -73,7 +105,7 @@ public class FullstopApi {
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "List of all violations") })
     @RequestMapping(value = "/violations", method = RequestMethod.GET)
-    public List<Violation> violations(
+    public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
             @RequestParam(value = "accounts", required = false)
             final List<String> accounts,
@@ -89,11 +121,8 @@ public class FullstopApi {
             final Boolean checked,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
-
-        Page<ViolationEntity> backendViolations = violationService.queryViolations(accounts, since, lastViolation,
-                checked, pageable);
-
-        return mapBackendToFrontendViolations(backendViolations.getContent());
+        return mapBackendToFrontendViolations(violationService.queryViolations(accounts, since, lastViolation,
+                checked, pageable));
     }
 
     @ApiOperation(
@@ -115,30 +144,14 @@ public class FullstopApi {
         return new ResponseEntity<>(OK);
     }
 
-    private List<Violation> mapBackendToFrontendViolations(final List<ViolationEntity> backendViolations) {
-        List<Violation> frontendViolations = newArrayList();
-
-        for (ViolationEntity entity : backendViolations) {
-            Violation violation = new Violation();
-
-            violation.setId(entity.getId());
-            violation.setVersion(entity.getVersion());
-
-            violation.setCreated(entity.getCreated());
-            violation.setCreatedBy(entity.getCreatedBy());
-            violation.setLastModified(entity.getLastModified());
-            violation.setLastModifiedBy(entity.getLastModifiedBy());
-
-            violation.setAccountId(entity.getAccountId());
-            violation.setEventId(entity.getEventId());
-            violation.setMessage(entity.getMessage());
-            violation.setRegion(entity.getRegion());
-            violation.setComment(entity.getComment());
-            violation.setViolationObject(entity.getViolationObject());
-            frontendViolations.add(violation);
-        }
-
-        return frontendViolations;
+    private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
+        final PageRequest currentPageRequest = new PageRequest(backendViolations.getNumber(),
+                backendViolations.getSize(),
+                backendViolations.getSort());
+        return new PageImpl<>(
+                backendViolations.getContent().stream().map(TO_DTO).collect(toList()),
+                currentPageRequest,
+                backendViolations.getTotalElements());
     }
 
     private void saveLog(final LogObj instanceLog) {

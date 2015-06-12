@@ -15,6 +15,30 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.joda.time.DateTimeZone.UTC;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
+import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
+import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,22 +61,6 @@ import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
-
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.joda.time.DateTimeZone.UTC;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
-import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
-import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
 
 /**
  * Created by mrandi.
@@ -128,12 +137,12 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testViolations() throws Exception {
         when(violationServiceMock.queryViolations(any(), any(), any(), any(), any())).thenReturn(new PageImpl<>(
-                newArrayList(violationResult)));
+                newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
         ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
                 MockMvcResultHandlers.print());
 
-        resultActions.andExpect(jsonPath("$").value(hasSize(1)));
+        resultActions.andExpect(jsonPath("$.content").value(hasSize(1)));
 
         verify(violationServiceMock).queryViolations(isNull(List.class),isNull(DateTime.class),isNull(Long.class),isNull(Boolean.class),any());
     }
@@ -145,13 +154,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
         long lastViolation = 0L;
 
         when(violationServiceMock.queryViolations(eq(newArrayList("123")), any(DateTime.class), eq(lastViolation), eq(true), any()))
-                .thenReturn(new PageImpl<>(newArrayList(violationResult)));
+                .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
         ResultActions resultActions = this.mockMvc.perform(
                 get("/api/violations?accounts=123&checked=true&last-violation=0&since=" + dateTime))
                 .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
 
-        resultActions.andExpect(jsonPath("$").value(hasSize(1)));
+        resultActions.andExpect(jsonPath("$.content").value(hasSize(1)));
 
         verify(violationServiceMock).queryViolations(eq(newArrayList("123")),any(DateTime.class),eq(lastViolation),eq(
                 true),any());
