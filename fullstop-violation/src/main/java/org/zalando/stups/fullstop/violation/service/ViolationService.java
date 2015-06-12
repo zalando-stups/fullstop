@@ -31,7 +31,7 @@ public interface ViolationService {
 
     List<ViolationEntity> findAll();
 
-    void save(ViolationEntity violation);
+    ViolationEntity save(ViolationEntity violation);
 
     ViolationEntity findOne(Long id);
 

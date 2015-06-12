@@ -15,22 +15,7 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
-
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +29,22 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
@@ -64,7 +54,9 @@ public class FullstopApi {
 
     private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
 
-    private static final Function<ViolationEntity, Violation> TO_DTO = entity -> {
+    private static final Function<ViolationEntity, Violation> TO_DTO = entity -> mapToDto(entity);
+
+    private static Violation mapToDto(ViolationEntity entity) {
         Violation violation = new Violation();
 
         violation.setId(entity.getId());
@@ -82,7 +74,7 @@ public class FullstopApi {
         violation.setComment(entity.getComment());
         violation.setViolationObject(entity.getViolationObject());
         return violation;
-    };
+    }
 
     @Autowired
     private S3Service s3Writer;
@@ -130,7 +122,7 @@ public class FullstopApi {
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Violation resolved successfully") })
     @RequestMapping(value = "/violations/{id}/resolution", method = RequestMethod.POST)
-    public ResponseEntity<Void> resolveViolations(
+    public Violation resolveViolations(
             @ApiParam(value = "", required = true)
             @PathVariable("id")
             final Long id,
@@ -139,9 +131,9 @@ public class FullstopApi {
         ViolationEntity violation = violationService.findOne(id);
 
         violation.setComment(message);
-        violationService.save(violation);
+        ViolationEntity dbViolationEntity = violationService.save(violation);
 
-        return new ResponseEntity<>(OK);
+        return mapToDto(dbViolationEntity);
     }
 
     private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
