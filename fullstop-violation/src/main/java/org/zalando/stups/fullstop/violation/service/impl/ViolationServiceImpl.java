@@ -46,8 +46,8 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
-    public void save(ViolationEntity violation) {
-        violationRepository.save(violation);
+    public ViolationEntity save(ViolationEntity violation) {
+        return violationRepository.save(violation);
     }
 
     @Override
