@@ -18,7 +18,6 @@ package org.zalando.stups.fullstop.swagger.api;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
@@ -172,7 +171,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         violationRequest.setComment("my comment");
 
         when(violationServiceMock.findOne(any(Long.class))).thenReturn(violationResult);
-        doNothing().when(violationServiceMock).save(eq(violationResult));
+        when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
 
         String message = "test";
 
