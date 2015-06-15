@@ -157,7 +157,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
             tags = this.pieroneOperations.listTags(team, applicationId);
         } catch (HttpClientErrorException e) {
-            LOG.error("Could not get the tags for team {} and applicationId {}", team, applicationId, e);
+            LOG.warn("Could not get the tags for team {} and applicationId {}", team, applicationId, e);
         }
 
         if (tags.isEmpty()) {
@@ -186,7 +186,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     getCloudTrailEventAccountId(event)).build());
             return null;
         } catch (HttpClientErrorException e) {
-            LOG.error("Error when trying to get Application {} from Kio", applicationId, e);
+            LOG.warn("Error when trying to get Application {} from Kio", applicationId, e);
             return null;
         }
 
@@ -206,7 +206,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
             return null;
         } catch (HttpClientErrorException e) {
-            LOG.error("Error when trying to get Application {} with Version {} from Kio", applicationId,
+            LOG.warn("Error when trying to get Application {} with Version {} from Kio", applicationId,
                 applicationVersion, e);
             return null;
         }

@@ -43,9 +43,9 @@ public class EventBusViolationSink implements ViolationSink {
 
     @Override
     public void put(final Violation violation) {
-        log.info("PUT VIOLATION INTO EVENTBUS");
+        log.debug("PUT VIOLATION INTO EVENTBUS");
         eventBus.notify(DEFAULT_VIOLATIONS_TOPIC, Event.wrap(violation));
-        log.info("VIOLATION IN EVENTBUS");
+        log.debug("VIOLATION IN EVENTBUS");
     }
 
 }

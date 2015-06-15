@@ -42,10 +42,6 @@ public class CountEventsMetric {
     @Autowired
     public CountEventsMetric(final MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
-
-// ConsoleReporter reporter = ConsoleReporter.forRegistry(this.metricRegistry).convertRatesTo(TimeUnit.SECONDS)
-// .convertDurationsTo(TimeUnit.MILLISECONDS).build();
-// reporter.start(10, TimeUnit.SECONDS);
     }
 
     public Map<String, Meter> getEventMeters() {
