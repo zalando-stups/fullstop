@@ -168,3 +168,11 @@ paths:
           schema:
             $ref: "#/definitions/LogObj"
             description: log metadata and object
+            
+securityDefinitions:
+  oauth2:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: https://example.com/oauth2/dialog
+    scopes:
+      uid: Unique identifier of the user accessing the service.
