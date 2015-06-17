@@ -17,6 +17,8 @@ package org.zalando.fullstop.violation.persist.jpa.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.boot.actuate.metrics.CounterService;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,8 +42,11 @@ public class ViolationJpaPersisterAutoConfiguration {
     @Autowired
     private ViolationRepository violationRepository;
 
+    @Autowired
+    private CounterService counterService;
+
     @Bean
     public ViolationJpaPersister violationJpaPersister() {
-        return new ViolationJpaPersister(eventBus, violationRepository);
+        return new ViolationJpaPersister(eventBus, violationRepository, counterService);
     }
 }
