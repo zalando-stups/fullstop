@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>kio-client-java-spring</artifactId>
-            <version>0.9.0</version>
+            <version>0.9.1</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
