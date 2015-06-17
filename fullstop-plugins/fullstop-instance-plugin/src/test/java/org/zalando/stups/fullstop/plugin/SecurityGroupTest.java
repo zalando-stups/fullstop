@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,22 +15,17 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PRIVATE_IP_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
-
-import org.junit.Test;
-
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class SecurityGroupTest {
 

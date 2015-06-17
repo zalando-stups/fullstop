@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.util.stream.Collectors.toList;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.PUBLIC_IP_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
-import static org.zalando.stups.fullstop.plugin.Bool.not;
-import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,33 +39,15 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.AmazonClientException;
-
-import com.amazonaws.regions.Region;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
-import com.google.common.collect.Sets;
+import static java.util.stream.Collectors.toList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
+import static org.zalando.stups.fullstop.plugin.Bool.not;
+import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class RunInstancePlugin extends AbstractFullstopPlugin {
@@ -67,6 +55,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(RunInstancePlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
+
     private static final String EVENT_NAME = "RunInstances";
 
     private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
@@ -163,7 +152,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             throw new RuntimeException(String.format(
                     "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
                     region.toString()));
-        } else {
+        }
+        else {
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
@@ -171,7 +161,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
 
                 return Optional.of(result.getSecurityGroups());
-            } catch (AmazonClientException e) {
+            }
+            catch (AmazonClientException e) {
 
                 // TODO, better ways?
                 String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",

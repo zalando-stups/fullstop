@@ -19,10 +19,18 @@ definitions:
   Violation:
     type: object
     properties:
+      id:
+        type: integer
+        format: int64
+        example: 1
+      version:
+        type: integer
+        format: int64
+        example: 3
       eventId:
         type: string
         example: cd768599e1bb41c38279c26254feff5cf57bf967
-      account-id:
+      account_id:
         type: string
         example: 123456789
       region:
@@ -31,56 +39,52 @@ definitions:
       message:
         type: string
         example: "The instance i-3w4fdsa is running in the wrong region"
-      violationObject:
+      violation_object:
         type: object
         example: ""
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
-      resolved:
-        type: boolean
-        example: "true"
-      resolution:
-        $ref: "#/definitions/Resolution"
+      created:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      created_by:
+        type: string
+        example: "John Die"
+      last_modified:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      last_modified_by:
+        type: string
+        example: "John Dae"
+
 
   LogObj:
     type: object
     properties:
-      log-type:
+      log_type:
         type: string
         enum:
           - AUDIT_LOG
           - USER_DATA
-      instance-id:
+      instance_id:
         type: string
         example: "i-123kd"
-      account-id:
+      account_id:
         type: string
         example: "1233456568"
       region:
         type: string
         example: "eu-west-1"
-      instance-boot-time:
+      instance_boot_time:
         type: string
         format: date-time
         example: 2015-05-21T10:24:47.788-02:00
-      log-data:
+      log_data:
         type: string
         example: ""
-
-  Resolution:
-    type: object
-    properties:
-      user:
-        type: string
-        example: npiccolotto
-      message:
-        type: string
-        example: "Was a patch on Friday and I was alone in the office"
-      timestamp:
-        type: string
-        format: date-time
-        example: 2015-05-21T10:24:47.788-02:00
 
 paths:
 
@@ -107,7 +111,7 @@ paths:
           type: string
           format: date-time
           description: Include only violations that happened after this point in time
-        - name: last_violation
+        - name: last-violation
           in: query
           required: false
           type: integer
@@ -126,48 +130,13 @@ paths:
             items:
               $ref: "#/definitions/Violation"
 
-  /api/account-ids:
-    get:
-      summary: accountIds
-      description: Get all account ids
-      tags:
-        - Fullstop API
-      operationId: account-id
-      responses:
-        "200":
-          description: List of all account Ids
-          schema:
-            type: array
-            items:
-              type: string
-
-  /api/account-violations/{account-id}:
-    get:
-      summary: Violations for one account
-      description: Get all violations for one account
-      tags:
-        - Fullstop API
-      operationId: accountViolations
-      parameters:
-        - name: account-id
-          in: path
-          type: string
-          required: true
-      responses:
-        "200":
-          description: List of all violations for one account
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Violation"
-
   /api/violations/{id}/resolution:
     post:
       summary: Resolve and explain this violation
       description: Resolve and explain violation
       tags:
         - Fullstop API
-      operationId: resolvedViolations
+      operationId: resolveViolations
       responses:
         "200":
           description: Violation resolved successfully

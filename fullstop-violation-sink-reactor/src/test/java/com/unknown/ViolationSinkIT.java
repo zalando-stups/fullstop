@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,7 @@
  */
 package com.unknown;
 
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import com.unknown.comp.SimpleDemonstrationViolationHandler;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +26,16 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
 import reactor.bus.EventBus;
 import reactor.bus.selector.Selectors;
 
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Testing autoconfiguration.
- * 
+ *
  * @author jbellmann
  *
  */
@@ -54,7 +52,7 @@ public class ViolationSinkIT {
 
     @Autowired
     private SimpleDemonstrationViolationHandler handler;
-    
+
     private CountDownLatch latch;
 
     @Before
@@ -77,7 +75,7 @@ public class ViolationSinkIT {
         violationSink.put(vBuilder.build());
 
         latch.await(5, TimeUnit.SECONDS);
-        
+
         int count = handler.getCount();
         Assertions.assertThat(count).isGreaterThan(0);
     }

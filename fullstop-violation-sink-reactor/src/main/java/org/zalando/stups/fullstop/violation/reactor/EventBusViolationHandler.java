@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,18 @@ package org.zalando.stups.fullstop.violation.reactor;
 
 import org.springframework.context.SmartLifecycle;
 import org.zalando.stups.fullstop.violation.Violation;
-import org.zalando.stups.fullstop.violation.ViolationHandler;
 
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 import reactor.bus.registry.Registration;
 import reactor.bus.selector.Selectors;
-import reactor.fn.Consumer;
 
 /**
- * 
+ *
  * @author jbellmann
  *
  */
-public class EventBusViolationHandler implements SmartLifecycle {
+public abstract class EventBusViolationHandler implements SmartLifecycle {
 
     private final Object monitor = new Object();
 
@@ -42,12 +40,8 @@ public class EventBusViolationHandler implements SmartLifecycle {
 
     private Registration reg;
 
-    private final ViolationHandler delegate;
-
-    public EventBusViolationHandler(EventBus eventBus,
-            ViolationHandler delegate) {
+    public EventBusViolationHandler(EventBus eventBus) {
         this.eventBus = eventBus;
-        this.delegate = delegate;
     }
 
     protected void handleEvent(Event<?> event) {
@@ -59,9 +53,7 @@ public class EventBusViolationHandler implements SmartLifecycle {
         handleViolation(violation);
     }
 
-    protected void handleViolation(Violation violation) {
-        this.delegate.handle(violation);
-    }
+    public abstract void handleViolation(Violation violation);
 
     @Override
     public void start() {
@@ -113,12 +105,4 @@ public class EventBusViolationHandler implements SmartLifecycle {
         callback.run();
     }
 
-    private static final class InternalConsumer<T> implements Consumer<T> {
-
-        @Override
-        public void accept(T t) {
-
-        }
-
-    }
 }

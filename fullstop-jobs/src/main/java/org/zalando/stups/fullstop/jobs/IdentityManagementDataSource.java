@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,32 +15,26 @@
  */
 package org.zalando.stups.fullstop.jobs;
 
-import static com.google.common.collect.Lists.newArrayList;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
+import com.amazonaws.services.identitymanagement.model.ListUsersResult;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
-import com.amazonaws.services.identitymanagement.model.ListUsersResult;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 class IdentityManagementDataSource {
@@ -64,7 +58,8 @@ class IdentityManagementDataSource {
             if (identityClient != null) {
 
                 result.add(new Tuple<>(accountId, identityClient.listAccessKeys()));
-            } else {
+            }
+            else {
 
                 logger.error("Could not create 'AmazonIdentityManagementClient' for accountId : {}", accountId);
             }
@@ -82,7 +77,8 @@ class IdentityManagementDataSource {
             if (identityClient != null) {
 
                 result.add(new Tuple<>(accountId, identityClient.listUsers()));
-            } else {
+            }
+            else {
 
                 logger.error("Could not create 'AmazonIdentityManagementClient' for accountId : {}", accountId);
             }

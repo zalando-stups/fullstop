@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(NEVER)
 
-                // configure form login
+                        // configure form login
                 .and().formLogin().disable()
 
                 // configure logout
@@ -55,18 +55,17 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
 
                 .authorizeRequests()
 
-                    .antMatchers("/").permitAll()
-                    .antMatchers("/webjars/**").permitAll()
-                    .antMatchers("/swagger-resources").permitAll()
-                    .antMatchers("/api-docs").permitAll()
-                    .antMatchers("/health").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/webjars/**").permitAll()
+                .antMatchers("/swagger-resources").permitAll()
+                .antMatchers("/api-docs").permitAll()
+                .antMatchers("/health").permitAll()
 
                 // You MUST use Pre/Post authorize
                 .antMatchers("/api").denyAll()
 //                .antMatchers(GET, "/api/**").access("#oauth2.hasScope('uid')")
 //                .antMatchers(POST, "/api/**").access("#oauth2.hasScope('uid')")
                 .antMatchers(GET, "/s3/**").access("#oauth2.hasScope('uid')");
-
 
     }
 

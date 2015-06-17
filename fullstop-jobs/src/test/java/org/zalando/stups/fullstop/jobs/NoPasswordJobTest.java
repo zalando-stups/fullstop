@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,24 +15,18 @@
  */
 package org.zalando.stups.fullstop.jobs;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import com.amazonaws.services.identitymanagement.model.ListUsersResult;
+import com.amazonaws.services.identitymanagement.model.User;
+import org.assertj.core.util.Lists;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.Date;
 import java.util.List;
 
-import org.assertj.core.util.Lists;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.services.identitymanagement.model.ListUsersResult;
-import com.amazonaws.services.identitymanagement.model.User;
+import static org.mockito.Mockito.*;
 
 public class NoPasswordJobTest {
 
@@ -50,7 +44,7 @@ public class NoPasswordJobTest {
     public void testNoPasswordJob() {
 
         Mockito.when(identityManagementDataSource.getListUsersResultPerAccountWithTuple()).thenReturn(
-            getListUsersResultPerAccount());
+                getListUsersResultPerAccount());
 
         NoPasswordsJob job = new NoPasswordsJob(violationSink, identityManagementDataSource);
 
@@ -81,7 +75,8 @@ public class NoPasswordJobTest {
 
                 // the important thing
                 user.setPasswordLastUsed(new Date());
-            } else {
+            }
+            else {
 
                 user.setPasswordLastUsed(null);
             }

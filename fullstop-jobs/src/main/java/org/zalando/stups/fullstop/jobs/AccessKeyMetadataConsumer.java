@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,18 @@
  */
 package org.zalando.stups.fullstop.jobs;
 
-import static java.lang.String.format;
-
-import java.util.function.Consumer;
-
+import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import java.util.function.Consumer;
+
+import static java.lang.String.format;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {

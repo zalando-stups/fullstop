@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,9 @@
  */
 package org.zalando.fullstop.violation.persist.jpa;
 
-import org.zalando.stups.fullstop.violation.SystemOutViolationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
@@ -28,19 +30,13 @@ import reactor.bus.EventBus;
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
+    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
+
     private final ViolationRepository violationRepository;
 
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository) {
-        super(eventBus, new SystemOutViolationHandler());
+        super(eventBus);
         this.violationRepository = violationRepository;
-    }
-
-    @Override
-    protected void handleViolation(final Violation violation) {
-
-        ViolationEntity entity = buildViolationEntity(violation);
-
-        this.violationRepository.save(entity);
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -56,6 +52,15 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         entity.setRegion(violation.getRegion());
 
         return entity;
+    }
+
+    @Override
+    public void handleViolation(final Violation violation) {
+
+        ViolationEntity entity = buildViolationEntity(violation);
+
+        this.violationRepository.save(entity);
+        this.log.info("Save Violation with for eventId : {}", violation.getEventId());
     }
 
 }

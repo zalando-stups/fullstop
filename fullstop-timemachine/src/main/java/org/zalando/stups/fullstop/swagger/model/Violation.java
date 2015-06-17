@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,124 +13,185 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.swagger.model;
 
-
-import com.wordnik.swagger.annotations.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+import org.joda.time.DateTime;
 
 @ApiModel(description = "")
-public class Violation  {
-  
-  private String eventId = null;
-  private String accountId = null;
-  private String region = null;
-  private String message = null;
-  private Object violationObject = null;
-  private String comment = null;
-  private Boolean checked = null;
+public class Violation {
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("eventId")
-  public String getEventId() {
-    return eventId;
-  }
-  public void setEventId(String eventId) {
-    this.eventId = eventId;
-  }
+    private Long id = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("accountId")
-  public String getAccountId() {
-    return accountId;
-  }
-  public void setAccountId(String accountId) {
-    this.accountId = accountId;
-  }
+    private Long version = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("region")
-  public String getRegion() {
-    return region;
-  }
-  public void setRegion(String region) {
-    this.region = region;
-  }
+    private String eventId = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("message")
-  public String getMessage() {
-    return message;
-  }
-  public void setMessage(String message) {
-    this.message = message;
-  }
+    private String accountId = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("violationObject")
-  public Object getViolationObject() {
-    return violationObject;
-  }
-  public void setViolationObject(Object violationObject) {
-    this.violationObject = violationObject;
-  }
+    private String region = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("comment")
-  public String getComment() {
-    return comment;
-  }
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
+    private String message = null;
 
-  
-  /**
-   **/
-  @ApiModelProperty(value = "")
-  @JsonProperty("checked")
-  public Boolean getChecked() {
-    return checked;
-  }
-  public void setChecked(Boolean checked) {
-    this.checked = checked;
-  }
+    private Object violationObject = null;
 
-  
+    private String comment = null;
 
-  @Override
-  public String toString()  {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Violation {\n");
-    
-    sb.append("  eventId: ").append(eventId).append("\n");
-    sb.append("  accountId: ").append(accountId).append("\n");
-    sb.append("  region: ").append(region).append("\n");
-    sb.append("  message: ").append(message).append("\n");
-    sb.append("  violationObject: ").append(violationObject).append("\n");
-    sb.append("  comment: ").append(comment).append("\n");
-    sb.append("  checked: ").append(checked).append("\n");
-    sb.append("}\n");
-    return sb.toString();
-  }
+    private DateTime created = null;
+
+    private String createdBy = null;
+
+    private DateTime lastModified = null;
+
+    private String lastModifiedBy = null;
+
+    @ApiModelProperty(value = "")
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @ApiModelProperty(value = "")
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public Object getViolationObject() {
+        return violationObject;
+    }
+
+    public void setViolationObject(Object violationObject) {
+        this.violationObject = violationObject;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public DateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(DateTime created) {
+        this.created = created;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public DateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(DateTime lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    /**
+     **/
+    @ApiModelProperty(value = "")
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Violation {\n");
+
+        sb.append("  id: ").append(id).append("\n");
+        sb.append("  version: ").append(version).append("\n");
+        sb.append("  eventId: ").append(eventId).append("\n");
+        sb.append("  accountId: ").append(accountId).append("\n");
+        sb.append("  region: ").append(region).append("\n");
+        sb.append("  message: ").append(message).append("\n");
+        sb.append("  violationObject: ").append(violationObject).append("\n");
+        sb.append("  comment: ").append(comment).append("\n");
+        sb.append("  created: ").append(created).append("\n");
+        sb.append("  createdBy: ").append(createdBy).append("\n");
+        sb.append("  lastModified: ").append(lastModified).append("\n");
+        sb.append("  lastModifiedBy: ").append(lastModifiedBy).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
 }

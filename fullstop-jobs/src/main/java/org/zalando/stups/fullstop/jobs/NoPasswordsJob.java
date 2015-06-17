@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,27 +15,22 @@
  */
 package org.zalando.stups.fullstop.jobs;
 
-import static org.zalando.stups.fullstop.jobs.UsersPredicates.PASSWORD_LAST_USED_HAS_NON_NULL_DATE;
-
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import com.amazonaws.services.identitymanagement.model.ListUsersResult;
+import com.amazonaws.services.identitymanagement.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.identitymanagement.model.ListUsersResult;
-import com.amazonaws.services.identitymanagement.model.User;
+import javax.annotation.PostConstruct;
+import java.util.List;
+
+import static org.zalando.stups.fullstop.jobs.UsersPredicates.PASSWORD_LAST_USED_HAS_NON_NULL_DATE;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class NoPasswordsJob {

@@ -6,10 +6,15 @@
 
 ![swagger-validator](http://online.swagger.io/validator/?url=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml)
 
+[![Join the chat at https://gitter.im/zalando-stups/fullstop](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/zalando-stups/fullstop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 #Fullstop - Audit reporting
 
+###Fullstop AWS overview
 ![Fullstop](images/fullstop.png)
+###Fullstop Architecture overview
+![Fullstop Architecture](images/fullstop-architecture.png)
 
 Aim of the project is to enrich CloudTrail log events.
 
@@ -39,6 +44,7 @@ by all other accounts in order to perform this operations.
 * [fullstop-region-plugin](fullstop-plugins/fullstop-region-plugin)
 * [fullstop-registry-plugin](fullstop-plugins/fullstop-registry-plugin)
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
+* [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
 
 ##Configuration
 
@@ -111,6 +117,28 @@ for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/lates
 
     $ mvn clean install
 
+###License Header
+
+If your build fails because of missing license header:
+
+```
+...
+[INFO]
+[INFO] --- license-maven-plugin:2.10:check (default) @ fullstop-count-events-plugin ---
+[INFO] Checking licenses...
+[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/test/java/org/zalando/stups/fullstop/plugin/count/CountEventsPluginTest.java
+[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsPlugin.java
+[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsMetric.java
+...
+```
+
+then do the following command:
+
+```
+mvn license:format
+```
+
+
 ##How to run
 
     $ cd fullstop
@@ -149,12 +177,14 @@ Push docker image:
     
     $ mvn release:perform
 
+## Contributing
+Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
+
 ## Project TODO:
-- [ ] Oauth 2.0 spring configuration
-- [ ] Implement API for FE
-- [ ] Auditing on entity
+- [x] Oauth 2.0 spring configuration
+- [x] Implement API for FE
+- [x] Auditing on entity
 - [ ] Pageable
-- [ ] Plugin plugin plugin ;)
 - [ ] ...
 
 ## License

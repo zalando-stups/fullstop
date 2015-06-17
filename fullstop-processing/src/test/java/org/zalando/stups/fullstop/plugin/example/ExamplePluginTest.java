@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,29 +15,26 @@
  */
 package org.zalando.stups.fullstop.plugin.example;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.assertj.core.api.Assertions;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import org.springframework.plugin.metadata.PluginMetadata;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.plugin.metadata.PluginMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Simple test for the plugin itself. It should be possible to test a plugin completely.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 // @Ignore
 public class ExamplePluginTest {
 
     private CloudTrailEvent event;
+
     private CloudTrailEventData eventData;
 
     @Before

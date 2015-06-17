@@ -24,9 +24,9 @@
             <param name="ConversionPattern" value="%d %x %p %t %l: %m%n"/>
         </layout>
     </appender>
-    
+
     <logger name="org.zalando">
-    	<level value="DEBUG"/>
+        <level value="DEBUG"/>
     </logger>
 
     <root>

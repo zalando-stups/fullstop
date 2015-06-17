@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.builder;
 
 import com.google.common.base.Optional;
@@ -25,17 +24,19 @@ import static com.google.common.base.Optional.fromNullable;
 import static org.joda.time.DateTime.now;
 
 /**
- * @author  ahartmann
+ * @author ahartmann
  */
 @SuppressWarnings({ "unchecked", "unused" })
 public abstract class AbstractModifiableEntityBuilder<ENTITY_TYPE extends AbstractModifiableEntity, BUILDER_TYPE extends AbstractModifiableEntityBuilder>
-    extends AbstractCreatableEntityBuilder<ENTITY_TYPE, BUILDER_TYPE> {
+        extends AbstractCreatableEntityBuilder<ENTITY_TYPE, BUILDER_TYPE> {
 
     private static final String DEFAULT_MODIFIER = "unit.test";
 
     private Optional<DateTime> optionalLastModified = absent();
+
     private Optional<String> optionalLastModifiedBy = absent();
-    private Optional<Integer> optionalVersion = absent();
+
+    private Optional<Long> optionalVersion = absent();
 
     public AbstractModifiableEntityBuilder(final Class<ENTITY_TYPE> entityClass) {
         super(entityClass);
@@ -60,7 +61,7 @@ public abstract class AbstractModifiableEntityBuilder<ENTITY_TYPE extends Abstra
         return (BUILDER_TYPE) this;
     }
 
-    public BUILDER_TYPE version(final Integer version) {
+    public BUILDER_TYPE version(final Long version) {
         optionalVersion = fromNullable(version);
         return (BUILDER_TYPE) this;
     }

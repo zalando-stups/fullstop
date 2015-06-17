@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,15 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.util.function.Predicate;
-
-import org.assertj.core.api.Assertions;
-
-import org.junit.Test;
-
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+
+import java.util.function.Predicate;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class SecurityGroupPredicatesTest {
 
@@ -59,7 +57,7 @@ public class SecurityGroupPredicatesTest {
     @Test
     public void testWithSecurityGroupWithMultiIpPermissionAndAllShouldMatch() {
         Predicate<IpPermission> ipPermissionPredicate = IpPermissionPredicates.withToPort(22).or(IpPermissionPredicates
-                    .withToPort(443));
+                .withToPort(443));
         Predicate<SecurityGroup> predicate = SecurityGroupPredicates.allMatch(ipPermissionPredicate);
 
         SecurityGroup sg = buildSecurityGroup3();

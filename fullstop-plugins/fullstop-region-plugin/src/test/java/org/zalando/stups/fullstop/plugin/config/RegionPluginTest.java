@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,33 +15,30 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.UUID;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mockito;
-
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import java.util.UUID;
+
+import static org.mockito.Mockito.*;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class RegionPluginTest {
 
     private ViolationSink violationSink = new SystemOutViolationSink();
+
     ;
 
     private RegionPluginProperties regionPluginProperties;
@@ -70,7 +67,7 @@ public class RegionPluginTest {
 
     @Test
     public void testNonWhitelistedRegion() {
-        CloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", "us-west-1");
+        TestCloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", "us-west-1");
         UserIdentity userIdentity = new UserIdentity();
         userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
         data.add(CloudTrailEventField.userIdentity.name(), userIdentity);

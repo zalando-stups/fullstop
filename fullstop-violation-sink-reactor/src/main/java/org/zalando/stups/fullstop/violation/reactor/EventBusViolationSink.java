@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.zalando.stups.fullstop.violation.reactor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -28,7 +31,10 @@ import reactor.bus.EventBus;
  */
 public class EventBusViolationSink implements ViolationSink {
 
+    private final Logger log = LoggerFactory.getLogger(EventBusViolationSink.class);
+
     private final String DEFAULT_VIOLATIONS_TOPIC = "/violations";
+
     private final EventBus eventBus;
 
     public EventBusViolationSink(final EventBus eventBus) {
@@ -37,7 +43,9 @@ public class EventBusViolationSink implements ViolationSink {
 
     @Override
     public void put(final Violation violation) {
+        log.debug("PUT VIOLATION INTO EVENTBUS");
         eventBus.notify(DEFAULT_VIOLATIONS_TOPIC, Event.wrap(violation));
+        log.debug("VIOLATION IN EVENTBUS");
     }
 
 }

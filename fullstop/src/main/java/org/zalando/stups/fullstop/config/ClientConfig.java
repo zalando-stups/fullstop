@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,8 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
-import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -58,7 +59,8 @@ public class ClientConfig {
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("kio", accessTokens));
+        restTemplate.setAccessTokenProvider((new StupsAccessTokenProvider(
+                    new AutoRefreshTokenProvider("kio", accessTokens))));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return new RestTemplateKioOperations(restTemplate, kioBaseUrl);
@@ -74,7 +76,8 @@ public class ClientConfig {
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("pierone", accessTokens));
+        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
+                new AutoRefreshTokenProvider("pierone", accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return new RestTemplatePieroneOperations(restTemplate, pieroneBaseUrl);

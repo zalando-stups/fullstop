@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +15,14 @@
  */
 package org.zalando.stups.fullstop;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.AWSCloudTrailProcessingExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.SmartLifecycle;
-
 import org.springframework.stereotype.Component;
-
 import org.springframework.util.Assert;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.AWSCloudTrailProcessingExecutor;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class AwsCloudTrailProcessingExecutorContainer implements SmartLifecycle {
@@ -36,12 +32,12 @@ public class AwsCloudTrailProcessingExecutorContainer implements SmartLifecycle 
     @Autowired
     private FullstopContainerProperties fullstopContainerProperties = new FullstopContainerProperties();
 
+    private volatile boolean running = false;
+
     @Autowired
     public AwsCloudTrailProcessingExecutorContainer(final AWSCloudTrailProcessingExecutor executor) {
         this.executor = executor;
     }
-
-    private volatile boolean running = false;
 
     @Override
     public synchronized void start() {

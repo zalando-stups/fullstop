@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,18 +21,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.zalando.stups.fullstop.violation.Violation;
-import org.zalando.stups.fullstop.violation.ViolationHandler;
+import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
+
+import reactor.bus.EventBus;
 
 /**
  * @author  jbellmann
  */
-public class SimpleDemonstrationViolationHandler implements ViolationHandler {
+public class SimpleDemonstrationViolationHandler extends EventBusViolationHandler {
+
+    public SimpleDemonstrationViolationHandler(final EventBus eventBus) {
+        super(eventBus);
+    }
 
     private final Logger log = LoggerFactory.getLogger(SimpleDemonstrationViolationHandler.class);
+
     private AtomicInteger counter = new AtomicInteger();
 
-    @Override
-    public void handle(final Violation violation) {
+    public void handleViolation(final Violation violation) {
         counter.incrementAndGet();
         log.warn("HERE IT COMES FROM THE EVENT_BUS : {}", violation.toString());
     }

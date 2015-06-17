@@ -1,11 +1,11 @@
 /**
- * Copyright 2015 Zalando SE
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.controller;
 
 import com.amazonaws.regions.Region;
@@ -32,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
-import org.zalando.stups.fullstop.s3.S3Writer;
+import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.io.*;
 import java.util.List;
@@ -46,19 +45,19 @@ public class S3Controller {
 
     public static final String JSON_GZ = ".json.gz";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private static final String S3_REGION_KEY = "s3Region";
 
-    private PluginEventsProcessor pluginEventsProcessor;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties;
+
+    private PluginEventsProcessor pluginEventsProcessor;
 
     @Value("${fullstop.logging.dir}")
     private String fullstopLoggingDir;
 
     @Autowired
-    private S3Writer s3Writer;
+    private S3Service s3Writer;
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,
@@ -78,7 +77,8 @@ public class S3Controller {
 
         try {
             files = directory.listFiles();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new FileNotFoundException("You should download the file before read these.");
         }
 
@@ -103,7 +103,8 @@ public class S3Controller {
             log.info("Creating fullstop directory here: {}", fullstopLoggingDir);
 
             boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
-        } catch (SecurityException e) {
+        }
+        catch (SecurityException e) {
             // do nothing
         }
 
@@ -112,9 +113,9 @@ public class S3Controller {
                 Regions.fromName((String) cloudTrailProcessingLibraryProperties.getAsProperties().get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
-            new ListObjectsRequest().withBucketName(bucket) //
-                                    .withPrefix(location)   //
-                                    .withMaxKeys(page);
+                new ListObjectsRequest().withBucketName(bucket) //
+                        .withPrefix(location)   //
+                        .withMaxKeys(page);
 
         ObjectListing objectListing = amazonS3Client.listObjects(listObjectsRequest);
 
@@ -143,10 +144,7 @@ public class S3Controller {
         }
     }
 
-
-
-
-        private void copyInputStreamToFile(final InputStream in, final File file) {
+    private void copyInputStreamToFile(final InputStream in, final File file) {
         try {
             OutputStream out = new FileOutputStream(file);
             byte[] buf = new byte[1024];
@@ -157,7 +155,8 @@ public class S3Controller {
 
             out.close();
             in.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
