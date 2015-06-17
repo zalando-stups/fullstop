@@ -30,8 +30,8 @@ import reactor.bus.EventBus;
  */
 public class EventBusViolationSink implements ViolationSink {
 
-    private static final String VIOLATION_EVENTBUS_QUEUED = "violations.eventbus.queued";
-    private static final String VIOLATION_EVENTBUS_PUTTED = "violations.eventbus.putted";
+    private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+    private static final String VIOLATIONS_EVENTBUS_PUT = "violations.eventbus.put";
 
     private static final String DEFAULT_VIOLATIONS_TOPIC = "/violations";
 
@@ -47,8 +47,8 @@ public class EventBusViolationSink implements ViolationSink {
     @Override
     public void put(final Violation violation) {
         eventBus.notify(DEFAULT_VIOLATIONS_TOPIC, Event.wrap(violation));
-        counterService.increment(VIOLATION_EVENTBUS_QUEUED);
-        counterService.increment(VIOLATION_EVENTBUS_PUTTED);
+        counterService.increment(VIOLATIONS_EVENTBUS_QUEUED);
+        counterService.increment(VIOLATIONS_EVENTBUS_PUT);
     }
 
 }

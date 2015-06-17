@@ -29,8 +29,8 @@ import reactor.bus.EventBus;
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
-    private static final String VIOLATION_EVENTBUS_QUEUED = "violations.eventbus.queued";
-    private static final String VIOLATION_PERSISTED_JPA = "violations.persisted.jpa";
+    private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+    private static final String VIOLATIONS_PERSISTED_JPA = "violations.persisted.jpa";
 
     private final ViolationRepository violationRepository;
 
@@ -60,12 +60,12 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     @Override
     public void handleViolation(final Violation violation) {
+        this.counterService.decrement(VIOLATIONS_EVENTBUS_QUEUED);
 
         ViolationEntity entity = buildViolationEntity(violation);
 
         this.violationRepository.save(entity);
-        this.counterService.increment(VIOLATION_PERSISTED_JPA);
-        this.counterService.decrement(VIOLATION_EVENTBUS_QUEUED);
+        this.counterService.increment(VIOLATIONS_PERSISTED_JPA);
     }
 
 }
