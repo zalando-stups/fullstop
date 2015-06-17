@@ -15,31 +15,28 @@
  */
 package org.zalando.fullstop.violation.persist.jpa;
 
-import org.zalando.stups.fullstop.violation.SystemOutViolationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+
 import reactor.bus.EventBus;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
+
+    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
 
     private final ViolationRepository violationRepository;
 
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository) {
-        super(eventBus, new SystemOutViolationHandler());
+        super(eventBus);
         this.violationRepository = violationRepository;
-    }
-
-    @Override
-    protected void handleViolation(final Violation violation) {
-
-        ViolationEntity entity = buildViolationEntity(violation);
-
-        this.violationRepository.save(entity);
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -55,6 +52,15 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         entity.setRegion(violation.getRegion());
 
         return entity;
+    }
+
+    @Override
+    public void handleViolation(final Violation violation) {
+
+        ViolationEntity entity = buildViolationEntity(violation);
+
+        this.violationRepository.save(entity);
+        this.log.info("Save Violation with for eventId : {}", violation.getEventId());
     }
 
 }
