@@ -2,3 +2,8 @@ aws:
     region: ${ENCRYPT_REGION}
     kms:
         keyId: ${AMAZON_KEY_ID}
+
+spring:
+    cloud:
+        config:
+            enabled: false
