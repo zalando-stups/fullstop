@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   CONSTRAINT unique_violation UNIQUE (account_id, region, event_id, message)
 );
 
+--ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
 CREATE TABLE IF NOT EXISTS fullstop_data.application (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
   app_name         TEXT,

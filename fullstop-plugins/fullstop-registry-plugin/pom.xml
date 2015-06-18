@@ -46,13 +46,11 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>pierone-client-java-api</artifactId>
-            <version>0.5.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>kio-client-java-api</artifactId>
-            <version>0.9.1</version>
         </dependency>
 
         <dependency>
