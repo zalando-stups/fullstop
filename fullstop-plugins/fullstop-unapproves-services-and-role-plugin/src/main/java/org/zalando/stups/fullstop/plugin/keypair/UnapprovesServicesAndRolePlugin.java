@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.keypair;
 
-import com.amazonaws.auth.policy.Policy;
-import com.amazonaws.auth.policy.Statement;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.slf4j.Logger;
@@ -71,6 +69,6 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
 //        }
 //
 //
-//        }
+        }
 
 }
