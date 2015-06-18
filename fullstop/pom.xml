@@ -106,6 +106,12 @@
             <artifactId>fullstop-keypair-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- END PLUGINS -->
 
         <dependency>
@@ -241,6 +247,10 @@
                         <configuration>
                             <jvmArguments>-Dspring.profiles.active=local</jvmArguments>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

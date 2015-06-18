@@ -43,5 +43,6 @@
         <module>fullstop-subnet-plugin</module>
         <module>fullstop-save-securitygroups-plugin</module>
         <module>fullstop-count-events-plugin</module>
+        <module>fullstop-unapproves-services-and-role-plugin</module>
     </modules>
 </project>

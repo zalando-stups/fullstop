@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2015 Zalando SE
+  ~ Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,44 +15,45 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fullstop-parent</artifactId>
+        <artifactId>fullstop-plugins</artifactId>
         <groupId>org.zalando.stups</groupId>
         <version>0.5.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fullstop-s3</artifactId>
-    <name>Fullstop -- S3 reader/writer</name>
+    <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
+    <name>Fullstop -- Unapproves services and Role plugin</name>
 
     <properties>
-        <main.basedir>${basedir}/..</main.basedir>
+        <main.basedir>${basedir}/../..</main.basedir>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${aws-java-sdk.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-plugin-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-processing</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -64,4 +65,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
