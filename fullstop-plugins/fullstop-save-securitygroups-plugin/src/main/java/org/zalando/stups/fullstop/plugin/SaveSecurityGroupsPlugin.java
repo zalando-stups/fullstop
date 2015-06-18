@@ -99,7 +99,19 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         Region region = getRegion(event);
         String accountId = getAccountId(event);
         List<String> instanceIds = getInstanceIds(event);
-        DateTime instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
+        if (instanceIds.isEmpty()) {
+            LOG.warn("No instanceIds for event : {}, skip processing", getCloudTrailEventId(event));
+            return;
+        }
+
+        DateTime instanceLaunchTime = null;
+        try {
+
+            instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
+        } catch (Exception e) {
+            LOG.warn("No 'launchTime' for event : {}, skip processing", getCloudTrailEventId(event));
+            return;
+        }
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 

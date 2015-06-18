@@ -15,8 +15,7 @@
  */
 package org.zalando.fullstop.violation.persist.jpa;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.metrics.CounterService;
 
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -30,13 +29,18 @@ import reactor.bus.EventBus;
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
-    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
+    private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+    private static final String VIOLATIONS_PERSISTED_JPA = "violations.persisted.jpa";
 
     private final ViolationRepository violationRepository;
 
-    public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository) {
+    private final CounterService counterService;
+
+    public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
+            final CounterService counterService) {
         super(eventBus);
         this.violationRepository = violationRepository;
+        this.counterService = counterService;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -56,11 +60,12 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     @Override
     public void handleViolation(final Violation violation) {
+        this.counterService.decrement(VIOLATIONS_EVENTBUS_QUEUED);
 
         ViolationEntity entity = buildViolationEntity(violation);
 
         this.violationRepository.save(entity);
-        this.log.info("Save Violation with for eventId : {}", violation.getEventId());
+        this.counterService.increment(VIOLATIONS_PERSISTED_JPA);
     }
 
 }

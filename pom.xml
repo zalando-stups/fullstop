@@ -51,6 +51,9 @@
         <json-path.version>2.0.0</json-path.version>
         <otj-pg-embedded.version>0.4.0</otj-pg-embedded.version>
         <javax.el-api.version>2.2.4</javax.el-api.version>
+        
+        <kio-client.version>0.9.1</kio-client.version>
+        <pierone-client.version>0.5.1</pierone-client.version>
     </properties>
 
     <modules>
@@ -141,6 +144,26 @@
                 <groupId>javax.el</groupId>
                 <artifactId>javax.el-api</artifactId>
                 <version>${javax.el-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>kio-client-java-api</artifactId>
+                <version>${kio-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>kio-client-java-spring</artifactId>
+                <version>${kio-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>pierone-client-java-api</artifactId>
+                <version>${pierone-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>pierone-client-java-spring</artifactId>
+                <version>${pierone-client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
