@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import javax.persistence.Table;
  */
 @Table(name = "lifecycle", schema = "fullstop_data")
 @Entity
-public class LifecycleEntity  extends AbstractModifiableEntity {
+public class LifecycleEntity extends AbstractModifiableEntity {
     private DateTime startdate;
 
     private DateTime enddate;
@@ -37,6 +37,9 @@ public class LifecycleEntity  extends AbstractModifiableEntity {
     private Integer appHasVersionId;
 
     private String eventType;
+
+    public LifecycleEntity() {
+    }
 
     public LifecycleEntity(DateTime startdate, DateTime enddate, String region, Integer appHasVersionId,
             String eventType) {
