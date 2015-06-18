@@ -172,7 +172,7 @@ paths:
 securityDefinitions:
   oauth2:
     type: oauth2
-    flow: implicit
+    flow: password
     authorizationUrl: https://example.com/oauth2/dialog
     scopes:
       uid: Unique identifier of the user accessing the service.
