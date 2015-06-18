@@ -50,7 +50,7 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withAccoundId(final String accoundId) {
+    public ViolationBuilder withAccountId(final String accoundId) {
         this.accountId = accoundId;
         return this;
     }
