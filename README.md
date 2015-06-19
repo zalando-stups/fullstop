@@ -59,6 +59,7 @@ This environment variables should be set:
     FULLSTOP_S3_BUCKET
     FULLSTOP_KIO_URL
     FULLSTOP_PIERONE_URL
+    FULLSTOP_TEAM_SERVICE_URL
     DATABASE_URL
     DATABASE_USER
     DATABASE_PASSWORD
@@ -81,6 +82,7 @@ Example:
     $ export FULLSTOP_S3_BUCKET=fullstop-bucket
     $ export FULLSTOP_KIO_URL: https://application.registry.address
     $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
+    $ export FULLSTOP_TEAM_SERVICE_URL: https://team.service.address
     $ export DATABASE_URL='jdbc:postgresql://localhost:5432/fullstop'
     $ export DATABASE_USER=postgres
     $ export DATABASE_PASSWORD='{cipher}234laksnfdlF83NHALF'

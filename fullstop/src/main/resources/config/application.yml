@@ -88,6 +88,9 @@ fullstop:
         pierone:
             url: ${FULLSTOP_PIERONE_URL}
 
+        teamService:
+            url: ${FULLSTOP_TEAM_SERVICE_URL}
+
 #
 # OAuth2
 #
