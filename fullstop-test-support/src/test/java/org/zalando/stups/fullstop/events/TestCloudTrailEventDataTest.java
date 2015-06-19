@@ -15,13 +15,16 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Test;
-
 import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Test;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TestCloudTrailEventDataTest {
 
@@ -40,6 +43,30 @@ public class TestCloudTrailEventDataTest {
         System.out.println(event.getEventData().getEventSource());
         System.out.println(event.getEventData().getEventId().toString());
         System.out.println(event.getEventData().getAccountId());
+
+        System.out.println("----- RESPONSE_ELEMENTS ------");
+
+        String responseElements = event.getEventData().getResponseElements();
+        System.out.println(responseElements);
+    }
+
+    @Test
+    public void testCloudTrailEventDataWithResponseElements() throws JsonProcessingException, IOException {
+        List<Map<String, Object>> records = Records.fromClasspath("/record-with-responseElements.json");
+
+        Map<String, Object> record = records.get(0);
+        System.out.println(record.toString());
+
+        TestCloudTrailEventData eventData = new TestCloudTrailEventData(record);
+
+        CloudTrailEvent event = new CloudTrailEvent(eventData, null);
+        String eventName = event.getEventData().getEventName();
+        System.out.println(eventName);
+        System.out.println(event.getEventData().getEventSource());
+        System.out.println(event.getEventData().getEventId().toString());
+        System.out.println(event.getEventData().getAccountId());
+
+        System.out.println("----- RESPONSE_ELEMENTS ------");
 
         String responseElements = event.getEventData().getResponseElements();
         System.out.println(responseElements);

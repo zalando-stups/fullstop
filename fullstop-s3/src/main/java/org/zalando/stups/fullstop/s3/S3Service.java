@@ -15,26 +15,39 @@
  */
 package org.zalando.stups.fullstop.s3;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.Base64;
-import com.google.common.collect.Lists;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import static org.joda.time.DateTimeZone.UTC;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.nio.file.Paths;
+
 import java.util.Date;
 import java.util.List;
 
-import static org.joda.time.DateTimeZone.UTC;
+import org.joda.time.DateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.stereotype.Service;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+
+import com.amazonaws.util.Base64;
+
+import com.google.common.collect.Lists;
 
 /**
  * Created by mrandi.
@@ -66,17 +79,17 @@ public class S3Service {
 
         switch (LogType.valueOf(logType)) {
 
-        case USER_DATA:
-            fileName = TAUPAGE_YAML;
-            break;
+            case USER_DATA :
+                fileName = TAUPAGE_YAML;
+                break;
 
-        case AUDIT_LOG:
-            fileName = AUDIT_LOG_FILE_NAME + new DateTime(UTC) + LOG_GZ;
-            break;
+            case AUDIT_LOG :
+                fileName = AUDIT_LOG_FILE_NAME + new DateTime(UTC) + LOG_GZ;
+                break;
 
-        default:
-            logger.error("Wrong logType given: " + logType);
-            break;
+            default :
+                logger.error("Wrong logType given: " + logType);
+                break;
         }
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -96,8 +109,7 @@ public class S3Service {
 
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
-        }
-        catch (AmazonServiceException ase) {
+        } catch (AmazonServiceException ase) {
             logger.error("Caught an AmazonServiceException, which " + "means your request made it "
                     + "to Amazon S3, but was rejected with an error response" + " for some reason.");
             logger.error("Error Message:    " + ase.getMessage());
@@ -105,8 +117,7 @@ public class S3Service {
             logger.error("AWS Error Code:   " + ase.getErrorCode());
             logger.error("Error Type:       " + ase.getErrorType());
             logger.error("Request ID:       " + ase.getRequestId());
-        }
-        catch (AmazonClientException ace) {
+        } catch (AmazonClientException ace) {
             logger.error("Caught an AmazonClientException, which " + "means the client encountered "
                     + "an internal error while trying to " + "communicate with S3, "
                     + "such as not being able to access the network.");
@@ -114,7 +125,7 @@ public class S3Service {
         }
     }
 
-    public List<String> listS3Objects(final String buckestName, final String prefix) {
+    public List<String> listS3Objects(final String bucketName, final String prefix) {
         final List<String> commonPrefixes = Lists.newArrayList();
 
 // AmazonS3Client s3client = new AmazonS3Client();
@@ -123,8 +134,8 @@ public class S3Service {
             logger.info("Listing objects");
 
             ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withDelimiter("/")
-                    .withBucketName(bucketName).withPrefix(
-                            prefix);
+                                                                            .withBucketName(bucketName).withPrefix(
+                                                                                prefix);
 
             ObjectListing objectListing;
 
@@ -139,8 +150,7 @@ public class S3Service {
                 listObjectsRequest.setMarker(objectListing.getNextMarker());
             } while (objectListing.isTruncated());
 
-        }
-        catch (AmazonServiceException ase) {
+        } catch (AmazonServiceException ase) {
             logger.error("Caught an AmazonServiceException, " + "which means your request made it "
                     + "to Amazon S3, but was rejected with an error response " + "for some reason.");
             logger.error("Error Message:    " + ase.getMessage());
@@ -148,8 +158,7 @@ public class S3Service {
             logger.error("AWS Error Code:   " + ase.getErrorCode());
             logger.error("Error Type:       " + ase.getErrorType());
             logger.error("Request ID:       " + ase.getRequestId());
-        }
-        catch (AmazonClientException ace) {
+        } catch (AmazonClientException ace) {
             logger.error("Caught an AmazonClientException, " + "which means the client encountered "
                     + "an internal error while trying to communicate" + " with S3, "
                     + "such as not being able to access the network.");
