@@ -23,7 +23,6 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstan
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceLaunchTime;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.read;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.readSecurityGroupIds;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -116,8 +115,10 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        String prefix = Paths.get(accountId, region.getName(), instanceLaunchTime.toString("YYYY"),
-                instanceLaunchTime.toString("MM"), instanceLaunchTime.toString("dd")).toString() + "/";
+// String prefix = Paths.get(accountId, region.getName(), instanceLaunchTime.toString("YYYY"),
+// instanceLaunchTime.toString("MM"), instanceLaunchTime.toString("dd")).toString() + "/";
+
+        String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
 
         List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
@@ -183,8 +184,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         s3Writer.putObjectToS3(bucketName, fileName, prefix, metadata, stream);
     }
 
-    protected List<String> listS3Objects(final String buckestName, final String prefix) {
-        return s3Writer.listS3Objects(buckestName, prefix);
+    protected List<String> listS3Objects(final String bucketName, final String prefix) {
+        return s3Writer.listS3Objects(bucketName, prefix);
     }
 
 }
