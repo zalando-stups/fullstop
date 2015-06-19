@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.swagger.api;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
@@ -27,8 +28,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
@@ -55,7 +58,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
@@ -124,6 +127,12 @@ public class FullstopApiTest extends RestControllerTestSupport {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test-user", null));
     }
 
+    @Override
+    protected void configure(StandaloneMockMvcBuilder mockMvcBuilder) {
+        super.configure(mockMvcBuilder);
+        mockMvcBuilder.alwaysDo(print());
+    }
+
     @After
     public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
@@ -135,9 +144,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
-        this.mockMvc.perform(post("/api/instance-logs").contentType(MediaType.APPLICATION_JSON).content(bytes))
-                .andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated()).andDo(MockMvcResultHandlers
-                .print());
+        this.mockMvc.perform(
+                post("/api/instance-logs").contentType(APPLICATION_JSON).content(bytes))
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -150,8 +159,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         when(violationServiceMock.queryViolations(any(), any(), any(), any(), any())).thenReturn(new PageImpl<>(
                 newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
-        ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk()).andDo(
-                MockMvcResultHandlers.print());
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations")).andExpect(status().isOk());
 
         resultActions.andExpect(jsonPath("$.content").value(hasSize(1)));
 
@@ -169,7 +177,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         ResultActions resultActions = this.mockMvc.perform(
                 get("/api/violations?accounts=123&checked=true&last-violation=0&since=" + dateTime))
-                .andExpect(status().isOk()).andDo(MockMvcResultHandlers.print());
+                .andExpect(status().isOk());
 
         resultActions.andExpect(jsonPath("$.content").value(hasSize(1)));
 
@@ -178,7 +186,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
     }
 
     @Test
-    public void testResolutionViolation() throws Exception {
+    public void testResolveViolation() throws Exception {
+        when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
+        when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
         when(mockTeamOperations.getTeamsByUser(anyString()))
                 .thenReturn(newArrayList(
                         new UserTeam("foo", "Foo",
@@ -186,19 +196,53 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         violationRequest.setComment("my comment");
 
-        when(violationServiceMock.findOne(any(Long.class))).thenReturn(violationResult);
-        when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
+        String message = "test";
+
+        byte[] bytes = objectMapper.writeValueAsBytes(message);
+
+        this.mockMvc.perform(
+                post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))
+                .andExpect(status().isOk());
+
+        verify(violationServiceMock).findOne(eq(156L));
+        verify(violationServiceMock).save(eq(violationResult));
+        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+    }
+
+    @Test
+    public void testResolveUnknownViolation() throws Exception {
+        when(violationServiceMock.findOne(any(Long.class))).thenReturn(null);
 
         String message = "test";
 
         byte[] bytes = objectMapper.writeValueAsBytes(message);
 
-        this.mockMvc.perform(post("/api/violations/156/resolution").contentType(MediaType.APPLICATION_JSON).content(
-                bytes)).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk()).andDo(
-                MockMvcResultHandlers.print());
+        this.mockMvc.perform(
+                post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))
+                .andExpect(status().isNotFound());
 
         verify(violationServiceMock).findOne(eq(156L));
-        verify(violationServiceMock).save(eq(violationResult));
+    }
+
+    @Test
+    public void testResolveOtherTeamsViolation() throws Exception {
+        when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
+        when(mockTeamOperations.getTeamsByUser(anyString()))
+                .thenReturn(newArrayList(
+                        new UserTeam("foo", "Foo",
+                                newArrayList(new InfrastructureAccount("other_teams_account", "aws")))));
+
+        violationRequest.setComment("my comment");
+
+        String message = "test";
+
+        byte[] bytes = objectMapper.writeValueAsBytes(message);
+
+        this.mockMvc.perform(
+                post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))
+                .andExpect(status().isForbidden());
+
+        verify(violationServiceMock).findOne(eq(156L));
         verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
     }
 
