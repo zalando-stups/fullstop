@@ -59,7 +59,7 @@ public class SnapshotSourcePluginTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(sink, provider, plugin);
+        verifyNoMoreInteractions(sink, provider);
     }
 
     @Test
@@ -80,6 +80,7 @@ public class SnapshotSourcePluginTest {
         when(provider.getUserData(any(), any())).thenReturn(new HashMap<String, String>());
         plugin.processEvent(event);
 
+        verify(provider).getUserData(any(), any(String.class));
         verify(sink).put(any(Violation.class));
     }
 
@@ -88,9 +89,23 @@ public class SnapshotSourcePluginTest {
         event = buildEvent("run");
         Map<String, String> userData = new HashMap<String, String>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
+        when(provider.getUserData(any(), any())).thenReturn(userData);
         plugin.processEvent(event);
 
+        verify(provider).getUserData(any(), any(String.class));
         verify(sink).put(any(Violation.class));
+    }
+
+    @Test
+    public void shouldNotComplainWithSnapshotInName() {
+        event = buildEvent("run");
+        Map<String, String> userData = new HashMap<String, String>();
+        userData.put("source", "docker://registry.zalando.com/stups/SNAPSHOT:1.0");
+        when(provider.getUserData(any(), any())).thenReturn(userData);
+        plugin.processEvent(event);
+
+        verify(provider).getUserData(any(), any(String.class));
+        verify(sink, never()).put(any(Violation.class));
     }
 
     @Test
@@ -98,7 +113,10 @@ public class SnapshotSourcePluginTest {
         event = buildEvent("run");
         Map<String, String> userData = new HashMap<String, String>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0");
+        when(provider.getUserData(any(), any())).thenReturn(userData);
+        plugin.processEvent(event);
 
+        verify(provider).getUserData(any(), any(String.class));
         verify(sink, never()).put(any(Violation.class));
     }
 }

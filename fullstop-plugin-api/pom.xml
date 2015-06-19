@@ -89,6 +89,11 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>${project.groupId}</groupId>
+        	<artifactId>fullstop-test-support</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

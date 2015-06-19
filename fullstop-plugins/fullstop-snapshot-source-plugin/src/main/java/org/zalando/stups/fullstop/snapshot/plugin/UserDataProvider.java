@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.USER_DATA;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
@@ -36,6 +35,8 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.util.Base64;
 
 public class UserDataProvider {
+    public static final String USER_DATA = "userData";
+
     private final ClientProvider clientProvider;
 
     public UserDataProvider(final ClientProvider clientProvider) {

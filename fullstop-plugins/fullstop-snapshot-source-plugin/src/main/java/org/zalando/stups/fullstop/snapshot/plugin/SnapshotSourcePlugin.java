@@ -45,7 +45,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
 
     private static final String SOURCE = "source";
 
-    private static final String SNAPSHOT_REGEX = "-SNAPSHOT$";
+    private static final String SNAPSHOT_REGEX = ".*?-SNAPSHOT$";
 
     private final UserDataProvider userDataProvider;
 
@@ -72,6 +72,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                         .withAccountId(getCloudTrailEventAccountId(event)).build());
                 return;
             }
+
             if (userData == null) {
                 violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
                         .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
