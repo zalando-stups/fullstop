@@ -24,6 +24,7 @@ import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
@@ -74,6 +75,8 @@ public abstract class RestControllerTestSupport {
         final PageableHandlerMethodArgumentResolver pageableResolver = new PageableHandlerMethodArgumentResolver();
         pageableResolver.setFallbackPageable(new PageRequest(0, 10));
 
-        return new HandlerMethodArgumentResolver[] { pageableResolver };
+        final AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
+
+        return new HandlerMethodArgumentResolver[] { pageableResolver, authenticationPrincipalResolver };
     }
 }

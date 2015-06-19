@@ -48,7 +48,7 @@ by all other accounts in order to perform this operations.
 
 ##Configuration
 
-This enviroment variable should be set:
+This environment variables should be set:
 
     FULLSTOP_LOGS
     FULLSTOP_SQS_URL
@@ -91,6 +91,11 @@ Example:
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
     $ export TOKEN_INFO_URI=tokenInfoUri
+    
+### Disable CloudTrail Processing
+
+Set the parameter `fullstop.container.autoStart=false` either as program argument, or as system property to start
+Fullstop without CloudTrail processing.
 
 ##Database setup
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables

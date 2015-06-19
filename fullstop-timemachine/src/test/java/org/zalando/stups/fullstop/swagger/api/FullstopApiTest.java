@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.swagger.api;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
@@ -49,6 +50,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
@@ -57,6 +60,9 @@ import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
+import org.zalando.stups.fullstop.teams.InfrastructureAccount;
+import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.teams.UserTeam;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
@@ -86,6 +92,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Autowired
     private ViolationService violationServiceMock;
 
+    @Autowired
+    private TeamOperations mockTeamOperations;
+
     private Violation violationRequest;
 
     private LogObj logObjRequest;
@@ -94,7 +103,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        reset(violationServiceMock);
+        reset(violationServiceMock, mockTeamOperations);
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
@@ -111,11 +120,14 @@ public class FullstopApiTest extends RestControllerTestSupport {
         logObjRequest.setLogType(USER_DATA);
         logObjRequest.setInstanceId(INSTANCE_ID);
         logObjRequest.setRegion(REGION);
+
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test-user", null));
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(violationServiceMock);
+        SecurityContextHolder.clearContext();
+        verifyNoMoreInteractions(violationServiceMock, mockTeamOperations);
     }
 
     @Test
@@ -167,6 +179,10 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Test
     public void testResolutionViolation() throws Exception {
+        when(mockTeamOperations.getTeamsByUser(anyString()))
+                .thenReturn(newArrayList(
+                        new UserTeam("foo", "Foo",
+                                newArrayList(new InfrastructureAccount(violationResult.getAccountId(), "aws")))));
 
         violationRequest.setComment("my comment");
 
@@ -183,6 +199,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         verify(violationServiceMock).findOne(eq(156L));
         verify(violationServiceMock).save(eq(violationResult));
+        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
     }
 
     @Override
@@ -206,6 +223,11 @@ public class FullstopApiTest extends RestControllerTestSupport {
         @Bean
         public S3Service s3Writer() {
             return mock(S3Service.class);
+        }
+
+        @Bean
+        public TeamOperations teamOperations() {
+            return mock(TeamOperations.class);
         }
     }
 }

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.swagger.api;
+package org.zalando.stups.fullstop.teams;
 
-public class NotFoundException extends ApiException {
-    public NotFoundException(String msg) {
-        super(404, msg);
-    }
+import java.util.List;
+
+public interface TeamOperations {
+
+    List<UserTeam> getTeamsByUser(String userId);
+
 }
