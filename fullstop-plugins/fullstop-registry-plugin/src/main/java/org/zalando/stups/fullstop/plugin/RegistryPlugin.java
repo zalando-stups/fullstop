@@ -25,7 +25,9 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.util.Base64;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.yaml.snakeyaml.Yaml;
 import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoudException;
 import org.zalando.stups.clients.kio.Version;
@@ -41,8 +44,12 @@ import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
@@ -126,13 +133,45 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                 source, applicationVersionFromKio.getArtifact());
 
                         validateScmSource(event, applicationFromKio.getTeamId(), applicationId, applicationVersion);
+                        
+                        validateApprovals(applicationVersionFromKio, event);
                     }
                 }
             }
         }
     }
 
-    private void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
+    private void validateApprovals(Version version,
+			CloudTrailEvent event) {
+    	List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(), version.getId());
+    	
+    	// #139
+    	// https://github.com/zalando-stups/fullstop/issues/139
+    	// does not have all default approval types
+    	Set<String> approvalTypes = approvals
+    								.stream()
+    								.collect(Collectors.groupingBy(Approval::getApprovalType))
+    								.keySet();
+    	if (!approvalTypes.contains("CODE_CHANGE") ||
+    		!approvalTypes.contains("DEPLOY") ||
+    		!approvalTypes.contains("SPECIFICATION") || 
+    		!approvalTypes.contains("TEST")) {
+    		
+    		violationSink.put(new ViolationBuilder(format(
+					"Version %s of application %s is missing one or more approvals.",
+					version.getId(),
+					version.getApplicationId()
+				))
+				.withAccoundId(getCloudTrailEventAccountId(event))
+				.withRegion(getCloudTrailEventRegion(event))
+				.withEventId(getCloudTrailEventId(event))
+				.build());
+    	}
+		
+		
+	}
+
+	private void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
             String applicationVersion) {
 
         Map<String, String> scmSource = Maps.newHashMap();
