@@ -165,7 +165,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         boolean doneByOne = approvals
                 .stream()
                 .filter(a -> a.getApprovalType() == "CODE_CHANGE" || a.getApprovalType() == "TEST"
-                        || a.getApprovalType() == "DEPLOY").map(a -> a.getUserId()).collect(Collectors.toList()).size() == 1;
+                        || a.getApprovalType() == "DEPLOY").map(a -> a.getUserId()).distinct()
+                .collect(Collectors.toList()).size() == 1;
         if (doneByOne) {
             violationSink
                     .put(new ViolationBuilder(
