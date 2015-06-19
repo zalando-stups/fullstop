@@ -85,7 +85,7 @@ public class SnapshotSourcePluginTest {
     public void shouldComplainWithSnapshotSource() {
     	event = buildEvent("run");
     	Map<String, String> userData = new HashMap<String, String>();
-    	userData.put("source", "docker://registry.zalando.com/stups/yourturn-1.0-SNAPSHOT");
+    	userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
     	plugin.processEvent(event);
     	
     	verify(sink).put(any(Violation.class));
