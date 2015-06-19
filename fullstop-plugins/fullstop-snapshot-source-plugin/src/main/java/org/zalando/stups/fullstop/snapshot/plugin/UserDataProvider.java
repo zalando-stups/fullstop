@@ -36,15 +36,15 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.util.Base64;
 
 public class UserDataProvider {
-	private final ClientProvider clientProvider;
+    private final ClientProvider clientProvider;
 
     public UserDataProvider(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
-    
+
     public Map getUserData(final CloudTrailEvent event, final String instanceId) throws AmazonServiceException {
-        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class,
-                event.getEventData().getUserIdentity().getAccountId(),
+        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, event.getEventData()
+                .getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstanceAttributeRequest describeInstanceAttributeRequest = new DescribeInstanceAttributeRequest();
@@ -52,12 +52,12 @@ public class UserDataProvider {
         describeInstanceAttributeRequest.setAttribute(USER_DATA);
 
         DescribeInstanceAttributeResult describeInstanceAttributeResult;
-        describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);        
+        describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
 
         String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
-        	return null;
+            return null;
         }
 
         byte[] bytesUserData = Base64.decode(userData);
@@ -66,5 +66,5 @@ public class UserDataProvider {
         Yaml yaml = new Yaml();
 
         return (Map) yaml.load(decodedUserData);
-    }    
+    }
 }
