@@ -75,23 +75,28 @@ public class SnapshotSourcePluginTest {
     public void shouldComplainWithoutSource() {
     	event = buildEvent("run");
     	when(provider.getUserData(any(), any()))
-    		.thenReturn(new HashMap());
+    		.thenReturn(new HashMap<String, String>());
     	plugin.processEvent(event);
     	
     	verify(sink).put(any(Violation.class));
     }
     
     @Test
-    @Ignore
     public void shouldComplainWithSnapshotSource() {
+    	event = buildEvent("run");
+    	Map<String, String> userData = new HashMap<String, String>();
+    	userData.put("source", "docker://registry.zalando.com/stups/yourturn-1.0-SNAPSHOT");
+    	plugin.processEvent(event);
     	
+    	verify(sink).put(any(Violation.class));
     }
     
     @Test
-    @Ignore
     public void shouldNotComplainWithoutSnapshotSource() {
     	event = buildEvent("run");
-    	Map userData = new HashMap();
-    	userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
+    	Map<String, String> userData = new HashMap<String, String>();
+    	userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0");
+    	
+    	verify(sink, never()).put(any(Violation.class));
     }
 }
