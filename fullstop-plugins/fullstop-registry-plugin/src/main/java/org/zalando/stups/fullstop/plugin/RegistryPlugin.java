@@ -160,8 +160,21 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         // #140
         // https://github.com/zalando-stups/fullstop/issues/140
-        // code, test and deploy approver must not be the same person
-
+        // => code, test and deploy approvals have to be done by at least two different people
+        // e.g. four-eyes-principle
+        boolean doneByOne = approvals
+                .stream()
+                .filter(a -> a.getApprovalType() == "CODE_CHANGE" || a.getApprovalType() == "TEST"
+                        || a.getApprovalType() == "DEPLOY").map(a -> a.getUserId()).collect(Collectors.toList()).size() == 1;
+        if (doneByOne) {
+            violationSink
+                    .put(new ViolationBuilder(
+                            format("Code change, test and deploy approvals of version %s of application %s were done by onle one person.",
+                                    version.getId(), version.getApplicationId()))
+                            .withAccoundId(getCloudTrailEventAccountId(event))
+                            .withRegion(getCloudTrailEventRegion(event)).withEventId(getCloudTrailEventId(event))
+                            .build());
+        }
     }
 
     private void validateScmSource(CloudTrailEvent event, String teamId, String applicationId, String applicationVersion) {
