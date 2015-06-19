@@ -18,7 +18,7 @@
  *
  * @author npiccolotto
  */
-package org.zalando.stups.fullstop.snapshot.plugin;
+package org.zalando.stups.fullstop.events;
 
 import java.util.Map;
 

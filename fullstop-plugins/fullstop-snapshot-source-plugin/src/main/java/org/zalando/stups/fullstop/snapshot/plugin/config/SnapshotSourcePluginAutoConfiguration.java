@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.snapshot.plugin.SnapshotSourcePlugin;
-import org.zalando.stups.fullstop.snapshot.plugin.UserDataProvider;
 
 /**
  * @author jbellmann
