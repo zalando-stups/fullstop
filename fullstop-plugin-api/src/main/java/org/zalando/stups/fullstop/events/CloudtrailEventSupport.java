@@ -36,6 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public abstract class CloudtrailEventSupport {
 
+	public static final String USER_DATA = "userData";
+
     public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
 
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
