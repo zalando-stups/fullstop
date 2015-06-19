@@ -203,17 +203,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>${maven-clean-plugin.version}</version>
-                    <configuration>
-                        <filesets>
-                            <fileset>
-                                <directory>src/generated</directory>
-                            </fileset>
-                        </filesets>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>com.mysema.maven</groupId>
                     <artifactId>apt-maven-plugin</artifactId>
                     <version>${apt-maven-plugin.version}</version>
@@ -223,7 +212,7 @@
                                 <goal>process</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>src/generated/queryDsl</outputDirectory>
+                                <outputDirectory>target/generated-sources/java</outputDirectory>
                                 <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
                             </configuration>
                         </execution>
@@ -244,6 +233,9 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
+                    <sourceDirectories>
+                        <sourceDirectory>fullstop-violation/target/generated-sources/java</sourceDirectory>
+                    </sourceDirectories>
                     <dryRun>${coveralls.dryRun}</dryRun>
                     <jacocoReports>
                         <!--it start-->
