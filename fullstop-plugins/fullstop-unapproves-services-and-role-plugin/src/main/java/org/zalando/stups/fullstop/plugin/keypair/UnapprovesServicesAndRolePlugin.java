@@ -62,7 +62,7 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-
+// TODO: implemet Plugin 
 //        Policy policy = new Policy();
 //        for (Statement statement : policy.getStatements()) {
 //            LOG.info("Role policy");
