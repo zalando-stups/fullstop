@@ -25,7 +25,9 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.util.Base64;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,7 +200,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             return application;
         }
         catch (NotFoudException e) {
-            violationSink.put(new ViolationBuilder(format("Application: %s is not present in kio.", applicationId))
+            violationSink.put(new ViolationBuilder(format("Application: %s is not present in Kio.", applicationId))
                     .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccoundId(
                             getCloudTrailEventAccountId(event)).build());
             return null;
@@ -213,8 +215,18 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     private Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
             final String applicationVersion) {
         try {
-
             Version version = kioOperations.getApplicationVersion(applicationId, applicationVersion);
+            if (Strings.isNullOrEmpty(version.getArtifact())) {
+            	// deployment artifact must not be empty
+            	violationSink.put(new ViolationBuilder(format(
+	            											"Version %s of application %s does not have a deployment artifact associated in kio.",
+	            											version.getId(),
+	            											version.getApplicationId()))
+            											.withAccoundId(getCloudTrailEventAccountId(event))
+            											.withRegion(getCloudTrailEventRegion(event))
+            											.withEventId(getCloudTrailEventId(event))
+            											.build());
+            }
             return version;
         }
         catch (NotFoundException e) {
@@ -226,7 +238,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             return null;
         }
         catch (HttpClientErrorException e) {
-            LOG.warn("Error when trying to get Application {} with Version {} from Kio", applicationId,
+            LOG.warn("Error when trying to get Application {} with Version {} from kio", applicationId,
                     applicationVersion, e);
             return null;
         }
