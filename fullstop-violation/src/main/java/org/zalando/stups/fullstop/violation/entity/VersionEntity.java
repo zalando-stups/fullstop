@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- * <p/>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,48 +26,54 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.List;
 
+import static com.google.common.collect.Lists.*;
+
 /**
  * Created by gkneitschel.
  */
 @Table(name = "app_version", schema = "fullstop_data")
 @Entity
-public class ApplicationVersionEntity extends AbstractModifiableEntity {
-    private String applicationVersion;
+public class VersionEntity extends AbstractModifiableEntity {
+
+    private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "app_has_version",
             joinColumns = @JoinColumn(name = "app_version_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "app_id", referencedColumnName = "id"))
-    private List<ApplicationVersionEntity> applications;
+    private List<ApplicationEntity> applicationEntities;
 
-    public ApplicationVersionEntity() {
+    public VersionEntity() {
     }
 
-    public ApplicationVersionEntity(String applicationVersion) {
-        this.applicationVersion = applicationVersion;
+    public VersionEntity(String name) {
+        this.name = name;
     }
 
-    public void setApplicationVersion(String applicationVersion) {
-        this.applicationVersion = applicationVersion;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getApplicationVersion() {
-        return applicationVersion;
+    public String getName() {
+        return name;
     }
 
-    public List<ApplicationVersionEntity> getApplications() {
-        return applications;
+    public List<ApplicationEntity> getApplicationEntities() {
+        if (applicationEntities == null){
+            return newArrayList();
+        }
+        return applicationEntities;
     }
 
-    public void setApplications(
-            List<ApplicationVersionEntity> applications) {
-        this.applications = applications;
+    public void setApplicationEntities(
+            List<ApplicationEntity> applicationEntities) {
+        this.applicationEntities = applicationEntities;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("applicationVersion", applicationVersion)
+                .add("name", name)
                 .toString();
     }
 }

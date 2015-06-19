@@ -1,7 +1,21 @@
+/**
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zalando.stups.fullstop.violation.repository;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,27 +30,22 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
-import org.zalando.stups.fullstop.violation.entity.ApplicationVersionEntity;
+import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
-/**
- * Created by gkneitschel.
- */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ApplicationRepositoryTest.TestConfig.class)
+@SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
 @Transactional
-public class ApplicationRepositoryTest extends TestCase {
+public class ApplicationRepositoryTest {
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -47,36 +56,48 @@ public class ApplicationRepositoryTest extends TestCase {
     @PersistenceContext
     private EntityManager em;
 
-    private ApplicationEntity application = new ApplicationEntity();
+    private ApplicationEntity application;
 
-    private ApplicationVersionEntity version1 = new ApplicationVersionEntity();
+    private VersionEntity version1;
 
-    private ApplicationVersionEntity version2 = new ApplicationVersionEntity();
+    private VersionEntity version2;
+
+    private ApplicationEntity savedApplication;
 
     @Before
     public void setUp() throws Exception {
         // First version
-        version1.setApplicationVersion("1");
+        version1 = new VersionEntity();
+        version1.setName("0.0.1");
         versionRepository.save(version1);
         // Second version
-        version2.setApplicationVersion("3");
+        version2 = new VersionEntity();
+        version2.setName("0.9.3-SNAPSHOT");
         versionRepository.save(version2);
 
         // Add all versions
-        ArrayList<ApplicationVersionEntity> applicationVersionEntities = newArrayList(version1, version2);
+        List<VersionEntity> versionEntities = newArrayList(version1, version2);
 
         // Build Application
-        application.setId(1l);
-        application.setAppName("Application");
-        application.setAppVersions(applicationVersionEntities);
+        application = new ApplicationEntity();
+        application.setName("Application");
+        application.setVersionEntities(versionEntities);
 
-        ApplicationEntity save = applicationRepository.save(application);
+        savedApplication = applicationRepository.save(application);
         em.flush();
         em.clear();
     }
 
     @Test
-    public void testManyToMany() {
+    public void testVersionsAreSaved() throws Exception {
+        ApplicationEntity one = applicationRepository.findOne(savedApplication.getId());
+        assertThat(one.getVersionEntities()).isNotEmpty();
+
+    }
+
+
+        @Test
+    public void testManyToMany() throws IOException {
         List<ApplicationEntity> applications = applicationRepository.findAll();
         assertThat(applications).isNotNull();
         assertThat(applications).isNotEmpty();
@@ -84,16 +105,16 @@ public class ApplicationRepositoryTest extends TestCase {
 
     @Test
     public void testAppHasMultipleVersions() throws Exception {
-        ApplicationEntity applications = applicationRepository.findOne(1l);
-        Collection<ApplicationVersionEntity> appVersions = applications.getAppVersions();
+        ApplicationEntity application = applicationRepository.findOne(savedApplication.getId());
+        List<VersionEntity> appVersions = application.getVersionEntities();
         assertThat(appVersions.size()).isEqualTo(2);
     }
 
     @Test
     public void testVersionsHaveSameApp() throws Exception {
-        List<ApplicationVersionEntity> versions = versionRepository.findAll();
-        List<ApplicationVersionEntity> apps1 = versions.get(0).getApplications();
-        List<ApplicationVersionEntity> apps2 = versions.get(1).getApplications();
+        List<VersionEntity> versionEntities = versionRepository.findAll();
+        List<ApplicationEntity> apps1 = versionEntities.get(0).getApplicationEntities();
+        List<ApplicationEntity> apps2 = versionEntities.get(1).getApplicationEntities();
         assertThat(apps1.get(0)).isEqualTo(apps2.get(0));
     }
 
