@@ -15,8 +15,8 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-public class NotFoundException extends ApiException {
-    public NotFoundException(String msg) {
-        super(404, msg);
+public class ForbiddenException extends ApiException {
+    public ForbiddenException(String msg) {
+        super(403, msg);
     }
 }

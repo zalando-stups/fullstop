@@ -15,7 +15,21 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import com.wordnik.swagger.annotations.*;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.util.List;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,24 +40,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
+import org.zalando.stups.fullstop.teams.InfrastructureAccount;
+import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.teams.UserTeam;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
-
-import java.io.IOException;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
@@ -51,13 +66,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @PreAuthorize("#oauth2.hasScope('uid')")
 public class FullstopApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(FullstopApi.class);
+    private final Logger log = LoggerFactory.getLogger(FullstopApi.class);
 
     @Autowired
     private S3Service s3Writer;
 
     @Autowired
     private ViolationService violationService;
+
+    @Autowired
+    private TeamOperations teamOperations;
 
     private static Violation mapToDto(ViolationEntity entity) {
         Violation violation = new Violation();
@@ -78,6 +96,12 @@ public class FullstopApi {
         violation.setViolationObject(entity.getViolationObject());
         return violation;
     }
+
+    @ExceptionHandler(ApiException.class)
+    ResponseEntity<String> handleApiException(final ApiException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(e.getCode()));
+    }
+
 
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
@@ -124,13 +148,32 @@ public class FullstopApi {
             @PathVariable("id")
             final Long id,
             @ApiParam(value = "", required = true)
-            @RequestBody final String message) throws NotFoundException {
-        ViolationEntity violation = violationService.findOne(id);
+            @RequestBody final String message,
+            @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+            throws NotFoundException, ForbiddenException {
+        final ViolationEntity violation = violationService.findOne(id);
+
+        if (violation == null) {
+            throw new NotFoundException(format("Violation %s does not exist", id));
+        }
+
+        if (!hasAccessToAccount(userId, violation.getAccountId())) {
+            throw new ForbiddenException(
+                    format("You must have access to AWS account '%s' to resolve violation '%s'",
+                            violation.getAccountId(), id));
+        }
 
         violation.setComment(message);
-        ViolationEntity dbViolationEntity = violationService.save(violation);
-
+        final ViolationEntity dbViolationEntity = violationService.save(violation);
         return mapToDto(dbViolationEntity);
+    }
+
+    private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
+        final List<UserTeam> teams = teamOperations.getTeamsByUser(userId);
+        return teams.stream()
+                .flatMap(team -> team.getInfrastructureAccounts().stream())
+                .map(InfrastructureAccount::getId)
+                .anyMatch(accountId -> accountId.equals(targetAccountId));
     }
 
     private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
@@ -146,7 +189,7 @@ public class FullstopApi {
     private void saveLog(final LogObj instanceLog) {
 
         if (instanceLog.getLogType() == null) {
-            logger.error("You should use one of the allowed types.");
+            log.error("You should use one of the allowed types.");
             throw new IllegalArgumentException("You should use one of the allowed types.");
         }
 
@@ -155,7 +198,7 @@ public class FullstopApi {
                     instanceLog.getLogData(), instanceLog.getLogType().toString(), instanceLog.getInstanceId());
         }
         catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
