@@ -79,7 +79,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
                     instances.toString(), region);
             violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
-                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
+                    getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
         }
     }
 }
