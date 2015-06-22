@@ -15,34 +15,40 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.google.common.collect.Lists;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
-import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
-import org.zalando.stups.fullstop.violation.ViolationSink;
+import static java.util.stream.Collectors.toList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
+import org.assertj.core.api.Assertions;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import org.mockito.Mockito;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.Records;
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+
+import com.google.common.collect.Lists;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 public class RunInstancePluginTest {
 
@@ -117,11 +123,11 @@ public class RunInstancePluginTest {
     public void testSecurityGroupFiltering() {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
         Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                .withToPort(22).negate());
+                    .withToPort(22).negate());
 
         List<SecurityGroup> filteredSecGroups = secGroups.get().stream()
-                .filter(SecurityGroupPredicates.anyMatch(filter)).collect(
-                        toList());
+                                                         .filter(SecurityGroupPredicates.anyMatch(filter)).collect(
+                                                             toList());
 
         System.out.println(filteredSecGroups.size());
         assertThat(filteredSecGroups).isEmpty();
@@ -133,7 +139,7 @@ public class RunInstancePluginTest {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
 
         Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                .withToPort(22).negate());
+                    .withToPort(22).negate());
 
         Assertions.assertThat(secGroups.isPresent()).isTrue();
 
@@ -152,14 +158,9 @@ public class RunInstancePluginTest {
 
         // prepare
         RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
-        UserIdentity userIdentity = Mockito.mock(UserIdentity.class);
-        Mockito.when(userIdentity.getAccountId()).thenReturn("1234567");
 
-        TestCloudTrailEventData eventData = new TestCloudTrailEventData("/responseElements.json");
-        eventData = spy(eventData);
-        Mockito.when(eventData.getUserIdentity()).thenReturn(userIdentity);
-
-        CloudTrailEvent event = new CloudTrailEvent(eventData, null);
+// TestCloudTrailEventData eventData = new TestCloudTrailEventData("/responseElements.json");
+        CloudTrailEvent event = buildEvent("run");
 
         // test
         plugin.processEvent(event);
@@ -168,8 +169,14 @@ public class RunInstancePluginTest {
 // verify(violationSink, atLeastOnce()).save(Mockito.any());
     }
 
+    protected CloudTrailEvent buildEvent(final String type) {
+        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
+
+        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
+    }
+
     /**
-     * @author jbellmann
+     * @author  jbellmann
      */
     static class TestRunInstancePlugin extends RunInstancePlugin {
 

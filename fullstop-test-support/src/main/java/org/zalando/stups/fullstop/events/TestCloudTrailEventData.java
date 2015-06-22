@@ -17,8 +17,11 @@ package org.zalando.stups.fullstop.events;
 
 import java.io.IOException;
 import java.io.StringWriter;
+
 import java.net.URISyntaxException;
+
 import java.nio.file.Files;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
 
@@ -70,6 +75,17 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     }
 
     @Override
+    public UserIdentity getUserIdentity() {
+        Map<String, Object> value = (Map<String, Object>) this.data.get(CloudTrailEventField.userIdentity.name());
+        UserIdentity ui = new UserIdentity();
+        for (Map.Entry<String, Object> entry : value.entrySet()) {
+            ui.add(entry.getKey(), entry.getValue());
+        }
+
+        return ui;
+    }
+
+    @Override
     public Object get(final String key) {
         return data.get(key);
     }
@@ -79,8 +95,7 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
         Object value = data.get(CloudTrailEventField.eventID.name());
         if (value == null) {
             return UUID.randomUUID();
-        }
-        else {
+        } else {
             if (value instanceof UUID) {
                 return (UUID) value;
             }
@@ -114,26 +129,20 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
                 writer.flush();
                 writer.close();
                 return writer.toString();
-            }
-            catch (JsonGenerationException e) {
+            } catch (JsonGenerationException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            }
-            catch (JsonMappingException e) {
+            } catch (JsonMappingException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            }
-            finally {
+            } finally {
                 try {
                     writer.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }
-        else if (responseElementsResource != null) {
+        } else if (responseElementsResource != null) {
             return getResponseElementsFromClasspath(responseElementsResource);
         }
 
@@ -143,11 +152,9 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     protected String getResponseElementsFromClasspath(final String resource) {
         try {
             return new String(Files.readAllBytes(java.nio.file.Paths.get(getClass().getResource(resource).toURI())));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
