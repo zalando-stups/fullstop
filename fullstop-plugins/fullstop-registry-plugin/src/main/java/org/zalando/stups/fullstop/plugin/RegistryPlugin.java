@@ -63,6 +63,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     public static final String USER_DATA = "userData";
 
+    private static final String APPROVAL_CODE = "CODE_CHANGE";
+
+    private static final String APPROVAL_TEST = "TEST";
+
+    private static final String APPROVAL_DEPLOY = "DEPLOY";
+
+    private static final String APPROVAL_SPEC = "SPECIFICATION";
+
     private static final Logger LOG = LoggerFactory.getLogger(RegistryPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
@@ -149,8 +157,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // does not have all default approval types
         Set<String> approvalTypes = approvals.stream().collect(Collectors.groupingBy(Approval::getApprovalType))
                 .keySet();
-        if (!approvalTypes.contains("CODE_CHANGE") || !approvalTypes.contains("DEPLOY")
-                || !approvalTypes.contains("SPECIFICATION") || !approvalTypes.contains("TEST")) {
+        if (!approvalTypes.contains(APPROVAL_CODE) || !approvalTypes.contains(APPROVAL_DEPLOY)
+                || !approvalTypes.contains(APPROVAL_SPEC) || !approvalTypes.contains(APPROVAL_TEST)) {
 
             violationSink.put(new ViolationBuilder(format(
                     "Version %s of application %s is missing one or more approvals.", version.getId(),
@@ -164,8 +172,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // e.g. four-eyes-principle
         boolean doneByOne = approvals
                 .stream()
-                .filter(a -> a.getApprovalType() == "CODE_CHANGE" || a.getApprovalType() == "TEST"
-                        || a.getApprovalType() == "DEPLOY").map(a -> a.getUserId()).distinct()
+                .filter(a -> a.getApprovalType() == APPROVAL_CODE || a.getApprovalType() == APPROVAL_TEST
+                        || a.getApprovalType() == APPROVAL_DEPLOY).map(a -> a.getUserId()).distinct()
                 .collect(Collectors.toList()).size() == 1;
         if (doneByOne) {
             violationSink
