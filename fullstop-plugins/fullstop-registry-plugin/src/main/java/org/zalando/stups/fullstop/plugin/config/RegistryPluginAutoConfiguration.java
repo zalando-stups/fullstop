@@ -15,9 +15,13 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.RegistryPlugin;
 
 /**
@@ -27,4 +31,11 @@ import org.zalando.stups.fullstop.plugin.RegistryPlugin;
 @ComponentScan(basePackageClasses = { RegistryPlugin.class })
 @EnableConfigurationProperties({ RegistryPluginProperties.class })
 public class RegistryPluginAutoConfiguration {
+    @Autowired
+    private ClientProvider clientProvider;
+
+    @Bean
+    public UserDataProvider userDataProvider() {
+        return new UserDataProvider(clientProvider);
+    }
 }

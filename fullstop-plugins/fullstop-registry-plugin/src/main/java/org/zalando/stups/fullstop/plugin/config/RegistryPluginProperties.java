@@ -31,7 +31,10 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private static final Set<String> APPROVALS = Sets.newHashSet("CODE_CHANGE", "TEST", "SPECIFICATION", "DEPLOY");
+    private static final Set<String> APPROVALS = Sets.newHashSet("CODE_CHANGE",
+                                                                 "TEST",
+                                                                 "SPECIFICATION",
+                                                                 "DEPLOY");
 
     private Set<String> defaultApprovals = new HashSet<String>();
 
@@ -41,15 +44,11 @@ public class RegistryPluginProperties {
 
     private String deployApproval;
 
-    public Set<String> getWhitelistedRegions() {
+    public Set<String> getDefaultApprovals() {
         if (defaultApprovals.isEmpty()) {
             return APPROVALS;
         }
 
-        return defaultApprovals;
-    }
-
-    public Set<String> getDefaultApprovals() {
         return defaultApprovals;
     }
 
@@ -58,6 +57,9 @@ public class RegistryPluginProperties {
     }
 
     public String getCodeApproval() {
+        if (codeApproval == null) {
+            return "CODE_CHANGE";
+        }
         return codeApproval;
     }
 
@@ -66,6 +68,9 @@ public class RegistryPluginProperties {
     }
 
     public String getTestApproval() {
+        if (testApproval == null) {
+            return "TEST";
+        }
         return testApproval;
     }
 
@@ -74,6 +79,9 @@ public class RegistryPluginProperties {
     }
 
     public String getDeployApproval() {
+        if (deployApproval == null) {
+            return "DEPLOY";
+        }
         return deployApproval;
     }
 
