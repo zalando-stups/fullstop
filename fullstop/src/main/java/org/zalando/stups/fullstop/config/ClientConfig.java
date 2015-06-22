@@ -17,19 +17,18 @@ package org.zalando.stups.fullstop.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
-
+import org.springframework.web.client.RestOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
+import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
+import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
 import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
@@ -49,37 +48,33 @@ public class ClientConfig {
     @Value("${fullstop.clients.pierone.url}")
     private String pieroneBaseUrl;
 
+    @Value("${fullstop.clients.teamService.url}")
+    private String teamServiceBaseUrl;
+
     @Bean
     public KioOperations kioOperations() {
-
-        // maybe we can share this
-        BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId("fullstop");
-
-        OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-
-        // here is the token-provider
-        restTemplate.setAccessTokenProvider((new StupsAccessTokenProvider(
-                    new AutoRefreshTokenProvider("kio", accessTokens))));
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-
-        return new RestTemplateKioOperations(restTemplate, kioBaseUrl);
+        return new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl);
     }
 
     @Bean
     public PieroneOperations pieroneOperations() {
+        return new RestTemplatePieroneOperations(buildOAuth2RestTemplate("pierone"), pieroneBaseUrl);
+    }
 
-        // maybe we can share this
-        BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
+    @Bean
+    public TeamOperations teamOperations() {
+        return new RestTemplateTeamOperations(buildOAuth2RestTemplate("teamService"), teamServiceBaseUrl);
+    }
+
+    private RestOperations buildOAuth2RestTemplate(String tokenName) {
+        final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
         resource.setClientId("fullstop");
 
-        OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-
-        // here is the token-provider
+        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
         restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
-                new AutoRefreshTokenProvider("pierone", accessTokens)));
+                new AutoRefreshTokenProvider(tokenName, accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-
-        return new RestTemplatePieroneOperations(restTemplate, pieroneBaseUrl);
+        return restTemplate;
     }
+
 }

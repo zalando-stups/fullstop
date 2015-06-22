@@ -68,17 +68,12 @@
         <!-- START PLUGINS -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-ami-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-count-events-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-save-securitygroups-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-subnet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -88,12 +83,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-region-plugin</artifactId>
+            <artifactId>fullstop-keypair-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-ami-plugin</artifactId>
+            <artifactId>fullstop-region-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -103,7 +98,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-keypair-plugin</artifactId>
+            <artifactId>fullstop-save-securitygroups-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>${project.groupId}</groupId>
+        	<artifactId>fullstop-snapshot-source-plugin</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-subnet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -141,12 +146,10 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-client</artifactId>
-            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-server</artifactId>
-            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
