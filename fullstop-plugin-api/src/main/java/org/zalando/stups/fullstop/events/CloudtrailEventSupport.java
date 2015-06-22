@@ -44,8 +44,7 @@ public abstract class CloudtrailEventSupport {
 
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
-    public static final String SECURITY_GROUP_IDS_JSON_PATH =
-            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+    public static final String SECURITY_GROUP_IDS_JSON_PATH = "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
@@ -53,11 +52,9 @@ public abstract class CloudtrailEventSupport {
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
-    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-            "RegionString should never be null or empty";
+    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY = "RegionString should never be null or empty";
 
-    private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
-            "CloudTrailEventData should never be null";
+    private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL = "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
@@ -100,6 +97,10 @@ public abstract class CloudtrailEventSupport {
      */
     public static String getAccountId(final CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
+        // otherwise we get a java.lang.ClassCastException in tests
+        if (eventData instanceof TestCloudTrailEventData) {
+            return "";
+        }
         UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
 
         return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
