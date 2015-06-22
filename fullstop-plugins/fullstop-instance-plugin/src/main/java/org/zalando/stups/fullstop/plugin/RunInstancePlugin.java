@@ -101,7 +101,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             String message = String.format("SecurityGroups configured with ports not allowed: %s",
                     getPorts(securityGroupList.get()));
             violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
-                    getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
+                    getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
 
         }
     }
@@ -169,7 +169,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                         securityGroupIds.toString(), e.getMessage());
 
                 violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
-                        getCloudTrailEventRegion(event)).withAccoundId(getCloudTrailEventAccountId(event)).build());
+                        getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
                 return Optional.empty();
             }
 

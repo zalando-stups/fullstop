@@ -15,25 +15,41 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-
 import java.io.IOException;
+import java.io.StringWriter;
+
 import java.net.URISyntaxException;
+
 import java.nio.file.Files;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TestCloudTrailEventData.class);
+
     private Map<String, Object> data = new LinkedHashMap<String, Object>();
+
+    private ObjectMapper mapper;
 
     private String responseElementsResource;
 
@@ -59,6 +75,17 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     }
 
     @Override
+    public UserIdentity getUserIdentity() {
+        Map<String, Object> value = (Map<String, Object>) this.data.get(CloudTrailEventField.userIdentity.name());
+        UserIdentity ui = new UserIdentity();
+        for (Map.Entry<String, Object> entry : value.entrySet()) {
+            ui.add(entry.getKey(), entry.getValue());
+        }
+
+        return ui;
+    }
+
+    @Override
     public Object get(final String key) {
         return data.get(key);
     }
@@ -68,8 +95,7 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
         Object value = data.get(CloudTrailEventField.eventID.name());
         if (value == null) {
             return UUID.randomUUID();
-        }
-        else {
+        } else {
             if (value instanceof UUID) {
                 return (UUID) value;
             }
@@ -90,17 +116,45 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
 
     @Override
     public String getResponseElements() {
-        return getResponseElementsFromClasspath(responseElementsResource);
+        if (data.get("responseElements") != null) {
+            Object responseElements = data.get("responseElements");
+
+            if (mapper == null) {
+                mapper = new ObjectMapper();
+            }
+
+            StringWriter writer = new StringWriter();
+            try {
+                mapper.writeValue(writer, responseElements);
+                writer.flush();
+                writer.close();
+                return writer.toString();
+            } catch (JsonGenerationException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (responseElementsResource != null) {
+            return getResponseElementsFromClasspath(responseElementsResource);
+        }
+
+        return "";
     }
 
     protected String getResponseElementsFromClasspath(final String resource) {
         try {
             return new String(Files.readAllBytes(java.nio.file.Paths.get(getClass().getResource(resource).toURI())));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

@@ -38,7 +38,7 @@ class UsersConsumer implements Consumer<User> {
     @Override
     public void accept(final User t) {
         String message = String.format("Password was used by %s", t.getUserName());
-        violationSink.put(new ViolationBuilder(message).withAccoundId(accountId).build());
+        violationSink.put(new ViolationBuilder(message).withAccountId(accountId).build());
     }
 
 }
