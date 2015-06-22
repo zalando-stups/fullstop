@@ -329,10 +329,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
     }
 
-    private Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
+    protected Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
 
         try {
-
             Application application = kioOperations.getApplicationById(applicationId);
             return application;
         }
@@ -354,7 +353,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     }
 
-    private Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
+    protected Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
             final String applicationVersion) {
         try {
 
@@ -362,7 +361,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                                   applicationVersion);
             return version;
         }
-        catch (NotFoundException e) {
+        catch (NotFoudException e) {
             violationSink.put(new ViolationBuilder(format("Application: %s is not present with version %s in kio.",
                                                           applicationId,
                                                           applicationVersion)).withEventId(getCloudTrailEventId(event))
