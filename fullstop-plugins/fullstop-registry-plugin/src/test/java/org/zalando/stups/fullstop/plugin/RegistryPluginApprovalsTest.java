@@ -108,6 +108,7 @@ public class RegistryPluginApprovalsTest {
 
     @Before
     public void setUp() {
+        event = buildEvent();
         userDataProvider = mock(UserDataProvider.class);
         kioOperations = mock(KioOperations.class);
         pieroneOperations = mock(PieroneOperations.class);
@@ -134,8 +135,6 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldComplainWithoutAnyApprovals() {
-        event = buildEvent();
-
         when(kioOperations.getApplicationApprovals(APPLICATION_ID,
                                                    APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
         registryPlugin.validateContainsDefaultApprovals(version,
@@ -148,9 +147,6 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldComplainAboutMissingDefaultApprovals() {
-        // build test event
-        event = buildEvent();
-
         // build test approvals
         List<Approval> approvals = new LinkedList<Approval>();
         approvals.add(buildTestApproval(null));
@@ -171,10 +167,6 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldNotComplainWithDefaultApprovals() {
-        // build test event
-        event = buildEvent();
-
-        // build test approvals
         List<Approval> approvals = buildDefaultApprovals();
         // mock kio operations
         when(kioOperations.getApplicationApprovals(APPLICATION_ID,
@@ -193,9 +185,6 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldNotComplainWithFourEyesPrinciple() {
-        // build test event
-        event = buildEvent();
-
         // build test approvals
         List<Approval> approvals = buildDefaultApprovals();
         // mock kio operations
@@ -215,10 +204,6 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldComplainAboutViolatedFourEyesPrinciple() {
-        // build test event
-        event = buildEvent();
-
-        // build test approvals
         List<Approval> approvals = new LinkedList<Approval>();
         approvals.add(buildTestApproval(null));
         approvals.add(buildCodeApproval(null));

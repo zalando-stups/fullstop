@@ -16,15 +16,9 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
-import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.amazonaws.util.Base64;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -59,19 +53,17 @@ import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstan
 @Component
 public class RegistryPlugin extends AbstractFullstopPlugin {
 
-    public static final String USER_DATA = "userData";
-
     private static final Logger LOG = LoggerFactory.getLogger(RegistryPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
 
     private static final String EVENT_NAME = "RunInstances";
 
-    private static String APPLICATION_ID = "application_id";
+    protected static String APPLICATION_ID = "application_id";
 
-    private static String APPLICATION_VERSION = "application_version";
+    protected static String APPLICATION_VERSION = "application_version";
 
-    private static String SOURCE = "source";
+    protected static String SOURCE = "source";
 
     private final RegistryPluginProperties registryPluginProperties;
 
@@ -110,24 +102,23 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         List<String> instanceIds = getInstanceIds(event);
 
         for (String instanceId : instanceIds) {
-            Map userData = userDataProvider.getUserData(event,
-                                                        instanceId);
-
+            Map userData = getAndValidateUserData(event,
+                                                  instanceId);
             if (userData == null) {
                 return;
             }
 
-            String applicationId = getApplicationId(event,
-                                                    userData,
-                                                    instanceId);
+            String applicationId = getAndValidateApplicationId(event,
+                                                               userData,
+                                                               instanceId);
 
-            String applicationVersion = getApplicationVersion(event,
-                                                              userData,
-                                                              instanceId);
+            String applicationVersion = getAndValidateApplicationVersion(event,
+                                                                         userData,
+                                                                         instanceId);
 
-            String source = getSource(event,
-                                      userData,
-                                      instanceId);
+            String source = getAndValidateSource(event,
+                                                 userData,
+                                                 instanceId);
 
             if (applicationId != null) {
 
@@ -164,6 +155,46 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
     }
 
+    protected Map getAndValidateUserData(CloudTrailEvent event, String instanceId) {
+        Map userData;
+        try {
+            userData = userDataProvider.getUserData(event,
+                                                    instanceId);
+        }
+        catch (AmazonServiceException ex) {
+            LOG.error(ex.getMessage());
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.",
+                                                          instanceId))
+                                                                      .withEventId(getCloudTrailEventId(event))
+                                                                      .withRegion(getCloudTrailEventRegion(event))
+                                                                      .withAccountId(getCloudTrailEventAccountId(event))
+                                                                      .build());
+            return null;
+        }
+
+        if (userData == null) {
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.",
+                                                          instanceId))
+                                                                      .withEventId(getCloudTrailEventId(event))
+                                                                      .withRegion(getCloudTrailEventRegion(event))
+                                                                      .withAccountId(getCloudTrailEventAccountId(event))
+                                                                      .build());
+            return null;
+        }
+
+        if (userData.isEmpty()) {
+            violationSink.put(new ViolationBuilder(format("InstanceId: %s has empty userData.",
+                                                          instanceId))
+                                                                      .withEventId(getCloudTrailEventId(event))
+                                                                      .withRegion(getCloudTrailEventRegion(event))
+                                                                      .withAccountId(getCloudTrailEventAccountId(event))
+                                                                      .build());
+            return null;
+        }
+
+        return userData;
+    }
+
     protected void validateFourEyesPrinciple(Version version, CloudTrailEvent event) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(),
                                                                          version.getId());
@@ -187,7 +218,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         if (doneByOne) {
             violationSink
                          .put(new ViolationBuilder(
-                                                   format("Code change, test and deploy approvals of version %s of application %s were done by onle one person.",
+                                                   format("Code change, test and deploy approvals of version %s of application %s were done by only one person.",
                                                           version.getId(),
                                                           version.getApplicationId()))
                                                                                       .withAccountId(getCloudTrailEventAccountId(event))
@@ -350,7 +381,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     }
 
-    private String getApplicationId(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
+    protected String getAndValidateApplicationId(final CloudTrailEvent event, final Map userDataMap,
+            final String instanceId) {
         String applicationId = (String) userDataMap.get(APPLICATION_ID);
 
         if (applicationId == null) {
@@ -366,7 +398,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         return applicationId;
     }
 
-    private String getApplicationVersion(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
+    protected String getAndValidateApplicationVersion(final CloudTrailEvent event, final Map userDataMap,
+            final String instanceId) {
         String applicationVersion = (String) userDataMap.get(APPLICATION_VERSION);
 
         if (applicationVersion == null) {
@@ -382,7 +415,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         return applicationVersion;
     }
 
-    private String getSource(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
+    protected String getAndValidateSource(final CloudTrailEvent event, final Map userDataMap, final String instanceId) {
 
         String source = (String) userDataMap.get(SOURCE);
 
