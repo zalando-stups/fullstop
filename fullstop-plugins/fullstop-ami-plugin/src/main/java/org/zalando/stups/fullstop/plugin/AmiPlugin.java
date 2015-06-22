@@ -129,7 +129,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
                     getInstanceIds(event), invalidAmis))
                     .withEventId(getCloudTrailEventId(event))
                     .withRegion(getCloudTrailEventRegion(event))
-                    .withAccoundId(getCloudTrailEventAccountId(event)).build());
+                    .withAccountId(getCloudTrailEventAccountId(event)).build());
         }
     }
 }

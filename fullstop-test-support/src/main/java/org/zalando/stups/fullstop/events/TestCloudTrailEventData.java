@@ -26,9 +26,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -41,7 +45,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TestCloudTrailEventData.class);
+
     private Map<String, Object> data = new LinkedHashMap<String, Object>();
+
     private ObjectMapper mapper;
 
     private String responseElementsResource;
@@ -65,6 +72,17 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
 
     public static CloudTrailEvent createCloudTrailEvent(final String string) {
         return new CloudTrailEvent(new TestCloudTrailEventData(new LinkedHashMap<String, Object>(), string), null);
+    }
+
+    @Override
+    public UserIdentity getUserIdentity() {
+        Map<String, Object> value = (Map<String, Object>) this.data.get(CloudTrailEventField.userIdentity.name());
+        UserIdentity ui = new UserIdentity();
+        for (Map.Entry<String, Object> entry : value.entrySet()) {
+            ui.add(entry.getKey(), entry.getValue());
+        }
+
+        return ui;
     }
 
     @Override
@@ -100,6 +118,7 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     public String getResponseElements() {
         if (data.get("responseElements") != null) {
             Object responseElements = data.get("responseElements");
+
             if (mapper == null) {
                 mapper = new ObjectMapper();
             }

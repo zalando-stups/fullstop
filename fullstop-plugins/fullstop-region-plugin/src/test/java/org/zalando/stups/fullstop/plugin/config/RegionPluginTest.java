@@ -15,30 +15,36 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mockito;
+
+import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.UUID;
-
-import static org.mockito.Mockito.*;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 public class RegionPluginTest {
 
     private ViolationSink violationSink = new SystemOutViolationSink();
-
     ;
 
     private RegionPluginProperties regionPluginProperties;
@@ -67,19 +73,22 @@ public class RegionPluginTest {
 
     @Test
     public void testNonWhitelistedRegion() {
-        TestCloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", "us-west-1");
-        UserIdentity userIdentity = new UserIdentity();
-        userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
-        data.add(CloudTrailEventField.userIdentity.name(), userIdentity);
-        data.add(CloudTrailEventField.eventID.name(), UUID.randomUUID());
 
-        CloudTrailEvent event = new CloudTrailEvent(data, null);
+        CloudTrailEvent event = buildEvent("withResp");
 
         //
         RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
         plugin.processEvent(event);
 
         verify(violationSink, atLeastOnce()).put(Mockito.any(Violation.class));
+    }
+
+    protected CloudTrailEvent buildEvent(final String type) {
+        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
+
+        return new CloudTrailEvent(new TestCloudTrailEventData(records.get(0), "/responseElements.json"), null);
+
+// return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
     }
 
 }
