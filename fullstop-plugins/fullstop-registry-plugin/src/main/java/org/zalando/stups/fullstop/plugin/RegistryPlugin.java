@@ -45,6 +45,7 @@ import org.zalando.stups.clients.kio.NotFoudException;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -67,15 +68,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     public static final String USER_DATA = "userData";
 
-    @Value("${fullstop.plugins.approvals.code")
-    private static final String APPROVAL_CODE = "CODE_CHANGE";
-
-    @Value("${fullstop.plugins.approvals.test")
-    private static final String APPROVAL_TEST = "TEST";
-
-    @Value("${fullstop.plugins.approvals.deploy")
-    private static final String APPROVAL_DEPLOY = "DEPLOY";
-
     private static final Logger LOG = LoggerFactory.getLogger(RegistryPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
@@ -88,6 +80,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private static String SOURCE = "source";
 
+    private final RegistryPluginProperties registryPluginProperties;
+
     private final ClientProvider cachingClientProvider;
 
     private final ViolationSink violationSink;
@@ -96,16 +90,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final KioOperations kioOperations;
 
-    @Value("${fullstop.plugins.approvals.default}")
-    private final Set<String> DEFAULT_APPROVAL_TYPES = new HashSet<String>();
-
     @Autowired
     public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationSink violationSink,
-            final PieroneOperations pieroneOperations, final KioOperations kioOperations) {
+            final PieroneOperations pieroneOperations, final KioOperations kioOperations,
+            final RegistryPluginProperties registryPluginProperties) {
         this.cachingClientProvider = cachingClientProvider;
         this.violationSink = violationSink;
         this.pieroneOperations = pieroneOperations;
         this.kioOperations = kioOperations;
+        this.registryPluginProperties = registryPluginProperties;
     }
 
     @Override
@@ -159,14 +152,18 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private void validateApprovals(Version version, CloudTrailEvent event) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(), version.getId());
+        Set<String> defaultApprovals = registryPluginProperties.getDefaultApprovals();
+        String codeApproval = registryPluginProperties.getCodeApproval();
+        String testApproval = registryPluginProperties.getTestApproval();
+        String deployApproval = registryPluginProperties.getDeployApproval();
 
         // #139
         // https://github.com/zalando-stups/fullstop/issues/139
         // does not have all default approval types
         Set<String> approvalTypes = approvals.stream().collect(Collectors.groupingBy(Approval::getApprovalType))
                 .keySet();
-        if (!approvalTypes.containsAll(DEFAULT_APPROVAL_TYPES)) {
-            Set<String> diff = Sets.newHashSet(DEFAULT_APPROVAL_TYPES);
+        if (!approvalTypes.containsAll(defaultApprovals)) {
+            Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(new ViolationBuilder(format("Version %s of application %s is missing approvals: %s.",
                     version.getId(), diff.toString(), version.getApplicationId()))
@@ -180,8 +177,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // e.g. four-eyes-principle
         boolean doneByOne = approvals
                 .stream()
-                .filter(a -> a.getApprovalType() == APPROVAL_CODE || a.getApprovalType() == APPROVAL_TEST
-                        || a.getApprovalType() == APPROVAL_DEPLOY).map(a -> a.getUserId()).distinct()
+                .filter(a -> a.getApprovalType() == codeApproval || a.getApprovalType() == testApproval
+                        || a.getApprovalType() == deployApproval).map(a -> a.getUserId()).distinct()
                 .collect(Collectors.toList()).size() == 1;
         if (doneByOne) {
             violationSink
