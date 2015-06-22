@@ -26,11 +26,15 @@ import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.util.Base64;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.yaml.snakeyaml.Yaml;
@@ -63,13 +67,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     public static final String USER_DATA = "userData";
 
+    @Value("${fullstop.plugins.approvals.code")
     private static final String APPROVAL_CODE = "CODE_CHANGE";
 
+    @Value("${fullstop.plugins.approvals.test")
     private static final String APPROVAL_TEST = "TEST";
 
+    @Value("${fullstop.plugins.approvals.deploy")
     private static final String APPROVAL_DEPLOY = "DEPLOY";
-
-    private static final String APPROVAL_SPEC = "SPECIFICATION";
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistryPlugin.class);
 
@@ -90,6 +95,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     private final PieroneOperations pieroneOperations;
 
     private final KioOperations kioOperations;
+
+    @Value("${fullstop.plugins.approvals.default}")
+    private final Set<String> DEFAULT_APPROVAL_TYPES = new HashSet<String>();
 
     @Autowired
     public RegistryPlugin(final ClientProvider cachingClientProvider, final ViolationSink violationSink,
@@ -157,13 +165,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // does not have all default approval types
         Set<String> approvalTypes = approvals.stream().collect(Collectors.groupingBy(Approval::getApprovalType))
                 .keySet();
-        if (!approvalTypes.contains(APPROVAL_CODE) || !approvalTypes.contains(APPROVAL_DEPLOY)
-                || !approvalTypes.contains(APPROVAL_SPEC) || !approvalTypes.contains(APPROVAL_TEST)) {
-
-            violationSink.put(new ViolationBuilder(format(
-                    "Version %s of application %s is missing one or more approvals.", version.getId(),
-                    version.getApplicationId())).withAccoundId(getCloudTrailEventAccountId(event))
-                    .withRegion(getCloudTrailEventRegion(event)).withEventId(getCloudTrailEventId(event)).build());
+        if (!approvalTypes.containsAll(DEFAULT_APPROVAL_TYPES)) {
+            Set<String> diff = Sets.newHashSet(DEFAULT_APPROVAL_TYPES);
+            diff.removeAll(approvalTypes);
+            violationSink.put(new ViolationBuilder(format("Version %s of application %s is missing approvals: %s.",
+                    version.getId(), diff.toString(), version.getApplicationId()))
+                    .withAccoundId(getCloudTrailEventAccountId(event)).withRegion(getCloudTrailEventRegion(event))
+                    .withEventId(getCloudTrailEventId(event)).build());
         }
 
         // #140
@@ -187,7 +195,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     private void validateScmSource(CloudTrailEvent event, String teamId, String applicationId, String applicationVersion) {
-
         Map<String, String> scmSource = Maps.newHashMap();
         try {
             scmSource = pieroneOperations.getScmSource(teamId, applicationId, applicationVersion);

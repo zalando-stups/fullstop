@@ -81,6 +81,12 @@ fullstop:
         pierone:
             url: ${FULLSTOP_PIERONE_URL}
 
+        approvals:
+            default: ${FULLSTOP_DEFAULT_APPROVALS:"SPECIFICATION,CODE_CHANGE,TEST,DEPLOY"}
+            code: ${FULLSTOP_CODE_APPROVAL:"CODE_CHANGE"}
+            test: ${FULLSTOP_TEST_APPROVAL:"TEST"}
+            deploy: ${FULLSTOP_DEPLOY_APPROVAL:"DEPLOY"}
+
     clients:
         kio:
             url: ${FULLSTOP_KIO_URL}
