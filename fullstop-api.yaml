@@ -97,6 +97,8 @@ paths:
       tags:
         - Fullstop API
       operationId: violations
+      security:
+        - oauth2: [uid]
       parameters:
         - name: accounts
           in: query
@@ -137,6 +139,8 @@ paths:
       tags:
         - Fullstop API
       operationId: resolveViolations
+      security:
+        - oauth2: [uid]
       responses:
         "200":
           description: Violation resolved successfully
@@ -158,6 +162,8 @@ paths:
       tags:
         - Fullstop API
       operationId: instanceLogs
+      security:
+        - oauth2: [uid]
       responses:
         "201":
           description: Logs saved successfully
@@ -173,6 +179,6 @@ securityDefinitions:
   oauth2:
     type: oauth2
     flow: password
-    authorizationUrl: https://example.com/oauth2/dialog
+    tokenUrl: https://example.com/oauth2/tokenUrl
     scopes:
       uid: Unique identifier of the user accessing the service.
