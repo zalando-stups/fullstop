@@ -38,11 +38,11 @@ public class RegistryPluginProperties {
 
     private Set<String> defaultApprovals = new HashSet<String>();
 
-    private String codeApproval;
+    private String codeApproval = "CODE_CHANGE";
 
-    private String testApproval;
+    private String testApproval = "TEST";
 
-    private String deployApproval;
+    private String deployApproval = "DEPLOY";
 
     public Set<String> getDefaultApprovals() {
         if (defaultApprovals.isEmpty()) {
@@ -57,9 +57,6 @@ public class RegistryPluginProperties {
     }
 
     public String getCodeApproval() {
-        if (codeApproval == null) {
-            return "CODE_CHANGE";
-        }
         return codeApproval;
     }
 
@@ -68,9 +65,6 @@ public class RegistryPluginProperties {
     }
 
     public String getTestApproval() {
-        if (testApproval == null) {
-            return "TEST";
-        }
         return testApproval;
     }
 
@@ -79,9 +73,6 @@ public class RegistryPluginProperties {
     }
 
     public String getDeployApproval() {
-        if (deployApproval == null) {
-            return "DEPLOY";
-        }
         return deployApproval;
     }
 
