@@ -31,53 +31,56 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private static final Set<String> APPROVALS = Sets.newHashSet("CODE_CHANGE",
-                                                                 "TEST",
-                                                                 "SPECIFICATION",
-                                                                 "DEPLOY");
+    private Set<String> defaultMandatoryApprovals = Sets.newHashSet("CODE_CHANGE",
+                                                                    "TEST",
+                                                                    "SPECIFICATION",
+                                                                    "DEPLOY");
 
-    private Set<String> defaultApprovals = new HashSet<String>();
+    private Set<String> mandatoryApprovals = Sets.newHashSet();
 
-    private String codeApproval = "CODE_CHANGE";
+    private Set<String> defaultApprovalsFromMany = Sets.newHashSet("TEST",
+                                                                   "CODE_CHANGE",
+                                                                   "DEPLOY");
 
-    private String testApproval = "TEST";
+    private Set<String> approvalsFromMany = Sets.newHashSet();
 
-    private String deployApproval = "DEPLOY";
-
-    public Set<String> getDefaultApprovals() {
-        if (defaultApprovals.isEmpty()) {
-            return APPROVALS;
+    public Set<String> getMandatoryApprovals() {
+        if (mandatoryApprovals.isEmpty()) {
+            return defaultMandatoryApprovals;
         }
 
-        return defaultApprovals;
+        return mandatoryApprovals;
     }
 
-    public void setDefaultApprovals(Set<String> defaultApprovals) {
-        this.defaultApprovals = defaultApprovals;
+    public void setMandatoryApprovals(Set<String> defaultApprovals) {
+        this.mandatoryApprovals = defaultApprovals;
     }
 
-    public String getCodeApproval() {
-        return codeApproval;
+    public Set<String> getDefaultMandatoryApprovals() {
+        return defaultMandatoryApprovals;
     }
 
-    public void setCodeApproval(String codeApproval) {
-        this.codeApproval = codeApproval;
+    public void setDefaultMandatoryApprovals(Set<String> defaultMandatoryApprovals) {
+        this.defaultMandatoryApprovals = defaultMandatoryApprovals;
     }
 
-    public String getTestApproval() {
-        return testApproval;
+    public Set<String> getDefaultApprovalsFromMany() {
+        return defaultApprovalsFromMany;
     }
 
-    public void setTestApproval(String testApproval) {
-        this.testApproval = testApproval;
+    public void setDefaultApprovalsFromMany(Set<String> defaultApprovalsFromMany) {
+        this.defaultApprovalsFromMany = defaultApprovalsFromMany;
     }
 
-    public String getDeployApproval() {
-        return deployApproval;
+    public Set<String> getApprovalsFromMany() {
+        if (approvalsFromMany.isEmpty()) {
+            return defaultApprovalsFromMany;
+        }
+        return approvalsFromMany;
     }
 
-    public void setDeployApproval(String deployApproval) {
-        this.deployApproval = deployApproval;
+    public void setApprovalsFromMany(Set<String> approvalsFromMany) {
+        this.approvalsFromMany = approvalsFromMany;
     }
 
 }

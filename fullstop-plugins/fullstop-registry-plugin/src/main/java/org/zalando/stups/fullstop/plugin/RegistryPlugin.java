@@ -144,8 +144,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                           applicationId,
                                           applicationVersion);
 
-                        validateContainsDefaultApprovals(applicationVersionFromKio,
-                                                         event);
+                        validateContainsMandatoryApprovals(applicationVersionFromKio,
+                                                           event);
                         validateFourEyesPrinciple(applicationVersionFromKio,
                                                   event);
                     }
@@ -197,9 +197,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     protected void validateFourEyesPrinciple(Version version, CloudTrailEvent event) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(),
                                                                          version.getId());
-        String codeApproval = registryPluginProperties.getCodeApproval();
-        String testApproval = registryPluginProperties.getTestApproval();
-        String deployApproval = registryPluginProperties.getDeployApproval();
+        Set<String> approvalsFromMany = registryPluginProperties.getApprovalsFromMany();
 
         // #140
         // https://github.com/zalando-stups/fullstop/issues/140
@@ -207,9 +205,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // e.g. four-eyes-principle
         boolean doneByOne = approvals
                                      .stream()
-                                     .filter(a -> a.getApprovalType() == codeApproval
-                                             || a.getApprovalType() == testApproval
-                                             || a.getApprovalType() == deployApproval)
+                                     .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
                                      .map(a -> a.getUserId())
                                      .distinct()
                                      .collect(Collectors.toList())
@@ -228,10 +224,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     }
 
-    protected void validateContainsDefaultApprovals(Version version, CloudTrailEvent event) {
+    protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(),
                                                                          version.getId());
-        Set<String> defaultApprovals = registryPluginProperties.getDefaultApprovals();
+        Set<String> defaultApprovals = registryPluginProperties.getMandatoryApprovals();
 
         // #139
         // https://github.com/zalando-stups/fullstop/issues/139
