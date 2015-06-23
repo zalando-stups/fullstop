@@ -287,7 +287,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     protected void validateSourceWithPierone(final CloudTrailEvent event, final String applicationId,
             final String applicationVersion, final String team, final String source, final String artifact) {
 
-        if (!source.equals(artifact)) {
+        if (!artifact.contains(source)) {
             violationSink.put(new ViolationBuilder(format("Application: %s has not a valid artifact for version: %s.",
                                                           applicationId,
                                                           applicationVersion)).withEventId(getCloudTrailEventId(event))

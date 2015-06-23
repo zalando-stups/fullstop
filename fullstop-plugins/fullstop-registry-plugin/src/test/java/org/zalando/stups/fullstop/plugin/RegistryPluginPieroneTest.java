@@ -95,7 +95,7 @@ public class RegistryPluginPieroneTest {
     }
 
     @Test
-    public void shouldComplainIfSourceDoesNotMatchArtifact() {
+    public void shouldComplainIfArtifactDoesNotContainSource() {
         Map<String, String> tags = Maps.newHashMap();
         tags.put(VERSION,
                  ARTIFACT);
@@ -105,8 +105,8 @@ public class RegistryPluginPieroneTest {
                                                  APP,
                                                  VERSION,
                                                  TEAM,
-                                                 ARTIFACT,
-                                                 "docker://stups/yourturn:2.0");
+                                                 "stups/yourturn:2.0",
+                                                 ARTIFACT);
         verify(pieroneOperations).listTags(TEAM,
                                            APP);
         verify(violationSink).put(any(Violation.class));
@@ -132,7 +132,7 @@ public class RegistryPluginPieroneTest {
     public void shouldComplainIfTagIsMissingInPierone() {
         Map<String, String> tags = Maps.newHashMap();
         tags.put("2.0",
-                 "aasdf");
+                 "abcd");
         when(pieroneOperations.listTags(TEAM,
                                         APP)).thenReturn(tags);
         registryPlugin.validateSourceWithPierone(event,
@@ -147,17 +147,17 @@ public class RegistryPluginPieroneTest {
     }
 
     @Test
-    public void shouldNotComplainIfSourceMatchesArtifactAndTagIsInPierone() {
+    public void shouldNotComplainIfArtifactContainsSourceAndTagIsInPierone() {
         Map<String, String> tags = Maps.newHashMap();
         tags.put(VERSION,
-                 "docker://stups/yourturn:1.0");
+                 "abcd");
         when(pieroneOperations.listTags(TEAM,
                                         APP)).thenReturn(tags);
         registryPlugin.validateSourceWithPierone(event,
                                                  APP,
                                                  VERSION,
                                                  TEAM,
-                                                 ARTIFACT,
+                                                 "stups/yourturn",
                                                  ARTIFACT);
         verify(pieroneOperations).listTags(TEAM,
                                            APP);
