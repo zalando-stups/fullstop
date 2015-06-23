@@ -61,8 +61,9 @@
         <module>fullstop</module>
         <module>fullstop-plugin-api</module>
         <module>fullstop-plugins</module>
-        <module>fullstop-test-support</module>
         <module>fullstop-processing</module>
+        <module>fullstop-plugin-test</module>
+        <module>fullstop-test-support</module>
         <module>docs</module>
         <module>fullstop-timemachine</module>
         <!-- <module>fullstop-violation-store-slf4j</module> -->
