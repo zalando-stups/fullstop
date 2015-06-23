@@ -133,12 +133,12 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
                     if (applicationVersionFromKio != null) {
 
-                        validateSourceWithKio(event,
-                                              applicationId,
-                                              applicationVersion,
-                                              applicationFromKio.getTeamId(),
-                                              source,
-                                              applicationVersionFromKio.getArtifact());
+                        validateSourceWithPierone(event,
+                                                  applicationId,
+                                                  applicationVersion,
+                                                  applicationFromKio.getTeamId(),
+                                                  source,
+                                                  applicationVersionFromKio.getArtifact());
 
                         validateScmSource(event,
                                           applicationFromKio.getTeamId(),
@@ -254,7 +254,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
     }
 
-    private void validateScmSource(CloudTrailEvent event, String teamId, String applicationId, String applicationVersion) {
+    protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
+            String applicationVersion) {
         Map<String, String> scmSource = Maps.newHashMap();
         try {
             scmSource = pieroneOperations.getScmSource(teamId,
@@ -270,6 +271,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                                               .withRegion(getCloudTrailEventRegion(event))
                                                                               .withAccountId(getCloudTrailEventAccountId(event))
                                                                               .build());
+            return;
         }
         if (scmSource.isEmpty()) {
             violationSink.put(new ViolationBuilder(format(
@@ -283,7 +285,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
     }
 
-    private void validateSourceWithKio(final CloudTrailEvent event, final String applicationId,
+    protected void validateSourceWithPierone(final CloudTrailEvent event, final String applicationId,
             final String applicationVersion, final String team, final String source, final String artifact) {
 
         if (!source.equals(artifact)) {
@@ -297,7 +299,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         Map<String, String> tags = Maps.newHashMap();
         try {
-
             tags = this.pieroneOperations.listTags(team,
                                                    applicationId);
         }
