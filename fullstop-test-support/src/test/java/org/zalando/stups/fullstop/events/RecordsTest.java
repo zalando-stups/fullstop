@@ -15,11 +15,12 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.Map;
+
+import org.assertj.core.api.Assertions;
+
+import org.junit.Test;
 
 public class RecordsTest {
 
@@ -31,4 +32,11 @@ public class RecordsTest {
         System.out.println(records.get(0));
     }
 
+    @Test
+    public void testMRecords() {
+        List<Map<String, Object>> records = Records.fromClasspath("/mrecord.json");
+        Assertions.assertThat(records).isNotEmpty();
+        Assertions.assertThat(records.size()).isEqualTo(1);
+        System.out.println(records.get(0));
+    }
 }
