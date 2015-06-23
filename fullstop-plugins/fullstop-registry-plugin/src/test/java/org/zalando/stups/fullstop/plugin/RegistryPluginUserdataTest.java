@@ -2,7 +2,6 @@ package org.zalando.stups.fullstop.plugin;
 
 import static org.mockito.Mockito.mock;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.collect.Maps;
 
 public class RegistryPluginUserdataTest {
 
@@ -82,7 +82,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldComplainWithEmptyUserData() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         when(userDataProvider.getUserData(any(),
                                           any())).thenReturn(userData);
 
@@ -97,7 +97,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldNotComplainWithFilledUserData() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put("foo",
                      "bar");
         when(userDataProvider.getUserData(any(),
@@ -115,7 +115,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldComplainWithoutApplicationId() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put("foo",
                      "bar");
 
@@ -128,7 +128,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldNotComplainWithApplicationId() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put(RegistryPlugin.APPLICATION_ID,
                      "bar");
 
@@ -142,7 +142,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldComplainWithoutApplicationVersion() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put("foo",
                      "bar");
 
@@ -155,7 +155,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldNotComplainWithApplicationVersion() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put(RegistryPlugin.APPLICATION_VERSION,
                      "bar");
 
@@ -169,7 +169,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldComplainWithoutSource() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put("foo",
                      "bar");
 
@@ -182,7 +182,7 @@ public class RegistryPluginUserdataTest {
 
     @Test
     public void shouldNotComplainWithSource() {
-        Map userData = new HashMap();
+        Map<String, String> userData = Maps.newHashMap();
         userData.put(RegistryPlugin.SOURCE,
                      "bar");
 

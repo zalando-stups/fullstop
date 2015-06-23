@@ -18,7 +18,6 @@ package org.zalando.stups.fullstop.plugin;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
