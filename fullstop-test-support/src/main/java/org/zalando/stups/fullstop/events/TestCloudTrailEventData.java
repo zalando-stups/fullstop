@@ -115,6 +115,39 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     }
 
     @Override
+    public String getRequestParameters() {
+        if (data.get("requestParameters") != null) {
+            Object responseElements = data.get("requestParameters");
+
+            if (mapper == null) {
+                mapper = new ObjectMapper();
+            }
+
+            StringWriter writer = new StringWriter();
+            try {
+                mapper.writeValue(writer, responseElements);
+                writer.flush();
+                writer.close();
+                return writer.toString();
+            } catch (JsonGenerationException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            } finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return "";
+    }
+
+    @Override
     public String getResponseElements() {
         if (data.get("responseElements") != null) {
             Object responseElements = data.get("responseElements");

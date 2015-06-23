@@ -161,7 +161,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             diff.removeAll(approvalTypes);
             violationSink.put(new ViolationBuilder(format("Version %s of application %s is missing approvals: %s.",
                     version.getId(), diff.toString(), version.getApplicationId()))
-                    .withAccoundId(getCloudTrailEventAccountId(event)).withRegion(getCloudTrailEventRegion(event))
+                    .withAccountId(getCloudTrailEventAccountId(event)).withRegion(getCloudTrailEventRegion(event))
                     .withEventId(getCloudTrailEventId(event)).build());
         }
 
