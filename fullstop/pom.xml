@@ -111,12 +111,15 @@
             <artifactId>fullstop-subnet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- deactivated - not finish yet -->
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        -->
+        
         <!-- END PLUGINS -->
 
         <dependency>
