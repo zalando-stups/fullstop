@@ -89,7 +89,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        DateTime instanceLaunchTime = null;
+        DateTime instanceLaunchTime;
         try {
 
             instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
@@ -100,9 +100,6 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         }
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
-
-        // String prefix = Paths.get(accountId, region.getName(), instanceLaunchTime.toString("YYYY"),
-        // instanceLaunchTime.toString("MM"), instanceLaunchTime.toString("dd")).toString() + "/";
 
         String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
 
@@ -126,7 +123,6 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             String instanceBucketNameControlElement = null;
             DateTime instanceBootTimeControlElement = null;
 
-            // TODO, I do not understand what is going on here and why
             for (String instanceBucket : instanceBuckets) {
                 List<String> currentBucket = Lists.newArrayList(
                         Splitter.on('-').limit(3).trimResults()
