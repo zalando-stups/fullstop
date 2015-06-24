@@ -1,0 +1,51 @@
+{"Records": [
+        {"eventVersion": "1.02",
+        "userIdentity": {
+        "type": "AssumedRole",
+        "principalId": "XXXXXXX:mrandi",
+        "arn": "arn:aws:sts::XXXX123XXX:assumed-role/Shibboleth-PowerUser/mrandi",
+        "accountId": "XXXX123XXX",
+        "accessKeyId": "IAISP3UK5WEZQ3KNYA",
+        "sessionContext": {
+            "attributes": {
+                "mfaAuthenticated": "false",
+                "creationDate": "2015-06-17T15:06:49Z"
+            },
+            "sessionIssuer": {
+                "type": "Role",
+                "principalId": "XXXXXXX",
+                "arn": "arn:aws:iam::XXXX123XXX:role/Shibboleth-PowerUser",
+                "accountId": "XXXX123XXX",
+                "userName": "Shibboleth-PowerUser"
+            }
+        },
+        "invokedBy": "cloudformation.amazonaws.com"
+        },
+        "eventTime": "2015-06-17T15:45:40Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "CreateRole",
+        "awsRegion": "us-east-1",
+        "sourceIPAddress": "cloudformation.amazonaws.com",
+        "userAgent": "cloudformation.amazonaws.com",
+        "requestParameters": {
+            "path": "/",
+            "roleName": "mint-worker-b17-AppServerRole-X8WewafwO2MEWZ",
+            "assumeRolePolicyDocument": "{\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Principal\":{\"Service\":[\"ec2.amazonaws.com\"]},\"Effect\":\"Allow\"}],\"Version\":\"2012-10-17\"}"
+        },
+        "responseElements": {
+            "role": {
+                "assumeRolePolicyDocument": "%7B%22Statement%22%3A%5B%7B%22Action%22%3A%5B%22sts%3AAssumeRole%22%5D%2C%22Principal%22%3A%7B%22Service%22%3A%5B%22ec2.amazonaws.com%22%5D%7D%2C%22Effect%22%3A%22Allow%22%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D",
+                "arn": "arn:aws:iam::XXXX123XXX:role/mint-worker-b17-AppServerRole-W5WX8WO2MEWZ",
+                "roleId": "FDSaffdsavr",
+                "createDate": "Jun 17, 2015 3:45:40 PM",
+                "roleName": "mint-worker-b17-AppServerRole-X8WO23MEWZ",
+                "path": "/"
+            }
+        },
+        "requestID": "08bf11ea-2fcd-4816-aa2f-28c65f047e4f",
+        "eventID": "08bf11ea-2fcd-4816-aa2f-28c65f047e44",
+        "eventType": "AwsApiCall",
+        "recipientAccountId": "XXXX123XXX"
+    }
+]
+}

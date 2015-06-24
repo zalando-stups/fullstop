@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Test;
 
@@ -70,5 +71,37 @@ public class TestCloudTrailEventDataTest {
 
         String responseElements = event.getEventData().getResponseElements();
         System.out.println(responseElements);
+    }
+
+    @Test
+    public void testCloudTrailEventDataWithResponseElementsFromM() throws JsonProcessingException, IOException {
+        List<Map<String, Object>> records = Records.fromClasspath("/mrecord.json");
+
+        Map<String, Object> record = records.get(0);
+        System.out.println(record.toString());
+
+        TestCloudTrailEventData eventData = new TestCloudTrailEventData(record);
+
+        CloudTrailEvent event = new CloudTrailEvent(eventData, null);
+        String eventName = event.getEventData().getEventName();
+        System.out.println(eventName);
+        System.out.println(event.getEventData().getEventSource());
+        System.out.println(event.getEventData().getEventId().toString());
+        System.out.println(event.getEventData().getAccountId());
+
+        System.out.println("----- REQUEST_PARAMETERS ------");
+
+        String requestParameters = event.getEventData().getRequestParameters();
+        System.out.println(requestParameters);
+
+        System.out.println("----- RESPONSE_ELEMENTS ------");
+
+        String responseElements = event.getEventData().getResponseElements();
+        System.out.println(responseElements);
+    }
+
+    @Test
+    public void uuid() {
+        System.out.println(UUID.randomUUID().toString());
     }
 }
