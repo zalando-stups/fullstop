@@ -5,7 +5,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 
 /**
@@ -18,14 +18,17 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
 
     private static final String START_EVENT_NAME = "RunInstances";
-    private static final String STOP_EVENT_NAME = "TerminateInstances";
 
+    private static final String STOP_EVENT_NAME = "TerminateInstances";
 
     private LifecycleRepository lifecycleRepository;
 
+    private UserDataProvider userDataProvider;
+
     @Autowired
-    public LifecyclePlugin(final LifecycleRepository lifecycleRepository) {
+    public LifecyclePlugin(final LifecycleRepository lifecycleRepository, UserDataProvider userDataProvider) {
         this.lifecycleRepository = lifecycleRepository;
+        this.userDataProvider = userDataProvider;
     }
 
     @Override
@@ -39,11 +42,11 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(CloudTrailEvent event) {
-        lifecycleRepository.save();
+
 
     }
 
     private String getApplicationVersion() {
-
+        return "";
     }
 }
