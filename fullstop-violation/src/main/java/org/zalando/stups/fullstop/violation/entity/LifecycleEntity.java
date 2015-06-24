@@ -20,6 +20,8 @@ import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -36,18 +38,30 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private Integer appHasVersionId;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name= "application", referencedColumnName = "id")
+    private ApplicationEntity applicationEntity;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "application_version", referencedColumnName = "id")
+    private VersionEntity versionEntity;
+
     private String eventType;
+
+    private  String instanceId;
 
     public LifecycleEntity() {
     }
 
-    public LifecycleEntity(DateTime startDate, DateTime endDate, String region, Integer appHasVersionId,
-            String eventType) {
+    public LifecycleEntity(DateTime startDate, DateTime endDate, String region, ApplicationEntity applicationEntity, VersionEntity versionEntity,
+            String eventType, String instanceId) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.region = region;
-        this.appHasVersionId = appHasVersionId;
+        this.applicationEntity = applicationEntity;
+        this.versionEntity = versionEntity;
         this.eventType = eventType;
+        this.instanceId = instanceId;
     }
 
     public DateTime getStartDate() {
@@ -74,14 +88,6 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.region = region;
     }
 
-    public Integer getAppHasVersionId() {
-        return appHasVersionId;
-    }
-
-    public void setAppHasVersionId(Integer appHasVersionId) {
-        this.appHasVersionId = appHasVersionId;
-    }
-
     public String getEventType() {
         return eventType;
     }
@@ -90,14 +96,41 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.eventType = eventType;
     }
 
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+
+    public ApplicationEntity getApplicationEntity() {
+        return applicationEntity;
+    }
+
+    public void setApplicationEntity(ApplicationEntity applicationEntity) {
+        this.applicationEntity = applicationEntity;
+    }
+
+    public VersionEntity getVersionEntity() {
+        return versionEntity;
+    }
+
+    public void setVersionEntity(VersionEntity versionEntity) {
+        this.versionEntity = versionEntity;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
                 .add("startdate", startDate)
                 .add("enddate", endDate)
                 .add("region", region)
-                .add("appHasVersionId", appHasVersionId)
+                .add("application", applicationEntity)
+                .add("applicationVersion", versionEntity)
                 .add("eventType", eventType)
+                .add("instanceId", instanceId)
                 .toString();
     }
 }

@@ -23,5 +23,5 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
  * Created by gkneitschel.
  */
 @Repository
-public interface ApplicationVersionRepository extends JpaRepository<VersionEntity, Long> {
+public interface VersionRepository extends JpaRepository<VersionEntity, Long> {
 }

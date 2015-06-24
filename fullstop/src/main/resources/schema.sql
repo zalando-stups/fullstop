@@ -43,11 +43,6 @@ CREATE TABLE IF NOT EXISTS fullstop_data.app_has_version (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
   app_id           INTEGER,
   app_version_id   INTEGER,
-  created          TIMESTAMP,
-  created_by       TEXT,
-  last_modified    TIMESTAMP,
-  last_modified_by TEXT,
-  version          BIGINT    NOT NULL,
   FOREIGN KEY (app_id) REFERENCES fullstop_data.application (id),
   FOREIGN KEY (app_version_id) REFERENCES fullstop_data.app_version (id)
 );
@@ -57,12 +52,15 @@ CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
   startdate          DATE,
   enddate            DATE,
   region             TEXT,
-  app_has_version_id INTEGER,
+  application        INTEGER,
+  application_version INTEGER,
   event_type         TEXT,
+  instance_id        TEXT,
   created            TIMESTAMP,
   created_by         TEXT,
   last_modified      TIMESTAMP,
   last_modified_by   TEXT,
   version            BIGINT    NOT NULL,
-  FOREIGN KEY (app_has_version_id) REFERENCES fullstop_data.app_has_version (id)
+  FOREIGN KEY (application) REFERENCES fullstop_data.application (id),
+  FOREIGN KEY (application_version) REFERENCES fullstop_data.app_version (id)
 );
