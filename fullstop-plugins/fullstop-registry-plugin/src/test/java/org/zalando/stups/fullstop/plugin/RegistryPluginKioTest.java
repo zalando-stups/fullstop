@@ -15,14 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.*;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,9 +31,16 @@ import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 public class RegistryPluginKioTest {
+
+    private static final String APPLICATION_ID = "fullstop";
+
+    private static final String APPLICATION_VERSION = "1.0";
 
     private KioOperations kioOperations;
 
@@ -60,10 +60,6 @@ public class RegistryPluginKioTest {
 
     private Version version;
 
-    private static final String APPLICATION_ID = "fullstop";
-
-    private static final String APPLICATION_VERSION = "1.0";
-
     protected CloudTrailEvent buildEvent() {
         List<Map<String, Object>> records = Records.fromClasspath("/record.json");
 
@@ -79,11 +75,12 @@ public class RegistryPluginKioTest {
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
         pluginConfiguration = new RegistryPluginProperties();
-        registryPlugin = new RegistryPlugin(userDataProvider,
-                                            violationSink,
-                                            pieroneOperations,
-                                            kioOperations,
-                                            pluginConfiguration);
+        registryPlugin = new RegistryPlugin(
+                userDataProvider,
+                violationSink,
+                pieroneOperations,
+                kioOperations,
+                pluginConfiguration);
         application = new Application();
         application.setId(APPLICATION_ID);
 
@@ -94,18 +91,20 @@ public class RegistryPluginKioTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(userDataProvider,
-                                 kioOperations,
-                                 pieroneOperations,
-                                 violationSink);
+        verifyNoMoreInteractions(
+                userDataProvider,
+                kioOperations,
+                pieroneOperations,
+                violationSink);
     }
 
     @Test
     public void shouldComplainWhenApplicationNotFound() {
         when(kioOperations.getApplicationById(APPLICATION_ID)).thenThrow(new NotFoudException());
 
-        registryPlugin.getAndValidateApplicationFromKio(event,
-                                                        APPLICATION_ID);
+        registryPlugin.getAndValidateApplicationFromKio(
+                event,
+                APPLICATION_ID);
         verify(kioOperations).getApplicationById(APPLICATION_ID);
         verify(violationSink).put(any(Violation.class));
     }
@@ -114,39 +113,50 @@ public class RegistryPluginKioTest {
     public void shouldNotComplainWhenApplicationFound() {
         when(kioOperations.getApplicationById(APPLICATION_ID)).thenReturn(application);
 
-        registryPlugin.getAndValidateApplicationFromKio(event,
-                                                        APPLICATION_ID);
+        registryPlugin.getAndValidateApplicationFromKio(
+                event,
+                APPLICATION_ID);
         verify(kioOperations).getApplicationById(APPLICATION_ID);
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWhenVersionNotFound() {
-        when(kioOperations.getApplicationVersion(APPLICATION_ID,
-                                                 APPLICATION_VERSION)).thenThrow(new NotFoudException());
+        when(
+                kioOperations.getApplicationVersion(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenThrow(new NotFoudException());
 
-        registryPlugin.getAndValidateApplicationVersionFromKio(event,
-                                                               APPLICATION_ID,
-                                                               APPLICATION_VERSION);
+        registryPlugin.getAndValidateApplicationVersionFromKio(
+                event,
+                APPLICATION_ID,
+                APPLICATION_VERSION);
 
-        verify(kioOperations).getApplicationVersion(APPLICATION_ID,
-                                                    APPLICATION_VERSION);
+        verify(kioOperations).getApplicationVersion(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainWhenVersionFound() {
-        when(kioOperations.getApplicationVersion(APPLICATION_ID,
-                                                 APPLICATION_VERSION)).thenReturn(version);
+        when(
+                kioOperations.getApplicationVersion(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(version);
 
-        registryPlugin.getAndValidateApplicationVersionFromKio(event,
-                                                               APPLICATION_ID,
-                                                               APPLICATION_VERSION);
+        registryPlugin.getAndValidateApplicationVersionFromKio(
+                event,
+                APPLICATION_ID,
+                APPLICATION_VERSION);
 
-        verify(kioOperations).getApplicationVersion(APPLICATION_ID,
-                                                    APPLICATION_VERSION);
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(kioOperations).getApplicationVersion(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 }

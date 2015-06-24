@@ -16,14 +16,9 @@
 package org.zalando.stups.fullstop.plugin.config;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author npiccolotto
@@ -31,20 +26,22 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private Set<String> defaultMandatoryApprovals = Sets.newHashSet("CODE_CHANGE",
-                                                                    "TEST",
-                                                                    "SPECIFICATION",
-                                                                    "DEPLOY");
+    private List<String> defaultMandatoryApprovals = Lists.newArrayList(
+            "CODE_CHANGE",
+            "TEST",
+            "SPECIFICATION",
+            "DEPLOY");
 
-    private Set<String> mandatoryApprovals = Sets.newHashSet();
+    private List<String> mandatoryApprovals = Lists.newArrayList();
 
-    private Set<String> defaultApprovalsFromMany = Sets.newHashSet("TEST",
-                                                                   "CODE_CHANGE",
-                                                                   "DEPLOY");
+    private List<String> defaultApprovalsFromMany = Lists.newArrayList(
+            "TEST",
+            "CODE_CHANGE",
+            "DEPLOY");
 
-    private Set<String> approvalsFromMany = Sets.newHashSet();
+    private List<String> approvalsFromMany = Lists.newArrayList();
 
-    public Set<String> getMandatoryApprovals() {
+    public List<String> getMandatoryApprovals() {
         if (mandatoryApprovals.isEmpty()) {
             return defaultMandatoryApprovals;
         }
@@ -52,34 +49,34 @@ public class RegistryPluginProperties {
         return mandatoryApprovals;
     }
 
-    public void setMandatoryApprovals(Set<String> defaultApprovals) {
+    public void setMandatoryApprovals(List<String> defaultApprovals) {
         this.mandatoryApprovals = defaultApprovals;
     }
 
-    public Set<String> getDefaultMandatoryApprovals() {
+    public List<String> getDefaultMandatoryApprovals() {
         return defaultMandatoryApprovals;
     }
 
-    public void setDefaultMandatoryApprovals(Set<String> defaultMandatoryApprovals) {
+    public void setDefaultMandatoryApprovals(List<String> defaultMandatoryApprovals) {
         this.defaultMandatoryApprovals = defaultMandatoryApprovals;
     }
 
-    public Set<String> getDefaultApprovalsFromMany() {
+    public List<String> getDefaultApprovalsFromMany() {
         return defaultApprovalsFromMany;
     }
 
-    public void setDefaultApprovalsFromMany(Set<String> defaultApprovalsFromMany) {
+    public void setDefaultApprovalsFromMany(List<String> defaultApprovalsFromMany) {
         this.defaultApprovalsFromMany = defaultApprovalsFromMany;
     }
 
-    public Set<String> getApprovalsFromMany() {
+    public List<String> getApprovalsFromMany() {
         if (approvalsFromMany.isEmpty()) {
             return defaultApprovalsFromMany;
         }
         return approvalsFromMany;
     }
 
-    public void setApprovalsFromMany(Set<String> approvalsFromMany) {
+    public void setApprovalsFromMany(List<String> approvalsFromMany) {
         this.approvalsFromMany = approvalsFromMany;
     }
 

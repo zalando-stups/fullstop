@@ -15,28 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.io.File;
-import java.io.InputStream;
-
-import java.util.List;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.collect.Lists;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
-
 import org.springframework.util.Assert;
-
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.events.FileEventReader;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Support for testing single plugin with records from classpath.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class LocalPluginProcessor {
 

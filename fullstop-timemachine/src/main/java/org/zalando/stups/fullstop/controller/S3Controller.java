@@ -109,8 +109,11 @@ public class S3Controller {
         }
 
         AmazonS3Client amazonS3Client = new AmazonS3Client();
-        amazonS3Client.setRegion(Region.getRegion(
-                Regions.fromName((String) cloudTrailProcessingLibraryProperties.getAsProperties().get(S3_REGION_KEY))));
+        amazonS3Client.setRegion(
+                Region.getRegion(
+                        Regions.fromName(
+                                (String) cloudTrailProcessingLibraryProperties.getAsProperties()
+                                                                              .get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest().withBucketName(bucket) //
@@ -135,7 +138,8 @@ public class S3Controller {
             S3Object object = amazonS3Client.getObject(new GetObjectRequest(bucketName, key));
             InputStream inputStream = object.getObjectContent();
 
-            File file = new File(fullstopLoggingDir,
+            File file = new File(
+                    fullstopLoggingDir,
                     object.getBucketName() + object.getObjectMetadata().getETag() + JSON_GZ);
 
             copyInputStreamToFile(inputStream, file);

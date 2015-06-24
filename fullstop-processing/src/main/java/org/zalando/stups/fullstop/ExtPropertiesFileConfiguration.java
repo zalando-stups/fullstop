@@ -256,7 +256,8 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
         LibraryUtils.checkArgumentNotNull(this.getVisibilityTimeout(), "Visibility Timeout is null.");
         LibraryUtils.checkArgumentNotNull(this.getS3Region(), "S3 Region is null.");
         LibraryUtils.checkArgumentNotNull(this.getThreadCount(), "Thread Count is null.");
-        LibraryUtils.checkArgumentNotNull(this.getThreadTerminationDelaySeconds(),
+        LibraryUtils.checkArgumentNotNull(
+                this.getThreadTerminationDelaySeconds(),
                 "Thread Termination Delay Seconds is null.");
         LibraryUtils.checkArgumentNotNull(this.getMaxEventsPerEmit(), "Maximum Events Per Emit is null.");
         LibraryUtils.checkArgumentNotNull(this.isEnableRawEventInfo(), "Is Enable Raw Event Information is null.");

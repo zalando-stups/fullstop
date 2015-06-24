@@ -70,8 +70,10 @@ public class CachingClientProvider implements ClientProvider {
                     public Object load(final Key<?> key) throws Exception {
                         logger.debug("CacheLoader active for Key : {}", key);
 
-                        Object client = key.region.createClient(key.type,
-                                new STSAssumeRoleSessionCredentialsProvider(buildRoleArn(key.accountId),
+                        Object client = key.region.createClient(
+                                key.type,
+                                new STSAssumeRoleSessionCredentialsProvider(
+                                        buildRoleArn(key.accountId),
                                         ROLE_SESSION_NAME), null);
                         return client;
                     }
@@ -121,7 +123,7 @@ public class CachingClientProvider implements ClientProvider {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).add("type", type.getName()).add("accountId", accountId)
-                    .add("region", region.getName()).toString();
+                              .add("region", region.getName()).toString();
         }
 
     }

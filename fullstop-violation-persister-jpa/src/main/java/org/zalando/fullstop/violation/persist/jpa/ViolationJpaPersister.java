@@ -16,20 +16,19 @@
 package org.zalando.fullstop.violation.persist.jpa;
 
 import org.springframework.boot.actuate.metrics.CounterService;
-
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
-
 import reactor.bus.EventBus;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+
     private static final String VIOLATIONS_PERSISTED_JPA = "violations.persisted.jpa";
 
     private final ViolationRepository violationRepository;

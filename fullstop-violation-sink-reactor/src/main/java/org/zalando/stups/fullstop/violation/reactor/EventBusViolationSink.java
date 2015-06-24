@@ -16,21 +16,20 @@
 package org.zalando.stups.fullstop.violation.reactor;
 
 import org.springframework.boot.actuate.metrics.CounterService;
-
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
 /**
  * Uses the {@link EventBus} to transport Violations to interested Consumers.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class EventBusViolationSink implements ViolationSink {
 
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+
     private static final String VIOLATIONS_EVENTBUS_PUT = "violations.eventbus.put";
 
     private static final String DEFAULT_VIOLATIONS_TOPIC = "/violations";

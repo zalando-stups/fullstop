@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class RunInstancePluginTest {
 
@@ -116,12 +116,13 @@ public class RunInstancePluginTest {
     @Test
     public void testSecurityGroupFiltering() {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
-        Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                    .withToPort(22).negate());
+        Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(
+                IpPermissionPredicates
+                        .withToPort(22).negate());
 
         List<SecurityGroup> filteredSecGroups = secGroups.get().stream()
                                                          .filter(SecurityGroupPredicates.anyMatch(filter)).collect(
-                                                             toList());
+                        toList());
 
         System.out.println(filteredSecGroups.size());
         assertThat(filteredSecGroups).isEmpty();
@@ -132,8 +133,9 @@ public class RunInstancePluginTest {
     public void testIpPermissionFiltering() {
         Optional<List<SecurityGroup>> secGroups = getSecurityGroupsForTesting();
 
-        Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(IpPermissionPredicates
-                    .withToPort(22).negate());
+        Predicate<IpPermission> filter = IpPermissionPredicates.withToPort(443).negate().and(
+                IpPermissionPredicates
+                        .withToPort(22).negate());
 
         Assertions.assertThat(secGroups.isPresent()).isTrue();
 
@@ -153,14 +155,14 @@ public class RunInstancePluginTest {
         // prepare
         RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
 
-// TestCloudTrailEventData eventData = new TestCloudTrailEventData("/responseElements.json");
+        // TestCloudTrailEventData eventData = new TestCloudTrailEventData("/responseElements.json");
         CloudTrailEvent event = buildEvent("run");
 
         // test
         plugin.processEvent(event);
 
         // verify
-// verify(violationSink, atLeastOnce()).save(Mockito.any());
+        // verify(violationSink, atLeastOnce()).save(Mockito.any());
     }
 
     protected CloudTrailEvent buildEvent(final String type) {
@@ -170,7 +172,7 @@ public class RunInstancePluginTest {
     }
 
     /**
-     * @author  jbellmann
+     * @author jbellmann
      */
     static class TestRunInstancePlugin extends RunInstancePlugin {
 

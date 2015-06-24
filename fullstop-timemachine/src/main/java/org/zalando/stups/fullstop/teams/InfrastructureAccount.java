@@ -15,12 +15,12 @@
  */
 package org.zalando.stups.fullstop.teams;
 
-import static com.google.common.base.Objects.equal;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+
+import static com.google.common.base.Objects.equal;
 
 public class InfrastructureAccount {
 
@@ -45,9 +45,9 @@ public class InfrastructureAccount {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("type", type)
-                .toString();
+                          .add("id", id)
+                          .add("type", type)
+                          .toString();
     }
 
     @Override

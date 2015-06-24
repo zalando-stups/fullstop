@@ -28,22 +28,21 @@ import static java.lang.String.format;
 /**
  * @author jbellmann
  */
-@Component
-class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
+@Component class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
 
     private static final String VIOLATION_MESSAGE = "User [%s] has an active key [%s] older than 1 week.";
 
     private final ViolationSink violationSink;
 
-    @Autowired
-    AccessKeyMetadataConsumer(final ViolationSink violationSink) {
+    @Autowired AccessKeyMetadataConsumer(final ViolationSink violationSink) {
         this.violationSink = violationSink;
     }
 
     @Override
     public void accept(final AccessKeyMetadata input) {
-        violationSink.put(new ViolationBuilder(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId()))
-                .build());
+        violationSink.put(
+                new ViolationBuilder(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId()))
+                        .build());
     }
 
 }

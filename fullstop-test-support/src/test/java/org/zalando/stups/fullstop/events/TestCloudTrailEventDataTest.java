@@ -15,17 +15,14 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import java.io.IOException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.junit.Test;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TestCloudTrailEventDataTest {
 

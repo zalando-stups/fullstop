@@ -45,7 +45,8 @@ public class FullstopConfig {
      */
     @Bean
     public AWSCloudTrailProcessingExecutor awsCloudTrailProcessingExecutor() {
-        return new AWSCloudTrailProcessingExecutor.Builder(pluginEventsProcessor(),
+        return new AWSCloudTrailProcessingExecutor.Builder(
+                pluginEventsProcessor(),
                 new ExtPropertiesFileConfiguration(cloudTrailsProcessingLibraryProperties.getAsProperties())).build();
     }
 }

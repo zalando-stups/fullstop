@@ -56,8 +56,9 @@ public class SecurityGroupPredicatesTest {
 
     @Test
     public void testWithSecurityGroupWithMultiIpPermissionAndAllShouldMatch() {
-        Predicate<IpPermission> ipPermissionPredicate = IpPermissionPredicates.withToPort(22).or(IpPermissionPredicates
-                .withToPort(443));
+        Predicate<IpPermission> ipPermissionPredicate = IpPermissionPredicates.withToPort(22).or(
+                IpPermissionPredicates
+                        .withToPort(443));
         Predicate<SecurityGroup> predicate = SecurityGroupPredicates.allMatch(ipPermissionPredicate);
 
         SecurityGroup sg = buildSecurityGroup3();

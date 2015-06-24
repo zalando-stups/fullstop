@@ -16,20 +16,15 @@
 package org.zalando.stups.fullstop.violation.reactor.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.actuate.metrics.CounterService;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationSink;
-
 import reactor.Environment;
-
 import reactor.bus.EventBus;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
 public class EventBusViolationSinkAutoConfiguration {

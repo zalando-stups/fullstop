@@ -46,8 +46,9 @@ public class Records {
 
     protected static String getResourceContent(final String classpathResource) {
         try {
-            return new String(Files.readAllBytes(
-                    java.nio.file.Paths.get(Records.class.getResource(classpathResource).toURI())));
+            return new String(
+                    Files.readAllBytes(
+                            java.nio.file.Paths.get(Records.class.getResource(classpathResource).toURI())));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
