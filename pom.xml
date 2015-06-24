@@ -53,7 +53,7 @@
         <otj-pg-embedded.version>0.4.0</otj-pg-embedded.version>
         <javax.el-api.version>2.2.4</javax.el-api.version>
 
-        <kio-client.version>0.9.2</kio-client.version>
+        <kio-client.version>0.9.4</kio-client.version>
         <pierone-client.version>0.5.1</pierone-client.version>
     </properties>
 

@@ -29,7 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoudException;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -336,7 +336,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Application application = kioOperations.getApplicationById(applicationId);
             return application;
         }
-        catch (NotFoudException e) {
+        catch (NotFoundException e) {
             violationSink.put(new ViolationBuilder(format("Application: %s is not present in kio.",
                                                           applicationId))
                                                                          .withEventId(getCloudTrailEventId(event))
@@ -362,7 +362,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                                   applicationVersion);
             return version;
         }
-        catch (NotFoudException e) {
+        catch (NotFoundException e) {
             violationSink.put(new ViolationBuilder(format("Application: %s is not present with version %s in kio.",
                                                           applicationId,
                                                           applicationVersion)).withEventId(getCloudTrailEventId(event))
