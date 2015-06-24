@@ -1,6 +1,6 @@
 [![DUB](https://img.shields.io/badge/status-in%20development-orange.svg)](http://docs.stups.io/en/latest/components/fullstop.html)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
-[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
+[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg?branch=master)](https://coveralls.io/r/zalando-stups/fullstop?branch=master)
 [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
