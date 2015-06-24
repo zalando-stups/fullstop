@@ -178,8 +178,10 @@ public class RegistryPluginApprovalsTest {
                                                    APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateFourEyesPrinciple(version,
-                                                 event);
+        registryPlugin.validateMultipleEyesPrinciple(event,
+                                                     APPLICATION_ID,
+                                                     APPLICATION_VERSION,
+                                                     2);
         // ensure kio operations was called
         verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
                                                       APPLICATION_VERSION);
@@ -201,9 +203,10 @@ public class RegistryPluginApprovalsTest {
                                                    APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateFourEyesPrinciple(version,
-                                                 event);
-        // ensure kio operations was called
+        registryPlugin.validateMultipleEyesPrinciple(event,
+                                                     APPLICATION_ID,
+                                                     APPLICATION_VERSION,
+                                                     2);
         verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
                                                       APPLICATION_VERSION);
         // ensure a violation was created

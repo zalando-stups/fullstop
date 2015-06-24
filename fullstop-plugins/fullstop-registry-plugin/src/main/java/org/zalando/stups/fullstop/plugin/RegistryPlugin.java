@@ -146,8 +146,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
                         validateContainsMandatoryApprovals(applicationVersionFromKio,
                                                            event);
-                        validateFourEyesPrinciple(applicationVersionFromKio,
-                                                  event);
+                        validateMultipleEyesPrinciple(event,
+                                                      applicationVersionFromKio.getApplicationId(),
+                                                      applicationVersionFromKio.getId(),
+                                                      applicationFromKio.getRequiredApprovers());
                     }
                 }
             }
@@ -194,32 +196,35 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         return userData;
     }
 
-    protected void validateFourEyesPrinciple(Version version, CloudTrailEvent event) {
-        List<Approval> approvals = kioOperations.getApplicationApprovals(version.getApplicationId(),
-                                                                         version.getId());
+    protected void validateMultipleEyesPrinciple(CloudTrailEvent event, String applicationId, String versionId,
+            int minApprovals) {
+        List<Approval> approvals = kioOperations.getApplicationApprovals(applicationId,
+                                                                         versionId);
         Set<String> approvalsFromMany = registryPluginProperties.getApprovalsFromMany();
 
         // #140
         // https://github.com/zalando-stups/fullstop/issues/140
         // => code, test and deploy approvals have to be done by at least two different people
         // e.g. four-eyes-principle
-        boolean doneByOne = approvals
+        int approverCount = approvals
                                      .stream()
                                      .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
                                      .map(a -> a.getUserId())
                                      .distinct()
                                      .collect(Collectors.toList())
-                                     .size() == 1;
-        if (doneByOne) {
+                                     .size();
+        if (approverCount < minApprovals) {
             violationSink
                          .put(new ViolationBuilder(
-                                                   format("Code change, test and deploy approvals of version %s of application %s were done by only one person.",
-                                                          version.getId(),
-                                                          version.getApplicationId()))
-                                                                                      .withAccountId(getCloudTrailEventAccountId(event))
-                                                                                      .withRegion(getCloudTrailEventRegion(event))
-                                                                                      .withEventId(getCloudTrailEventId(event))
-                                                                                      .build());
+                                                   format("Version %s of application %s was approved by only %s people instead of %s.",
+                                                          versionId,
+                                                          applicationId,
+                                                          approverCount,
+                                                          minApprovals))
+                                                                        .withAccountId(getCloudTrailEventAccountId(event))
+                                                                        .withRegion(getCloudTrailEventRegion(event))
+                                                                        .withEventId(getCloudTrailEventId(event))
+                                                                        .build());
         }
 
     }
