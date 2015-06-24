@@ -31,54 +31,56 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private static final Set<String> APPROVALS = Sets.newHashSet("CODE_CHANGE", "TEST", "SPECIFICATION", "DEPLOY");
+    private Set<String> defaultMandatoryApprovals = Sets.newHashSet("CODE_CHANGE",
+                                                                    "TEST",
+                                                                    "SPECIFICATION",
+                                                                    "DEPLOY");
 
-    private Set<String> defaultApprovals = new HashSet<String>();
+    private Set<String> mandatoryApprovals = Sets.newHashSet();
 
-    private String codeApproval;
+    private Set<String> defaultApprovalsFromMany = Sets.newHashSet("TEST",
+                                                                   "CODE_CHANGE",
+                                                                   "DEPLOY");
 
-    private String testApproval;
+    private Set<String> approvalsFromMany = Sets.newHashSet();
 
-    private String deployApproval;
-
-    public Set<String> getWhitelistedRegions() {
-        if (defaultApprovals.isEmpty()) {
-            return APPROVALS;
+    public Set<String> getMandatoryApprovals() {
+        if (mandatoryApprovals.isEmpty()) {
+            return defaultMandatoryApprovals;
         }
 
-        return defaultApprovals;
+        return mandatoryApprovals;
     }
 
-    public Set<String> getDefaultApprovals() {
-        return defaultApprovals;
+    public void setMandatoryApprovals(Set<String> defaultApprovals) {
+        this.mandatoryApprovals = defaultApprovals;
     }
 
-    public void setDefaultApprovals(Set<String> defaultApprovals) {
-        this.defaultApprovals = defaultApprovals;
+    public Set<String> getDefaultMandatoryApprovals() {
+        return defaultMandatoryApprovals;
     }
 
-    public String getCodeApproval() {
-        return codeApproval;
+    public void setDefaultMandatoryApprovals(Set<String> defaultMandatoryApprovals) {
+        this.defaultMandatoryApprovals = defaultMandatoryApprovals;
     }
 
-    public void setCodeApproval(String codeApproval) {
-        this.codeApproval = codeApproval;
+    public Set<String> getDefaultApprovalsFromMany() {
+        return defaultApprovalsFromMany;
     }
 
-    public String getTestApproval() {
-        return testApproval;
+    public void setDefaultApprovalsFromMany(Set<String> defaultApprovalsFromMany) {
+        this.defaultApprovalsFromMany = defaultApprovalsFromMany;
     }
 
-    public void setTestApproval(String testApproval) {
-        this.testApproval = testApproval;
+    public Set<String> getApprovalsFromMany() {
+        if (approvalsFromMany.isEmpty()) {
+            return defaultApprovalsFromMany;
+        }
+        return approvalsFromMany;
     }
 
-    public String getDeployApproval() {
-        return deployApproval;
-    }
-
-    public void setDeployApproval(String deployApproval) {
-        this.deployApproval = deployApproval;
+    public void setApprovalsFromMany(Set<String> approvalsFromMany) {
+        this.approvalsFromMany = approvalsFromMany;
     }
 
 }
