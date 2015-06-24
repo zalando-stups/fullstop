@@ -29,11 +29,13 @@ import org.mockito.Mockito;
 
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
@@ -81,6 +83,13 @@ public class RegionPluginTest {
         plugin.processEvent(event);
 
         verify(violationSink, atLeastOnce()).put(Mockito.any(Violation.class));
+    }
+
+    @Test
+    public void testWithLocalPluginProcessor() throws CallbackException {
+        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
+        LocalPluginProcessor lpp = new LocalPluginProcessor(plugin);
+        lpp.processEvents(getClass().getResourceAsStream("/record-run.json"));
     }
 
     protected CloudTrailEvent buildEvent(final String type) {

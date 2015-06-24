@@ -15,6 +15,19 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.nio.charset.StandardCharsets;
+
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.ProcessingLibraryException;
 import com.amazonaws.services.cloudtrail.processinglibrary.impl.DefaultEventFilter;
@@ -31,23 +44,14 @@ import com.amazonaws.services.cloudtrail.processinglibrary.serializer.EventSeria
 import com.amazonaws.services.cloudtrail.processinglibrary.serializer.RawLogDeliveryEventSerializer;
 import com.amazonaws.services.cloudtrail.processinglibrary.utils.EventBuffer;
 import com.amazonaws.services.cloudtrail.processinglibrary.utils.LibraryUtils;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 /**
  * So we can test a bit as long no access is possible to the s3-files directly.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class FileEventReader {
 
@@ -84,23 +88,23 @@ public class FileEventReader {
                 is = new FileInputStream(file);
             }
 
-            final EventSerializer serializer = this.getEventSerializer(is, ctLog);
-            this.emitEvents(serializer);
-        }
-        catch (IOException e) {
+            readEvents(is, ctLog);
+// final EventSerializer serializer = this.getEventSerializer(is, ctLog);
+// this.emitEvents(serializer);
+        } catch (IOException e) {
             this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
                     new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
         }
+    }
 
-// try(GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
-// EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
-// ) {
-//
-// this.emitEvents(serializer);
-// } catch (IllegalArgumentException | IOException e) {
-// this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
-// new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
-// }
+    public void readEvents(final InputStream is, final CloudTrailLog ctLog) throws CallbackException {
+        try {
+            final EventSerializer serializer = this.getEventSerializer(is, ctLog);
+            this.emitEvents(serializer);
+        } catch (IOException e) {
+            this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
+                    new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
+        }
     }
 
     /**
@@ -109,20 +113,19 @@ public class FileEventReader {
      * @param   inputStream  the Gzipped content from CloudTrail log file
      * @param   ctLog        CloudTrail log file
      *
-     * @return parser that parses CloudTrail log file
+     * @return  parser that parses CloudTrail log file
      *
-     * @throws IOException
+     * @throws  IOException
      */
     protected EventSerializer getEventSerializer(final InputStream inputStream, final CloudTrailLog ctLog)
-            throws IOException {
+        throws IOException {
         EventSerializer serializer;
 
         if (isEnableRawEventInfo) {
             String logFileContent = new String(LibraryUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
             JsonParser jsonParser = this.mapper.getFactory().createParser(logFileContent);
             serializer = new RawLogDeliveryEventSerializer(logFileContent, ctLog, jsonParser);
-        }
-        else {
+        } else {
             JsonParser jsonParser = this.mapper.getFactory().createParser(inputStream);
             serializer = new DefaultEventSerializer(ctLog, jsonParser);
         }
@@ -143,8 +146,7 @@ public class FileEventReader {
                     this.eventsProcessor.process(eventBuffer.getEvents());
                 }
 
-            }
-            else {
+            } else {
                 logger.debug("AWSCloudTrailEvent " + event + " has filtered.");
             }
         }
