@@ -52,6 +52,10 @@ public abstract class CloudtrailEventSupport {
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
+    public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
+
+    public static final String ROLE_NAME_JSON_PATH = "$.instancesSet.items[*].roleName";
+
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
@@ -117,7 +121,7 @@ public abstract class CloudtrailEventSupport {
             return null;
         }
 
-        return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
+        return JsonPath.read(parameters, KEY_PAIR_JSON_PATH);
     }
 
     /**
@@ -202,5 +206,17 @@ public abstract class CloudtrailEventSupport {
 
     public static String getRegionAsString(final CloudTrailEvent event) {
         return event.getEventData().getAwsRegion();
+    }
+
+    /**
+     +     * Extract the 'roleName'.
+     +     */
+    public static List<String> readRoleName(final String parameters) {
+
+        if (parameters == null) {
+            return null;
+        }
+
+        return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
     }
 }
