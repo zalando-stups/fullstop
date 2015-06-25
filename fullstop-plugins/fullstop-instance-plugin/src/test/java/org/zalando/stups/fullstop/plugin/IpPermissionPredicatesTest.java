@@ -15,17 +15,20 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.services.ec2.model.IpPermission;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
 
 import java.util.function.Predicate;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import com.amazonaws.services.ec2.model.IpPermission;
 
 /**
  * Small tests for {@link IpPermissionPredicates}.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class IpPermissionPredicatesTest {
 
@@ -47,6 +50,20 @@ public class IpPermissionPredicatesTest {
 
         assertThat(predicate.test(permission)).isTrue();
         assertThat(predicate2.test(permission)).isFalse();
+    }
+
+    @Test
+    public void notHttps() {
+        Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
+        IpPermission permission = buildIpPermission(443, 6500);
+        assertThat(filter.test(permission)).isFalse();
+    }
+
+    @Test
+    public void notSsh() {
+        Predicate<IpPermission> filter = withToPort(443).negate().and(withToPort(22).negate());
+        IpPermission permission = buildIpPermission(22, 6500);
+        assertThat(filter.test(permission)).isFalse();
     }
 
     protected IpPermission buildIpPermission(final int toPort, final int fromPort) {
