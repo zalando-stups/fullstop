@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoudException;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.Records;
@@ -100,7 +100,7 @@ public class RegistryPluginKioTest {
 
     @Test
     public void shouldComplainWhenApplicationNotFound() {
-        when(kioOperations.getApplicationById(APPLICATION_ID)).thenThrow(new NotFoudException());
+        when(kioOperations.getApplicationById(APPLICATION_ID)).thenThrow(new NotFoundException());
 
         registryPlugin.getAndValidateApplicationFromKio(
                 event,
@@ -124,10 +124,8 @@ public class RegistryPluginKioTest {
 
     @Test
     public void shouldComplainWhenVersionNotFound() {
-        when(
-                kioOperations.getApplicationVersion(
-                        APPLICATION_ID,
-                        APPLICATION_VERSION)).thenThrow(new NotFoudException());
+        when(kioOperations.getApplicationVersion(APPLICATION_ID,
+                                                 APPLICATION_VERSION)).thenThrow(new NotFoundException());
 
         registryPlugin.getAndValidateApplicationVersionFromKio(
                 event,
