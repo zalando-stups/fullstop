@@ -105,6 +105,13 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     @PostConstruct
     public void init() {
         List<NamedValidator> validators = Lists.newArrayList();
+        for (NamedValidator v : this.namedValidators) {
+            if (this.applicationMasterdataPluginProperties.getValidatorsEnabled().contains(v.getName())) {
+                validators.add(v);
+                LOG.info("VALIDATOR : '{}' IS ENABLED", v.getName());
+            }
+        }
+
         this.chainingValidator = new ChainingValidator(validators.toArray(new NamedValidator[validators.size()]));
     }
 
