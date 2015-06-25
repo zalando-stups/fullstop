@@ -15,22 +15,38 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.google.common.collect.Lists;
+
 @ConfigurationProperties(prefix = "fullstop.plugins.applicationMasterdata")
 public class ApplicationMasterdataPluginProperties {
 
-    private List<String> validatorsEnabled = new ArrayList<String>();
+    private List<String> defaultValidatorsEnabled = Lists.newArrayList("scm_url",
+                                                                       "specification_url",
+                                                                       "documentation_url");
+
+    private List<String> validatorsEnabled = Lists.newArrayList();
 
     public List<String> getValidatorsEnabled() {
+        if (validatorsEnabled.isEmpty()) {
+            return defaultValidatorsEnabled;
+        }
         return validatorsEnabled;
     }
 
     public void setValidatorsEnabled(final List<String> validatorsEnabled) {
         this.validatorsEnabled = validatorsEnabled;
+    }
+
+    public List<String> getDefaultValidatorsEnabled() {
+        return defaultValidatorsEnabled;
+    }
+
+    public void setDefaultValidatorsEnabled(List<String> defaultValidatorsEnabled) {
+        this.defaultValidatorsEnabled = defaultValidatorsEnabled;
     }
 
 }
