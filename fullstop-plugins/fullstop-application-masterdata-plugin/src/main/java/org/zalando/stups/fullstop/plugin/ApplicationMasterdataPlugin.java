@@ -52,6 +52,7 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     private static final String EVENT_NAME = "RunInstances";
 
     private final ApplicationMasterdataPluginProperties applicationMasterdataPluginProperties;
+
     private final List<NamedValidator> namedValidators;
 
     private Validator chainingValidator;
@@ -73,7 +74,6 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-// return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
         return EC2_SOURCE_EVENTS.equals(eventSource) && EVENT_NAME.equals(eventName);
     }
 
@@ -82,7 +82,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         Application application = getApplication();
 
         Errors errors = buildErrorsObject(application);
-        this.chainingValidator.validate(application, errors);
+        this.chainingValidator.validate(application,
+                                        errors);
 
         if (errors.hasErrors()) {
             violationSink.put(new ViolationBuilder("Violation").build());
@@ -90,7 +91,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     }
 
     protected Errors buildErrorsObject(final Application application) {
-        return new BeanPropertyBindingResult(application, "application");
+        return new BeanPropertyBindingResult(application,
+                                             "application");
     }
 
     protected Application getApplication() {
@@ -106,9 +108,11 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     public void init() {
         List<NamedValidator> validators = Lists.newArrayList();
         for (NamedValidator v : this.namedValidators) {
-            if (this.applicationMasterdataPluginProperties.getValidatorsEnabled().contains(v.getName())) {
+            if (this.applicationMasterdataPluginProperties.getValidatorsEnabled()
+                                                          .contains(v.getName())) {
                 validators.add(v);
-                LOG.info("VALIDATOR : '{}' IS ENABLED", v.getName());
+                LOG.info("VALIDATOR : '{}' IS ENABLED",
+                         v.getName());
             }
         }
 
@@ -123,7 +127,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         private Validator[] validators;
 
         public ChainingValidator(final Validator... validators) {
-            Assert.notNull(validators, "Validators must not be null");
+            Assert.notNull(validators,
+                           "Validators must not be null");
             this.validators = validators;
         }
 
@@ -142,7 +147,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         public void validate(final Object target, final Errors errors) {
             for (Validator validator : this.validators) {
                 if (validator.supports(target.getClass())) {
-                    validator.validate(target, errors);
+                    validator.validate(target,
+                                       errors);
                 }
             }
         }
