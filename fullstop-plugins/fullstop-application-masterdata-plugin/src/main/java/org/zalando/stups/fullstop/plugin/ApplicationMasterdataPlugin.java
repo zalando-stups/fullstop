@@ -34,6 +34,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -92,22 +93,54 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
         for (String instanceId : instanceIds) {
+            // 1) get user data
             Map userData;
             try {
                 userData = userDataProvider.getUserData(event,
                                                         instanceId);
             }
             catch (AmazonServiceException ex) {
-                // TODO
+                violationSink.put(new ViolationBuilder(format("Instance %s does not have any userData",
+                                                              instanceId)).withAccountId(getCloudTrailEventAccountId(event))
+                                                                          .withEventId(getCloudTrailEventId(event))
+                                                                          .withRegion(getCloudTrailEventRegion(event))
+                                                                          .build());
                 return;
             }
 
             if (userData == null) {
-                // TODO
+                violationSink.put(new ViolationBuilder(format("Instance %s does not have any userData",
+                                                              instanceId)).withAccountId(getCloudTrailEventAccountId(event))
+                                                                          .withEventId(getCloudTrailEventId(event))
+                                                                          .withRegion(getCloudTrailEventRegion(event))
+                                                                          .build());
                 return;
             }
-            String applicationId = (String) userData.get(APPLICATION_ID);
-            Application application = kioOperations.getApplicationById(applicationId);
+            // 2) read application id from user data
+            if (userData.get(APPLICATION_ID) == null) {
+                violationSink.put(new ViolationBuilder(format("userData of instance %s is missing %s.",
+                                                              instanceId,
+                                                              APPLICATION_ID)).withAccountId(getCloudTrailEventAccountId(event))
+                                                                              .withEventId(getCloudTrailEventId(event))
+                                                                              .withRegion(getCloudTrailEventRegion(event))
+                                                                              .build());
+                return;
+            }
+            String applicationId = userData.get(APPLICATION_ID)
+                                           .toString();
+            Application application;
+            try {
+                application = kioOperations.getApplicationById(applicationId);
+            }
+            catch (NotFoundException ex) {
+                violationSink.put(new ViolationBuilder(format("Application %s does not exist in Kio.",
+                                                              applicationId)).withAccountId(getCloudTrailEventAccountId(event))
+                                                                             .withEventId(getCloudTrailEventId(event))
+                                                                             .withRegion(getCloudTrailEventRegion(event))
+                                                                             .build());
+                return;
+            }
+            // ACTUAL VALIDATION
             Errors errors = buildErrorsObject(application);
             this.chainingValidator.validate(application,
                                             errors);
