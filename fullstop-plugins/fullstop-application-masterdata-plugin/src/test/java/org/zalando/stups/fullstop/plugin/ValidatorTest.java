@@ -16,28 +16,31 @@
 package org.zalando.stups.fullstop.plugin;
 
 import org.assertj.core.api.Assertions;
-
+import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-
 import org.zalando.stups.clients.kio.Application;
 
 public class ValidatorTest {
+    private Application application;
+
+    @Before
+    public void setUp() {
+        application = new Application();
+        application.setId("test_app");
+    }
 
     @Test
     public void testSpecificationUrlValidator() {
-        Application app = new Application();
-        app.setId("test_app");
 
         SpecificationUrlValidator validator = new SpecificationUrlValidator();
-        Assertions.assertThat(validator.supports(app.getClass()))
+        Assertions.assertThat(validator.supports(application.getClass()))
                   .isTrue();
 
-        Errors errors = new BeanPropertyBindingResult(app,
+        Errors errors = new BeanPropertyBindingResult(application,
                                                       "application");
-        validator.validate(app,
+        validator.validate(application,
                            errors);
 
         Assertions.assertThat(errors.getErrorCount())
@@ -50,6 +53,56 @@ public class ValidatorTest {
         Assertions.assertThat(errors.getFieldError("specificationUrl")
                                     .getDefaultMessage())
                   .isEqualTo(
-                             "Spec-Url is missing");
+                             "Specification URL is missing");
+    }
+
+    @Test
+    public void testDocumentationUrlValidator() {
+
+        DocumentationUrlValidator validator = new DocumentationUrlValidator();
+        Assertions.assertThat(validator.supports(application.getClass()))
+                  .isTrue();
+
+        Errors errors = new BeanPropertyBindingResult(application,
+                                                      "application");
+        validator.validate(application,
+                           errors);
+
+        Assertions.assertThat(errors.getErrorCount())
+                  .isEqualTo(1);
+        Assertions.assertThat(errors.getFieldErrorCount("documentationUrl"))
+                  .isEqualTo(1);
+        Assertions.assertThat(errors.getFieldError("documentationUrl")
+                                    .getCode())
+                  .isEqualTo("documentationUrl.missing");
+        Assertions.assertThat(errors.getFieldError("documentationUrl")
+                                    .getDefaultMessage())
+                  .isEqualTo(
+                             "Documentation URL is missing");
+    }
+
+    @Test
+    public void testScmUrlValidator() {
+
+        ScmUrlValidator validator = new ScmUrlValidator();
+        Assertions.assertThat(validator.supports(application.getClass()))
+                  .isTrue();
+
+        Errors errors = new BeanPropertyBindingResult(application,
+                                                      "application");
+        validator.validate(application,
+                           errors);
+
+        Assertions.assertThat(errors.getErrorCount())
+                  .isEqualTo(1);
+        Assertions.assertThat(errors.getFieldErrorCount("scmUrl"))
+                  .isEqualTo(1);
+        Assertions.assertThat(errors.getFieldError("scmUrl")
+                                    .getCode())
+                  .isEqualTo("scmUrl.missing");
+        Assertions.assertThat(errors.getFieldError("scmUrl")
+                                    .getDefaultMessage())
+                  .isEqualTo(
+                             "SCM URL is missing");
     }
 }
