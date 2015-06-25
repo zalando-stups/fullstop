@@ -13,30 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
 
-import org.springframework.stereotype.Component;
+/**
+ * 
+ */
+package org.zalando.stups.fullstop.plugin;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 
 /**
- * @author jbellmann
+ * @author npiccolotto
  */
-@Component
-public class ApplicationSpecificationUrlValidator extends AbstractApplicationValidator {
+public class ScmUrlValidator extends AbstractApplicationValidator {
 
-    @Override
-    public void validate(final Object target, final Errors errors) {
-        ValidationUtils.rejectIfEmpty(errors,
-                                      "specificationUrl",
-                                      "specificationUrl.missing",
-                                      "Spec-Url is missing");
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.zalando.stups.fullstop.plugin.NamedValidator#getName()
+     */
     @Override
     public String getName() {
-        return "specification_url";
+        return "scm_url";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.validation.Validator#validate(java.lang.Object, org.springframework.validation.Errors)
+     */
+    @Override
+    public void validate(Object target, Errors errors) {
+        ValidationUtils.rejectIfEmpty(errors,
+                                      "scmUrl",
+                                      "scmUrl.missing",
+                                      "SCM URL is missing");
     }
 
 }

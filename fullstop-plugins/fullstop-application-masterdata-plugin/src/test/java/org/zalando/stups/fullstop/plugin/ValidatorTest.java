@@ -31,7 +31,7 @@ public class ValidatorTest {
         Application app = new Application();
         app.setId("test_app");
 
-        ApplicationSpecificationUrlValidator validator = new ApplicationSpecificationUrlValidator();
+        SpecificationUrlValidator validator = new SpecificationUrlValidator();
         Assertions.assertThat(validator.supports(app.getClass()))
                   .isTrue();
 
