@@ -15,9 +15,12 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import org.springframework.stereotype.Component;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 
+@Component
 public class DocumentationUrlValidator extends AbstractApplicationValidator {
 
     @Override
@@ -26,11 +29,9 @@ public class DocumentationUrlValidator extends AbstractApplicationValidator {
     }
 
     @Override
-    public void validate(Object target, Errors errors) {
-        ValidationUtils.rejectIfEmpty(errors,
-                                      "documentationUrl",
-                                      "documentationUrl.missing",
-                                      "Documentation URL is missing");
+    public void validate(final Object target, final Errors errors) {
+        ValidationUtils.rejectIfEmpty(errors, "documentationUrl", "documentationUrl.missing",
+            "Documentation URL is missing");
     }
 
 }

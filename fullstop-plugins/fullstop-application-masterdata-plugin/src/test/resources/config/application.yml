@@ -1,7 +1,3 @@
 fullstop:
     plugins:
         applicationMasterdata:
-            defaultValidatorsEnabled:
-                - specification_url
-                - documentation_url
-                - scm_url
