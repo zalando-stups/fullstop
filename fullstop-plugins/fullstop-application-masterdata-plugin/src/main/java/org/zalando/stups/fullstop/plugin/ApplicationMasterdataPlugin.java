@@ -15,30 +15,31 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static java.lang.String.*;
+
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.assertj.core.util.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.springframework.util.Assert;
-
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
 import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
@@ -51,6 +52,10 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_NAME = "RunInstances";
 
+    private static final String APPLICATION_ID = "application_id";
+
+    private KioOperations kioOperations;
+
     private final ApplicationMasterdataPluginProperties applicationMasterdataPluginProperties;
 
     private final List<NamedValidator> namedValidators;
@@ -59,13 +64,19 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
     private final ViolationSink violationSink;
 
+    private UserDataProvider userDataProvider;
+
     @Autowired
     public ApplicationMasterdataPlugin(
+            final KioOperations kioOperations,
+            final UserDataProvider userDataProvider,
             final ApplicationMasterdataPluginProperties applicationMasterdataPluginProperties,
             final List<NamedValidator> namedValidators, final ViolationSink violationSink) {
         this.applicationMasterdataPluginProperties = applicationMasterdataPluginProperties;
         this.namedValidators = namedValidators;
         this.violationSink = violationSink;
+        this.kioOperations = kioOperations;
+        this.userDataProvider = userDataProvider;
     }
 
     @Override
@@ -79,29 +90,47 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        Application application = getApplication();
+        List<String> instanceIds = getInstanceIds(event);
+        for (String instanceId : instanceIds) {
+            Map userData;
+            try {
+                userData = userDataProvider.getUserData(event,
+                                                        instanceId);
+            }
+            catch (AmazonServiceException ex) {
+                // TODO
+                return;
+            }
 
-        Errors errors = buildErrorsObject(application);
-        this.chainingValidator.validate(application,
-                                        errors);
+            if (userData == null) {
+                // TODO
+                return;
+            }
+            String applicationId = (String) userData.get(APPLICATION_ID);
+            Application application = kioOperations.getApplicationById(applicationId);
+            Errors errors = buildErrorsObject(application);
+            this.chainingValidator.validate(application,
+                                            errors);
 
-        if (errors.hasErrors()) {
-            violationSink.put(new ViolationBuilder("Violation").build());
+            if (errors.hasErrors()) {
+                String message = errors.getAllErrors()
+                                       .stream()
+                                       .map(e -> e.getDefaultMessage())
+                                       .reduce("",
+                                               (s, m) -> s.concat(m + "\n"));
+                violationSink.put(new ViolationBuilder(format("Masterdata of application %s has errors: %s",
+                                                              applicationId,
+                                                              message)).withAccountId(getCloudTrailEventAccountId(event))
+                                                                       .withEventId(getCloudTrailEventId(event))
+                                                                       .withRegion(getCloudTrailEventRegion(event))
+                                                                       .build());
+            }
         }
     }
 
     protected Errors buildErrorsObject(final Application application) {
         return new BeanPropertyBindingResult(application,
                                              "application");
-    }
-
-    protected Application getApplication() {
-
-        Application app = new Application();
-        app.setActive(true);
-        app.setId("TestID");
-
-        return app;
     }
 
     @PostConstruct
