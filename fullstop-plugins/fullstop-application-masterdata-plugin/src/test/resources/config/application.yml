@@ -1,0 +1,5 @@
+fullstop:
+    plugins:
+        amdp:
+            validatorsEnabled:
+                - specificationUrl
