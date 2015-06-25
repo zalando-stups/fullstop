@@ -413,10 +413,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (HttpClientErrorException e) {
             LOG.warn(
-                    "Error when trying to get Application {} with Version {} from Kio",
+                    "Error when trying to get Application {} with Version {} from Kio. Exception: {}",
                     applicationId,
                     applicationVersion,
-                    e);
+                    e.getMessage());
             return null;
         }
 
