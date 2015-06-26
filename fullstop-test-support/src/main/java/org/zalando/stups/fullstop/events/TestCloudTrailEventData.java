@@ -15,28 +15,21 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
-import java.net.URISyntaxException;
-
-import java.nio.file.Files;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
@@ -44,8 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author  jbellmann
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TestCloudTrailEventData.class);
 
     private Map<String, Object> data = new LinkedHashMap<String, Object>();
 
@@ -185,9 +176,11 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
     protected String getResponseElementsFromClasspath(final String resource) {
         try {
             return new String(Files.readAllBytes(java.nio.file.Paths.get(getClass().getResource(resource).toURI())));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

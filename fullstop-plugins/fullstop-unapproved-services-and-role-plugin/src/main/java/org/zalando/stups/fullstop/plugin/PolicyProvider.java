@@ -1,0 +1,84 @@
+/**
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.zalando.stups.fullstop.plugin;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.auth.policy.Policy;
+import com.amazonaws.auth.policy.internal.JsonPolicyReader;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
+import com.amazonaws.services.identitymanagement.model.GetRoleResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
+
+/**
+ * @author mrandi
+ */
+public class PolicyProvider {
+
+    private final Logger log = LoggerFactory.getLogger(PolicyProvider.class);
+
+    private final ClientProvider clientProvider;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public PolicyProvider(final ClientProvider clientProvider) {
+        this.clientProvider = clientProvider;
+    }
+
+    public Policy getPolicy(final String roleName, final Region region, final String accountId) {
+
+        AmazonIdentityManagementClient iamClient = clientProvider
+                .getClient(AmazonIdentityManagementClient.class, accountId, region);
+
+        if (iamClient == null) {
+            throw new RuntimeException(String.format(
+                    "Somehow we could not create an AmazonIdentityManagementClient with accountId: %s and region: %s",
+                    accountId,
+                    region.toString()));
+        }
+        else {
+
+            String assumeRolePolicyDocument = null;
+            try {
+                GetRoleRequest getRoleRequest = new GetRoleRequest();
+                getRoleRequest.setRoleName(roleName);
+
+                GetRoleResult role = iamClient.getRole(getRoleRequest);
+
+                assumeRolePolicyDocument = role.getRole().getAssumeRolePolicyDocument();
+
+            }
+            catch (AmazonClientException e) {
+                log.error(e.getMessage());
+            }
+
+            return getPolicy(assumeRolePolicyDocument);
+
+        }
+    }
+
+    private Policy getPolicy(String assumeRolePolicyDocument) {
+            JsonPolicyReader jsonPolicyReader = new JsonPolicyReader();
+            return jsonPolicyReader.createPolicyFromJsonString(
+                    assumeRolePolicyDocument);
+    }
+
+}
