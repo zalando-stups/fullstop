@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
 
 /**
@@ -47,7 +46,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(NEVER)
 
-                        // configure form login
+                // configure form login
                 .and().formLogin().disable()
 
                 // configure logout
@@ -59,13 +58,9 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .antMatchers("/webjars/**").permitAll()
                 .antMatchers("/swagger-resources").permitAll()
                 .antMatchers("/api-docs").permitAll()
-                .antMatchers("/health").permitAll()
-
-                // You MUST use Pre/Post authorize
-                .antMatchers("/api").denyAll()
-                //                .antMatchers(GET, "/api/**").access("#oauth2.hasScope('uid')")
-                //                .antMatchers(POST, "/api/**").access("#oauth2.hasScope('uid')")
-                .antMatchers(GET, "/s3/**").access("#oauth2.hasScope('uid')");
+                .antMatchers("/spring-endpoints/health").permitAll()
+                .antMatchers("/spring-endpoints/info").permitAll()
+                .antMatchers("/spring-endpoints/**").access("#oauth2.hasScope('uid')");
 
     }
 
