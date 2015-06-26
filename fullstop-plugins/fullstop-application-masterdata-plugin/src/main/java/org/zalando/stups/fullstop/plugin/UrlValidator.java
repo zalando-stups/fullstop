@@ -69,7 +69,7 @@ public class UrlValidator implements Validator {
                              .toLowerCase();
             if (host.equals("localhost") || host.equals("127.0.0.1")) {
                 // reject
-                errors.rejectValue(urlString,
+                errors.rejectValue(null,
                                    "privateHost",
                                    format("%s is on a private host: %s",
                                           urlString,
@@ -81,7 +81,7 @@ public class UrlValidator implements Validator {
             String protocol = url.getProtocol()
                                  .toLowerCase();
             if (!protocolsAllowed.contains(protocol)) {
-                errors.rejectValue(urlString,
+                errors.rejectValue(null,
                                    "illegalProtocol",
                                    format("%s has an illegal protocol: %s",
                                           urlString,

@@ -191,6 +191,36 @@ public class ApplicationMasterdataPluginTest {
     }
 
     @Test
+    public void shouldComplainAboutPrivateHost() {
+        mockUserData(false);
+        Application app = new Application();
+        app.setDocumentationUrl(URL);
+        app.setSpecificationUrl(URL);
+        app.setScmUrl("http://localhost");
+        when(kioOperations.getApplicationById(APP)).thenReturn(app);
+        plugin.processEvent(event);
+        verify(userDataProvider).getUserData(any(),
+                                             any());
+        verify(kioOperations).getApplicationById(APP);
+        verify(violationSink).put(any(Violation.class));
+    }
+
+    @Test
+    public void shouldComplainAboutMalformedUrl() {
+        mockUserData(false);
+        Application app = new Application();
+        app.setDocumentationUrl(URL);
+        app.setSpecificationUrl(URL);
+        app.setScmUrl("foo");
+        when(kioOperations.getApplicationById(APP)).thenReturn(app);
+        plugin.processEvent(event);
+        verify(userDataProvider).getUserData(any(),
+                                             any());
+        verify(kioOperations).getApplicationById(APP);
+        verify(violationSink).put(any(Violation.class));
+    }
+
+    @Test
     public void shouldNotComplainInHappyCase() {
         mockUserData(false);
         Application app = new Application();
