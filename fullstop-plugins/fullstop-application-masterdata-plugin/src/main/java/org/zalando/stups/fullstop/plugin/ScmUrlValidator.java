@@ -21,6 +21,9 @@ package org.zalando.stups.fullstop.plugin;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import org.zalando.stups.clients.kio.Application;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author npiccolotto
@@ -44,10 +47,21 @@ public class ScmUrlValidator extends AbstractApplicationValidator {
      */
     @Override
     public void validate(Object target, Errors errors) {
+        Application app = (Application) target;
         ValidationUtils.rejectIfEmpty(errors,
                                       "scmUrl",
                                       "scmUrl.missing",
                                       "SCM URL is missing");
+        errors.pushNestedPath("scmUrl");
+        try {
+            (new UrlValidator(Lists.newArrayList("http",
+                                                 "https"),
+                              false)).validate(app.getScmUrl(),
+                                               errors);
+        }
+        finally {
+            errors.popNestedPath();
+        }
     }
 
 }

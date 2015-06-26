@@ -42,6 +42,8 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.google.common.collect.Maps;
 
 public class ApplicationMasterdataPluginTest {
+    private static final String URL = "https://github.com/zalando-stups/fullstop";
+
     private static final String APP = "test";
 
     private ApplicationMasterdataPlugin plugin;
@@ -80,14 +82,12 @@ public class ApplicationMasterdataPluginTest {
         event = buildEvent();
         kioOperations = mock(KioOperations.class);
         userDataProvider = mock(UserDataProvider.class);
+        pluginProperties = new ApplicationMasterdataPluginProperties();
         validators = Lists.newArrayList(new DocumentationUrlValidator(),
                                         new ScmUrlValidator(),
                                         new SpecificationUrlValidator());
         violationSink = mock(ViolationSink.class);
-        pluginProperties = new ApplicationMasterdataPluginProperties();
-        pluginProperties.setValidatorsEnabled(Lists.newArrayList("scm_url",
-                                                                 "specification_url",
-                                                                 "documentation_url"));
+
         plugin = new ApplicationMasterdataPlugin(kioOperations,
                                                  userDataProvider,
                                                  pluginProperties,
@@ -152,8 +152,8 @@ public class ApplicationMasterdataPluginTest {
     public void shouldComplainAboutMissingScmUrl() {
         mockUserData(false);
         Application app = new Application();
-        app.setDocumentationUrl("foo");
-        app.setSpecificationUrl("bar");
+        app.setDocumentationUrl(URL);
+        app.setSpecificationUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
         verify(userDataProvider).getUserData(any(),
@@ -166,8 +166,8 @@ public class ApplicationMasterdataPluginTest {
     public void shouldComplainAboutMissingDocumentationUrl() {
         mockUserData(false);
         Application app = new Application();
-        app.setScmUrl("foo");
-        app.setSpecificationUrl("bar");
+        app.setScmUrl(URL);
+        app.setSpecificationUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
         verify(userDataProvider).getUserData(any(),
@@ -180,8 +180,8 @@ public class ApplicationMasterdataPluginTest {
     public void shouldComplainAboutMissingSpecificationUrl() {
         mockUserData(false);
         Application app = new Application();
-        app.setDocumentationUrl("foo");
-        app.setScmUrl("bar");
+        app.setDocumentationUrl(URL);
+        app.setScmUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
         verify(userDataProvider).getUserData(any(),
@@ -194,9 +194,9 @@ public class ApplicationMasterdataPluginTest {
     public void shouldNotComplainInHappyCase() {
         mockUserData(false);
         Application app = new Application();
-        app.setDocumentationUrl("foo");
-        app.setSpecificationUrl("bar");
-        app.setScmUrl("baz");
+        app.setDocumentationUrl(URL);
+        app.setSpecificationUrl(URL);
+        app.setScmUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
         verify(userDataProvider).getUserData(any(),
