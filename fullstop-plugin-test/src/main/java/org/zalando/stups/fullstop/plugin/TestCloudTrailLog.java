@@ -20,7 +20,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailLog;
 /**
  * Just for testing.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class TestCloudTrailLog extends CloudTrailLog {
 

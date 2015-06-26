@@ -63,8 +63,8 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
 
                 // You MUST use Pre/Post authorize
                 .antMatchers("/api").denyAll()
-//                .antMatchers(GET, "/api/**").access("#oauth2.hasScope('uid')")
-//                .antMatchers(POST, "/api/**").access("#oauth2.hasScope('uid')")
+                //                .antMatchers(GET, "/api/**").access("#oauth2.hasScope('uid')")
+                //                .antMatchers(POST, "/api/**").access("#oauth2.hasScope('uid')")
                 .antMatchers(GET, "/s3/**").access("#oauth2.hasScope('uid')");
 
     }

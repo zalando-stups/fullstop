@@ -15,12 +15,12 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import java.nio.file.Paths;
-
 import org.joda.time.DateTime;
 
+import java.nio.file.Paths;
+
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 class PrefixBuilder {
 
@@ -35,7 +35,8 @@ class PrefixBuilder {
      * @return
      */
     static String build(final String accountId, final String region, final DateTime instanceLaunchTime) {
-        return Paths.get(accountId, region, instanceLaunchTime.toString("YYYY"), instanceLaunchTime.toString("MM"),
+        return Paths.get(
+                accountId, region, instanceLaunchTime.toString("YYYY"), instanceLaunchTime.toString("MM"),
                 instanceLaunchTime.toString("dd")).toString() + "/";
     }
 

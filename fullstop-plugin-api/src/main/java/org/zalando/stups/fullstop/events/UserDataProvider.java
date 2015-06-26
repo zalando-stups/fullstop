@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  *
  * @author npiccolotto
  */
 package org.zalando.stups.fullstop.events;
-
-import java.util.Map;
-
-import org.yaml.snakeyaml.Yaml;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
@@ -33,6 +27,10 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
 import com.amazonaws.util.Base64;
+import org.yaml.snakeyaml.Yaml;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+
+import java.util.Map;
 
 public class UserDataProvider {
     public static final String USER_DATA = "userData";
@@ -44,8 +42,9 @@ public class UserDataProvider {
     }
 
     public Map getUserData(final CloudTrailEvent event, final String instanceId) throws AmazonServiceException {
-        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, event.getEventData()
-                .getUserIdentity().getAccountId(),
+        AmazonEC2Client ec2Client = clientProvider.getClient(
+                AmazonEC2Client.class, event.getEventData()
+                                            .getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstanceAttributeRequest describeInstanceAttributeRequest = new DescribeInstanceAttributeRequest();

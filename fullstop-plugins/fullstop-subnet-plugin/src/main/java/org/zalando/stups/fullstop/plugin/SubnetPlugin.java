@@ -75,7 +75,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         List<String> instanceIds = getInstanceIds(event);
         AmazonEC2Client amazonEC2Client = cachingClientProvider
-                .getClient(AmazonEC2Client.class, event.getEventData().getAccountId(),
+                .getClient(
+                        AmazonEC2Client.class, event.getEventData().getAccountId(),
                         Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesResult describeInstancesResult = null;
@@ -86,9 +87,9 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         catch (AmazonServiceException e) {
             violationSink.put(
                     new ViolationBuilder(e.getMessage()).withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
-                            .build());
+                                                        .withRegion(getCloudTrailEventRegion(event))
+                                                        .withAccountId(getCloudTrailEventAccountId(event))
+                                                        .build());
             return;
         }
 
@@ -109,24 +110,40 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
             violationSink.put(
                     new ViolationBuilder(
                             format("Instances %s have no routing information associated", instanceIds.toString())).
-                            withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
-                            .build());
+                                                                                                                          withEventId(
+                                                                                                                                  getCloudTrailEventId(
+                                                                                                                                          event))
+                                                                                                                  .withRegion(
+                                                                                                                          getCloudTrailEventRegion(
+                                                                                                                                  event))
+                                                                                                                  .withAccountId(
+                                                                                                                          getCloudTrailEventAccountId(
+                                                                                                                                  event))
+                                                                                                                  .build());
             return;
         }
         for (RouteTable routeTable : routeTables) {
             List<Route> routes = routeTable.getRoutes();
             routes.stream()
-                    .filter(route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
-                            !route.getNetworkInterfaceId().startsWith("eni")).forEach(route -> violationSink.put(
+                  .filter(
+                          route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
+                                  !route.getNetworkInterfaceId().startsWith("eni")).forEach(
+                    route -> violationSink.put(
 
-                    new ViolationBuilder(format("ROUTES: instance %s is running in a public subnet %s",
-                            route.getInstanceId(), route.getNetworkInterfaceId())).
-                            withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
-                            .build()));
+                            new ViolationBuilder(
+                                    format(
+                                            "ROUTES: instance %s is running in a public subnet %s",
+                                            route.getInstanceId(), route.getNetworkInterfaceId())).
+                                                                                                          withEventId(
+                                                                                                                  getCloudTrailEventId(
+                                                                                                                          event))
+                                                                                                  .withRegion(
+                                                                                                          getCloudTrailEventRegion(
+                                                                                                                  event))
+                                                                                                  .withAccountId(
+                                                                                                          getCloudTrailEventAccountId(
+                                                                                                                  event))
+                                                                                                  .build()));
         }
 
     }

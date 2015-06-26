@@ -16,13 +16,8 @@
 package org.zalando.stups.fullstop.snapshot.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zalando.stups.fullstop.events.Records;
@@ -34,6 +29,9 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class SnapshotSourcePluginTest {
 

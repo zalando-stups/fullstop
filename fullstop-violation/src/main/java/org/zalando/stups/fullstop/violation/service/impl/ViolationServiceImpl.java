@@ -56,7 +56,8 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
+    public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation,
+            Boolean checked,
             Pageable pageable) {
         return violationRepository.queryViolations(accounts, since, lastViolation, checked, pageable);
     }

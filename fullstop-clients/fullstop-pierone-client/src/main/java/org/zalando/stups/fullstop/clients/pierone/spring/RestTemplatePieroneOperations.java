@@ -43,8 +43,9 @@ public class RestTemplatePieroneOperations implements PieroneOperations {
         uriVariables.put("team", team);
         uriVariables.put("artifact", artifact);
 
-        Map<String, String> result = this.restOperations.getForObject(baseUrl
-                + "/v1/repositories/{team}/{artifact}/tags", Map.class, uriVariables);
+        Map<String, String> result = this.restOperations.getForObject(
+                baseUrl
+                        + "/v1/repositories/{team}/{artifact}/tags", Map.class, uriVariables);
 
         return result;
     }

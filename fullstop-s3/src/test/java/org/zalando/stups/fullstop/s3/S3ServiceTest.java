@@ -15,9 +15,9 @@
  */
 package org.zalando.stups.fullstop.s3;
 
-import java.util.List;
-
 import org.junit.Test;
+
+import java.util.List;
 
 public class S3ServiceTest {
 

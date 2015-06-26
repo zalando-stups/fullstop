@@ -15,13 +15,12 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class SimplePlugin extends AbstractFullstopPlugin {
 

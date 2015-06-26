@@ -17,7 +17,6 @@ package org.zalando.stups.fullstop.violation.reactor;
 
 import org.springframework.context.SmartLifecycle;
 import org.zalando.stups.fullstop.violation.Violation;
-
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 import reactor.bus.registry.Registration;

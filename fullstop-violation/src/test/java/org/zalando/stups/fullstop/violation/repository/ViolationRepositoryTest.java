@@ -15,16 +15,6 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-
-import java.io.IOException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
-import javax.transaction.Transactional;
-
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +32,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.sql.DataSource;
+import javax.transaction.Transactional;
+import java.io.IOException;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
@@ -87,7 +87,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio1.getId(), vio2.getId(), vio3.getId()));
+                                       .isEqualTo(newArrayList(vio1.getId(), vio2.getId(), vio3.getId()));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
 
     }
 
@@ -138,7 +138,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
     }
 
     @Test
@@ -151,7 +151,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio1.getId(), vio3.getId()));
+                                       .isEqualTo(newArrayList(vio1.getId(), vio3.getId()));
     }
 
     @Test
@@ -177,7 +177,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                .isEqualTo(newArrayList(vio2.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio2.getId(), vio4.getId()));
     }
 
     @Configuration
@@ -187,18 +187,15 @@ public class ViolationRepositoryTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean
-        DataSource dataSource() throws IOException {
+        @Bean DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean
-        AuditorAware<String> auditorAware() {
+        @Bean AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
     }
