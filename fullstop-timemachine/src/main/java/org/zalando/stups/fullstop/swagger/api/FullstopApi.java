@@ -53,7 +53,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
 @Api(value = "/api", description = "the api API")
-@PreAuthorize("#oauth2.hasScope('uid')")
 public class FullstopApi {
 
     private final Logger log = LoggerFactory.getLogger(FullstopApi.class);
@@ -67,44 +66,11 @@ public class FullstopApi {
     @Autowired
     private TeamOperations teamOperations;
 
-    private static Violation mapToDto(ViolationEntity entity) {
-        Violation violation = new Violation();
-
-        violation.setId(entity.getId());
-        violation.setVersion(entity.getVersion());
-
-        violation.setCreated(entity.getCreated());
-        violation.setCreatedBy(entity.getCreatedBy());
-        violation.setLastModified(entity.getLastModified());
-        violation.setLastModifiedBy(entity.getLastModifiedBy());
-
-        violation.setAccountId(entity.getAccountId());
-        violation.setEventId(entity.getEventId());
-        violation.setMessage(entity.getMessage());
-        violation.setRegion(entity.getRegion());
-        violation.setComment(entity.getComment());
-        violation.setViolationObject(entity.getViolationObject());
-        return violation;
-    }
-
-    @ExceptionHandler(ApiException.class) ResponseEntity<String> handleApiException(final ApiException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(e.getCode()));
-    }
-
-    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
-    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
-    @RequestBody final LogObj log) throws NotFoundException {
-        saveLog(log);
-
-        return new ResponseEntity<>(CREATED);
-    }
-
     @ApiOperation(
             value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "List of all violations") })
+    @PreAuthorize("#oauth2.hasScope('uid')")
     @RequestMapping(value = "/violations", method = RequestMethod.GET)
     public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
@@ -133,6 +99,7 @@ public class FullstopApi {
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Violation resolved successfully") })
     @RequestMapping(value = "/violations/{id}/resolution", method = RequestMethod.POST)
+    @PreAuthorize("#oauth2.hasScope('uid')")
     public Violation resolveViolations(
             @ApiParam(value = "", required = true)
             @PathVariable("id")
@@ -159,23 +126,27 @@ public class FullstopApi {
         return mapToDto(dbViolationEntity);
     }
 
+    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
+    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
+    @PreAuthorize("permitAll")
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
+    @RequestBody final LogObj log) throws NotFoundException {
+        saveLog(log);
+
+        return new ResponseEntity<>(CREATED);
+    }
+
+    @ExceptionHandler(ApiException.class) ResponseEntity<String> handleApiException(final ApiException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(e.getCode()));
+    }
+
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
         final List<UserTeam> teams = teamOperations.getTeamsByUser(userId);
         return teams.stream()
                     .flatMap(team -> team.getInfrastructureAccounts().stream())
                     .map(InfrastructureAccount::getId)
                     .anyMatch(accountId -> accountId.equals(targetAccountId));
-    }
-
-    private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
-        final PageRequest currentPageRequest = new PageRequest(
-                backendViolations.getNumber(),
-                backendViolations.getSize(),
-                backendViolations.getSort());
-        return new PageImpl<>(
-                backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
-                currentPageRequest,
-                backendViolations.getTotalElements());
     }
 
     private void saveLog(final LogObj instanceLog) {
@@ -193,6 +164,37 @@ public class FullstopApi {
         catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
+        final PageRequest currentPageRequest = new PageRequest(
+                backendViolations.getNumber(),
+                backendViolations.getSize(),
+                backendViolations.getSort());
+        return new PageImpl<>(
+                backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
+                currentPageRequest,
+                backendViolations.getTotalElements());
+    }
+
+    private static Violation mapToDto(ViolationEntity entity) {
+        Violation violation = new Violation();
+
+        violation.setId(entity.getId());
+        violation.setVersion(entity.getVersion());
+
+        violation.setCreated(entity.getCreated());
+        violation.setCreatedBy(entity.getCreatedBy());
+        violation.setLastModified(entity.getLastModified());
+        violation.setLastModifiedBy(entity.getLastModifiedBy());
+
+        violation.setAccountId(entity.getAccountId());
+        violation.setEventId(entity.getEventId());
+        violation.setMessage(entity.getMessage());
+        violation.setRegion(entity.getRegion());
+        violation.setComment(entity.getComment());
+        violation.setViolationObject(entity.getViolationObject());
+        return violation;
     }
 
 }

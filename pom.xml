@@ -28,6 +28,13 @@
     <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
+    <description>Fullstop parent -- Audit reporting application</description>
+    <url>http://stups.io/fullstop/</url>
+
+    <organization>
+        <name>Zalando SE</name>
+        <url>http://stups.io/</url>
+    </organization>
 
     <properties>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

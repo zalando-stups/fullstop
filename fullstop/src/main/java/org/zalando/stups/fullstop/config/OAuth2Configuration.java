@@ -60,6 +60,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .antMatchers("/swagger-resources").permitAll()
                 .antMatchers("/api-docs").permitAll()
                 .antMatchers("/health").permitAll()
+                .antMatchers("/metrics").access("#oauth2.hasScope('uid')")
 
                 // You MUST use Pre/Post authorize
                 .antMatchers("/api").denyAll()

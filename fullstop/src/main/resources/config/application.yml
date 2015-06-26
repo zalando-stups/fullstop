@@ -1,3 +1,33 @@
+endpoints:
+    enabled: false
+    info:
+        enabled: true
+        sensitive: false
+    health:
+        enabled: true
+        sensitive: true
+    metrics:
+        #use oauth2.0
+        enabled: true
+        sensitive: false
+
+project:
+    artifactId: fullstop
+    name: Fullstop
+    version: X.X.X.X
+    description: Audit reporting application
+
+info:
+    app:
+        name: Fullstop
+        description: Audit reporting application
+        version: ${project.version}
+    build:
+        artifact: ${project.artifactId}
+        name: ${project.name}
+        description: ${project.description}
+        version: ${project.version}
+
 spring:
     # JACKSON (JacksonProperties)
     jackson:
@@ -15,6 +45,9 @@ spring:
         username: ${DATABASE_USER}
         password: ${DATABASE_PASSWORD}
         driver-class-name: ${DATABASE_DRIVER}
+    cloud:
+        config:
+            enabled: false
 #    jpa:
 #        hibernate:
 #            ddl-auto: create-drop
