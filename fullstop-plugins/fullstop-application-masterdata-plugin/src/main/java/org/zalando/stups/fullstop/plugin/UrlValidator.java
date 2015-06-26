@@ -22,12 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.assertj.core.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
+
+import com.google.common.base.Strings;
 
 public class UrlValidator implements Validator {
 

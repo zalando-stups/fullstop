@@ -15,15 +15,19 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
-import static java.lang.String.*;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.assertj.core.util.Lists;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +43,6 @@ import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 @Component
 public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
@@ -170,7 +170,7 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
     public void init() {
         List<NamedValidator> validators = Lists.newArrayList();
         for (NamedValidator v : this.namedValidators) {
-            if (this.applicationMasterdataPluginProperties.getValidatorsEnabled()
+            if (this.applicationMasterdataPluginProperties.getDefaultValidatorsIfValidatorsEnabledIsEmpty()
                                                           .contains(v.getName())) {
                 validators.add(v);
                 LOG.info("VALIDATOR : '{}' IS ENABLED",

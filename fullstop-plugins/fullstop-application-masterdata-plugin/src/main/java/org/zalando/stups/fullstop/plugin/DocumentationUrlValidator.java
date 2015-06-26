@@ -15,12 +15,15 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import org.springframework.stereotype.Component;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.zalando.stups.clients.kio.Application;
 
 import com.google.common.collect.Lists;
 
+@Component
 public class DocumentationUrlValidator extends AbstractApplicationValidator {
 
     @Override
@@ -29,7 +32,7 @@ public class DocumentationUrlValidator extends AbstractApplicationValidator {
     }
 
     @Override
-    public void validate(Object target, Errors errors) {
+    public void validate(final Object target, final Errors errors) {
         Application app = (Application) target;
         ValidationUtils.rejectIfEmpty(errors,
                                       "documentationUrl",

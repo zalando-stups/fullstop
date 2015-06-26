@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * 
+ *
  */
 package org.zalando.stups.fullstop.plugin;
+
+import org.springframework.stereotype.Component;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -28,6 +29,7 @@ import com.google.common.collect.Lists;
 /**
  * @author npiccolotto
  */
+@Component
 public class ScmUrlValidator extends AbstractApplicationValidator {
 
     /*
@@ -46,7 +48,7 @@ public class ScmUrlValidator extends AbstractApplicationValidator {
      * @see org.springframework.validation.Validator#validate(java.lang.Object, org.springframework.validation.Errors)
      */
     @Override
-    public void validate(Object target, Errors errors) {
+    public void validate(final Object target, final Errors errors) {
         Application app = (Application) target;
         ValidationUtils.rejectIfEmpty(errors,
                                       "scmUrl",

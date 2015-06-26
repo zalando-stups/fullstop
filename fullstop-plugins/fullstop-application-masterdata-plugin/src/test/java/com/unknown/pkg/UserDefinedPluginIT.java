@@ -28,26 +28,29 @@ import org.mockito.Mockito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.plugin.ApplicationMasterdataPlugin;
 import org.zalando.stups.fullstop.plugin.NamedValidator;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.unknown.pkg.PluginIT.TestConfig;
+import com.unknown.pkg.UserDefinedPluginIT.TestConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {ExampleApplication.class, TestConfig.class})
-public class PluginIT {
+@IntegrationTest(value = {"debug=true"})
+@ActiveProfiles("userdefined")
+public class UserDefinedPluginIT {
 
     @Autowired
     private List<NamedValidator> namedValidators;
@@ -56,20 +59,13 @@ public class PluginIT {
     private ApplicationMasterdataPluginProperties applicationMasterdataPluginProperties;
 
     @Autowired
-    private ApplicationMasterdataPlugin plugin;
-
-    @Autowired
     private CountingViolationSink violationSink;
 
     @Test
     public void testNamedValidators() {
-        Assertions.assertThat(applicationMasterdataPluginProperties.getDefaultValidatorsIfValidatorsEnabledIsEmpty())
-                  .contains("specification_url", "scm_url", "documentation_url");
+        Assertions.assertThat(applicationMasterdataPluginProperties.getValidatorsEnabled()).contains("scm_url");
+        Assertions.assertThat(applicationMasterdataPluginProperties.getValidatorsEnabled().size()).isEqualTo(1);
         Assertions.assertThat(namedValidators.size()).isEqualTo(3);
-
-        plugin.processEvent(null);
-
-        Assertions.assertThat(violationSink.getViolationCount()).isGreaterThan(0);
     }
 
     @Configuration

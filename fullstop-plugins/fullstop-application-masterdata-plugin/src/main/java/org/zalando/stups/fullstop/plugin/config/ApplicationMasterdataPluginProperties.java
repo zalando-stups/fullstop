@@ -24,16 +24,12 @@ import com.google.common.collect.Lists;
 @ConfigurationProperties(prefix = "fullstop.plugins.applicationMasterdata")
 public class ApplicationMasterdataPluginProperties {
 
-    private List<String> defaultValidatorsEnabled = Lists.newArrayList("scm_url",
-                                                                       "specification_url",
-                                                                       "documentation_url");
+    private final List<String> defaultValidators = Lists.newArrayList("scm_url", "specification_url",
+            "documentation_url");
 
     private List<String> validatorsEnabled = Lists.newArrayList();
 
     public List<String> getValidatorsEnabled() {
-        if (validatorsEnabled.isEmpty()) {
-            return defaultValidatorsEnabled;
-        }
         return validatorsEnabled;
     }
 
@@ -41,12 +37,12 @@ public class ApplicationMasterdataPluginProperties {
         this.validatorsEnabled = validatorsEnabled;
     }
 
-    public List<String> getDefaultValidatorsEnabled() {
-        return defaultValidatorsEnabled;
-    }
-
-    public void setDefaultValidatorsEnabled(List<String> defaultValidatorsEnabled) {
-        this.defaultValidatorsEnabled = defaultValidatorsEnabled;
+    public List<String> getDefaultValidatorsIfValidatorsEnabledIsEmpty() {
+        if (validatorsEnabled.isEmpty()) {
+            return defaultValidators;
+        } else {
+            return validatorsEnabled;
+        }
     }
 
 }
