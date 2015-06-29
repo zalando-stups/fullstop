@@ -90,8 +90,10 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         AmazonEC2Client ec2Client = cachingClientProvider.getClient(
                 AmazonEC2Client.class, whitelistedAmiAccount, Region
-                        .getRegion(Regions.fromName(event.getEventData()
-                                .getAwsRegion())));
+                        .getRegion(
+                                Regions.fromName(
+                                        event.getEventData()
+                                             .getAwsRegion())));
 
         DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest()
                 .withOwners(whitelistedAmiAccount);
@@ -100,9 +102,10 @@ public class AmiPlugin extends AbstractFullstopPlugin {
                 .describeImages(describeImagesRequest);
         List<Image> images = describeImagesResult.getImages();
 
-        whitelistedAmis.addAll(images.stream()
-                .filter(image -> image.getName().startsWith(amiNameStartWith))
-                .map(Image::getImageId).collect(Collectors.toList()));
+        whitelistedAmis.addAll(
+                images.stream()
+                      .filter(image -> image.getName().startsWith(amiNameStartWith))
+                      .map(Image::getImageId).collect(Collectors.toList()));
 
         List<String> invalidAmis = Lists.newArrayList();
 
@@ -124,12 +127,14 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            violationSink.put(new ViolationBuilder(format(
-                    "Instances with ids: %s was started with wrong images: %s",
-                    getInstanceIds(event), invalidAmis))
-                    .withEventId(getCloudTrailEventId(event))
-                    .withRegion(getCloudTrailEventRegion(event))
-                    .withAccountId(getCloudTrailEventAccountId(event)).build());
+            violationSink.put(
+                    new ViolationBuilder(
+                            format(
+                                    "Instances with ids: %s was started with wrong images: %s",
+                                    getInstanceIds(event), invalidAmis))
+                            .withEventId(getCloudTrailEventId(event))
+                            .withRegion(getCloudTrailEventRegion(event))
+                            .withAccountId(getCloudTrailEventAccountId(event)).build());
         }
     }
 }

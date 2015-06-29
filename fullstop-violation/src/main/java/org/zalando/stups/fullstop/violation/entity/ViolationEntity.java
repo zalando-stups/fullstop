@@ -104,12 +104,12 @@ public class ViolationEntity extends AbstractModifiableEntity {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("accountId", accountId)
-                .add("region", region)
-                .add("message", message)
-                .add("violationObject", violationObject)
-                .add("eventId", eventId)
-                .add("comment", comment)
-                .toString();
+                          .add("accountId", accountId)
+                          .add("region", region)
+                          .add("message", message)
+                          .add("violationObject", violationObject)
+                          .add("eventId", eventId)
+                          .add("comment", comment)
+                          .toString();
     }
 }

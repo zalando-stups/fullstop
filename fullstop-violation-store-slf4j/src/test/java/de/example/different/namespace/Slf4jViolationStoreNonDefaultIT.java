@@ -48,7 +48,8 @@ public class Slf4jViolationStoreNonDefaultIT {
 
     @Test
     public void testViolationStoreCreation() {
-        Assertions.assertThat(properties.getLoggernames()).contains("fullstop.violations.store",
+        Assertions.assertThat(properties.getLoggernames()).contains(
+                "fullstop.violations.store",
                 "fullstop.s3.violations.store");
 
         Assertions.assertThat(violationStore).isNotNull();

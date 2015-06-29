@@ -15,30 +15,25 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Mockito.when;
-
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAmis;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.EventNamePredicate.RUN_INSTANCES;
 import static org.zalando.stups.fullstop.events.EventSourcePredicate.EC2_EVENT;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
-import java.util.List;
-
-import org.assertj.core.api.Assertions;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class CloudTrailEventSupportTest {
 

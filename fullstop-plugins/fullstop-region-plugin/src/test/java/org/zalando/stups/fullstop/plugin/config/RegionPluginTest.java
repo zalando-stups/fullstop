@@ -15,18 +15,14 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.List;
-import java.util.Map;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mockito;
-
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
@@ -35,18 +31,18 @@ import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class RegionPluginTest {
 
     private ViolationSink violationSink = new SystemOutViolationSink();
+
     ;
 
     private RegionPluginProperties regionPluginProperties;
@@ -97,7 +93,7 @@ public class RegionPluginTest {
 
         return new CloudTrailEvent(new TestCloudTrailEventData(records.get(0), "/responseElements.json"), null);
 
-// return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
+        // return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
     }
 
 }

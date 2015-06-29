@@ -57,14 +57,14 @@ public class FileEventReaderTest {
 
         AmazonEC2Client client = Mockito.mock(AmazonEC2Client.class);
         Mockito.when(clientProvider.getClient(AmazonEC2Client.class, Mockito.anyString(), Mockito.any(Region.class)))
-                .thenReturn(client);
+               .thenReturn(client);
 
-// for (String filename : LogFiles.all()) {
-//
-// File file = new File(getClass().getResource("/logs/" + filename).getFile());
-// CloudTrailLog ctLog = Mockito.mock(CloudTrailLog.class);
-// FileEventReader reader = new FileEventReader(new PluginEventsProcessor(pluginRegistry));
-// reader.readEvents(file, ctLog);
-// }
+        // for (String filename : LogFiles.all()) {
+        //
+        // File file = new File(getClass().getResource("/logs/" + filename).getFile());
+        // CloudTrailLog ctLog = Mockito.mock(CloudTrailLog.class);
+        // FileEventReader reader = new FileEventReader(new PluginEventsProcessor(pluginRegistry));
+        // reader.readEvents(file, ctLog);
+        // }
     }
 }

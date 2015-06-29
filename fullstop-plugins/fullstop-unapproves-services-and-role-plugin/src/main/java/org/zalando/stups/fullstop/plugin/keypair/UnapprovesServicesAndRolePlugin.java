@@ -38,7 +38,8 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_SOURCE = "iam.amazonaws.com";
 
-    private static final List<String> ROLES = Arrays.asList("Shibboleth-Administrator", "Shibboleth-PowerUser",
+    private static final List<String> ROLES = Arrays.asList(
+            "Shibboleth-Administrator", "Shibboleth-PowerUser",
             "Shibboleth-PowerUserUS", "Shibboleth-ReadOnly");
 
     private final ClientProvider cachingClientProvider;
@@ -62,13 +63,13 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-// TODO: implemet Plugin 
-//        Policy policy = new Policy();
-//        for (Statement statement : policy.getStatements()) {
-//            LOG.info("Role policy");
-//        }
-//
-//
-        }
+        // TODO: implemet Plugin
+        //        Policy policy = new Policy();
+        //        for (Statement statement : policy.getStatements()) {
+        //            LOG.info("Role policy");
+        //        }
+        //
+        //
+    }
 
 }

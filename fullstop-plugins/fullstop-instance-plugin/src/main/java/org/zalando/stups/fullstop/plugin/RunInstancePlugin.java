@@ -98,10 +98,12 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
 
         if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
 
-            String message = String.format("SecurityGroups configured with ports not allowed: %s",
+            String message = String.format(
+                    "SecurityGroups configured with ports not allowed: %s",
                     getPorts(securityGroupList.get()));
-            violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
-                    getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
+            violationSink.put(
+                    new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
+                            getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
 
         }
     }
@@ -149,9 +151,10 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         AmazonEC2Client amazonEC2Client = getClient(accountId, region);
 
         if (amazonEC2Client == null) {
-            throw new RuntimeException(String.format(
-                    "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
-                    region.toString()));
+            throw new RuntimeException(
+                    String.format(
+                            "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
+                            region.toString()));
         }
         else {
             try {
@@ -165,11 +168,16 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             catch (AmazonClientException e) {
 
                 // TODO, better ways?
-                String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
+                String message = String.format(
+                        "Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
                         securityGroupIds.toString(), e.getMessage());
 
-                violationSink.put(new ViolationBuilder(message).withEventId(getCloudTrailEventId(event)).withRegion(
-                        getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event)).build());
+                violationSink.put(
+                        new ViolationBuilder(message).withEventId(getCloudTrailEventId(event))
+                                                     .withRegion(
+                                                             getCloudTrailEventRegion(event))
+                                                     .withAccountId(getCloudTrailEventAccountId(event))
+                                                     .build());
                 return Optional.empty();
             }
 

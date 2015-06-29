@@ -62,8 +62,6 @@ This environment variables should be set:
     DATABASE_USER
     DATABASE_PASSWORD
     DATABASE_DRIVER
-    AMAZON_KEY_ID
-    ENCRYPT_REGION
     INSTANCE_LOGS_S3_BUCKET
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
@@ -85,8 +83,6 @@ Example:
     $ export DATABASE_USER=postgres
     $ export DATABASE_PASSWORD='{cipher}234laksnfdlF83NHALF'
     $ export DATABASE_DRIVER=org.postgresql.Driver
-    $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
-    $ export ENCRYPT_REGION=eu-west-1
     $ export INSTANCE_LOGS_S3_BUCKET=my-s3-bucket
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials

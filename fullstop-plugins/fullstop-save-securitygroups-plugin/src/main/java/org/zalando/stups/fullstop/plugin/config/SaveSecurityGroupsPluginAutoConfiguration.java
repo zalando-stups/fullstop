@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.plugin.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ public class SaveSecurityGroupsPluginAutoConfiguration {
     @Autowired
     private ClientProvider clientProvider;
 
+    @ConditionalOnMissingBean
     @Bean
     public SecurityGroupProvider securityGroupProvider() {
         return new SecurityGroupProvider(clientProvider);

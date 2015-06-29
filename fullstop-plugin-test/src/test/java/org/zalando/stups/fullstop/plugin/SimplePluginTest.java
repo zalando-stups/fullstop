@@ -15,19 +15,16 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class SimplePluginTest {
 

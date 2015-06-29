@@ -15,13 +15,8 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.mockito.Mockito.mock;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.*;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +29,10 @@ import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 public class RegistryPluginUserdataTest {
 
@@ -68,44 +65,54 @@ public class RegistryPluginUserdataTest {
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
         pluginConfiguration = new RegistryPluginProperties();
-        registryPlugin = new RegistryPlugin(userDataProvider,
-                                            violationSink,
-                                            pieroneOperations,
-                                            kioOperations,
-                                            pluginConfiguration);
+        registryPlugin = new RegistryPlugin(
+                userDataProvider,
+                violationSink,
+                pieroneOperations,
+                kioOperations,
+                pluginConfiguration);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(userDataProvider,
-                                 kioOperations,
-                                 pieroneOperations,
-                                 violationSink);
+        verifyNoMoreInteractions(
+                userDataProvider,
+                kioOperations,
+                pieroneOperations,
+                violationSink);
     }
 
     @Test
     public void shouldComplainWithMissingUserData() {
-        when(userDataProvider.getUserData(any(),
-                                          any())).thenReturn(null);
-        registryPlugin.getAndValidateUserData(event,
-                                              "foo");
+        when(
+                userDataProvider.getUserData(
+                        any(),
+                        any())).thenReturn(null);
+        registryPlugin.getAndValidateUserData(
+                event,
+                "foo");
 
-        verify(userDataProvider).getUserData(any(),
-                                             any());
+        verify(userDataProvider).getUserData(
+                any(),
+                any());
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWithEmptyUserData() {
         Map<String, String> userData = Maps.newHashMap();
-        when(userDataProvider.getUserData(any(),
-                                          any())).thenReturn(userData);
+        when(
+                userDataProvider.getUserData(
+                        any(),
+                        any())).thenReturn(userData);
 
-        registryPlugin.getAndValidateUserData(event,
-                                              "foo");
+        registryPlugin.getAndValidateUserData(
+                event,
+                "foo");
 
-        verify(userDataProvider).getUserData(any(),
-                                             any());
+        verify(userDataProvider).getUserData(
+                any(),
+                any());
 
         verify(violationSink).put(any(Violation.class));
     }
@@ -113,30 +120,38 @@ public class RegistryPluginUserdataTest {
     @Test
     public void shouldNotComplainWithFilledUserData() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put("foo",
-                     "bar");
-        when(userDataProvider.getUserData(any(),
-                                          any())).thenReturn(userData);
+        userData.put(
+                "foo",
+                "bar");
+        when(
+                userDataProvider.getUserData(
+                        any(),
+                        any())).thenReturn(userData);
 
-        registryPlugin.getAndValidateUserData(event,
-                                              "foo");
+        registryPlugin.getAndValidateUserData(
+                event,
+                "foo");
 
-        verify(userDataProvider).getUserData(any(),
-                                             any());
+        verify(userDataProvider).getUserData(
+                any(),
+                any());
 
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWithoutApplicationId() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put("foo",
-                     "bar");
+        userData.put(
+                "foo",
+                "bar");
 
-        registryPlugin.getAndValidateApplicationId(event,
-                                                   userData,
-                                                   "foo");
+        registryPlugin.getAndValidateApplicationId(
+                event,
+                userData,
+                "foo");
 
         verify(violationSink).put(any(Violation.class));
     }
@@ -144,26 +159,31 @@ public class RegistryPluginUserdataTest {
     @Test
     public void shouldNotComplainWithApplicationId() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put(RegistryPlugin.APPLICATION_ID,
-                     "bar");
+        userData.put(
+                RegistryPlugin.APPLICATION_ID,
+                "bar");
 
-        registryPlugin.getAndValidateApplicationId(event,
-                                                   userData,
-                                                   "foo");
+        registryPlugin.getAndValidateApplicationId(
+                event,
+                userData,
+                "foo");
 
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWithoutApplicationVersion() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put("foo",
-                     "bar");
+        userData.put(
+                "foo",
+                "bar");
 
-        registryPlugin.getAndValidateApplicationVersion(event,
-                                                        userData,
-                                                        "foo");
+        registryPlugin.getAndValidateApplicationVersion(
+                event,
+                userData,
+                "foo");
 
         verify(violationSink).put(any(Violation.class));
     }
@@ -171,26 +191,31 @@ public class RegistryPluginUserdataTest {
     @Test
     public void shouldNotComplainWithApplicationVersion() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put(RegistryPlugin.APPLICATION_VERSION,
-                     "bar");
+        userData.put(
+                RegistryPlugin.APPLICATION_VERSION,
+                "bar");
 
-        registryPlugin.getAndValidateApplicationVersion(event,
-                                                        userData,
-                                                        "foo");
+        registryPlugin.getAndValidateApplicationVersion(
+                event,
+                userData,
+                "foo");
 
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWithoutSource() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put("foo",
-                     "bar");
+        userData.put(
+                "foo",
+                "bar");
 
-        registryPlugin.getAndValidateSource(event,
-                                            userData,
-                                            "foo");
+        registryPlugin.getAndValidateSource(
+                event,
+                userData,
+                "foo");
 
         verify(violationSink).put(any(Violation.class));
     }
@@ -198,14 +223,17 @@ public class RegistryPluginUserdataTest {
     @Test
     public void shouldNotComplainWithSource() {
         Map<String, String> userData = Maps.newHashMap();
-        userData.put(RegistryPlugin.SOURCE,
-                     "bar");
+        userData.put(
+                RegistryPlugin.SOURCE,
+                "bar");
 
-        registryPlugin.getAndValidateSource(event,
-                                            userData,
-                                            "foo");
+        registryPlugin.getAndValidateSource(
+                event,
+                userData,
+                "foo");
 
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 }

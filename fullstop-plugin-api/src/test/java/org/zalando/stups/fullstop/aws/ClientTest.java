@@ -27,7 +27,8 @@ public class ClientTest {
     private Region region = Region.getRegion(Regions.EU_CENTRAL_1);
 
     public void createClient() {
-        AmazonEC2Client client = region.createClient(AmazonEC2Client.class,
+        AmazonEC2Client client = region.createClient(
+                AmazonEC2Client.class,
                 new STSAssumeRoleSessionCredentialsProvider("", ""), null);
     }
 

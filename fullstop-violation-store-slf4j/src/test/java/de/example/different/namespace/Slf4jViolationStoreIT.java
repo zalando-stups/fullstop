@@ -53,7 +53,7 @@ public class Slf4jViolationStoreIT {
         Assertions.assertThat(violationStore.getClass()).isEqualTo(Slf4jViolationStore.class);
 
         Violation violation = new ViolationBuilder("JUST A TEST").withAccountId("ACCOUNT_ID").withRegion("REGION")
-                .build();
+                                                                 .build();
         this.violationStore.save(violation);
     }
 }

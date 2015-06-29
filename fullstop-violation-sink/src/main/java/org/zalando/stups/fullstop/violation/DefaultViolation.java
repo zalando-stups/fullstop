@@ -109,8 +109,8 @@ class DefaultViolation implements Violation {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
-                .add("message", message).add("violationObject", violationObject).add("eventId", eventId)
-                .add("comment", comment).add("checked", checked).toString();
+                          .add("message", message).add("violationObject", violationObject).add("eventId", eventId)
+                          .add("comment", comment).add("checked", checked).toString();
     }
 
 }

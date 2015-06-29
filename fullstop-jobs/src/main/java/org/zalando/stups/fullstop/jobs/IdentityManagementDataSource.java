@@ -36,15 +36,13 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @author jbellmann
  */
-@Component
-class IdentityManagementDataSource {
+@Component class IdentityManagementDataSource {
 
     private final Logger logger = LoggerFactory.getLogger(IdentityManagementDataSource.class);
 
     private final ClientProvider clientProvider;
 
-    @Autowired
-    IdentityManagementDataSource(final ClientProvider clientProvider) {
+    @Autowired IdentityManagementDataSource(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 

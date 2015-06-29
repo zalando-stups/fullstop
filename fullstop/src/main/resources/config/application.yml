@@ -1,3 +1,25 @@
+management:
+    context-path: /spring-endpoints
+
+endpoints:
+    health:
+        sensitive: true
+
+# defaults values for info endpoints
+project:
+    artifactId: fullstop
+    name: Fullstop
+    version: X.X.X.X
+    description: Audit reporting application
+
+# values from maven
+info:
+    app:
+        artifact: @project.artifactId@
+        name: @project.name@
+        description: @project.description@
+        version: @project.version@
+
 spring:
     # JACKSON (JacksonProperties)
     jackson:
