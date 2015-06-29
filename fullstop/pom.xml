@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -23,7 +24,15 @@
     </parent>
 
     <artifactId>fullstop</artifactId>
-    <name>Fullstop -- Audit reporting application</name>
+    <name>Fullstop</name>
+    <description>Audit reporting application</description>
+    <url>http://stups.io/fullstop/</url>
+
+    <organization>
+        <name>Zalando SE</name>
+        <url>http://stups.io/</url>
+    </organization>
+
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
@@ -102,16 +111,24 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-        	<groupId>${project.groupId}</groupId>
-        	<artifactId>fullstop-snapshot-source-plugin</artifactId>
-        	<version>${project.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-snapshot-source-plugin</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-subnet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <!-- deactivated - not finish yet -->
+        <!--
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        -->
+
         <!-- END PLUGINS -->
 
         <dependency>
@@ -129,10 +146,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>spring-cloud-config-aws-kms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
@@ -188,9 +201,10 @@
                     <include>banner.txt</include>
                 </includes>
             </resource>
+            <!--to resolve values in application yaml for info endpoint-->
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>false</filtering>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
@@ -230,6 +244,26 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <!--add git information to spring info endpoint-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.1.11</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -245,6 +279,10 @@
                         <configuration>
                             <jvmArguments>-Dspring.profiles.active=local</jvmArguments>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

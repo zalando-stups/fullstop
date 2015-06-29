@@ -53,7 +53,8 @@ public class FullstopApplicationTripleIT {
     @Test
     public void testRegionPlugin() {
 
-        Assertions.assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1", "us-east-1",
+        Assertions.assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly(
+                "us-west-1", "us-east-1",
                 "us-west-2");
 
         List<FullstopPlugin> plugins = pluginRegistry.getPlugins();

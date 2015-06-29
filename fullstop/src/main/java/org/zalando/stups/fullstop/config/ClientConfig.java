@@ -34,7 +34,7 @@ import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
 public class ClientConfig {
@@ -71,8 +71,9 @@ public class ClientConfig {
         resource.setClientId("fullstop");
 
         final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
-                new AutoRefreshTokenProvider(tokenName, accessTokens)));
+        restTemplate.setAccessTokenProvider(
+                new StupsAccessTokenProvider(
+                        new AutoRefreshTokenProvider(tokenName, accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         return restTemplate;
     }

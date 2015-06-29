@@ -15,27 +15,24 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.jayway.jsonpath.JsonPath;
+
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 
-import java.util.List;
-
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
-import com.jayway.jsonpath.JsonPath;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class CloudtrailEventSupport {
 
@@ -48,19 +45,23 @@ public abstract class CloudtrailEventSupport {
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
-        "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
+
+    public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
+
+    public static final String ROLE_NAME_JSON_PATH = "$.instancesSet.items[*].roleName";
 
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
     private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-        "RegionString should never be null or empty";
+            "RegionString should never be null or empty";
 
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
-        "CloudTrailEventData should never be null";
+            "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
@@ -117,7 +118,7 @@ public abstract class CloudtrailEventSupport {
             return null;
         }
 
-        return JsonPath.read(parameters, "$.instancesSet.items[*].keyName");
+        return JsonPath.read(parameters, KEY_PAIR_JSON_PATH);
     }
 
     /**
@@ -189,7 +190,8 @@ public abstract class CloudtrailEventSupport {
     public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
         cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        CloudTrailEventData cloudTrailEventData = checkNotNull(cloudTrailEvent.getEventData(),
+        CloudTrailEventData cloudTrailEventData = checkNotNull(
+                cloudTrailEvent.getEventData(),
                 CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
 
         return getRegion(cloudTrailEventData.getAwsRegion());
@@ -202,5 +204,17 @@ public abstract class CloudtrailEventSupport {
 
     public static String getRegionAsString(final CloudTrailEvent event) {
         return event.getEventData().getAwsRegion();
+    }
+
+    /**
+     +     * Extract the 'roleName'.
+     +     */
+    public static List<String> readRoleName(final String parameters) {
+
+        if (parameters == null) {
+            return null;
+        }
+
+        return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
     }
 }

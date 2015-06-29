@@ -35,8 +35,9 @@ public class SimplePropertiesCredentials implements AWSCredentialsProvider {
 
         //
         if (accountProperties.getProperty("accessKey") == null || accountProperties.getProperty("secretKey") == null) {
-            throw new IllegalArgumentException("The specified properties (" + accountProperties.toString()
-                    + ") doesn't contain the expected properties 'accessKey' " + "and 'secretKey'.");
+            throw new IllegalArgumentException(
+                    "The specified properties (" + accountProperties.toString()
+                            + ") doesn't contain the expected properties 'accessKey' " + "and 'secretKey'.");
         }
 
         String accessKey = accountProperties.getProperty("accessKey");

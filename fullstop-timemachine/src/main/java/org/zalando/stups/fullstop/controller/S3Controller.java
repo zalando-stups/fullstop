@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/s3")
+@PreAuthorize("#oauth2.hasScope('uid')")
 public class S3Controller {
 
     public static final String JSON_GZ = ".json.gz";
@@ -109,8 +111,11 @@ public class S3Controller {
         }
 
         AmazonS3Client amazonS3Client = new AmazonS3Client();
-        amazonS3Client.setRegion(Region.getRegion(
-                Regions.fromName((String) cloudTrailProcessingLibraryProperties.getAsProperties().get(S3_REGION_KEY))));
+        amazonS3Client.setRegion(
+                Region.getRegion(
+                        Regions.fromName(
+                                (String) cloudTrailProcessingLibraryProperties.getAsProperties()
+                                                                              .get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest().withBucketName(bucket) //
@@ -135,7 +140,8 @@ public class S3Controller {
             S3Object object = amazonS3Client.getObject(new GetObjectRequest(bucketName, key));
             InputStream inputStream = object.getObjectContent();
 
-            File file = new File(fullstopLoggingDir,
+            File file = new File(
+                    fullstopLoggingDir,
                     object.getBucketName() + object.getObjectMetadata().getETag() + JSON_GZ);
 
             copyInputStreamToFile(inputStream, file);

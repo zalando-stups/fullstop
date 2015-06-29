@@ -50,9 +50,10 @@ public class SecurityGroupProvider {
         AmazonEC2Client amazonEC2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
 
         if (amazonEC2Client == null) {
-            throw new RuntimeException(String.format(
-                    "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
-                    region.toString()));
+            throw new RuntimeException(
+                    String.format(
+                            "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
+                            region.toString()));
         }
         else {
 

@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.snapshot.plugin.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +34,9 @@ public class SnapshotSourcePluginAutoConfiguration {
     @Autowired
     private ClientProvider clientProvider;
 
+    @ConditionalOnMissingBean
     @Bean
-    public UserDataProvider securityGroupProvider() {
+    public UserDataProvider userDataProvider() {
         return new UserDataProvider(clientProvider);
     }
 }

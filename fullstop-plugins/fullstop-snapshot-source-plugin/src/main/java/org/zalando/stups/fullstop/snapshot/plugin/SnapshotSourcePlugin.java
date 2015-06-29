@@ -18,12 +18,6 @@ package org.zalando.stups.fullstop.snapshot.plugin;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
-import static java.lang.String.format;
-
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +27,10 @@ import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 /**
@@ -72,30 +70,36 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             }
             catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
-                violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                        .withAccountId(getCloudTrailEventAccountId(event)).build());
+                violationSink.put(
+                        new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
+                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                                .withAccountId(getCloudTrailEventAccountId(event)).build());
                 return;
             }
 
             if (userData == null) {
-                violationSink.put(new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                        .withAccountId(getCloudTrailEventAccountId(event)).build());
+                violationSink.put(
+                        new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
+                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                                .withAccountId(getCloudTrailEventAccountId(event)).build());
             }
             String source = (String) userData.get(SOURCE);
             if (source == null) {
                 // no source provided :o
-                violationSink.put(new ViolationBuilder(format(
-                        "InstanceID: %s is missing 'source' property in userData.", id))
-                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                        .withAccountId(getCloudTrailEventAccountId(event)).build());
+                violationSink.put(
+                        new ViolationBuilder(
+                                format(
+                                        "InstanceID: %s is missing 'source' property in userData.", id))
+                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                                .withAccountId(getCloudTrailEventAccountId(event)).build());
             }
             else if (source.matches(SNAPSHOT_REGEX)) {
-                violationSink.put(new ViolationBuilder(format(
-                        "InstanceID: %s was started with a mutable SNAPSHOT image.", id))
-                        .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                        .withAccountId(getCloudTrailEventAccountId(event)).build());
+                violationSink.put(
+                        new ViolationBuilder(
+                                format(
+                                        "InstanceID: %s was started with a mutable SNAPSHOT image.", id))
+                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
+                                .withAccountId(getCloudTrailEventAccountId(event)).build());
             }
         }
     }

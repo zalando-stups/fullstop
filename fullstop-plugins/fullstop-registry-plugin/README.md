@@ -27,10 +27,8 @@ EVENT NAME = "RunInstances"
 
 #### Optional
 
-* `FULLSTOP_DEFAULT_APPROVALS`: Comma-separated list of approval types that must be present on every application version. Defaults to `SPECIFICATION,CODE_CHANGE,TEST,DEPLOY`.
-* `FULLSTOP_CODE_APPROVAL`: Approval type for code changes, defaults to `CODE_CHANGE`.
-* `FULLSTOP_TEST_APPROVAL`: Approval type for tests, defaults to `TEST`.
-* `FULLSTOP_DEPLOY_APPROVAL`: Approval type for deploys, defaults to `DEPLOY`.
+* `FULLSTOP_MANDATORY_APPROVALS`: Comma-separated list of approval types that must be present on every application version. Defaults to `SPECIFICATION,CODE_CHANGE,TEST,DEPLOY`.
+* `FULLSTOP_APPROVALS_FROM_MANY`: Which approval types have to be given (in total) by more than one person. Defaults to `CODE_CHANGE,TEST,DEPLOY`. This does not mean that every approval type needs to be issued by at least two people, e.g. in the case of the default value that you need six approvals in total (two for each type). It **does** mean that the set of approvers of the specified approval types must be greater than one. 
 
 ### How to set configuration values
 

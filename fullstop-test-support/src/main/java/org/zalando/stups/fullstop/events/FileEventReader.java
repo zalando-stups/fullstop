@@ -84,23 +84,29 @@ public class FileEventReader {
                 is = new FileInputStream(file);
             }
 
+            readEvents(is, ctLog);
+            // final EventSerializer serializer = this.getEventSerializer(is, ctLog);
+            // this.emitEvents(serializer);
+        }
+        catch (IOException e) {
+            this.exceptionHandler.handleException(
+                    new ProcessingLibraryException(
+                            e.getMessage(),
+                            new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
+        }
+    }
+
+    public void readEvents(final InputStream is, final CloudTrailLog ctLog) throws CallbackException {
+        try {
             final EventSerializer serializer = this.getEventSerializer(is, ctLog);
             this.emitEvents(serializer);
         }
         catch (IOException e) {
-            this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
-                    new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
+            this.exceptionHandler.handleException(
+                    new ProcessingLibraryException(
+                            e.getMessage(),
+                            new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
         }
-
-// try(GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
-// EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
-// ) {
-//
-// this.emitEvents(serializer);
-// } catch (IllegalArgumentException | IOException e) {
-// this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
-// new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
-// }
     }
 
     /**
