@@ -1,7 +1,21 @@
+/**
+ * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zalando.stups.fullstop.violation.repository;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
-import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +42,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by gkneitschel.
@@ -94,7 +108,7 @@ public class LifecycleRepositoryTest {
         //Build first lifecycle
         lifecycleEntity1 = new LifecycleEntity();
         lifecycleEntity1.setRegion("eu-west-1");
-        lifecycleEntity1.setStartDate(new DateTime(2015, 06, 23, 8, 14));
+        lifecycleEntity1.setStartDate(new DateTime(2015, 6, 23, 8, 14));
         lifecycleEntity1.setEndDate(DateTime.now());
         lifecycleEntity1.setVersionEntity(version1);
         lifecycleEntity1.setApplicationEntity(application1);
