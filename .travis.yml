@@ -1,17 +1,19 @@
 language: java
-jdk:
-  - oraclejdk8
+
+sudo: true
+
+jdk: oraclejdk8
 
 services:
     - postgresql
 
 before_script:
-  - psql -c 'create database fullstop;' -U postgres
+    - psql -c 'create database fullstop;' -U postgres
 
 script: mvn clean install
 
 after_success:
-  - mvn coveralls:report -Ptravis
+    - mvn coveralls:report -Ptravis
 
 notifications:
     email:
