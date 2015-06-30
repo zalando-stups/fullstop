@@ -150,6 +150,16 @@ public class FullstopApiTest extends RestControllerTestSupport {
     }
 
     @Test
+    public void testGetOneViolation() throws Exception {
+        violationResult.setId(1L);
+        when(violationServiceMock.findOne(1L)).thenReturn(violationResult);
+
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/1")).andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.id").value(1));
+        verify(violationServiceMock).findOne(anyLong());
+    }
+
+    @Test
     public void testViolations() throws Exception {
         when(violationServiceMock.queryViolations(any(), any(), any(), any(), any())).thenReturn(
                 new PageImpl<>(
