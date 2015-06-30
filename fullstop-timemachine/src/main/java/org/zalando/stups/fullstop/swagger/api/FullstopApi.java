@@ -68,7 +68,7 @@ public class FullstopApi {
 
     private static Violation mapToDto(ViolationEntity entity) {
 
-        if (entity == null){
+        if (entity == null) {
             return null;
         }
 
@@ -102,7 +102,11 @@ public class FullstopApi {
             @PathVariable(value = "id")
             final Long id,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
-        return mapToDto(violationService.findOne(id));
+        Violation violation = mapToDto(violationService.findOne(id));
+        if (violation == null) {
+            throw new NotFoundException("Violation with id: " + id + " not found!");
+        }
+        return violation;
     }
 
     @ApiOperation(

@@ -165,8 +165,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
     public void testGetOneNullViolation() throws Exception {
         when(violationServiceMock.findOne(948439L)).thenReturn(null);
 
-        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isOk());
-        resultActions.andExpect(content().string(""));
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isNotFound());
+        resultActions.andExpect(content().string("\"Violation with id: 948439 not found!\""));
         verify(violationServiceMock).findOne(948439L);
     }
 
