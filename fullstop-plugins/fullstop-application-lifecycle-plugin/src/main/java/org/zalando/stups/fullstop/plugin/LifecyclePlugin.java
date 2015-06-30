@@ -17,11 +17,19 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
+import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
+import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
+import org.zalando.stups.fullstop.violation.entity.VersionEntity;
+import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gkneitschel.
@@ -40,13 +48,14 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private static final String TERMINATE_EVENT_NAME = "TerminateInstances";
 
-    private LifecycleRepository lifecycleRepository;
+    private ApplicationLifecycleServiceImpl applicationLifecycleService;
 
     private UserDataProvider userDataProvider;
 
     @Autowired
-    public LifecyclePlugin(final LifecycleRepository lifecycleRepository, UserDataProvider userDataProvider) {
-        this.lifecycleRepository = lifecycleRepository;
+    public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
+            UserDataProvider userDataProvider) {
+        this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
     }
 
@@ -66,10 +75,55 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(CloudTrailEvent event) {
+        List<String> instances = CloudtrailEventSupport.getInstances(event);
+        for (String instance : instances) {
+            DateTime eventDate = getLifecycleDate(event, instance);
+
+            LifecycleEntity lifecycleEntity = new LifecycleEntity();
+            lifecycleEntity.setEventType(event.getEventData().getEventName());
+            lifecycleEntity.setEventDate(eventDate);
+
+            VersionEntity versionEntity = new VersionEntity(getVersionName(event, instance));
+            ApplicationEntity applicationEntity = new ApplicationEntity(getApplicationName(event, instance));
+
+            applicationLifecycleService.save(applicationEntity, versionEntity, lifecycleEntity);
+        }
 
     }
 
-    private String getApplicationVersion() {
-        return "";
+    private String getApplicationName(CloudTrailEvent event, String instance) {
+        String instanceId = CloudtrailEventSupport.getSingleInstance(instance);
+        Map userData = userDataProvider.getUserData(event, instanceId);
+        return userData.get("application_id").toString();
     }
+
+    private String getVersionName(CloudTrailEvent event, String instance) {
+        String instanceId = CloudtrailEventSupport.getSingleInstance(instance);
+        Map userData = userDataProvider.getUserData(event, instanceId);
+        return userData.get("application_version").toString();
+    }
+
+    private DateTime getLifecycleDate(CloudTrailEvent event, String instance) {
+
+        String eventName = event.getEventData().getEventName();
+
+        if (eventName.equals(RUN_EVENT_NAME)) {
+            return CloudtrailEventSupport.getRunInstanceTime(instance);
+        }
+        else if (eventName.equals(STOP_EVENT_NAME)) {
+            return CloudtrailEventSupport.getEventTime(event);
+        }
+        else if (eventName.equals(START_EVENT_NAME)) {
+            return CloudtrailEventSupport.getEventTime(event);
+
+        }
+        else if (eventName.equals(TERMINATE_EVENT_NAME)) {
+            return CloudtrailEventSupport.getEventTime(event);
+
+        }
+        else {
+            return CloudtrailEventSupport.getEventTime(event);
+        }
+    }
+
 }

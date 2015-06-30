@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation.repository;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
+package org.zalando.stups.fullstop.plugin;
 
 /**
  * Created by gkneitschel.
  */
-@Repository
-public interface LifecycleRepository extends JpaRepository<LifecycleEntity, Long>, LifecycleRepositoryCustom {
+public enum EventTypes {
+    STARTINSTANCE,
+    STOPINSTANCE,
+    TERMINATEINSTANCE,
+    RUNINSTANCE,
+    RUNAUTOSCALING,
+    TERMINATEAUTOSCALING
 }

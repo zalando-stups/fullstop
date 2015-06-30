@@ -108,8 +108,7 @@ public class LifecycleRepositoryTest {
         //Build first lifecycle
         lifecycleEntity1 = new LifecycleEntity();
         lifecycleEntity1.setRegion("eu-west-1");
-        lifecycleEntity1.setStartDate(new DateTime(2015, 6, 23, 8, 14));
-        lifecycleEntity1.setEndDate(DateTime.now());
+        lifecycleEntity1.setEventDate(new DateTime(2015, 6, 23, 8, 14));
         lifecycleEntity1.setVersionEntity(version1);
         lifecycleEntity1.setApplicationEntity(application1);
         savedLifecycleEntity1 = lifecycleRepository.save(lifecycleEntity1);

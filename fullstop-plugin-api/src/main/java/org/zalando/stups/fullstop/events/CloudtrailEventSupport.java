@@ -23,6 +23,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserId
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -40,6 +41,12 @@ public abstract class CloudtrailEventSupport {
 
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
+    public static final String INSTANCE_JSON_PATH = "$.instancesSet.items[*]";
+
+    public static final String RUN_INSTANCE_DATE_JSON_PATH = "$.launchTime";
+
+    public static final String SINGLE_INSTANCE_ID_JSON_PATH = "$.instanceId";
+
     public static final String PRIVATE_IP_JSON_PATH = "$.instancesSet.items[*].privateIpAddress";
 
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
@@ -48,6 +55,8 @@ public abstract class CloudtrailEventSupport {
             "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
+
+    public static final String EVENT_TIME = "$.eventTime";
 
     public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
 
@@ -216,5 +225,39 @@ public abstract class CloudtrailEventSupport {
         }
 
         return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
+    }
+
+    public static List<String> getInstances(CloudTrailEvent event) {
+        CloudTrailEventData eventData = getEventData(event);
+
+        String responseElements = eventData.getResponseElements();
+        if (isNullOrEmpty(responseElements)) {
+            return newArrayList();
+        }
+
+        return read(responseElements, INSTANCE_JSON_PATH);
+
+    }
+
+    public static String getSingleInstance(String instance) {
+
+        return JsonPath.read(instance, SINGLE_INSTANCE_ID_JSON_PATH);
+
+    }
+
+    public static DateTime getRunInstanceTime(String instance) {
+
+        return new DateTime(read(instance, RUN_INSTANCE_DATE_JSON_PATH));
+    }
+
+    public static DateTime getEventTime(CloudTrailEvent event) {
+
+        event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
+
+        CloudTrailEventData eventData = getEventData(event);
+
+        String responseElements = eventData.getResponseElements();
+
+        return JsonPath.read(responseElements, EVENT_TIME);
     }
 }

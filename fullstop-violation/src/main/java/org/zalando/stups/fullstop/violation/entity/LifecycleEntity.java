@@ -30,16 +30,12 @@ import javax.persistence.Table;
 @Table(name = "lifecycle", schema = "fullstop_data")
 @Entity
 public class LifecycleEntity extends AbstractModifiableEntity {
-    private DateTime startDate;
-
-    private DateTime endDate;
+    private DateTime eventDate;
 
     private String region;
 
-    private Integer appHasVersionId;
-
     @ManyToOne(optional = false)
-    @JoinColumn(name= "application", referencedColumnName = "id")
+    @JoinColumn(name = "application", referencedColumnName = "id")
     private ApplicationEntity applicationEntity;
 
     @ManyToOne(optional = false)
@@ -48,15 +44,15 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private String eventType;
 
-    private  String instanceId;
+    private String instanceId;
 
     public LifecycleEntity() {
     }
 
-    public LifecycleEntity(DateTime startDate, DateTime endDate, String region, ApplicationEntity applicationEntity, VersionEntity versionEntity,
+    public LifecycleEntity(DateTime eventDate, String region, ApplicationEntity applicationEntity,
+            VersionEntity versionEntity,
             String eventType, String instanceId) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.eventDate = eventDate;
         this.region = region;
         this.applicationEntity = applicationEntity;
         this.versionEntity = versionEntity;
@@ -64,20 +60,12 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.instanceId = instanceId;
     }
 
-    public DateTime getStartDate() {
-        return startDate;
+    public DateTime getEventDate() {
+        return eventDate;
     }
 
-    public void setStartDate(DateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public DateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(DateTime endDate) {
-        this.endDate = endDate;
+    public void setEventDate(DateTime eventDate) {
+        this.eventDate = eventDate;
     }
 
     public String getRegion() {
@@ -104,7 +92,6 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.instanceId = instanceId;
     }
 
-
     public ApplicationEntity getApplicationEntity() {
         return applicationEntity;
     }
@@ -124,13 +111,12 @@ public class LifecycleEntity extends AbstractModifiableEntity {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("startdate", startDate)
-                .add("enddate", endDate)
-                .add("region", region)
-                .add("application", applicationEntity)
-                .add("applicationVersion", versionEntity)
-                .add("eventType", eventType)
-                .add("instanceId", instanceId)
-                .toString();
+                          .add("eventDate", eventDate)
+                          .add("region", region)
+                          .add("application", applicationEntity)
+                          .add("applicationVersion", versionEntity)
+                          .add("eventType", eventType)
+                          .add("instanceId", instanceId)
+                          .toString();
     }
 }
