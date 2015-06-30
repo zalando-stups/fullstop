@@ -4,11 +4,11 @@ sudo: true
 
 jdk: oraclejdk8
 
-services:
-    - postgresql
+addons:
+  postgresql: "9.4"
 
 before_script:
-    - psql -c 'create database fullstop;' -U postgres
+  - psql -c 'CREATE DATABASE fullstop;' -U postgres
 
 script: mvn clean install
 
