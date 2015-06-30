@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.instance;
 
 import com.amazonaws.services.ec2.model.IpPermission;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
 
 import java.util.function.Predicate;
 
-public class IpPermissionTests {
+/**
+ * @author jbellmann
+ */
+public abstract class IpPermissionPredicates {
 
-    @Test
-    public void testMatchingSingleToPort() {
-        Predicate<IpPermission> predicate = IpPermissionPredicates.withToPort(443);
-        IpPermission permission = new IpPermission();
-        permission.setToPort(443);
-        Assertions.assertThat(predicate.test(permission)).isTrue();
+    public static Predicate<IpPermission> withToPort(final Integer port) {
+        return new Predicate<IpPermission>() {
+
+            @Override
+            public boolean test(final IpPermission t) {
+                return port.equals(t.getToPort());
+            }
+        };
     }
 
-    @Test
-    public void testNotMatchingSingleToPort() {
-        Predicate<IpPermission> predicate = IpPermissionPredicates.withToPort(443);
-        IpPermission permission = new IpPermission();
-        permission.setToPort(445);
-        Assertions.assertThat(predicate.test(permission)).isFalse();
+    public static Predicate<IpPermission> withFromPort(final Integer port) {
+        return new Predicate<IpPermission>() {
+
+            @Override
+            public boolean test(final IpPermission t) {
+                return port.equals(t.getFromPort());
+            }
+        };
     }
 
 }

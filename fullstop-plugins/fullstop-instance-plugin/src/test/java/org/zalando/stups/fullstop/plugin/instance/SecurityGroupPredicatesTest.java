@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.instance;
 
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
+import org.zalando.stups.fullstop.plugin.instance.IpPermissionPredicates;
+import org.zalando.stups.fullstop.plugin.instance.SecurityGroupPredicates;
 
 import java.util.function.Predicate;
 
