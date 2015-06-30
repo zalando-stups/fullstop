@@ -82,8 +82,9 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-all</artifactId>
             <scope>test</scope>
+            <version>1.10.19</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -104,6 +105,14 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>META-INF/fullstop/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>META-INF/spring.factories</include>
+                    <include>*.*</include>
                 </includes>
             </resource>
         </resources>
