@@ -100,8 +100,7 @@ public class FullstopApi {
     public Violation getViolation(
             @ApiParam(value = "Violation id")
             @PathVariable(value = "id")
-            final Long id,
-            @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
+            final Long id) throws NotFoundException {
         Violation violation = mapToDto(violationService.findOne(id));
         if (violation == null) {
             throw new NotFoundException("Violation with id: " + id + " not found!");
