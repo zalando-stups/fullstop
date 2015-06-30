@@ -10,8 +10,6 @@ import org.mockito.Mockito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 
 import org.springframework.context.annotation.Bean;
@@ -26,12 +24,14 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
+import com.unknown.pkg.PluginTest.TestConfig;
+
 /**
  * @author  jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration
-@IntegrationTest({ "debug=true" })
+@SpringApplicationConfiguration(classes = {ExampleApplication.class, TestConfig.class})
+// @IntegrationTest({ "debug=true" })
 public class PluginTest {
 
     @Autowired
@@ -46,7 +46,7 @@ public class PluginTest {
     }
 
     @Configuration
-    @EnableAutoConfiguration
+// @ComponentScan("org.zalando.stups.fullstop.plugin.ami")
     static class TestConfig {
 
         @Bean
