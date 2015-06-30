@@ -10,7 +10,8 @@ addons:
 before_script:
   - psql -c 'CREATE DATABASE fullstop;' -U postgres
 
-script: mvn clean install
+script:
+    - mvn clean install -Pfullstop-startup
 
 after_success:
     - mvn coveralls:report -Ptravis
