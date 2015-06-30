@@ -2,6 +2,12 @@ language: java
 jdk:
   - oraclejdk8
 
+services:
+    - postgresql
+
+before_script:
+  - psql -c 'create database fullstop;' -U postgres
+
 script: mvn clean install
 
 after_success:
