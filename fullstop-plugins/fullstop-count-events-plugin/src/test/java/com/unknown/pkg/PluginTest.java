@@ -36,7 +36,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ExampleApplication.class)
-@IntegrationTest
+@IntegrationTest({ "debug=true" })
 public class PluginTest {
 
     @Autowired
