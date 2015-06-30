@@ -67,6 +67,11 @@ public class FullstopApi {
     private TeamOperations teamOperations;
 
     private static Violation mapToDto(ViolationEntity entity) {
+
+        if (entity == null){
+            return null;
+        }
+
         Violation violation = new Violation();
 
         violation.setId(entity.getId());
