@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.ami;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -23,6 +23,7 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -56,10 +58,9 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_NAME = "RunInstances";
 
-    private final CloudTrailEventPredicate eventFilter = fromSource(
-            EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
+    private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
-    private final ClientProvider cachingClientProvider;
+    private final ClientProvider clientProvider;
 
     private final ViolationSink violationSink;
 
@@ -70,9 +71,8 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     private String whitelistedAmiAccount;
 
     @Autowired
-    public AmiPlugin(final ClientProvider cachingClientProvider,
-            final ViolationSink violationSink) {
-        this.cachingClientProvider = cachingClientProvider;
+    public AmiPlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
+        this.clientProvider = clientProvider;
         this.violationSink = violationSink;
     }
 
@@ -88,24 +88,16 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         final List<String> whitelistedAmis = Lists.newArrayList();
 
-        AmazonEC2Client ec2Client = cachingClientProvider.getClient(
-                AmazonEC2Client.class, whitelistedAmiAccount, Region
-                        .getRegion(
-                                Regions.fromName(
-                                        event.getEventData()
-                                             .getAwsRegion())));
+        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, whitelistedAmiAccount,
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest()
-                .withOwners(whitelistedAmiAccount);
+        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
 
-        DescribeImagesResult describeImagesResult = ec2Client
-                .describeImages(describeImagesRequest);
+        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
         List<Image> images = describeImagesResult.getImages();
 
-        whitelistedAmis.addAll(
-                images.stream()
-                      .filter(image -> image.getName().startsWith(amiNameStartWith))
-                      .map(Image::getImageId).collect(Collectors.toList()));
+        whitelistedAmis.addAll(images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
+                .map(Image::getImageId).collect(Collectors.toList()));
 
         List<String> invalidAmis = Lists.newArrayList();
 
@@ -127,14 +119,10 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Instances with ids: %s was started with wrong images: %s",
-                                    getInstanceIds(event), invalidAmis))
-                            .withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event)).build());
+            violationSink.put(new ViolationBuilder(format("Instances with ids: %s was started with wrong images: %s",
+                    getInstanceIds(event), invalidAmis)).withEventId(getCloudTrailEventId(event))
+                    .withRegion(getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event))
+                    .build());
         }
     }
 }
