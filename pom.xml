@@ -80,6 +80,8 @@
         <module>fullstop-violation-sink</module>
         <module>fullstop-violation-sink-reactor</module>
         <module>fullstop-violation-persister-jpa</module>
+        <module>fullstop-it</module>
+        <module>fullstop-it-autoshutdown</module>
     </modules>
 
     <dependencyManagement>
