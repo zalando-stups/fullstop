@@ -104,10 +104,6 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <includes>
-                    <include>META-INF/spring.factories</include>
-                    <include>*.*</include>
-                </includes>
             </resource>
         </resources>
         <plugins>
