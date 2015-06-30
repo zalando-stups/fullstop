@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-masterdata-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-count-events-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
