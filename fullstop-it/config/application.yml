@@ -33,9 +33,9 @@ spring:
         resource:
             tokenInfoUri: https://example.com/oauth/tokeninfo
     datasource:
-        url: jdbc:postgresql://localhost:5432/fullstop
+        url: jdbc:postgresql://localhost:5435/fullstop
         username: postgres
-        password: 
+        password: postgres
         driver-class-name: org.postgresql.Driver
 #    jpa:
 #        hibernate:

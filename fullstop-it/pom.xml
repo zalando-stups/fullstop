@@ -8,6 +8,10 @@
     <artifactId>fullstop-it</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <active-profiles>it-with-timeout</active-profiles>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -37,7 +41,7 @@
                                 <classpath />
                                 <argument>org.zalando.stups.fullstop.Fullstop</argument>
                                 <argument>--spring.config.location=${basedir}/config</argument>
-                                <argument>--spring.profiles.active=it-with-timeout</argument>
+                                <argument>--spring.profiles.active=${active-profiles}</argument>
                                 <argument>--debug</argument>
                             </arguments>
                         </configuration>
@@ -52,6 +56,12 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>pg-travis</id>
+            <properties>
+                <active-profiles>it-with-timeout,travis</active-profiles>
+            </properties>
         </profile>
     </profiles>
 </project>

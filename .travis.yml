@@ -9,9 +9,10 @@ addons:
 
 before_script:
   - psql -c 'CREATE DATABASE fullstop;' -U postgres
+#  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
 
 script:
-    - mvn clean install -Pfullstop-startup
+    - mvn clean install -Pfullstop-startup,pg-travis
 
 after_success:
     - mvn coveralls:report -Ptravis
