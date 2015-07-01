@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.snapshot.plugin.config;
+package org.zalando.stups.fullstop.plugin.snapshot.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,7 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.snapshot.plugin.SnapshotSourcePlugin;
+import org.zalando.stups.fullstop.plugin.snapshot.SnapshotSourcePlugin;
 
 /**
  * @author jbellmann
