@@ -15,21 +15,29 @@
  */
 package org.zalando.stups.fullstop;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.plugin.core.config.EnablePluginRegistries;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
-import org.zalando.stups.fullstop.plugin.FullstopPlugin;
-
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+
+import org.springframework.plugin.core.config.EnablePluginRegistries;
+
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+
+import org.zalando.stups.fullstop.plugin.FullstopPlugin;
+
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 @Configuration
 @ComponentScan
@@ -38,6 +46,7 @@ import javax.annotation.PostConstruct;
 @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
 @EnableWebMvcSecurity
 @EnableSpringDataWebSupport
+@EnableScheduling
 public class Fullstop {
 
     @Autowired
