@@ -21,7 +21,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -31,9 +31,12 @@ import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleSer
 import java.util.List;
 import java.util.Map;
 
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
+
 /**
  * Created by gkneitschel.
  */
+@Component
 public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(LifecyclePlugin.class);
@@ -75,7 +78,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(CloudTrailEvent event) {
-        List<String> instances = CloudtrailEventSupport.getInstances(event);
+        List<String> instances = getInstances(event);
         for (String instance : instances) {
             DateTime eventDate = getLifecycleDate(event, instance);
 
@@ -83,8 +86,11 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
 
-            VersionEntity versionEntity = new VersionEntity(getVersionName(event, instance));
-            ApplicationEntity applicationEntity = new ApplicationEntity(getApplicationName(event, instance));
+            String versionName = getVersionName(event, instance);
+            VersionEntity versionEntity = new VersionEntity(versionName);
+
+            String applicationName = getApplicationName(event, instance);
+            ApplicationEntity applicationEntity = new ApplicationEntity(applicationName);
 
             applicationLifecycleService.save(applicationEntity, versionEntity, lifecycleEntity);
         }
@@ -92,13 +98,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     }
 
     private String getApplicationName(CloudTrailEvent event, String instance) {
-        String instanceId = CloudtrailEventSupport.getSingleInstance(instance);
+        String instanceId = getSingleInstance(instance);
         Map userData = userDataProvider.getUserData(event, instanceId);
         return userData.get("application_id").toString();
     }
 
     private String getVersionName(CloudTrailEvent event, String instance) {
-        String instanceId = CloudtrailEventSupport.getSingleInstance(instance);
+        String instanceId = getSingleInstance(instance);
         Map userData = userDataProvider.getUserData(event, instanceId);
         return userData.get("application_version").toString();
     }
@@ -108,21 +114,10 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         String eventName = event.getEventData().getEventName();
 
         if (eventName.equals(RUN_EVENT_NAME)) {
-            return CloudtrailEventSupport.getRunInstanceTime(instance);
-        }
-        else if (eventName.equals(STOP_EVENT_NAME)) {
-            return CloudtrailEventSupport.getEventTime(event);
-        }
-        else if (eventName.equals(START_EVENT_NAME)) {
-            return CloudtrailEventSupport.getEventTime(event);
-
-        }
-        else if (eventName.equals(TERMINATE_EVENT_NAME)) {
-            return CloudtrailEventSupport.getEventTime(event);
-
+            return getRunInstanceTime(instance);
         }
         else {
-            return CloudtrailEventSupport.getEventTime(event);
+            return getEventTime(event);
         }
     }
 

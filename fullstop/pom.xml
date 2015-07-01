@@ -120,6 +120,11 @@
             <artifactId>fullstop-subnet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-lifecycle-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- deactivated - not finish yet -->
         <!--
         <dependency>

@@ -22,9 +22,12 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -229,14 +232,19 @@ public abstract class CloudtrailEventSupport {
 
     public static List<String> getInstances(CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
-
+        Gson gson = new Gson();
+        List<String> instances = newArrayList();
         String responseElements = eventData.getResponseElements();
         if (isNullOrEmpty(responseElements)) {
             return newArrayList();
         }
 
-        return read(responseElements, INSTANCE_JSON_PATH);
+        JSONArray items = JsonPath.read(responseElements, INSTANCE_JSON_PATH);
+        for (Object item : items) {
+            instances.add(gson.toJson(item, LinkedHashMap.class));
+        }
 
+        return instances;
     }
 
     public static String getSingleInstance(String instance) {
@@ -247,7 +255,7 @@ public abstract class CloudtrailEventSupport {
 
     public static DateTime getRunInstanceTime(String instance) {
 
-        return new DateTime(read(instance, RUN_INSTANCE_DATE_JSON_PATH));
+        return new DateTime((Long)JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
     }
 
     public static DateTime getEventTime(CloudTrailEvent event) {

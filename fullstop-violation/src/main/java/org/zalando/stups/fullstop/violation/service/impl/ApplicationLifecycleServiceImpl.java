@@ -15,8 +15,8 @@
  */
 package org.zalando.stups.fullstop.violation.service.impl;
 
-import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -25,11 +25,12 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
-import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Created by gkneitschel.
  */
+@Service
 public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleService {
 
     @Autowired

@@ -49,8 +49,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.app_has_version (
 
 CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
   id                 BIGSERIAL NOT NULL PRIMARY KEY,
-  startdate          DATE,
-  enddate            DATE,
+  event_date         DATE,
   region             TEXT,
   application        INTEGER,
   application_version INTEGER,
