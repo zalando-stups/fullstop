@@ -141,7 +141,9 @@ tokens:
         - tokenId: pierone
           scopes:
               - uid
-
+        - tokenId: teamService
+          scopes:
+              - uid
 
 javax:
     persistence:
