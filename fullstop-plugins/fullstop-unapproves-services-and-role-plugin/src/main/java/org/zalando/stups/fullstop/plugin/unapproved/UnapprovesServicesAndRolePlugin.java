@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin.keypair;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-import org.zalando.stups.fullstop.violation.ViolationStore;
+package org.zalando.stups.fullstop.plugin.unapproved;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+
 /**
- * @author mrandi
+ * @author  mrandi
  */
 @Component
 public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
@@ -38,19 +42,17 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_SOURCE = "iam.amazonaws.com";
 
-    private static final List<String> ROLES = Arrays.asList(
-            "Shibboleth-Administrator", "Shibboleth-PowerUser",
+    private static final List<String> ROLES = Arrays.asList("Shibboleth-Administrator", "Shibboleth-PowerUser",
             "Shibboleth-PowerUserUS", "Shibboleth-ReadOnly");
 
-    private final ClientProvider cachingClientProvider;
+    private final ClientProvider clientProvider;
 
-    private final ViolationStore violationStore;
+    private final ViolationSink violationSink;
 
     @Autowired
-    public UnapprovesServicesAndRolePlugin(final ClientProvider cachingClientProvider,
-            final ViolationStore violationStore) {
-        this.cachingClientProvider = cachingClientProvider;
-        this.violationStore = violationStore;
+    public UnapprovesServicesAndRolePlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
+        this.clientProvider = clientProvider;
+        this.violationSink = violationSink;
     }
 
     @Override
@@ -64,10 +66,10 @@ public class UnapprovesServicesAndRolePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
         // TODO: implemet Plugin
-        //        Policy policy = new Policy();
-        //        for (Statement statement : policy.getStatements()) {
-        //            LOG.info("Role policy");
-        //        }
+        // Policy policy = new Policy();
+        // for (Statement statement : policy.getStatements()) {
+        // LOG.info("Role policy");
+        // }
         //
         //
     }
