@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.instance;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.google.common.collect.Lists;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,6 +28,9 @@ import org.mockito.Mockito;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.plugin.instance.IpPermissionPredicates;
+import org.zalando.stups.fullstop.plugin.instance.RunInstancePlugin;
+import org.zalando.stups.fullstop.plugin.instance.SecurityGroupPredicates;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 

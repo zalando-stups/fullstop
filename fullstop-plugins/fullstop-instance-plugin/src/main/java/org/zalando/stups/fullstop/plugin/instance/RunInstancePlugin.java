@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.instance;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.regions.Region;
@@ -24,12 +24,14 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -43,8 +45,8 @@ import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
-import static org.zalando.stups.fullstop.plugin.Bool.not;
-import static org.zalando.stups.fullstop.plugin.IpPermissionPredicates.withToPort;
+import static org.zalando.stups.fullstop.plugin.instance.Bool.not;
+import static org.zalando.stups.fullstop.plugin.instance.IpPermissionPredicates.withToPort;
 
 /**
  * @author jbellmann

@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
-
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
-import java.util.function.Function;
+package org.zalando.stups.fullstop.plugin.instance;
 
 /**
- * Function that transforms a {@link SecurityGroup} into a {@link String}.
- *
  * @author jbellmann
  */
-class SecurityGroupToString implements Function<SecurityGroup, String> {
+public abstract class Bool {
 
-    @Override
-    public String apply(final SecurityGroup t) {
-        return t.toString();
+    public static boolean not(final boolean expression) {
+        return negate(expression);
+    }
+
+    public static boolean negate(final boolean expression) {
+        return !expression;
     }
 
 }

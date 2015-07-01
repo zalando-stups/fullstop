@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
+            <artifactId>fullstop-violation-sink</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -51,6 +51,10 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
         </dependency>
 
         <dependency>
@@ -78,8 +82,9 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-all</artifactId>
             <scope>test</scope>
+            <version>1.10.19</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -100,6 +105,14 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>META-INF/fullstop/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>META-INF/spring.factories</include>
+                    <include>*.*</include>
                 </includes>
             </resource>
         </resources>
