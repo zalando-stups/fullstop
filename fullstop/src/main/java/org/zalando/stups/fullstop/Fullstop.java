@@ -25,9 +25,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
-
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -43,9 +40,7 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 @ComponentScan
 @EnableAutoConfiguration
 @EnablePluginRegistries({ FullstopPlugin.class })
-@EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
 @EnableWebMvcSecurity
-@EnableSpringDataWebSupport
 @EnableScheduling
 public class Fullstop {
 
