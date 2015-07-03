@@ -39,7 +39,7 @@ public class ApplicationEntity extends AbstractModifiableEntity {
     private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "app_has_version",
+    @JoinTable(schema = "fullstop_data", name = "app_has_version",
             joinColumns = @JoinColumn(name = "app_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "app_version_id", referencedColumnName = "id"))
     private List<VersionEntity> versionEntities;

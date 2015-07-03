@@ -21,22 +21,24 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
 --ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
 CREATE TABLE IF NOT EXISTS fullstop_data.application (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
-  app_name         TEXT,
+  name             TEXT,
   created          TIMESTAMP,
   created_by       TEXT,
   last_modified    TIMESTAMP,
   last_modified_by TEXT,
-  version          BIGINT NOT NULL
+  version          BIGINT NOT NULL,
+  CONSTRAINT unique_app_name UNIQUE (name)
 );
 
 CREATE TABLE IF NOT EXISTS fullstop_data.app_version (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
-  app_version      TEXT,
+  name             TEXT,
   created          TIMESTAMP,
   created_by       TEXT,
   last_modified    TIMESTAMP,
   last_modified_by TEXT,
-  version          BIGINT    NOT NULL
+  version          BIGINT    NOT NULL,
+  CONSTRAINT unique_version_name UNIQUE (name)
 );
 
 CREATE TABLE IF NOT EXISTS fullstop_data.app_has_version (

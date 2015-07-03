@@ -45,10 +45,15 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Override
     public void save(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity) {
-        versionRepository.save(versionEntity);
 
         applicationEntity.setVersionEntities(newArrayList(versionEntity));
         applicationRepository.save(applicationEntity);
+
+        if (versionRepository.findOne(versionEntity.getId()) == null) {
+            versionRepository.save(versionEntity);
+        }
+
+
 
         lifecycleEntity.setApplicationEntity(applicationEntity);
         lifecycleRepository.save(lifecycleEntity);

@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.joda.time.DateTime;
@@ -85,12 +86,20 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             LifecycleEntity lifecycleEntity = new LifecycleEntity();
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
+            ApplicationEntity applicationEntity;
+            VersionEntity versionEntity;
+            try {
 
-            String versionName = getVersionName(event, instance);
-            VersionEntity versionEntity = new VersionEntity(versionName);
+                String versionName = getVersionName(event, instance);
+                 versionEntity = new VersionEntity(versionName);
 
-            String applicationName = getApplicationName(event, instance);
-            ApplicationEntity applicationEntity = new ApplicationEntity(applicationName);
+                String applicationName = getApplicationName(event, instance);
+                 applicationEntity = new ApplicationEntity(applicationName);
+            }
+            catch (AmazonServiceException e) {
+                LOG.warn("Lifecycle: {}", e.getMessage());
+                return;
+            }
 
             applicationLifecycleService.save(applicationEntity, versionEntity, lifecycleEntity);
         }
@@ -99,14 +108,16 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private String getApplicationName(CloudTrailEvent event, String instance) {
         String instanceId = getSingleInstance(instance);
-        Map userData = userDataProvider.getUserData(event, instanceId);
+         Map userData = userDataProvider.getUserData(event, instanceId);
         return userData.get("application_id").toString();
     }
 
     private String getVersionName(CloudTrailEvent event, String instance) {
         String instanceId = getSingleInstance(instance);
+
         Map userData = userDataProvider.getUserData(event, instanceId);
         return userData.get("application_version").toString();
+
     }
 
     private DateTime getLifecycleDate(CloudTrailEvent event, String instance) {

@@ -255,17 +255,13 @@ public abstract class CloudtrailEventSupport {
 
     public static DateTime getRunInstanceTime(String instance) {
 
-        return new DateTime((Long)JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
+        return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
     }
 
     public static DateTime getEventTime(CloudTrailEvent event) {
 
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        CloudTrailEventData eventData = getEventData(event);
-
-        String responseElements = eventData.getResponseElements();
-
-        return JsonPath.read(responseElements, EVENT_TIME);
+        return new DateTime(event.getEventData().getEventTime());
     }
 }
