@@ -66,6 +66,48 @@ public class FullstopApi {
     @Autowired
     private TeamOperations teamOperations;
 
+    private static Violation mapToDto(ViolationEntity entity) {
+
+        if (entity == null) {
+            return null;
+        }
+
+        Violation violation = new Violation();
+
+        violation.setId(entity.getId());
+        violation.setVersion(entity.getVersion());
+
+        violation.setCreated(entity.getCreated());
+        violation.setCreatedBy(entity.getCreatedBy());
+        violation.setLastModified(entity.getLastModified());
+        violation.setLastModifiedBy(entity.getLastModifiedBy());
+
+        violation.setAccountId(entity.getAccountId());
+        violation.setEventId(entity.getEventId());
+        violation.setMessage(entity.getMessage());
+        violation.setRegion(entity.getRegion());
+        violation.setComment(entity.getComment());
+        violation.setViolationObject(entity.getViolationObject());
+        return violation;
+    }
+
+    @ApiOperation(
+            value = "violations", notes = "Get one violation", response = Violation.class
+    )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Violation") })
+    @PreAuthorize("#oauth2.hasScope('uid')")
+    @RequestMapping(value = "/violations/{id}", method = RequestMethod.GET)
+    public Violation getViolation(
+            @ApiParam(value = "Violation id")
+            @PathVariable(value = "id")
+            final Long id) throws NotFoundException {
+        Violation violation = mapToDto(violationService.findOne(id));
+        if (violation == null) {
+            throw new NotFoundException("Violation with id: " + id + " not found!");
+        }
+        return violation;
+    }
+
     @ApiOperation(
             value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
     )
@@ -129,7 +171,6 @@ public class FullstopApi {
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
     @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    @PreAuthorize("permitAll")
     public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
     @RequestBody final LogObj log) throws NotFoundException {
         saveLog(log);
@@ -175,26 +216,6 @@ public class FullstopApi {
                 backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
                 currentPageRequest,
                 backendViolations.getTotalElements());
-    }
-
-    private static Violation mapToDto(ViolationEntity entity) {
-        Violation violation = new Violation();
-
-        violation.setId(entity.getId());
-        violation.setVersion(entity.getVersion());
-
-        violation.setCreated(entity.getCreated());
-        violation.setCreatedBy(entity.getCreatedBy());
-        violation.setLastModified(entity.getLastModified());
-        violation.setLastModifiedBy(entity.getLastModifiedBy());
-
-        violation.setAccountId(entity.getAccountId());
-        violation.setEventId(entity.getEventId());
-        violation.setMessage(entity.getMessage());
-        violation.setRegion(entity.getRegion());
-        violation.setComment(entity.getComment());
-        violation.setViolationObject(entity.getViolationObject());
-        return violation;
     }
 
 }

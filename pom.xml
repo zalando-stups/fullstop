@@ -39,7 +39,7 @@
     <properties>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>1.2.4.RELEASE</spring-boot.version>
+        <spring-boot.version>1.2.5.RELEASE</spring-boot.version>
         <aws-java-sdk.version>1.9.40</aws-java-sdk.version>
         <java.source>1.8</java.source>
         <java.target>1.8</java.target>
@@ -80,6 +80,8 @@
         <module>fullstop-violation-sink</module>
         <module>fullstop-violation-sink-reactor</module>
         <module>fullstop-violation-persister-jpa</module>
+        <module>fullstop-it</module>
+        <module>fullstop-it-autoshutdown</module>
     </modules>
 
     <dependencyManagement>

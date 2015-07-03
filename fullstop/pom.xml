@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-masterdata-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-count-events-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -167,7 +172,7 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>spring-boot-zalando-stups-tokens</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>

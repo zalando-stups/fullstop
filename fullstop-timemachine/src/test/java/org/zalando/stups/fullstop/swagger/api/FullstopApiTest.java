@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
@@ -59,6 +60,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
@@ -147,6 +149,25 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testInstanceLogsNotBase64LogDataEncoded() throws Exception {
         // test with not encoded log data
+    }
+
+    @Test
+    public void testGetOneViolation() throws Exception {
+        violationResult.setId(1L);
+        when(violationServiceMock.findOne(1L)).thenReturn(violationResult);
+
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/1")).andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.id").value(1));
+        verify(violationServiceMock).findOne(1L);
+    }
+
+    @Test
+    public void testGetOneNullViolation() throws Exception {
+        when(violationServiceMock.findOne(948439L)).thenReturn(null);
+
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isNotFound());
+        resultActions.andExpect(content().string("\"Violation with id: 948439 not found!\""));
+        verify(violationServiceMock).findOne(948439L);
     }
 
     @Test
