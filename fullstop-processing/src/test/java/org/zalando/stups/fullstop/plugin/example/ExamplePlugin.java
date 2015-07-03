@@ -71,7 +71,8 @@ public class ExamplePlugin implements FullstopPlugin {
         String parameters = event.getEventData().getRequestParameters();
         String instanceId = getFromParameters(parameters);
 
-        AmazonEC2Client client = getClientForAccount(event.getEventData().getUserIdentity().getAccountId(),
+        AmazonEC2Client client = getClientForAccount(
+                event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
         DescribeInstancesRequest request = new DescribeInstancesRequest();
@@ -90,13 +91,14 @@ public class ExamplePlugin implements FullstopPlugin {
 
         AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn(
                 "arn:aws:iam::ACCOUNT_ID:role/fullstop-role")
-                .withDurationSeconds(3600).withRoleSessionName(
+                                                                 .withDurationSeconds(3600).withRoleSessionName(
                         "fullstop-role");
 
         AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
 
-        BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(assumeResult.getCredentials()
-                .getAccessKeyId(), assumeResult.getCredentials().getSecretAccessKey(),
+        BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(
+                assumeResult.getCredentials()
+                            .getAccessKeyId(), assumeResult.getCredentials().getSecretAccessKey(),
                 assumeResult.getCredentials().getSessionToken());
 
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);

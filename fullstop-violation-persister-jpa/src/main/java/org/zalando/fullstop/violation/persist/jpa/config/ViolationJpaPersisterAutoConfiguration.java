@@ -22,6 +22,9 @@ import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+
 import org.zalando.fullstop.violation.persist.jpa.ViolationJpaPersister;
 
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
@@ -34,6 +37,8 @@ import reactor.bus.EventBus;
  * @author  jbellmann
  */
 @Configuration
+@EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
+@EnableSpringDataWebSupport
 public class ViolationJpaPersisterAutoConfiguration {
 
     @Autowired

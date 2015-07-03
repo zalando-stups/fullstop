@@ -1,7 +1,6 @@
 package org.zalando.stups.fullstop.plugin
 
 import org.joda.time.DateTime
-
 import spock.lang.Specification
 import spock.lang.Title
 

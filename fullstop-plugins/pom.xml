@@ -35,6 +35,7 @@
 
     <modules>
         <module>fullstop-ami-plugin</module>
+        <module>fullstop-application-masterdata-plugin</module>
         <module>fullstop-count-events-plugin</module>
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-instance-plugin</module>

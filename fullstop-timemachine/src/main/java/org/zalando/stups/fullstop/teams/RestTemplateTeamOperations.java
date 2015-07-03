@@ -15,17 +15,17 @@
  */
 package org.zalando.stups.fullstop.teams;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.springframework.http.RequestEntity.get;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestOperations;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.RequestEntity.get;
 
 public class RestTemplateTeamOperations implements TeamOperations {
 

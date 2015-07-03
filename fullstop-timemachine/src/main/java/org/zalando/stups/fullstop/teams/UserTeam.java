@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.teams;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+
+import java.util.List;
 
 public class UserTeam {
 
@@ -56,10 +56,10 @@ public class UserTeam {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("name", name)
-                .add("infrastructureAccounts", infrastructureAccounts)
-                .toString();
+                          .add("id", id)
+                          .add("name", name)
+                          .add("infrastructureAccounts", infrastructureAccounts)
+                          .toString();
     }
 
     @Override

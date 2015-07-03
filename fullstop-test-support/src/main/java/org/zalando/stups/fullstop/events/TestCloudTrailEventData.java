@@ -22,6 +22,16 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserId
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -34,7 +44,7 @@ import java.util.UUID;
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
 
@@ -86,7 +96,8 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
         Object value = data.get(CloudTrailEventField.eventID.name());
         if (value == null) {
             return UUID.randomUUID();
-        } else {
+        }
+        else {
             if (value instanceof UUID) {
                 return (UUID) value;
             }
@@ -120,16 +131,21 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
                 writer.flush();
                 writer.close();
                 return writer.toString();
-            } catch (JsonGenerationException e) {
+            }
+            catch (JsonGenerationException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } catch (JsonMappingException e) {
+            }
+            catch (JsonMappingException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } finally {
+            }
+            finally {
                 try {
                     writer.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -153,20 +169,26 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
                 writer.flush();
                 writer.close();
                 return writer.toString();
-            } catch (JsonGenerationException e) {
+            }
+            catch (JsonGenerationException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } catch (JsonMappingException e) {
+            }
+            catch (JsonMappingException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
-            } finally {
+            }
+            finally {
                 try {
                     writer.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        } else if (responseElementsResource != null) {
+        }
+        else if (responseElementsResource != null) {
             return getResponseElementsFromClasspath(responseElementsResource);
         }
 

@@ -1,0 +1,5 @@
+fullstop:
+    plugins:
+        ami:
+            whitelistedAmiAccount: 123456789
+            amiNameStartWith: taupage-

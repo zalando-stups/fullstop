@@ -83,8 +83,10 @@ public class FileEventReader {
             this.emitEvents(serializer);
         }
         catch (IllegalArgumentException | IOException e) {
-            this.exceptionHandler.handleException(new ProcessingLibraryException(e.getMessage(),
-                    new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
+            this.exceptionHandler.handleException(
+                    new ProcessingLibraryException(
+                            e.getMessage(),
+                            new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
         }
     }
 

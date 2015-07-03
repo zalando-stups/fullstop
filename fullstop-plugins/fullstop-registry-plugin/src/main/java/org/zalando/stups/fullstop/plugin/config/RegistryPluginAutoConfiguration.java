@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.plugin.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,6 +35,7 @@ public class RegistryPluginAutoConfiguration {
     @Autowired
     private ClientProvider clientProvider;
 
+    @ConditionalOnMissingBean
     @Bean
     public UserDataProvider userDataProvider() {
         return new UserDataProvider(clientProvider);

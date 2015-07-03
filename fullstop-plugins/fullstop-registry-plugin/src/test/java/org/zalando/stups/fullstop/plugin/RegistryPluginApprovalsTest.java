@@ -17,15 +17,10 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
-
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.Version;
@@ -42,6 +37,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.mockito.Mockito.*;
 
 public class RegistryPluginApprovalsTest {
 
@@ -75,8 +72,10 @@ public class RegistryPluginApprovalsTest {
     protected Approval buildApproval(String type, String user) {
         Approval approval = new Approval();
         approval.setApprovalType(type);
-        approval.setUserId(MoreObjects.firstNonNull(user,
-                                                    Math.random() * 100 + ""));
+        approval.setUserId(
+                MoreObjects.firstNonNull(
+                        user,
+                        Math.random() * 100 + ""));
         approval.setApprovedAt(new Date());
         return approval;
     }
@@ -84,8 +83,10 @@ public class RegistryPluginApprovalsTest {
     protected List<Approval> buildMandatoryApprovals() {
         return pluginConfiguration.getMandatoryApprovals()
                                   .stream()
-                                  .map(type -> buildApproval(type,
-                                                             null))
+                                  .map(
+                                          type -> buildApproval(
+                                                  type,
+                                                  null))
                                   .collect(Collectors.toList());
     }
 
@@ -97,11 +98,12 @@ public class RegistryPluginApprovalsTest {
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
         pluginConfiguration = new RegistryPluginProperties();
-        registryPlugin = new RegistryPlugin(userDataProvider,
-                                            violationSink,
-                                            pieroneOperations,
-                                            kioOperations,
-                                            pluginConfiguration);
+        registryPlugin = new RegistryPlugin(
+                userDataProvider,
+                violationSink,
+                pieroneOperations,
+                kioOperations,
+                pluginConfiguration);
         // test version
         version = new Version();
         version.setApplicationId(APPLICATION_ID);
@@ -110,21 +112,26 @@ public class RegistryPluginApprovalsTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(userDataProvider,
-                                 kioOperations,
-                                 pieroneOperations,
-                                 violationSink);
+        verifyNoMoreInteractions(
+                userDataProvider,
+                kioOperations,
+                pieroneOperations,
+                violationSink);
     }
 
     @Test
     public void shouldComplainWithoutAnyApprovals() {
-        when(kioOperations.getApplicationApprovals(APPLICATION_ID,
-                                                   APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
-        registryPlugin.validateContainsMandatoryApprovals(version,
-                                                          event);
+        when(
+                kioOperations.getApplicationApprovals(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
+        registryPlugin.validateContainsMandatoryApprovals(
+                version,
+                event);
 
-        verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
-                                                      APPLICATION_VERSION);
+        verify(kioOperations).getApplicationApprovals(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
         verify(violationSink).put(any(Violation.class));
     }
 
@@ -133,20 +140,28 @@ public class RegistryPluginApprovalsTest {
         // build test approvals
         List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getMandatoryApprovals());
         List<Approval> approvals = new LinkedList<Approval>();
-        approvals.add(buildApproval(approvalTypes.get(0),
-                                    null));
-        approvals.add(buildApproval(approvalTypes.get(1),
-                                    null));
+        approvals.add(
+                buildApproval(
+                        approvalTypes.get(0),
+                        null));
+        approvals.add(
+                buildApproval(
+                        approvalTypes.get(1),
+                        null));
         // mock kio operations
-        when(kioOperations.getApplicationApprovals(APPLICATION_ID,
-                                                   APPLICATION_VERSION)).thenReturn(approvals);
+        when(
+                kioOperations.getApplicationApprovals(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateContainsMandatoryApprovals(version,
-                                                          event);
+        registryPlugin.validateContainsMandatoryApprovals(
+                version,
+                event);
         // ensure kio operations was called
-        verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
-                                                      APPLICATION_VERSION);
+        verify(kioOperations).getApplicationApprovals(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
         // ensure a violation was created
         verify(violationSink).put(any(Violation.class));
     }
@@ -155,32 +170,67 @@ public class RegistryPluginApprovalsTest {
     public void shouldNotComplainWithDefaultApprovals() {
         List<Approval> approvals = buildMandatoryApprovals();
         // mock kio operations
-        when(kioOperations.getApplicationApprovals(APPLICATION_ID,
-                                                   APPLICATION_VERSION)).thenReturn(approvals);
+        when(
+                kioOperations.getApplicationApprovals(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateContainsMandatoryApprovals(version,
-                                                          event);
+        registryPlugin.validateContainsMandatoryApprovals(
+                version,
+                event);
         // ensure kio operations was called
-        verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
-                                                      APPLICATION_VERSION);
+        verify(kioOperations).getApplicationApprovals(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
         // ensure a violation was created
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
-    public void shouldNotComplainWithFourEyesPrinciple() {
+    public void shouldNotComplainWithMoreApproversThanRequired() {
         // build test approvals
         List<Approval> approvals = buildMandatoryApprovals();
+        // mock kio operations
+        when(
+                kioOperations.getApplicationApprovals(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(approvals);
+
+        // run validation
+        registryPlugin.validateMultipleEyesPrinciple(event,
+                                                     APPLICATION_ID,
+                                                     APPLICATION_VERSION,
+                                                     2);
+        // ensure kio operations was called
+        verify(kioOperations).getApplicationApprovals(
+                APPLICATION_ID,
+                APPLICATION_VERSION);
+        // ensure a violation was created
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
+    }
+
+    @Test
+    public void shouldNotComplainWithExactlyAsMuchApproversAsRequired() {
+        List<Approval> approvals = new LinkedList<Approval>();
+        List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getApprovalsFromMany());
+        approvals.add(buildApproval(approvalTypes.get(0),
+                                    "npiccolotto"));
+        approvals.add(buildApproval(approvalTypes.get(1),
+                                    "mrandi"));
         // mock kio operations
         when(kioOperations.getApplicationApprovals(APPLICATION_ID,
                                                    APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateFourEyesPrinciple(version,
-                                                 event);
-        // ensure kio operations was called
+        registryPlugin.validateMultipleEyesPrinciple(event,
+                                                     APPLICATION_ID,
+                                                     APPLICATION_VERSION,
+                                                     2);
         verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
                                                       APPLICATION_VERSION);
         // ensure a violation was created
@@ -189,7 +239,7 @@ public class RegistryPluginApprovalsTest {
     }
 
     @Test
-    public void shouldComplainAboutViolatedFourEyesPrinciple() {
+    public void shouldComplainWithLessApproversThanRequired() {
         List<Approval> approvals = new LinkedList<Approval>();
         List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getApprovalsFromMany());
         approvals.add(buildApproval(approvalTypes.get(0),
@@ -197,13 +247,16 @@ public class RegistryPluginApprovalsTest {
         approvals.add(buildApproval(approvalTypes.get(1),
                                     "npiccolotto"));
         // mock kio operations
-        when(kioOperations.getApplicationApprovals(APPLICATION_ID,
-                                                   APPLICATION_VERSION)).thenReturn(approvals);
+        when(
+                kioOperations.getApplicationApprovals(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenReturn(approvals);
 
         // run validation
-        registryPlugin.validateFourEyesPrinciple(version,
-                                                 event);
-        // ensure kio operations was called
+        registryPlugin.validateMultipleEyesPrinciple(event,
+                                                     APPLICATION_ID,
+                                                     APPLICATION_VERSION,
+                                                     2);
         verify(kioOperations).getApplicationApprovals(APPLICATION_ID,
                                                       APPLICATION_VERSION);
         // ensure a violation was created

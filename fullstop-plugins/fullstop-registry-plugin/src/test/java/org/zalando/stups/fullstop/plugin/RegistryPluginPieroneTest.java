@@ -15,14 +15,8 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.*;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +31,20 @@ import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 public class RegistryPluginPieroneTest {
+
+    private static final String APP = "fullstop";
+
+    private static final String VERSION = "1.0";
+
+    private static final String TEAM = "stups";
+
+    private static final String ARTIFACT = "docker://stups/yourturn:1.0";
 
     private KioOperations kioOperations;
 
@@ -55,14 +59,6 @@ public class RegistryPluginPieroneTest {
     private RegistryPlugin registryPlugin;
 
     private RegistryPluginProperties pluginConfiguration;
-
-    private static final String APP = "fullstop";
-
-    private static final String VERSION = "1.0";
-
-    private static final String TEAM = "stups";
-
-    private static final String ARTIFACT = "docker://stups/yourturn:1.0";
 
     protected CloudTrailEvent buildEvent() {
         List<Map<String, Object>> records = Records.fromClasspath("/record.json");
@@ -79,140 +75,176 @@ public class RegistryPluginPieroneTest {
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
         pluginConfiguration = new RegistryPluginProperties();
-        registryPlugin = new RegistryPlugin(userDataProvider,
-                                            violationSink,
-                                            pieroneOperations,
-                                            kioOperations,
-                                            pluginConfiguration);
+        registryPlugin = new RegistryPlugin(
+                userDataProvider,
+                violationSink,
+                pieroneOperations,
+                kioOperations,
+                pluginConfiguration);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(userDataProvider,
-                                 kioOperations,
-                                 pieroneOperations,
-                                 violationSink);
+        verifyNoMoreInteractions(
+                userDataProvider,
+                kioOperations,
+                pieroneOperations,
+                violationSink);
     }
 
     @Test
     public void shouldComplainIfArtifactDoesNotContainSource() {
         Map<String, String> tags = Maps.newHashMap();
-        tags.put(VERSION,
-                 ARTIFACT);
-        when(pieroneOperations.listTags(TEAM,
-                                        APP)).thenReturn(tags);
-        registryPlugin.validateSourceWithPierone(event,
-                                                 APP,
-                                                 VERSION,
-                                                 TEAM,
-                                                 "stups/yourturn:2.0",
-                                                 ARTIFACT);
-        verify(pieroneOperations).listTags(TEAM,
-                                           APP);
+        tags.put(
+                VERSION,
+                ARTIFACT);
+        when(
+                pieroneOperations.listTags(
+                        TEAM,
+                        APP)).thenReturn(tags);
+        registryPlugin.validateSourceWithPierone(
+                event,
+                APP,
+                VERSION,
+                TEAM,
+                "stups/yourturn:2.0",
+                ARTIFACT);
+        verify(pieroneOperations).listTags(
+                TEAM,
+                APP);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainPieroneTagsAreEmpty() {
         Map<String, String> tags = Maps.newHashMap();
-        when(pieroneOperations.listTags(TEAM,
-                                        APP)).thenReturn(tags);
-        registryPlugin.validateSourceWithPierone(event,
-                                                 APP,
-                                                 VERSION,
-                                                 TEAM,
-                                                 ARTIFACT,
-                                                 ARTIFACT);
-        verify(pieroneOperations).listTags(TEAM,
-                                           APP);
+        when(
+                pieroneOperations.listTags(
+                        TEAM,
+                        APP)).thenReturn(tags);
+        registryPlugin.validateSourceWithPierone(
+                event,
+                APP,
+                VERSION,
+                TEAM,
+                ARTIFACT,
+                ARTIFACT);
+        verify(pieroneOperations).listTags(
+                TEAM,
+                APP);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainIfTagIsMissingInPierone() {
         Map<String, String> tags = Maps.newHashMap();
-        tags.put("2.0",
-                 "abcd");
-        when(pieroneOperations.listTags(TEAM,
-                                        APP)).thenReturn(tags);
-        registryPlugin.validateSourceWithPierone(event,
-                                                 APP,
-                                                 VERSION,
-                                                 TEAM,
-                                                 ARTIFACT,
-                                                 ARTIFACT);
-        verify(pieroneOperations).listTags(TEAM,
-                                           APP);
+        tags.put(
+                "2.0",
+                "abcd");
+        when(
+                pieroneOperations.listTags(
+                        TEAM,
+                        APP)).thenReturn(tags);
+        registryPlugin.validateSourceWithPierone(
+                event,
+                APP,
+                VERSION,
+                TEAM,
+                ARTIFACT,
+                ARTIFACT);
+        verify(pieroneOperations).listTags(
+                TEAM,
+                APP);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainIfArtifactContainsSourceAndTagIsInPierone() {
         Map<String, String> tags = Maps.newHashMap();
-        tags.put(VERSION,
-                 "abcd");
-        when(pieroneOperations.listTags(TEAM,
-                                        APP)).thenReturn(tags);
-        registryPlugin.validateSourceWithPierone(event,
-                                                 APP,
-                                                 VERSION,
-                                                 TEAM,
-                                                 "stups/yourturn",
-                                                 ARTIFACT);
-        verify(pieroneOperations).listTags(TEAM,
-                                           APP);
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        tags.put(
+                VERSION,
+                "abcd");
+        when(
+                pieroneOperations.listTags(
+                        TEAM,
+                        APP)).thenReturn(tags);
+        registryPlugin.validateSourceWithPierone(
+                event,
+                APP,
+                VERSION,
+                TEAM,
+                "stups/yourturn",
+                ARTIFACT);
+        verify(pieroneOperations).listTags(
+                TEAM,
+                APP);
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainIfThereIsNoScmSource() {
 
-        when(pieroneOperations.getScmSource(TEAM,
-                                            APP,
-                                            VERSION)).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        registryPlugin.validateScmSource(event,
-                                         TEAM,
-                                         APP,
-                                         VERSION);
-        verify(pieroneOperations).getScmSource(TEAM,
-                                               APP,
-                                               VERSION);
+        when(
+                pieroneOperations.getScmSource(
+                        TEAM,
+                        APP,
+                        VERSION)).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        registryPlugin.validateScmSource(
+                event,
+                TEAM,
+                APP,
+                VERSION);
+        verify(pieroneOperations).getScmSource(
+                TEAM,
+                APP,
+                VERSION);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainIfScmSourceIsEmpty() {
         Map<String, String> scmSource = Maps.newHashMap();
-        when(pieroneOperations.getScmSource(TEAM,
-                                            APP,
-                                            VERSION)).thenReturn(scmSource);
-        registryPlugin.validateScmSource(event,
-                                         TEAM,
-                                         APP,
-                                         VERSION);
-        verify(pieroneOperations).getScmSource(TEAM,
-                                               APP,
-                                               VERSION);
+        when(
+                pieroneOperations.getScmSource(
+                        TEAM,
+                        APP,
+                        VERSION)).thenReturn(scmSource);
+        registryPlugin.validateScmSource(
+                event,
+                TEAM,
+                APP,
+                VERSION);
+        verify(pieroneOperations).getScmSource(
+                TEAM,
+                APP,
+                VERSION);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainIfScmSourceIsNotEmpty() {
         Map<String, String> scmSource = Maps.newHashMap();
-        scmSource.put("revision",
-                      "abcdef");
-        when(pieroneOperations.getScmSource(TEAM,
-                                            APP,
-                                            VERSION)).thenReturn(scmSource);
-        registryPlugin.validateScmSource(event,
-                                         TEAM,
-                                         APP,
-                                         VERSION);
-        verify(pieroneOperations).getScmSource(TEAM,
-                                               APP,
-                                               VERSION);
-        verify(violationSink,
-               never()).put(any(Violation.class));
+        scmSource.put(
+                "revision",
+                "abcdef");
+        when(
+                pieroneOperations.getScmSource(
+                        TEAM,
+                        APP,
+                        VERSION)).thenReturn(scmSource);
+        registryPlugin.validateScmSource(
+                event,
+                TEAM,
+                APP,
+                VERSION);
+        verify(pieroneOperations).getScmSource(
+                TEAM,
+                APP,
+                VERSION);
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
     }
 }

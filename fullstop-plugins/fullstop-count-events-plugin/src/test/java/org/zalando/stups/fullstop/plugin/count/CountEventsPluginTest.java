@@ -58,7 +58,7 @@ public class CountEventsPluginTest {
             MetricRegistry metricRegistry = new MetricRegistry();
 
             ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
-                    .convertDurationsTo(TimeUnit.MILLISECONDS).build();
+                                                      .convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start(2, TimeUnit.SECONDS);
 
             return metricRegistry;
