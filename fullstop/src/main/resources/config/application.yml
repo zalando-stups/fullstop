@@ -1,9 +1,10 @@
 management:
-    context-path: /spring-endpoints
+    # move all management endpoints to a different port
+    port: 7979
 
 endpoints:
     health:
-        sensitive: true
+        sensitive: false
 
 # defaults values for info endpoints
 project:

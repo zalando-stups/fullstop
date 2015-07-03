@@ -61,6 +61,8 @@
 
         <kio-client.version>0.9.4</kio-client.version>
         <pierone-client.version>0.5.1</pierone-client.version>
+
+        <archaius.version>0.7.1</archaius.version>
     </properties>
 
     <modules>
@@ -179,6 +181,13 @@
                 <groupId>org.zalando.stups</groupId>
                 <artifactId>pierone-client-java-spring</artifactId>
                 <version>${pierone-client.version}</version>
+            </dependency>
+
+            <!-- fix dependency issues -->
+            <dependency>
+                <groupId>com.netflix.archaius</groupId>
+                <artifactId>archaius-core</artifactId>
+                <version>${archaius.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

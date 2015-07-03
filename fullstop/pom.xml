@@ -178,6 +178,12 @@
             <artifactId>pierone-client-java-spring</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+            <version>1.0.3.RELEASE</version>
+        </dependency>
+
         <!-- TESTING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
