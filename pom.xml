@@ -63,6 +63,7 @@
         <pierone-client.version>0.5.1</pierone-client.version>
 
         <archaius.version>0.7.1</archaius.version>
+        <spring-cloud-starter-hystrix.version>1.0.3.RELEASE</spring-cloud-starter-hystrix.version>
     </properties>
 
     <modules>
@@ -183,6 +184,11 @@
                 <version>${pierone-client.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-hystrix</artifactId>
+                <version>${spring-cloud-starter-hystrix.version}</version>
+            </dependency>
             <!-- fix dependency issues -->
             <dependency>
                 <groupId>com.netflix.archaius</groupId>
