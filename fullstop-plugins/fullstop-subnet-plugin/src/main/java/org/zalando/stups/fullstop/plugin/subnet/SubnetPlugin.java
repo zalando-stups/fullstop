@@ -22,7 +22,6 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,15 +86,14 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
                     .describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         }
         catch (AmazonServiceException e) {
-            violationSink.put(
-                    new ViolationBuilder(e.getMessage()).withEventId(getCloudTrailEventId(event))
-                                                        .withRegion(getCloudTrailEventRegion(event))
-                                                        .withAccountId(getCloudTrailEventAccountId(event))
-                                                        .build());
+            LOG.warn("Subnet plugin: {}", e.getErrorMessage());
             return;
         }
 
         List<Reservation> reservations = describeInstancesResult.getReservations();
+        if (reservations.isEmpty()) {
+            return;
+        }
         for (Reservation reservation : reservations) {
             List<Instance> instances = reservation.getInstances();
             subnetIds.addAll(instances.stream().map(Instance::getSubnetId).collect(Collectors.toList()));
