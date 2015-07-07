@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,10 @@
  */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
-import com.amazonaws.auth.policy.Policy;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,10 @@ import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import java.io.IOException;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
@@ -41,14 +46,27 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_SOURCE = "iam.amazonaws.com";
 
+    private static List<String> roleList = newArrayList(
+            "CreateRole",
+            "DeleteRole",
+            "AttachRolePolicy",
+            "UpdateAssumeRolePolicy",
+            "PutRolePolicy");
+
     private final PolicyProvider policyProvider;
 
     private final ViolationSink violationSink;
 
+    private final PolicyTemplateCaching policyTemplateCaching;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
-    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink) {
+    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
+            final PolicyTemplateCaching policyTemplateCaching) {
         this.policyProvider = policyProvider;
         this.violationSink = violationSink;
+        this.policyTemplateCaching = policyTemplateCaching;
     }
 
     @Override
@@ -56,31 +74,31 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
 
-        return eventSource.equals(EVENT_SOURCE);
+        return eventSource.equals(EVENT_SOURCE) && (roleList.contains(cloudTrailEventData.getEventName()))
+                && (policyTemplateCaching.getS3Objects().contains(getRoleName(event)));
     }
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        String roleName = JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
+        String roleName = getRoleName(event);
 
-        isAComplianceRole(event, roleName);
+        String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
 
-        Policy policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
+        String policyTemplate = policyTemplateCaching.getPolicyTemplate(roleName);
 
-        Policy policyPowerUser = PolicyTemplate.fromClasspath("/s-PowerUser.json");
+        JsonNode policyJson = null;
+        JsonNode templatePolicyJson = null;
 
-        if (policy.equals(policyPowerUser)) {
-            LOG.info("are equals");
+        try {
+            policyJson = objectMapper.readTree(policy);
+            templatePolicyJson = objectMapper.readTree(policyTemplate);
+        }
+        catch (IOException e) {
+            //TODO
         }
 
-        LOG.info("policy: {}", policy);
-        LOG.info("policyPowerUser: {}", policyPowerUser);
-
-    }
-
-    private void isAComplianceRole(CloudTrailEvent event, String roleName) {
-        if(JsonPath.read(event.getEventData().getRequestParameters(), "$.eventName").equals("CreateRole")) {
+        if (policyJson != null && !policyJson.equals(templatePolicyJson)) {
             violationSink.put(
                     new ViolationBuilder(
                             format("Role: %s cannot be modified", roleName)).withEventId(getCloudTrailEventId(event))
@@ -89,7 +107,17 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                                                                                     getCloudTrailEventAccountId(
                                                                                             event))
                                                                             .build());
+
+            LOG.info("are not equals");
         }
+
+        LOG.info("policy: {}", policy);
+        LOG.info("policyTemplate: {}", policyTemplate);
+
+    }
+
+    private String getRoleName(CloudTrailEvent event) {
+        return JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
     }
 
 }

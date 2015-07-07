@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
-import com.amazonaws.auth.policy.Policy;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -25,11 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -42,6 +43,8 @@ public class UnapprovedServicesAndRolePluginTest {
 
     private ViolationSink violationSinkMock;
 
+    private PolicyTemplateCaching policyTemplateCachingMock;
+
     private CloudTrailEvent event;
 
 
@@ -51,18 +54,20 @@ public class UnapprovedServicesAndRolePluginTest {
     public void setUp() throws Exception {
         policyProviderMock = mock(PolicyProvider.class);
         violationSinkMock = mock(ViolationSink.class);
+        policyTemplateCachingMock = mock(PolicyTemplateCaching.class);
 
         event = buildEvent();
 
         plugin = new UnapprovedServicesAndRolePlugin(
                 policyProviderMock,
-                violationSinkMock);
+                violationSinkMock,
+                policyTemplateCachingMock);
 
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(policyProviderMock, violationSinkMock);
+        verifyNoMoreInteractions(policyProviderMock, violationSinkMock, policyTemplateCachingMock);
     }
 
     protected CloudTrailEvent buildEvent() {
@@ -81,22 +86,29 @@ public class UnapprovedServicesAndRolePluginTest {
     @Test
     public void testSupports() throws Exception {
 
+        when(policyTemplateCachingMock.getS3Objects()).thenReturn(newArrayList("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
+
         boolean result = plugin.supports(event);
         Assertions.assertThat(result).isTrue();
+
+        verify(policyTemplateCachingMock).getS3Objects();
     }
 
     @Test
     public void testProcessEvent() throws Exception {
 
-        String roleName = "roleName";
-        Region region = Region.getRegion(Regions.fromName("eu-west-1"));
-        String accountId = "accountId";
+        String roleName = "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ";
+        Region region = Region.getRegion(Regions.fromName("us-east-1"));
+        String accountId = "XXXX123XXX";
 
-        when(policyProviderMock.getPolicy(roleName, region, accountId)).thenReturn(new Policy());
+        when(policyProviderMock.getPolicy(roleName, region, accountId)).thenReturn(anyString());
+        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("");
 
         plugin.processEvent(event);
 
         verify(policyProviderMock).getPolicy(any(), any(), any());
+        verify(policyTemplateCachingMock).getPolicyTemplate(any());
+        verify(violationSinkMock).put(any(Violation.class));
 
     }
 }

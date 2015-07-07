@@ -127,7 +127,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
+            <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

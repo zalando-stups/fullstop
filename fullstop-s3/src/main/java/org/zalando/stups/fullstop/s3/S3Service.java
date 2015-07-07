@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.s3;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.Base64;
+import com.amazonaws.util.IOUtils;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -98,29 +98,13 @@ public class S3Service {
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
         }
-        catch (AmazonServiceException ase) {
-            logger.error(
-                    "Caught an AmazonServiceException, which " + "means your request made it "
-                            + "to Amazon S3, but was rejected with an error response" + " for some reason.");
-            logger.error("Error Message:    " + ase.getMessage());
-            logger.error("HTTP Status Code: " + ase.getStatusCode());
-            logger.error("AWS Error Code:   " + ase.getErrorCode());
-            logger.error("Error Type:       " + ase.getErrorType());
-            logger.error("Request ID:       " + ase.getRequestId());
-        }
-        catch (AmazonClientException ace) {
-            logger.error(
-                    "Caught an AmazonClientException, which " + "means the client encountered "
-                            + "an internal error while trying to " + "communicate with S3, "
-                            + "such as not being able to access the network.");
-            logger.error("Error Message: " + ace.getMessage());
+        catch (AmazonServiceException e) {
+            logger.error("Error Message:    " + e.getMessage());
         }
     }
 
-    public List<String> listS3Objects(final String bucketName, final String prefix) {
+    public List<String> listCommonPrefixesS3Objects(final String bucketName, final String prefix) {
         final List<String> commonPrefixes = Lists.newArrayList();
-
-        // AmazonS3Client s3client = new AmazonS3Client();
 
         try {
             logger.info("Listing objects");
@@ -144,24 +128,71 @@ public class S3Service {
             } while (objectListing.isTruncated());
 
         }
-        catch (AmazonServiceException ase) {
-            logger.error(
-                    "Caught an AmazonServiceException, " + "which means your request made it "
-                            + "to Amazon S3, but was rejected with an error response " + "for some reason.");
-            logger.error("Error Message:    " + ase.getMessage());
-            logger.error("HTTP Status Code: " + ase.getStatusCode());
-            logger.error("AWS Error Code:   " + ase.getErrorCode());
-            logger.error("Error Type:       " + ase.getErrorType());
-            logger.error("Request ID:       " + ase.getRequestId());
-        }
-        catch (AmazonClientException ace) {
-            logger.error(
-                    "Caught an AmazonClientException, " + "which means the client encountered "
-                            + "an internal error while trying to communicate" + " with S3, "
-                            + "such as not being able to access the network.");
-            logger.error("Error Message: " + ace.getMessage());
+        catch (AmazonServiceException e) {
+            logger.error("Error Message:    " + e.getMessage());
         }
 
         return commonPrefixes;
+    }
+
+    public List<String> listS3Objects(final String bucketName, final String prefix) {
+        final List<String> s3Objects = Lists.newArrayList();
+
+        try {
+            logger.info("Listing objects");
+
+            ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withDelimiter("/")
+                                                                            .withBucketName(bucketName).withPrefix(
+                            prefix);
+
+            ObjectListing objectListing;
+
+            do {
+                objectListing = s3client.listObjects(listObjectsRequest);
+                for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+                    if (objectSummary.getKey().equals(prefix)){
+                        continue;
+                    }
+                    s3Objects.add(objectSummary.getKey());
+                }
+
+                listObjectsRequest.setMarker(objectListing.getNextMarker());
+            } while (objectListing.isTruncated());
+
+        }
+        catch (AmazonServiceException e) {
+            logger.error("Error Message:    " + e.getMessage());
+        }
+
+        return s3Objects;
+    }
+
+    public String downloadObject(final String bucketName, final String key) {
+
+        S3Object object = s3client.getObject(new GetObjectRequest(bucketName, key));
+
+        InputStream inputStream = object.getObjectContent();
+
+        String result = null;
+        try {
+            result = IOUtils.toString(inputStream);
+        }
+        catch (IOException e) {
+            logger.warn("Could not download file for bucket: {}, with key: {}", bucketName, key);
+        }
+        finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                }
+                catch (IOException ex) {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Ignore failure in closing the Closeable", ex);
+                }
+            }
+        }
+
+        logger.info("Downloaded file for bucket: {}, with key: {}", bucketName, key);
+        return result;
     }
 }

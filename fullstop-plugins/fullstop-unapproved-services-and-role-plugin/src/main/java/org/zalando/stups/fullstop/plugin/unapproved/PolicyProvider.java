@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,28 +22,31 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  * @author mrandi
  */
+@Service
 public class PolicyProvider {
 
     private final Logger log = LoggerFactory.getLogger(PolicyProvider.class);
 
     private final ClientProvider clientProvider;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
+    @Autowired
     public PolicyProvider(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
-    public Policy getPolicy(final String roleName, final Region region, final String accountId) {
+    public String getPolicy(final String roleName, final Region region, final String accountId) {
 
         AmazonIdentityManagementClient iamClient = clientProvider
                 .getClient(AmazonIdentityManagementClient.class, accountId, region);
@@ -63,19 +66,28 @@ public class PolicyProvider {
 
                 GetRoleResult role = iamClient.getRole(getRoleRequest);
 
-                assumeRolePolicyDocument = role.getRole().getAssumeRolePolicyDocument();
+                if (role != null && role.getRole() != null && role.getRole().getAssumeRolePolicyDocument() != null) {
+                    try {
+                        assumeRolePolicyDocument = URLDecoder.decode(role.getRole().getAssumeRolePolicyDocument(), "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        log.warn("Could not decode policy document for role: {}", roleName);
+                    }
+                } else {
+                    return null;
+                }
+
 
             }
             catch (AmazonClientException e) {
                 log.error(e.getMessage());
             }
 
-            return getPolicy(assumeRolePolicyDocument);
+            return assumeRolePolicyDocument;
 
         }
     }
 
-    private Policy getPolicy(String assumeRolePolicyDocument) {
+    private Policy toPolicy(String assumeRolePolicyDocument) {
             JsonPolicyReader jsonPolicyReader = new JsonPolicyReader();
             return jsonPolicyReader.createPolicyFromJsonString(
                     assumeRolePolicyDocument);
