@@ -18,12 +18,7 @@ package org.zalando.stups.fullstop.violation.entity;
 import com.google.common.base.MoreObjects;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 import static com.google.common.collect.Lists.*;
@@ -35,6 +30,7 @@ import static com.google.common.collect.Lists.*;
 @Entity
 public class VersionEntity extends AbstractModifiableEntity {
 
+    @Column(unique = true)
     private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)

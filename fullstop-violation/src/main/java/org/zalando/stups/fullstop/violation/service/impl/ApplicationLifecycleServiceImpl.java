@@ -46,16 +46,26 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     public void save(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity) {
 
-        applicationEntity.setVersionEntities(newArrayList(versionEntity));
-        applicationRepository.save(applicationEntity);
+        if(applicationRepository.findByName(applicationEntity.getName()) == null){
 
-        if (versionRepository.findOne(versionEntity.getId()) == null) {
+            applicationRepository.save(applicationEntity);
+        }
+
+        if (versionRepository.findByName(versionEntity.getName()) == null) {
             versionRepository.save(versionEntity);
+        }
+
+        // applicationEntity has not versionEntity
+        if(!applicationRepository.findByName(applicationEntity.getName()).getVersionEntities().contains(versionEntity)){
+
+            applicationEntity.setVersionEntities(newArrayList(versionEntity));
         }
 
 
 
+
         lifecycleEntity.setApplicationEntity(applicationEntity);
+        lifecycleEntity.setVersionEntity(versionEntity);
         lifecycleRepository.save(lifecycleEntity);
     }
 }

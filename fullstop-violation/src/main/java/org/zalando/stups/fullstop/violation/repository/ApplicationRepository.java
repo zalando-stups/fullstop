@@ -19,9 +19,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 
+import java.util.List;
+
 /**
  * Created by gkneitschel.
  */
 @Repository
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
+    ApplicationEntity findByName(String name);
 }

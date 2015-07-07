@@ -19,10 +19,7 @@ import com.google.common.base.MoreObjects;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Created by gkneitschel.
@@ -34,7 +31,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private String region;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "application", referencedColumnName = "id")
     private ApplicationEntity applicationEntity;
 
