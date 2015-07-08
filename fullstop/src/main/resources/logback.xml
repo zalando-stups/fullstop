@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<configuration debug="true">
+<configuration>
     <property name="VIOLATIONS_LOG_DIR" value="${user.dir}/target"/>
 
 

@@ -15,21 +15,25 @@
  */
 package org.zalando.fullstop.violation.persist.jpa;
 
+import org.postgresql.util.PSQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
-
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
-
 import reactor.bus.EventBus;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
+    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
+
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
+
     private static final String VIOLATIONS_PERSISTED_JPA = "violations.persisted.jpa";
 
     private final ViolationRepository violationRepository;
@@ -64,7 +68,12 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         ViolationEntity entity = buildViolationEntity(violation);
 
-        this.violationRepository.save(entity);
+        try{
+            this.violationRepository.save(entity);
+        } catch (Exception e){
+            log.warn("Cannot write into DB: {}", e.getMessage());
+        }
+
         this.counterService.increment(VIOLATIONS_PERSISTED_JPA);
     }
 

@@ -27,6 +27,9 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
+import org.zalando.stups.fullstop.hystrix.HystrixKioOperations;
+import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
+import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
@@ -34,7 +37,7 @@ import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
 public class ClientConfig {
@@ -53,26 +56,33 @@ public class ClientConfig {
 
     @Bean
     public KioOperations kioOperations() {
-        return new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl);
+        return new HystrixKioOperations(new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl));
     }
 
     @Bean
     public PieroneOperations pieroneOperations() {
-        return new RestTemplatePieroneOperations(buildOAuth2RestTemplate("pierone"), pieroneBaseUrl);
+        return new HystrixPieroneOperations(
+                new RestTemplatePieroneOperations(
+                        buildOAuth2RestTemplate("pierone"),
+                        pieroneBaseUrl));
     }
 
     @Bean
     public TeamOperations teamOperations() {
-        return new RestTemplateTeamOperations(buildOAuth2RestTemplate("teamService"), teamServiceBaseUrl);
+        return new HystrixTeamOperations(
+                new RestTemplateTeamOperations(
+                        buildOAuth2RestTemplate("teamService"),
+                        teamServiceBaseUrl));
     }
 
-    private RestOperations buildOAuth2RestTemplate(String tokenName) {
+    private RestOperations buildOAuth2RestTemplate(final String tokenName) {
         final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
         resource.setClientId("fullstop");
 
         final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
-                new AutoRefreshTokenProvider(tokenName, accessTokens)));
+        restTemplate.setAccessTokenProvider(
+                new StupsAccessTokenProvider(
+                        new AutoRefreshTokenProvider(tokenName, accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         return restTemplate;
     }

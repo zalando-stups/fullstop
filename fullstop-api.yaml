@@ -90,6 +90,27 @@ paths:
 
   ## Fullstop API v1
 
+  /api/violations/{id}:
+    get:
+      summary: violation
+      description: Get one violation
+      tags:
+        - Fullstop API
+      operationId: getViolation
+      security:
+        - oauth2: [uid]
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        "200":
+          description: Violation
+          schema:
+            $ref: "#/definitions/Violation"
+
   /api/violations:
     get:
       summary: violations
@@ -174,7 +195,7 @@ paths:
           schema:
             $ref: "#/definitions/LogObj"
             description: log metadata and object
-            
+
 securityDefinitions:
   oauth2:
     type: oauth2

@@ -15,12 +15,11 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.Map;
-
-import org.assertj.core.api.Assertions;
-
-import org.junit.Test;
 
 public class RecordsTest {
 

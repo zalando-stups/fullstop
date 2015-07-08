@@ -58,7 +58,8 @@ public class ViolationSinkIT {
     @Before
     public void setUp() {
         latch = new CountDownLatch(1);
-        eventBus.on(Selectors.$("/violations"),
+        eventBus.on(
+                Selectors.$("/violations"),
                 ev -> System.out.println(ev.getData()));
         eventBus.on(Selectors.$("/violations"), ev -> latch.countDown());
     }

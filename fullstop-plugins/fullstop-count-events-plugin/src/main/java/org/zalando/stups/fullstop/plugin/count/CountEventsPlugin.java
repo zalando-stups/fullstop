@@ -36,13 +36,11 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
 
     private static final Joiner JOINER = Joiner.on("_");
 
-// private final CounterService counterService;
     private final CountEventsMetric countEventsMetric;
 
     @Autowired
-    public CountEventsPlugin( /*final CounterService counterService, */final CountEventsMetric countEventsMetric) {
+    public CountEventsPlugin(final CountEventsMetric countEventsMetric) {
 
-        // this.counterService = counterService;
         this.countEventsMetric = countEventsMetric;
     }
 
@@ -57,10 +55,15 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
 
         String source = event.getEventData().getEventSource();
-        String type = event.getEventData().getEventType();
+        String type = null;
+        if (event.getEventData().getEventType() != null) {
+            type = event.getEventData().getEventType();
+        } else if (event.getEventData().getEventName() != null) {
+            type = event.getEventData().getEventName();
+        }
+
         String accountId = CloudtrailEventSupport.getAccountId(event);
         String counterKey = JOINER.join(source, type, accountId);
-// counterService.increment(counterKey);
         countEventsMetric.markEvent(counterKey);
     }
 

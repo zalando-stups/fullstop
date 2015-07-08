@@ -64,9 +64,10 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
-                    getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccountId(
-                    getCloudTrailEventAccountId(event)).build());
+            violationSink.put(
+                    new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
+                            getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccountId(
+                            getCloudTrailEventAccountId(event)).build());
 
         }
     }

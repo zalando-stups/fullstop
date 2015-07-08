@@ -1,13 +1,11 @@
-[![DUB](https://img.shields.io/badge/status-in%20development-orange.svg)](http://docs.stups.io/en/latest/components/fullstop.html)
-[![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
-[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg)](https://coveralls.io/r/zalando-stups/fullstop)
-[![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-
-![swagger-validator](http://online.swagger.io/validator/?url=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml)
-
+[![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
+[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg?branch=master)](https://coveralls.io/r/zalando-stups/fullstop?branch=master)
+[![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
+[![Issues in progress](https://badge.waffle.io/zalando-stups/fullstop.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/zalando-stups/fullstop)
 [![Join the chat at https://gitter.im/zalando-stups/fullstop](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/zalando-stups/fullstop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+![swagger-validator](http://online.swagger.io/validator/?url=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml)
 
 #Fullstop - Audit reporting
 
@@ -64,8 +62,6 @@ This environment variables should be set:
     DATABASE_USER
     DATABASE_PASSWORD
     DATABASE_DRIVER
-    AMAZON_KEY_ID
-    ENCRYPT_REGION
     INSTANCE_LOGS_S3_BUCKET
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
@@ -87,8 +83,6 @@ Example:
     $ export DATABASE_USER=postgres
     $ export DATABASE_PASSWORD='{cipher}234laksnfdlF83NHALF'
     $ export DATABASE_DRIVER=org.postgresql.Driver
-    $ export AMAZON_KEY_ID=arn:aws:kms:eu-west-1:089972051332:key/9d9fca31-54c5-4df5-ba4f-127dfb9a5031
-    $ export ENCRYPT_REGION=eu-west-1
     $ export INSTANCE_LOGS_S3_BUCKET=my-s3-bucket
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
@@ -177,11 +171,11 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
-    
+
 ##How to deploy
 
     $ mvn release:prepare
-    
+
     $ mvn release:perform
 
 ## Contributing

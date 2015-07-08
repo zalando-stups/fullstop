@@ -1,11 +1,21 @@
 language: java
-jdk:
-  - oraclejdk8
 
-script: mvn clean install
+sudo: true
+
+jdk: oraclejdk8
+
+addons:
+  postgresql: "9.4"
+
+before_script:
+  - psql -c 'CREATE DATABASE fullstop;' -U postgres
+#  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
+
+script:
+    - mvn clean install -Pfullstop-startup,pg-travis
 
 after_success:
-  - mvn coveralls:report -Ptravis
+    - mvn coveralls:report -Ptravis
 
 notifications:
     email:

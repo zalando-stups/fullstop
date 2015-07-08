@@ -31,6 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(final WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .antMatchers("/health");
+                .antMatchers("/api/instance-logs");
     }
 }

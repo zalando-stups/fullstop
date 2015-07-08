@@ -15,20 +15,17 @@
  */
 package org.zalando.stups.fullstop.plugin.count;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-
-import com.google.common.collect.Maps;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class CountEventsMetric {
@@ -58,7 +55,8 @@ public class CountEventsMetric {
             m = meters.get(name);
             if (m != null) {
                 return m;
-            } else {
+            }
+            else {
                 Meter created = metricRegistry.meter(name);
                 meters.put(name, created);
                 return created;

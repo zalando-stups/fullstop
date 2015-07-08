@@ -15,21 +15,7 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.io.IOException;
-import java.util.List;
-
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
@@ -60,10 +40,19 @@ import org.zalando.stups.fullstop.teams.UserTeam;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
+import java.io.IOException;
+import java.util.List;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
 @Api(value = "/api", description = "the api API")
-@PreAuthorize("#oauth2.hasScope('uid')")
 public class FullstopApi {
 
     private final Logger log = LoggerFactory.getLogger(FullstopApi.class);
@@ -78,6 +67,11 @@ public class FullstopApi {
     private TeamOperations teamOperations;
 
     private static Violation mapToDto(ViolationEntity entity) {
+
+        if (entity == null) {
+            return null;
+        }
+
         Violation violation = new Violation();
 
         violation.setId(entity.getId());
@@ -97,26 +91,28 @@ public class FullstopApi {
         return violation;
     }
 
-    @ExceptionHandler(ApiException.class)
-    ResponseEntity<String> handleApiException(final ApiException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(e.getCode()));
-    }
-
-
-    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
-    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
-    @RequestBody final LogObj log) throws NotFoundException {
-        saveLog(log);
-
-        return new ResponseEntity<>(CREATED);
+    @ApiOperation(
+            value = "violations", notes = "Get one violation", response = Violation.class
+    )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Violation") })
+    @PreAuthorize("#oauth2.hasScope('uid')")
+    @RequestMapping(value = "/violations/{id}", method = RequestMethod.GET)
+    public Violation getViolation(
+            @ApiParam(value = "Violation id")
+            @PathVariable(value = "id")
+            final Long id) throws NotFoundException {
+        Violation violation = mapToDto(violationService.findOne(id));
+        if (violation == null) {
+            throw new NotFoundException("Violation with id: " + id + " not found!");
+        }
+        return violation;
     }
 
     @ApiOperation(
             value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "List of all violations") })
+    @PreAuthorize("#oauth2.hasScope('uid')")
     @RequestMapping(value = "/violations", method = RequestMethod.GET)
     public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
@@ -134,8 +130,10 @@ public class FullstopApi {
             final Boolean checked,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
-        return mapBackendToFrontendViolations(violationService.queryViolations(accounts, since, lastViolation,
-                checked, pageable));
+        return mapBackendToFrontendViolations(
+                violationService.queryViolations(
+                        accounts, since, lastViolation,
+                        checked, pageable));
     }
 
     @ApiOperation(
@@ -143,6 +141,7 @@ public class FullstopApi {
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Violation resolved successfully") })
     @RequestMapping(value = "/violations/{id}/resolution", method = RequestMethod.POST)
+    @PreAuthorize("#oauth2.hasScope('uid')")
     public Violation resolveViolations(
             @ApiParam(value = "", required = true)
             @PathVariable("id")
@@ -159,7 +158,8 @@ public class FullstopApi {
 
         if (!hasAccessToAccount(userId, violation.getAccountId())) {
             throw new ForbiddenException(
-                    format("You must have access to AWS account '%s' to resolve violation '%s'",
+                    format(
+                            "You must have access to AWS account '%s' to resolve violation '%s'",
                             violation.getAccountId(), id));
         }
 
@@ -168,22 +168,26 @@ public class FullstopApi {
         return mapToDto(dbViolationEntity);
     }
 
+    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
+    @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
+    @RequestBody final LogObj log) throws NotFoundException {
+        saveLog(log);
+
+        return new ResponseEntity<>(CREATED);
+    }
+
+    @ExceptionHandler(ApiException.class) ResponseEntity<String> handleApiException(final ApiException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.valueOf(e.getCode()));
+    }
+
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
         final List<UserTeam> teams = teamOperations.getTeamsByUser(userId);
         return teams.stream()
-                .flatMap(team -> team.getInfrastructureAccounts().stream())
-                .map(InfrastructureAccount::getId)
-                .anyMatch(accountId -> accountId.equals(targetAccountId));
-    }
-
-    private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
-        final PageRequest currentPageRequest = new PageRequest(backendViolations.getNumber(),
-                backendViolations.getSize(),
-                backendViolations.getSort());
-        return new PageImpl<>(
-                backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
-                currentPageRequest,
-                backendViolations.getTotalElements());
+                    .flatMap(team -> team.getInfrastructureAccounts().stream())
+                    .map(InfrastructureAccount::getId)
+                    .anyMatch(accountId -> accountId.equals(targetAccountId));
     }
 
     private void saveLog(final LogObj instanceLog) {
@@ -194,12 +198,24 @@ public class FullstopApi {
         }
 
         try {
-            s3Writer.writeToS3(instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
+            s3Writer.writeToS3(
+                    instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
                     instanceLog.getLogData(), instanceLog.getLogType().toString(), instanceLog.getInstanceId());
         }
         catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private Page<Violation> mapBackendToFrontendViolations(final Page<ViolationEntity> backendViolations) {
+        final PageRequest currentPageRequest = new PageRequest(
+                backendViolations.getNumber(),
+                backendViolations.getSize(),
+                backendViolations.getSort());
+        return new PageImpl<>(
+                backendViolations.getContent().stream().map(FullstopApi::mapToDto).collect(toList()),
+                currentPageRequest,
+                backendViolations.getTotalElements());
     }
 
 }

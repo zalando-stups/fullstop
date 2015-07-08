@@ -60,8 +60,8 @@ public class RestTemplatePieroneOperationsTest {
     @Test
     public void getRefoles() {
         mockServer.expect(requestTo(baseUrl + "/v1/repositories/testTeam/testApplication/tags"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(ResourceUtil.resource("/getTags"), APPLICATION_JSON));
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess(ResourceUtil.resource("/getTags"), APPLICATION_JSON));
 
         Map<String, String> resultMap = client.listTags("testTeam", "testApplication");
         assertThat(resultMap).isNotNull();

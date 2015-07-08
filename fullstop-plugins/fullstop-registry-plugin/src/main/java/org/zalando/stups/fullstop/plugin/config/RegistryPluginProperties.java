@@ -16,14 +16,9 @@
 package org.zalando.stups.fullstop.plugin.config;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author npiccolotto
@@ -31,54 +26,58 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private static final Set<String> APPROVALS = Sets.newHashSet("CODE_CHANGE", "TEST", "SPECIFICATION", "DEPLOY");
+    private List<String> defaultMandatoryApprovals = Lists.newArrayList(
+            "CODE_CHANGE",
+            "TEST",
+            "SPECIFICATION",
+            "DEPLOY");
 
-    private Set<String> defaultApprovals = new HashSet<String>();
+    private List<String> mandatoryApprovals = Lists.newArrayList();
 
-    private String codeApproval;
+    private List<String> defaultApprovalsFromMany = Lists.newArrayList(
+            "TEST",
+            "CODE_CHANGE",
+            "DEPLOY");
 
-    private String testApproval;
+    private List<String> approvalsFromMany = Lists.newArrayList();
 
-    private String deployApproval;
-
-    public Set<String> getWhitelistedRegions() {
-        if (defaultApprovals.isEmpty()) {
-            return APPROVALS;
+    public List<String> getMandatoryApprovals() {
+        if (mandatoryApprovals.isEmpty()) {
+            return defaultMandatoryApprovals;
         }
 
-        return defaultApprovals;
+        return mandatoryApprovals;
     }
 
-    public Set<String> getDefaultApprovals() {
-        return defaultApprovals;
+    public void setMandatoryApprovals(List<String> defaultApprovals) {
+        this.mandatoryApprovals = defaultApprovals;
     }
 
-    public void setDefaultApprovals(Set<String> defaultApprovals) {
-        this.defaultApprovals = defaultApprovals;
+    public List<String> getDefaultMandatoryApprovals() {
+        return defaultMandatoryApprovals;
     }
 
-    public String getCodeApproval() {
-        return codeApproval;
+    public void setDefaultMandatoryApprovals(List<String> defaultMandatoryApprovals) {
+        this.defaultMandatoryApprovals = defaultMandatoryApprovals;
     }
 
-    public void setCodeApproval(String codeApproval) {
-        this.codeApproval = codeApproval;
+    public List<String> getDefaultApprovalsFromMany() {
+        return defaultApprovalsFromMany;
     }
 
-    public String getTestApproval() {
-        return testApproval;
+    public void setDefaultApprovalsFromMany(List<String> defaultApprovalsFromMany) {
+        this.defaultApprovalsFromMany = defaultApprovalsFromMany;
     }
 
-    public void setTestApproval(String testApproval) {
-        this.testApproval = testApproval;
+    public List<String> getApprovalsFromMany() {
+        if (approvalsFromMany.isEmpty()) {
+            return defaultApprovalsFromMany;
+        }
+        return approvalsFromMany;
     }
 
-    public String getDeployApproval() {
-        return deployApproval;
-    }
-
-    public void setDeployApproval(String deployApproval) {
-        this.deployApproval = deployApproval;
+    public void setApprovalsFromMany(List<String> approvalsFromMany) {
+        this.approvalsFromMany = approvalsFromMany;
     }
 
 }
