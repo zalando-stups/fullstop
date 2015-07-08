@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -45,7 +46,6 @@ public class UnapprovedServicesAndRolePluginTest {
 
     private CloudTrailEvent event;
 
-
     private UnapprovedServicesAndRolePlugin plugin;
 
     @Before
@@ -59,7 +59,8 @@ public class UnapprovedServicesAndRolePluginTest {
         plugin = new UnapprovedServicesAndRolePlugin(
                 policyProviderMock,
                 violationSinkMock,
-                policyTemplateCachingMock);
+                policyTemplateCachingMock,
+                new UnapprovedServicesAndRoleProperties());
 
     }
 
@@ -111,8 +112,10 @@ public class UnapprovedServicesAndRolePluginTest {
     @Test
     public void testProcessEvent2() throws Exception {
 
-        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn("{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}]}");
-        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("{\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}],\"Version\":\"2012-10-17\"}");
+        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn(
+                "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}]}");
+        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn(
+                "{\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}],\"Version\":\"2012-10-17\"}");
 
         plugin.processEvent(event);
 
