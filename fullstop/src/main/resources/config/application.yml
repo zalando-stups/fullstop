@@ -120,7 +120,7 @@ fullstop:
             bucketName: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}
             prefix: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX}
             # iam event names that activates the plugin
-            roles:
+            eventNames:
               - 'CreateRole'
               - 'DeleteRole'
               - 'AttachRolePolicy'
