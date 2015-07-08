@@ -57,10 +57,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/webjars/**").permitAll()
                 .antMatchers("/swagger-resources").permitAll()
-                .antMatchers("/api-docs").permitAll()
-                .antMatchers("/spring-endpoints/health").permitAll()
-                .antMatchers("/spring-endpoints/info").permitAll()
-                .antMatchers("/spring-endpoints/**").access("#oauth2.hasScope('uid')");
+                .antMatchers("/api-docs").permitAll();
 
     }
 

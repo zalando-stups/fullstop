@@ -171,11 +171,11 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
-    
+
 ##How to deploy
 
     $ mvn release:prepare
-    
+
     $ mvn release:perform
 
 ## Contributing
