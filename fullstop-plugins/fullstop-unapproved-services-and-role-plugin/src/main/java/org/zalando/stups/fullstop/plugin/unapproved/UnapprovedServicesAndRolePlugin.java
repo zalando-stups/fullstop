@@ -25,13 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
-import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
@@ -46,16 +45,11 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private static final String EVENT_SOURCE = "iam.amazonaws.com";
 
-    private static List<String> roleList = newArrayList(
-            "CreateRole",
-            "DeleteRole",
-            "AttachRolePolicy",
-            "UpdateAssumeRolePolicy",
-            "PutRolePolicy");
-
     private final PolicyProvider policyProvider;
 
     private final ViolationSink violationSink;
+
+    private final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties;
 
     private final PolicyTemplateCaching policyTemplateCaching;
 
@@ -63,10 +57,12 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     @Autowired
     public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
-            final PolicyTemplateCaching policyTemplateCaching) {
+            final PolicyTemplateCaching policyTemplateCaching,
+            UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
         this.policyProvider = policyProvider;
         this.violationSink = violationSink;
         this.policyTemplateCaching = policyTemplateCaching;
+        this.unapprovedServicesAndRoleProperties = unapprovedServicesAndRoleProperties;
     }
 
     @Override
@@ -74,7 +70,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
 
-        return eventSource.equals(EVENT_SOURCE) && (roleList.contains(cloudTrailEventData.getEventName()))
+        return eventSource.equals(EVENT_SOURCE) && (unapprovedServicesAndRoleProperties.getEventNames().contains(
+                cloudTrailEventData.getEventName()))
                 && (policyTemplateCaching.getS3Objects().contains(getRoleName(event)));
     }
 
@@ -95,7 +92,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
             templatePolicyJson = objectMapper.readTree(policyTemplate);
         }
         catch (IOException e) {
-            //TODO
+            LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
         }
 
         if (policyJson != null && !policyJson.equals(templatePolicyJson)) {
@@ -108,12 +105,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                                                                                             event))
                                                                             .build());
 
-            LOG.info("are not equals");
         }
-
-        LOG.info("policy: {}", policy);
-        LOG.info("policyTemplate: {}", policyTemplate);
-
     }
 
     private String getRoleName(CloudTrailEvent event) {

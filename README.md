@@ -66,6 +66,8 @@ This environment variables should be set:
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
     TOKEN_INFO_URI
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX
 
 Example:
 
@@ -87,6 +89,8 @@ Example:
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
     $ export TOKEN_INFO_URI=tokenInfoUri
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME=fullstop-bucket-policy
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX=folder_containing_templates_files
     
 ### Disable CloudTrail Processing
 
