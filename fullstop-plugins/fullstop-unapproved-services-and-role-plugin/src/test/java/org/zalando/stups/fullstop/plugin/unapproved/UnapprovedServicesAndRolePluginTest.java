@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -86,7 +84,9 @@ public class UnapprovedServicesAndRolePluginTest {
     @Test
     public void testSupports() throws Exception {
 
-        when(policyTemplateCachingMock.getS3Objects()).thenReturn(newArrayList("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
+        when(policyTemplateCachingMock.getS3Objects()).thenReturn(
+                newArrayList(
+                        "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
 
         boolean result = plugin.supports(event);
         Assertions.assertThat(result).isTrue();
@@ -97,12 +97,8 @@ public class UnapprovedServicesAndRolePluginTest {
     @Test
     public void testProcessEvent() throws Exception {
 
-        String roleName = "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ";
-        Region region = Region.getRegion(Regions.fromName("us-east-1"));
-        String accountId = "XXXX123XXX";
-
-        when(policyProviderMock.getPolicy(roleName, region, accountId)).thenReturn(anyString());
-        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("");
+        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn("{\"eventVersion\": \"1\"}");
+        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("{\"eventVersion\": \"2\"}");
 
         plugin.processEvent(event);
 
@@ -110,5 +106,17 @@ public class UnapprovedServicesAndRolePluginTest {
         verify(policyTemplateCachingMock).getPolicyTemplate(any());
         verify(violationSinkMock).put(any(Violation.class));
 
+    }
+
+    @Test
+    public void testProcessEvent2() throws Exception {
+
+        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn("{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}]}");
+        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("{\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}],\"Version\":\"2012-10-17\"}");
+
+        plugin.processEvent(event);
+
+        verify(policyProviderMock).getPolicy(any(), any(), any());
+        verify(policyTemplateCachingMock).getPolicyTemplate(any());
     }
 }
