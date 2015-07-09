@@ -116,6 +116,17 @@ fullstop:
               - DEPLOY
             approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY}
 
+        unapprovedServicesAndRole:
+            bucketName: fullstop-template-bucket
+            prefix: template-folder
+            # iam event names that activates the plugin
+            eventNames:
+              - 'CreateRole'
+              - 'DeleteRole'
+              - 'AttachRolePolicy'
+              - 'UpdateAssumeRolePolicy'
+              - 'PutRolePolicy'
+
     clients:
         kio:
             url: https://example.com/kio/api
