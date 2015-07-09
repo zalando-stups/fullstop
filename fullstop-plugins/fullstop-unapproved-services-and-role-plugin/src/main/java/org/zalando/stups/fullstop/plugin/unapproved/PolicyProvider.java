@@ -16,8 +16,6 @@
 package org.zalando.stups.fullstop.plugin.unapproved;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.policy.Policy;
-import com.amazonaws.auth.policy.internal.JsonPolicyReader;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
@@ -85,12 +83,6 @@ public class PolicyProvider {
             return assumeRolePolicyDocument;
 
         }
-    }
-
-    private Policy toPolicy(String assumeRolePolicyDocument) {
-            JsonPolicyReader jsonPolicyReader = new JsonPolicyReader();
-            return jsonPolicyReader.createPolicyFromJsonString(
-                    assumeRolePolicyDocument);
     }
 
 }
