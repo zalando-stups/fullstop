@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.plugin.unapproved.PolicyProvider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -33,7 +34,7 @@ import java.net.URLDecoder;
  * @author mrandi
  */
 @Service
-public class PolicyProviderImpl implements org.zalando.stups.fullstop.plugin.unapproved.PolicyProvider {
+public class PolicyProviderImpl implements PolicyProvider {
 
     private final Logger log = LoggerFactory.getLogger(PolicyProviderImpl.class);
 

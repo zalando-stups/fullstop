@@ -1,4 +1,4 @@
-##Unapproved services and role Plugin
+##Unapproved services and roles Plugin
 
 ###Aim of plugin
 Find out if someone uses an unapproved service
@@ -9,7 +9,7 @@ and if someone changes roles that must not be changed.
 ```
 EVENT SOURCE = "iam.amazonaws.com"
 EVENT NAME = see the configuration section
-POLICY TEMPLATE = the name of the files contained in s3 bucket will be used to match the role (the content will be than match for equality)
+POLICY TEMPLATE = the name of the files contained in s3 bucket will be used to match the role (the content will be then match for equality)
 ```
 
 ###Configuration
