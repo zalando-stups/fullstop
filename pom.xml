@@ -307,6 +307,9 @@
                         <jacocoReport>
                             fullstop-plugins/fullstop-unapproves-services-and-role-plugin/target/site/jacoco-it/jacoco.xml
                         </jacocoReport>
+                        <jacocoReport>
+                            fullstop-plugins/fullstop-application-lifecycle-plugin/target/site/jacoco/jacoco.xml
+                        </jacocoReport>
                         <!--plugins end-->
                         <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-s3/target/site/jacoco-it/jacoco.xml</jacocoReport>

@@ -43,6 +43,7 @@ by all other accounts in order to perform this operations.
 * [fullstop-registry-plugin](fullstop-plugins/fullstop-registry-plugin)
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
 * [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
+* [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
 
 ##Configuration
 
