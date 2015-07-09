@@ -117,6 +117,17 @@ fullstop:
               - DEPLOY
             approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY}
 
+        unapprovedServicesAndRole:
+            bucketName: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}
+            prefix: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX}
+            # iam event names that activates the plugin
+            eventNames:
+              - 'CreateRole'
+              - 'DeleteRole'
+              - 'AttachRolePolicy'
+              - 'UpdateAssumeRolePolicy'
+              - 'PutRolePolicy'
+
     clients:
         kio:
             url: ${FULLSTOP_KIO_URL}

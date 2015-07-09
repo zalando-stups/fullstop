@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.s3;
-
-import org.junit.Test;
+package org.zalando.stups.fullstop.plugin.unapproved;
 
 import java.util.List;
 
-public class S3ServiceTest {
+/**
+ * Created by mrandi.
+ */
+public interface PolicyTemplatesProvider {
+    List<String> getPolicyTemplateNames();
 
-    @Test
-    public void testS3ServiceListObject() {
-        S3Service service = new S3Service();
-        List<String> result = service.listCommonPrefixesS3Objects(
-                "zalando-fullstop",
-                "12094567/eu-central-1/2015/5/22/");
-        System.out.println(result.toString());
-    }
-
+    String getPolicyTemplate(String roleName);
 }
