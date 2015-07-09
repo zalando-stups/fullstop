@@ -101,7 +101,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 return;
             }
 
-            applicationLifecycleService.save(applicationEntity, versionEntity, lifecycleEntity);
+            applicationLifecycleService.saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
         }
 
     }

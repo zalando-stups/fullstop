@@ -16,7 +16,6 @@
 package org.zalando.stups.fullstop.violation.service.impl;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationLifecycleServiceImplTest {
 
     private VersionEntity snapshot;
+    private VersionEntity snapshot2;
     private VersionEntity release;
 
     private ApplicationEntity fullstop;
@@ -64,18 +64,19 @@ public class ApplicationLifecycleServiceImplTest {
 
     private LifecycleEntity runInstance;
     private LifecycleEntity terminteInstance;
+    private LifecycleEntity stopInstance;
 
     @Autowired
-    private ApplicationLifecycleServiceImpl applicationLifecycleService;
+    private ApplicationLifecycleService applicationLifecycleService;
 
     @Autowired
-    VersionRepository versionRepository;
+    private VersionRepository versionRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    private ApplicationRepository applicationRepository;
 
     @Autowired
-    LifecycleRepository lifecycleRepository;
+    private LifecycleRepository lifecycleRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -83,52 +84,101 @@ public class ApplicationLifecycleServiceImplTest {
     @Before
     public void setUp() throws Exception {
         snapshot = new VersionEntity("0.5-Snaphot");
+        snapshot2 = new VersionEntity("0.5-Snaphot");
+        release = new VersionEntity("1.0");
+
         fullstop = new ApplicationEntity("Fullstop");
         fullstop2 = new ApplicationEntity("Fullstop");
-        runInstance = new LifecycleEntity(
-                new DateTime(), "eu-west-1", fullstop,
-                snapshot, "RunInstances", "i-1234");
-
-        release = new VersionEntity("1.0");
         yourturn = new ApplicationEntity("Yourturn");
-        terminteInstance = new LifecycleEntity(new DateTime(), "eu-central-1",
-                                              yourturn, release, "TerminateInstances", "i-7890");
 
-//        em.flush();
-//        em.clear();
+        runInstance = new LifecycleEntity();
+        runInstance.setRegion("eu-west-1");
+        runInstance.setEventDate(new DateTime());
+        runInstance.setInstanceId("i-1234");
+        runInstance.setEventType("RunInstances");
+
+        terminteInstance = new LifecycleEntity();
+        terminteInstance.setEventDate(new DateTime());
+        terminteInstance.setEventType("TerminateInstances");
+        terminteInstance.setRegion("eu-central-1");
+        terminteInstance.setInstanceId("i-7890");
+
+        stopInstance = new LifecycleEntity();
+        stopInstance.setEventDate(new DateTime());
+        stopInstance.setEventType("StopInstances");
+        stopInstance.setInstanceId("i-7890");
+        stopInstance.setRegion("eu-north-8");
+
     }
 
     @Test
     public void testSave() throws Exception {
-        applicationLifecycleService.save(fullstop, snapshot, runInstance);
-        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
 
-        applicationLifecycleService.save(yourturn, release, terminteInstance);
-        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(2);
-
-        applicationLifecycleService.save(fullstop2, release, runInstance);
-        assertThat(applicationRepository.findAll()).isNotEmpty().hasSize(2);
+        fullstop = applicationRepository.save(fullstop);
+        release.getApplicationEntities().add(fullstop);
+        release = versionRepository.save(release);
 
         em.flush();
         em.clear();
+
+        applicationLifecycleService.saveLifecycle(fullstop, release, stopInstance);
+        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
     }
 
-    @Configuration
+
+    @Test
+    public void testSaveMultipleLifecycle() throws Exception {
+        applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
+        applicationLifecycleService.saveLifecycle(fullstop2, snapshot2, stopInstance);
+        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
+        assertThat(applicationRepository.findAll()).isNotEmpty().hasSize(1);
+        assertThat(lifecycleRepository.findAll()).isNotEmpty().hasSize(2);
+    }
+
+    @Test(expected = UnsupportedOperationException.class )
+    public void testIdAlreadyGiven() {
+        runInstance.setId(1l);
+        applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
+    }
+
+    @Test(expected = RuntimeException.class )
+    public void testSaveWithLifecyleNull() {
+        applicationLifecycleService.saveLifecycle(fullstop, snapshot, null);
+    }
+    @Test(expected = RuntimeException.class )
+    public void testSaveWithVersionNull() {
+        applicationLifecycleService.saveLifecycle(fullstop, null, runInstance);
+    }
+
+    @Test(expected = RuntimeException.class )
+    public void testSaveWithApplicationNull() {
+        applicationLifecycleService.saveLifecycle(null, snapshot, runInstance);
+    }
+
+    @Test(expected = RuntimeException.class )
+    public void testSaveAllNull() {
+        applicationLifecycleService.saveLifecycle(null, null, null);
+    }
+
+        @Configuration
     @EnableAutoConfiguration
     @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
     @EntityScan("org.zalando.stups.fullstop.violation")
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean DataSource dataSource() throws IOException {
+        @Bean
+        DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean
+        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean AuditorAware<String> auditorAware() {
+        @Bean
+        AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
 

@@ -25,7 +25,7 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
-import static com.google.common.collect.Lists.newArrayList;
+import javax.transaction.Transactional;
 
 /**
  * Created by gkneitschel.
@@ -43,29 +43,43 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     private LifecycleRepository lifecycleRepository;
 
     @Override
-    public void save(ApplicationEntity applicationEntity, VersionEntity versionEntity,
+    @Transactional
+    public void saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity) {
 
-        if(applicationRepository.findByName(applicationEntity.getName()) == null){
-
-            applicationRepository.save(applicationEntity);
+        if (applicationEntity == null || versionEntity == null || lifecycleEntity == null) {
+            throw new RuntimeException("saveLifecycle: One or more parameters are null!");
         }
 
-        if (versionRepository.findByName(versionEntity.getName()) == null) {
-            versionRepository.save(versionEntity);
+        ApplicationEntity applicationByName = applicationRepository.findByName(applicationEntity.getName());
+        VersionEntity versionByName = versionRepository.findByName(versionEntity.getName());
+
+        if(applicationByName == null){
+            applicationByName = applicationRepository.save(applicationEntity);
+        }
+
+        if (versionByName == null) {
+           versionByName = versionRepository.save(versionEntity);
+        }
+
+        if(lifecycleEntity.getId() != null){
+            throw new UnsupportedOperationException("No update possible for Lifecycle Entity");
         }
 
         // applicationEntity has not versionEntity
-        if(!applicationRepository.findByName(applicationEntity.getName()).getVersionEntities().contains(versionEntity)){
-
-            applicationEntity.setVersionEntities(newArrayList(versionEntity));
+        if(!applicationByName.getVersionEntities().contains(versionByName)){
+            applicationByName.getVersionEntities().add(versionByName);
+            applicationRepository.save(applicationByName);
         }
 
+        if(!versionByName.getApplicationEntities().contains(applicationByName)){
 
+            versionByName.getApplicationEntities().add(applicationByName);
+            versionRepository.save(versionByName);
+        }
 
-
-        lifecycleEntity.setApplicationEntity(applicationEntity);
-        lifecycleEntity.setVersionEntity(versionEntity);
+        lifecycleEntity.setApplicationEntity(applicationByName);
+        lifecycleEntity.setVersionEntity(versionByName);
         lifecycleRepository.save(lifecycleEntity);
     }
 }

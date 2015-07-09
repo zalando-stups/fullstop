@@ -33,7 +33,7 @@ public class VersionEntity extends AbstractModifiableEntity {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(schema = "fullstop_data", name = "app_has_version",
             joinColumns = @JoinColumn(name = "app_version_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "app_id", referencedColumnName = "id"))
@@ -56,7 +56,7 @@ public class VersionEntity extends AbstractModifiableEntity {
 
     public List<ApplicationEntity> getApplicationEntities() {
         if (applicationEntities == null){
-            return newArrayList();
+            applicationEntities = newArrayList();
         }
         return applicationEntities;
     }
@@ -64,6 +64,28 @@ public class VersionEntity extends AbstractModifiableEntity {
     public void setApplicationEntities(
             List<ApplicationEntity> applicationEntities) {
         this.applicationEntities = applicationEntities;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        VersionEntity that = (VersionEntity) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
+        return !(applicationEntities != null ?
+                !applicationEntities.equals(that.applicationEntities) :
+                that.applicationEntities != null);
+
+    }
+
+    @Override public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (applicationEntities != null ? applicationEntities.hashCode() : 0);
+        return result;
     }
 
     @Override

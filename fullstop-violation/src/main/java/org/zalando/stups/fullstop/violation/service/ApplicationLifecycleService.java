@@ -23,5 +23,6 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
  * Created by gkneitschel.
  */
 public interface ApplicationLifecycleService {
-    void save(ApplicationEntity applicationEntity, VersionEntity versionEntity, LifecycleEntity lifecycleEntity);
+    void saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
+            LifecycleEntity lifecycleEntity);
 }

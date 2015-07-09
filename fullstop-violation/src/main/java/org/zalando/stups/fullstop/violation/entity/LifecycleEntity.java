@@ -31,7 +31,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private String region;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "application", referencedColumnName = "id")
     private ApplicationEntity applicationEntity;
 
@@ -42,20 +42,6 @@ public class LifecycleEntity extends AbstractModifiableEntity {
     private String eventType;
 
     private String instanceId;
-
-    public LifecycleEntity() {
-    }
-
-    public LifecycleEntity(DateTime eventDate, String region, ApplicationEntity applicationEntity,
-            VersionEntity versionEntity,
-            String eventType, String instanceId) {
-        this.eventDate = eventDate;
-        this.region = region;
-        this.applicationEntity = applicationEntity;
-        this.versionEntity = versionEntity;
-        this.eventType = eventType;
-        this.instanceId = instanceId;
-    }
 
     public DateTime getEventDate() {
         return eventDate;
