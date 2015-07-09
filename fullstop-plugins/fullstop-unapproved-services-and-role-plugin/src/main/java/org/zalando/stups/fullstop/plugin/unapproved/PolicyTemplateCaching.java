@@ -72,7 +72,7 @@ public class PolicyTemplateCaching {
 
     public List<String> getS3Objects() {
         // when application starts, need 2 seconds to fetch the first entries
-        if (s3Objects.isEmpty()) {
+        if ( s3Objects == null || s3Objects.isEmpty()) {
             fetchFromS3();
         }
         return s3Objects;
