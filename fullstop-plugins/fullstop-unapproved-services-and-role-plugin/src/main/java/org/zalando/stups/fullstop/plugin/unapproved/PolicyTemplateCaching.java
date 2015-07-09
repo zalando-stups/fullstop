@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.plugin.unapproved;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.s3.S3Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -63,8 +63,7 @@ public class PolicyTemplateCaching {
         List<String> listS3Objects = s3Service.listS3Objects(bucketName, prefix);
 
         for (String listS3Object : listS3Objects) {
-            File file = new File(listS3Object);
-            results.add(file.getName());
+            results.add(Files.getNameWithoutExtension(listS3Object));
         }
 
         s3Objects = results;
