@@ -93,12 +93,13 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         }
         catch (IOException e) {
             LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
+            return;
         }
 
-        if (policyJson != null && !policyJson.equals(templatePolicyJson)) {
+        if (!policyJson.equals(templatePolicyJson)) {
             violationSink.put(
                     new ViolationBuilder(
-                            format("Role: %s cannot be modified", roleName)).withEventId(getCloudTrailEventId(event))
+                            format("Role: %s must not be modified", roleName)).withEventId(getCloudTrailEventId(event))
                                                                             .withRegion(getCloudTrailEventRegion(event))
                                                                             .withAccountId(
                                                                                     getCloudTrailEventAccountId(
