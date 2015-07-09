@@ -1,8 +1,8 @@
-##Unapproves services and role Plugin
+##Unapproved services and role Plugin
 
 ###Aim of plugin
-Find out if someone use an unapproved service
-and if someone change roles that are from policy unchangeable.
+Find out if someone uses an unapproved service
+and if someone changes roles that must not be changed.
 
 ###Reacts on
 

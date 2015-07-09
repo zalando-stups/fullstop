@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.plugin.unapproved.impl.PolicyProviderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -39,7 +40,7 @@ public class PolicyProviderTest {
     @Before
     public void setUp() throws Exception {
         clientProviderMock = mock(ClientProvider.class);
-        policyProvider = new PolicyProvider(clientProviderMock);
+        policyProvider = new PolicyProviderImpl(clientProviderMock);
     }
 
     @After
