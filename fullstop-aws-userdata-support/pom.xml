@@ -18,12 +18,6 @@
             <artifactId>fullstop-aws-client-support</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- TODO remove this -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-cloudtrail-processing-library</artifactId>
-            <version>1.0.0</version>
-        </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>

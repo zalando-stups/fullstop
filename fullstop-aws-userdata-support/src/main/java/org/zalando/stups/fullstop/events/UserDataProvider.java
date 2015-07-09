@@ -30,7 +30,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstanceAttributeResult;
@@ -44,13 +43,6 @@ public class UserDataProvider {
 
     public UserDataProvider(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
-    }
-
-    @Deprecated
-    public Map getUserData(final CloudTrailEvent event, final String instanceId) throws AmazonServiceException {
-        final String accountId = event.getEventData().getUserIdentity().getAccountId();
-        final String region = event.getEventData().getAwsRegion();
-        return getUserData(accountId, region, instanceId);
     }
 
     public Map getUserData(final String accountId, final String region, final String instanceId)
