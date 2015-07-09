@@ -27,6 +27,7 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -262,6 +263,8 @@ public abstract class CloudtrailEventSupport {
 
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        return new DateTime(event.getEventData().getEventTime());
+        Date eventTime = event.getEventData().getEventTime();
+
+        return new DateTime(eventTime);
     }
 }

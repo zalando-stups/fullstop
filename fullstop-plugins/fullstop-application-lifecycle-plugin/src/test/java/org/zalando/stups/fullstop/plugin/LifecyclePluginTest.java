@@ -16,34 +16,39 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
+import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
+import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by gkneitschel.
  */
-@Ignore
+
 public class LifecyclePluginTest {
 
     private LifecyclePlugin plugin;
 
-    private UserDataProvider provider;
+    private UserDataProvider userDataProviderMock;
 
-    private ApplicationLifecycleServiceImpl applicationLifecycleService;
+    private ApplicationLifecycleServiceImpl applicationLifecycleServiceMock;
 
-    private LifecycleEntity lifecycleEntity;
+    private LocalPluginProcessor processor;
 
     private CloudTrailEvent event;
 
@@ -55,10 +60,19 @@ public class LifecyclePluginTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = mock(UserDataProvider.class);
-        applicationLifecycleService = mock(ApplicationLifecycleServiceImpl.class);
-        plugin = new LifecyclePlugin(applicationLifecycleService, provider);
+
+        userDataProviderMock = mock(UserDataProvider.class);
+        applicationLifecycleServiceMock = mock(ApplicationLifecycleServiceImpl.class);
+        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock);
+        processor = new LocalPluginProcessor(plugin);
     }
+
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock);
+    }
+
+
 
     @Test
     public void testSupports() throws Exception {
@@ -77,6 +91,24 @@ public class LifecyclePluginTest {
 
     @Test
     public void testProcessEvent() throws Exception {
-        assertThat(true).isTrue();
+        HashMap<Object, Object> value = newHashMap();
+        value.put("application_id", "test");
+        value.put("application_version", "test");
+
+        when(userDataProviderMock.getUserData(any(CloudTrailEvent.class), any(String.class))).thenReturn(value);
+        doNothing().when(applicationLifecycleServiceMock).saveLifecycle(
+                any(ApplicationEntity.class),
+                any(VersionEntity.class),
+                any(LifecycleEntity.class));
+
+        processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
+
+        verify(userDataProviderMock, atLeast(2)).getUserData(any(), any());
+        verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
+    }
+
+    @Test
+    public void testNullEvent() throws Exception{
+        processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
     }
 }
