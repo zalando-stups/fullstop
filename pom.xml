@@ -85,6 +85,8 @@
         <module>fullstop-violation-persister-jpa</module>
         <module>fullstop-it</module>
         <module>fullstop-it-autoshutdown</module>
+        <module>fullstop-aws-client-support</module>
+        <module>fullstop-aws-userdata-support</module>
     </modules>
 
     <dependencyManagement>
