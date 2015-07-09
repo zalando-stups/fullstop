@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.plugin.unapproved;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.zalando.stups.fullstop.plugin.unapproved.impl.S3PolicyTemplatesProvider;
 import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.util.List;
@@ -32,14 +33,14 @@ import static org.mockito.Mockito.*;
  */
 public class PolicyTemplateCachingTest {
 
-    private PolicyTemplateCaching policyTemplateCaching;
+    private PolicyTemplatesProvider policyTemplatesProvider;
 
     private S3Service s3ServiceMock;
 
     @Before
     public void setUp() throws Exception {
         s3ServiceMock = mock(S3Service.class);
-        policyTemplateCaching = new PolicyTemplateCaching(s3ServiceMock);
+        policyTemplatesProvider = new S3PolicyTemplatesProvider(s3ServiceMock);
     }
 
     @After
@@ -51,7 +52,7 @@ public class PolicyTemplateCachingTest {
     public void testGetS3Objects() throws Exception {
         when(s3ServiceMock.listS3Objects(any(), any())).thenReturn(newArrayList("test", "test"));
 
-        List<String> s3Objects = policyTemplateCaching.getS3Objects();
+        List<String> s3Objects = policyTemplatesProvider.getPolicyTemplateNames();
 
         assertThat(s3Objects).isNotEmpty();
 
@@ -62,9 +63,7 @@ public class PolicyTemplateCachingTest {
     public void testGetPolicyTemplate() throws Exception {
         when(s3ServiceMock.downloadObject(any(), any())).thenReturn("test object");
 
-        policyTemplateCaching.init();
-
-        policyTemplateCaching.getPolicyTemplate("test");
+        policyTemplatesProvider.getPolicyTemplate("test");
 
         verify(s3ServiceMock).downloadObject(any(),any());
     }

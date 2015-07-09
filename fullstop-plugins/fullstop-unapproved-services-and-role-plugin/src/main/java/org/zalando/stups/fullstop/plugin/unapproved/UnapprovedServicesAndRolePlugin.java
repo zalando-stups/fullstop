@@ -51,17 +51,17 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties;
 
-    private final PolicyTemplateCaching policyTemplateCaching;
+    private final PolicyTemplatesProvider policyTemplatesProvider;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
-            final PolicyTemplateCaching policyTemplateCaching,
+            final PolicyTemplatesProvider policyTemplatesProvider,
             UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
         this.policyProvider = policyProvider;
         this.violationSink = violationSink;
-        this.policyTemplateCaching = policyTemplateCaching;
+        this.policyTemplatesProvider = policyTemplatesProvider;
         this.unapprovedServicesAndRoleProperties = unapprovedServicesAndRoleProperties;
     }
 
@@ -72,7 +72,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         return eventSource.equals(EVENT_SOURCE) && (unapprovedServicesAndRoleProperties.getEventNames().contains(
                 cloudTrailEventData.getEventName()))
-                && (policyTemplateCaching.getS3Objects().contains(getRoleName(event)));
+                && (policyTemplatesProvider.getPolicyTemplateNames().contains(getRoleName(event)));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
 
-        String policyTemplate = policyTemplateCaching.getPolicyTemplate(roleName);
+        String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
 
         JsonNode policyJson = null;
         JsonNode templatePolicyJson = null;

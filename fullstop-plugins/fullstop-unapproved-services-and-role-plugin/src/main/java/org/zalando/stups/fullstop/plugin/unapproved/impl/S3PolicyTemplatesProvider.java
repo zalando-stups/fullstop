@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin.unapproved;
+package org.zalando.stups.fullstop.plugin.unapproved.impl;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -25,11 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.zalando.stups.fullstop.plugin.unapproved.PolicyTemplatesProvider;
 import org.zalando.stups.fullstop.s3.S3Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -38,7 +37,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * Created by mrandi.
  */
 @Service
-public class PolicyTemplateCaching {
+public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
 
     @Value("${fullstop.plugins.unapprovedServicesAndRole.bucketName}")
     private String bucketName;
@@ -50,11 +49,12 @@ public class PolicyTemplateCaching {
 
     private S3Service s3Service;
 
-    private List<String> s3Objects;
+    private List<String> policyTemplateNames;
 
     @Autowired
-    public PolicyTemplateCaching(final S3Service s3Service) {
+    public S3PolicyTemplatesProvider(final S3Service s3Service) {
         this.s3Service = s3Service;
+        init();
     }
 
     @Scheduled(initialDelay = 2 * 1000, fixedDelay = 60 * 60 * 1000)
@@ -66,29 +66,22 @@ public class PolicyTemplateCaching {
             results.add(Files.getNameWithoutExtension(listS3Object));
         }
 
-        s3Objects = results;
+        policyTemplateNames = results;
     }
 
-    public List<String> getS3Objects() {
+    @Override public List<String> getPolicyTemplateNames() {
         // when application starts, need 2 seconds to fetch the first entries
-        if ( s3Objects == null || s3Objects.isEmpty()) {
+        if ( policyTemplateNames == null || policyTemplateNames.isEmpty()) {
             fetchFromS3();
         }
-        return s3Objects;
+        return policyTemplateNames;
     }
 
-    public String getPolicyTemplate(final String roleName) {
-        try {
-            return cache.get(roleName);
-        }
-        catch (ExecutionException e) {
-            throw new RuntimeException("Unable to load template.", e);
-        }
+    @Override public String getPolicyTemplate(final String roleName) {
+        return cache.getUnchecked(roleName);
     }
 
-    @PostConstruct
-    public void init() {
-
+    private void init() {
         cache = CacheBuilder.newBuilder().maximumSize(10).expireAfterWrite(1, MINUTES).build(
                 new CacheLoader<String, String>() {
                     private final Logger logger = LoggerFactory.getLogger(CacheLoader.class);
@@ -99,7 +92,11 @@ public class PolicyTemplateCaching {
 
                         String key = prefix + roleName + ".json";
 
-                        return s3Service.downloadObject(bucketName, key);
+                        String result = s3Service.downloadObject(bucketName, key);
+                        if (result == null){
+                            throw  new RuntimeException("Could not download key:" + key);
+                        }
+                        return result;
                     }
                 });
     }

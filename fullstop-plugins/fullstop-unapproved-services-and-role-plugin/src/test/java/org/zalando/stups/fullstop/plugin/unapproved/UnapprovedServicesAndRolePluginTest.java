@@ -42,7 +42,7 @@ public class UnapprovedServicesAndRolePluginTest {
 
     private ViolationSink violationSinkMock;
 
-    private PolicyTemplateCaching policyTemplateCachingMock;
+    private PolicyTemplatesProvider policyTemplatesProviderMock;
 
     private CloudTrailEvent event;
 
@@ -52,21 +52,21 @@ public class UnapprovedServicesAndRolePluginTest {
     public void setUp() throws Exception {
         policyProviderMock = mock(PolicyProvider.class);
         violationSinkMock = mock(ViolationSink.class);
-        policyTemplateCachingMock = mock(PolicyTemplateCaching.class);
+        policyTemplatesProviderMock = mock(PolicyTemplatesProvider.class);
 
         event = buildEvent();
 
         plugin = new UnapprovedServicesAndRolePlugin(
                 policyProviderMock,
                 violationSinkMock,
-                policyTemplateCachingMock,
+                policyTemplatesProviderMock,
                 new UnapprovedServicesAndRoleProperties());
 
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(policyProviderMock, violationSinkMock, policyTemplateCachingMock);
+        verifyNoMoreInteractions(policyProviderMock, violationSinkMock, policyTemplatesProviderMock);
     }
 
     protected CloudTrailEvent buildEvent() {
@@ -85,26 +85,26 @@ public class UnapprovedServicesAndRolePluginTest {
     @Test
     public void testSupports() throws Exception {
 
-        when(policyTemplateCachingMock.getS3Objects()).thenReturn(
+        when(policyTemplatesProviderMock.getPolicyTemplateNames()).thenReturn(
                 newArrayList(
                         "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
 
         boolean result = plugin.supports(event);
         Assertions.assertThat(result).isTrue();
 
-        verify(policyTemplateCachingMock).getS3Objects();
+        verify(policyTemplatesProviderMock).getPolicyTemplateNames();
     }
 
     @Test
     public void testProcessEvent() throws Exception {
 
         when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn("{\"eventVersion\": \"1\"}");
-        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn("{\"eventVersion\": \"2\"}");
+        when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn("{\"eventVersion\": \"2\"}");
 
         plugin.processEvent(event);
 
         verify(policyProviderMock).getPolicy(any(), any(), any());
-        verify(policyTemplateCachingMock).getPolicyTemplate(any());
+        verify(policyTemplatesProviderMock).getPolicyTemplate(any());
         verify(violationSinkMock).put(any(Violation.class));
 
     }
@@ -114,12 +114,12 @@ public class UnapprovedServicesAndRolePluginTest {
 
         when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn(
                 "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}]}");
-        when(policyTemplateCachingMock.getPolicyTemplate(any())).thenReturn(
+        when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn(
                 "{\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123:xxx-provider/Shibboleth\"},\"Action\":\"sts:AssumeRoleWithxxx\",\"Condition\":{\"StringEquals\":{\"xxx:au\":\"https://signin.aws.amazon.com/xxx\"}}}],\"Version\":\"2012-10-17\"}");
 
         plugin.processEvent(event);
 
         verify(policyProviderMock).getPolicy(any(), any(), any());
-        verify(policyTemplateCachingMock).getPolicyTemplate(any());
+        verify(policyTemplatesProviderMock).getPolicyTemplate(any());
     }
 }

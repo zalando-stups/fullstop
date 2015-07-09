@@ -9,12 +9,12 @@ and if someone changes roles that must not be changed.
 ```
 EVENT SOURCE = "iam.amazonaws.com"
 EVENT NAME = see the configuration section
-POLICY TEMPLATE = the name of the files contained in s3 bucket will be used to match the role (the content will be then match for equality)
+POLICY NAME = the name of the files contained in s3 bucket will be used to match the role (the content will then be checked for equality)
 ```
 
 ###Configuration
 
-You can modify here the plugin configuration: [application.yml](../../fullstop/src/main/resources/config/application.yml)
+You can modify the plugin configuration here: [application.yml](../../fullstop/src/main/resources/config/application.yml)
 
 ```yml
 fullstop:

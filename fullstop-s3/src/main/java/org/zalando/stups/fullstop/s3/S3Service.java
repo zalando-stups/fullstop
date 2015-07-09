@@ -150,7 +150,7 @@ public class S3Service {
             do {
                 objectListing = s3client.listObjects(listObjectsRequest);
                 for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                    if (objectSummary.getKey().equals(prefix)){
+                    if (objectSummary.getKey().equals(prefix)) {
                         continue;
                     }
                     s3Objects.add(objectSummary.getKey());
@@ -186,8 +186,7 @@ public class S3Service {
                     inputStream.close();
                 }
                 catch (IOException ex) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Ignore failure in closing the Closeable", ex);
+                    logger.debug("Ignore failure in closing the Closeable", ex);
                 }
             }
         }
