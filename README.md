@@ -44,6 +44,7 @@ by all other accounts in order to perform this operations.
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
 * [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
 * [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
+* [fullstop-unapproved-services-and-role-plugin] (fullstop-plugins/fullstop-unapproved-services-and-role-plugin)
 
 ##Configuration
 
@@ -67,6 +68,8 @@ This environment variables should be set:
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
     TOKEN_INFO_URI
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX
 
 Example:
 
@@ -88,6 +91,8 @@ Example:
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
     $ export TOKEN_INFO_URI=tokenInfoUri
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME=fullstop-bucket-policy
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX=folder_containing_templates_files
     
 ### Disable CloudTrail Processing
 
@@ -183,10 +188,6 @@ Push docker image:
 Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
 
 ## Project TODO:
-- [x] Oauth 2.0 spring configuration
-- [x] Implement API for FE
-- [x] Auditing on entity
-- [ ] Pageable
 - [ ] ...
 
 ## License

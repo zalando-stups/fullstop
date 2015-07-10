@@ -169,7 +169,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
     }
 
     protected List<String> listS3Objects(final String bucketName, final String prefix) {
-        return s3Writer.listS3Objects(bucketName, prefix);
+        return s3Writer.listCommonPrefixesS3Objects(bucketName, prefix);
     }
 
 }
