@@ -126,6 +126,9 @@ fullstop:
         teamService:
             url: https://example.com/teams/api
 
+        kontrolletti:
+            url: https://example.com/kontrolletti/api
+
 #
 # OAuth2
 #
@@ -142,6 +145,9 @@ tokens:
           scopes:
               - uid
         - tokenId: teamService
+          scopes:
+              - uid
+        - tokenId: kontrolletti
           scopes:
               - uid
 

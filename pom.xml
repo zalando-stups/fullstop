@@ -64,6 +64,7 @@
 
         <archaius.version>0.7.1</archaius.version>
         <spring-cloud-starter-hystrix.version>1.0.3.RELEASE</spring-cloud-starter-hystrix.version>
+        <kontrolletti-client-java.version>0.1.0-RC-1</kontrolletti-client-java.version>
     </properties>
 
     <modules>
@@ -182,6 +183,16 @@
                 <groupId>org.zalando.stups</groupId>
                 <artifactId>pierone-client-java-spring</artifactId>
                 <version>${pierone-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>kontrolletti-client-java-api</artifactId>
+                <version>${kontrolletti-client-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>kontrolletti-client-java-spring</artifactId>
+                <version>${kontrolletti-client-java.version}</version>
             </dependency>
 
             <dependency>

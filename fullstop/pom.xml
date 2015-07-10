@@ -183,6 +183,10 @@
             <groupId>org.zalando.stups</groupId>
             <artifactId>pierone-client-java-spring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-spring</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
