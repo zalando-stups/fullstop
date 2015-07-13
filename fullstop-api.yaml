@@ -36,12 +36,11 @@ definitions:
       region:
         type: string
         example: "eu-west-1"
-      message:
-        type: string
-        example: "The instance i-3w4fdsa is running in the wrong region"
-      violation_object:
+      meta_info:
         type: object
         example: ""
+      # add also plugin name
+      # and violation type obj
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
@@ -170,7 +169,7 @@ paths:
           in: path
           type: integer
           required: true
-        - name: message
+        - name: comment
           in: body
           required: true
           schema:

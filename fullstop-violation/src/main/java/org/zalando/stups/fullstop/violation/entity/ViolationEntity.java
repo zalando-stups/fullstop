@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.violation.entity;
 
-import com.google.common.base.MoreObjects;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author mrandi
@@ -34,19 +34,22 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String region;
 
-    private String message;
-
-    private Object violationObject;
+    private Object metaInfo;
 
     private String comment;
 
-    public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject,
+    private String pluginFullQualifiedClassName;
+
+    @OneToOne
+    @JoinTable(schema = "fullstop_data", name = "violation_type")
+    private ViolationTypeEntity violationTypeEntity;
+
+    public ViolationEntity(String eventId, String accountId, String region, Object metaInfo,
             String comment) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
-        this.message = message;
-        this.violationObject = violationObject;
+        this.metaInfo = metaInfo;
         this.comment = comment;
     }
 
@@ -77,20 +80,12 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.region = region;
     }
 
-    public String getMessage() {
-        return message;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
-    }
-
-    public Object getViolationObject() {
-        return violationObject;
-    }
-
-    public void setViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+    public void setMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
     public String getComment() {
@@ -101,15 +96,33 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.comment = comment;
     }
 
+    public String getPluginFullQualifiedClassName() {
+        return pluginFullQualifiedClassName;
+    }
+
+    public void setPluginFullQualifiedClassName(String pluginFullQualifiedClassName) {
+        this.pluginFullQualifiedClassName = pluginFullQualifiedClassName;
+    }
+
+    public ViolationTypeEntity getViolationTypeEntity() {
+        return violationTypeEntity;
+    }
+
+    public void setViolationTypeEntity(
+            ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
-                          .add("accountId", accountId)
-                          .add("region", region)
-                          .add("message", message)
-                          .add("violationObject", violationObject)
-                          .add("eventId", eventId)
-                          .add("comment", comment)
-                          .toString();
+        return toStringHelper(this)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("metaInfo", metaInfo)
+                .add("comment", comment)
+                .add("pluginFullQualifiedClassName", pluginFullQualifiedClassName)
+                .add("violationTypeEntity", violationTypeEntity)
+                .toString();
     }
 }

@@ -84,10 +84,13 @@ public class FullstopApi {
 
         violation.setAccountId(entity.getAccountId());
         violation.setEventId(entity.getEventId());
-        violation.setMessage(entity.getMessage());
+
+        violation.setPluginFullQualifiedClassName(entity.getPluginFullQualifiedClassName());
+        violation.setViolationTypeEntity(entity.getViolationTypeEntity());
+
         violation.setRegion(entity.getRegion());
         violation.setComment(entity.getComment());
-        violation.setViolationObject(entity.getViolationObject());
+        violation.setViolationObject(entity.getMetaInfo());
         return violation;
     }
 
@@ -147,7 +150,7 @@ public class FullstopApi {
             @PathVariable("id")
             final Long id,
             @ApiParam(value = "", required = true)
-            @RequestBody final String message,
+            @RequestBody final String comment,
             @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
             throws NotFoundException, ForbiddenException {
         final ViolationEntity violation = violationService.findOne(id);
@@ -163,7 +166,7 @@ public class FullstopApi {
                             violation.getAccountId(), id));
         }
 
-        violation.setComment(message);
+        violation.setComment(comment);
         final ViolationEntity dbViolationEntity = violationService.save(violation);
         return mapToDto(dbViolationEntity);
     }

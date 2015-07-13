@@ -30,7 +30,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
@@ -61,8 +60,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
 import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
 import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
@@ -76,7 +73,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
 
-    public static final String MESSAGE = "my message";
+    public static final String MESSAGE = "my comment";
 
     public static final String ENCODED_LOG_FILE = new BASE64Encoder().encode("this is my log".getBytes());
 
@@ -107,7 +104,6 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
-        violationRequest.setMessage(MESSAGE);
         violationRequest.setRegion(REGION);
         violationRequest.setEventId(UUID.randomUUID().toString());
 

@@ -15,7 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation;
 
-import com.google.common.base.MoreObjects;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author jbellmann
@@ -28,21 +28,22 @@ class DefaultViolation implements Violation {
 
     private String region;
 
-    private String message;
-
-    private Object violationObject;
+    private Object metaInfo;
 
     private String comment;
 
     private Boolean checked;
 
+    private String pluginFullQualifiedClassName;
+
+    private ViolationType violationType;
+
     DefaultViolation(final String eventId, final String accountId, final String region, final String message,
-            final Object violationObject, final String comment, final Boolean checked) {
+            final Object metaInfo, final String comment, final Boolean checked) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
-        this.message = message;
-        this.violationObject = violationObject;
+        this.metaInfo = metaInfo;
         this.comment = comment;
         this.checked = checked;
     }
@@ -74,20 +75,12 @@ class DefaultViolation implements Violation {
         this.region = region;
     }
 
-    public String getMessage() {
-        return message;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
-    }
-
-    public Object getViolationObject() {
-        return violationObject;
-    }
-
-    public void setViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+    public void setMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
     public String getComment() {
@@ -106,11 +99,33 @@ class DefaultViolation implements Violation {
         this.checked = checked;
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
-                          .add("message", message).add("violationObject", violationObject).add("eventId", eventId)
-                          .add("comment", comment).add("checked", checked).toString();
+    @Override public ViolationType getViolationType() {
+        return violationType;
     }
 
+    public void setViolationType(ViolationType violationType) {
+        this.violationType = violationType;
+    }
+
+    @Override public String getPluginFullQualifiedClassName() {
+        return pluginFullQualifiedClassName;
+    }
+
+    public void setPluginFullQualifiedClassName(String pluginFullQualifiedClassName) {
+        this.pluginFullQualifiedClassName = pluginFullQualifiedClassName;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("metaInfo", metaInfo)
+                .add("comment", comment)
+                .add("checked", checked)
+                .add("pluginFullQualifiedClassName", pluginFullQualifiedClassName)
+                .add("violationType", violationType)
+                .toString();
+    }
 }

@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation;
+package org.zalando.stups.fullstop.violation.entity;
 
 /**
- * @author mrandi
+ * Created by mrandi.
  */
+public enum ViolationSeverityEntity {
 
-public interface Violation {
+    CRITICAL_IMPACT,
+    SIGNIFICANT_IMPACT,
+    MINOR,
+    LOW
 
-    String getEventId();
-
-    String getAccountId();
-
-    String getRegion();
-
-    String getComment();
-
-    Object getMetaInfo();
-
-    String getPluginFullQualifiedClassName();
-
-    ViolationType getViolationType();
 }

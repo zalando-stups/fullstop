@@ -25,12 +25,12 @@ public class ViolationBuilder {
 
     private String region;
 
-    private String message;
+    private String comment;
 
     private Object violationObject;
 
-    public ViolationBuilder(final String message) {
-        this.message = message;
+    public ViolationBuilder(final String comment) {
+        this.comment = comment;
     }
 
     public Violation build() {
@@ -39,8 +39,8 @@ public class ViolationBuilder {
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
         violation.setRegion(region);
-        violation.setMessage(message);
-        violation.setViolationObject(violationObject);
+        violation.setComment(comment);
+        violation.setMetaInfo(violationObject);
 
         return violation;
     }
@@ -60,8 +60,8 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withMessage(final String message) {
-        this.message = message;
+    public ViolationBuilder withComment(final String comment) {
+        this.comment = comment;
         return this;
     }
 

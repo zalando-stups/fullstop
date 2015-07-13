@@ -18,6 +18,9 @@ package org.zalando.stups.fullstop.swagger.model;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 @ApiModel(description = "")
 public class Violation {
@@ -32,8 +35,6 @@ public class Violation {
 
     private String region = null;
 
-    private String message = null;
-
     private Object violationObject = null;
 
     private String comment = null;
@@ -45,6 +46,10 @@ public class Violation {
     private DateTime lastModified = null;
 
     private String lastModifiedBy = null;
+
+    private String pluginFullQualifiedClassName;
+
+    private ViolationTypeEntity violationTypeEntity;
 
     @ApiModelProperty(value = "")
     public Long getId() {
@@ -64,8 +69,6 @@ public class Violation {
         this.version = version;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getEventId() {
         return eventId;
@@ -75,8 +78,6 @@ public class Violation {
         this.eventId = eventId;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getAccountId() {
         return accountId;
@@ -86,8 +87,6 @@ public class Violation {
         this.accountId = accountId;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getRegion() {
         return region;
@@ -97,19 +96,6 @@ public class Violation {
         this.region = region;
     }
 
-    /**
-     **/
-    @ApiModelProperty(value = "")
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    /**
-     **/
     @ApiModelProperty(value = "")
     public Object getViolationObject() {
         return violationObject;
@@ -119,8 +105,6 @@ public class Violation {
         this.violationObject = violationObject;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getComment() {
         return comment;
@@ -130,8 +114,6 @@ public class Violation {
         this.comment = comment;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public DateTime getCreated() {
         return created;
@@ -141,8 +123,6 @@ public class Violation {
         this.created = created;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getCreatedBy() {
         return createdBy;
@@ -152,8 +132,6 @@ public class Violation {
         this.createdBy = createdBy;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public DateTime getLastModified() {
         return lastModified;
@@ -163,8 +141,6 @@ public class Violation {
         this.lastModified = lastModified;
     }
 
-    /**
-     **/
     @ApiModelProperty(value = "")
     public String getLastModifiedBy() {
         return lastModifiedBy;
@@ -174,24 +150,40 @@ public class Violation {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    @ApiModelProperty(value = "")
+    public String getPluginFullQualifiedClassName() {
+        return pluginFullQualifiedClassName;
+    }
+
+    public void setPluginFullQualifiedClassName(String pluginFullQualifiedClassName) {
+        this.pluginFullQualifiedClassName = pluginFullQualifiedClassName;
+    }
+
+    @ApiModelProperty(value = "")
+    public ViolationTypeEntity getViolationTypeEntity() {
+        return violationTypeEntity;
+    }
+
+    public void setViolationTypeEntity(ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
+    }
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Violation {\n");
-
-        sb.append("  id: ").append(id).append("\n");
-        sb.append("  version: ").append(version).append("\n");
-        sb.append("  eventId: ").append(eventId).append("\n");
-        sb.append("  accountId: ").append(accountId).append("\n");
-        sb.append("  region: ").append(region).append("\n");
-        sb.append("  message: ").append(message).append("\n");
-        sb.append("  violationObject: ").append(violationObject).append("\n");
-        sb.append("  comment: ").append(comment).append("\n");
-        sb.append("  created: ").append(created).append("\n");
-        sb.append("  createdBy: ").append(createdBy).append("\n");
-        sb.append("  lastModified: ").append(lastModified).append("\n");
-        sb.append("  lastModifiedBy: ").append(lastModifiedBy).append("\n");
-        sb.append("}\n");
-        return sb.toString();
+        return toStringHelper(this)
+                .add("id", id)
+                .add("version", version)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("violationObject", violationObject)
+                .add("comment", comment)
+                .add("created", created)
+                .add("createdBy", createdBy)
+                .add("lastModified", lastModified)
+                .add("lastModifiedBy", lastModifiedBy)
+                .add("pluginFullQualifiedClassName", pluginFullQualifiedClassName)
+                .add("violationTypeEntity", violationTypeEntity)
+                .toString();
     }
 }
