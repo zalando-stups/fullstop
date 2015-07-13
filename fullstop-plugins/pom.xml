@@ -45,6 +45,6 @@
         <module>fullstop-save-securitygroups-plugin</module>
         <module>fullstop-snapshot-source-plugin</module>
         <module>fullstop-subnet-plugin</module>
-        <module>fullstop-unapproves-services-and-role-plugin</module>
+        <module>fullstop-unapproved-services-and-role-plugin</module>
     </modules>
 </project>

@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin.unapproved.config;
+package org.zalando.stups.fullstop.plugin.unapproved;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-import org.zalando.stups.fullstop.plugin.unapproved.UnapprovesServicesAndRolePlugin;
+import java.util.List;
 
 /**
- * @author  jbellmann
+ * Created by mrandi.
  */
-@Configuration
-@ComponentScan(basePackageClasses = {UnapprovesServicesAndRolePlugin.class})
-public class UnapprovesServiceAutoConfiguration { }
+public interface PolicyTemplatesProvider {
+    List<String> getPolicyTemplateNames();
+
+    String getPolicyTemplate(String roleName);
+}

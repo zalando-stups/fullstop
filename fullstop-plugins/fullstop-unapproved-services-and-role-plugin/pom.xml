@@ -23,8 +23,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fullstop-unapproves-services-and-role-plugin</artifactId>
-    <name>Fullstop -- Unapproves services and Role plugin</name>
+    <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
+    <name>Fullstop -- Unapproved services and Role plugin</name>
 
     <properties>
         <main.basedir>${basedir}/../..</main.basedir>
@@ -46,6 +46,12 @@
             <artifactId>fullstop-aws-client-support</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-s3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>

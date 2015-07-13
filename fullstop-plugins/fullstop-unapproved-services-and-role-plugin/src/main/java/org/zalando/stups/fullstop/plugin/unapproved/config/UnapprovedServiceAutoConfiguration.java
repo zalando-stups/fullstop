@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.s3;
+package org.zalando.stups.fullstop.plugin.unapproved.config;
 
-import org.junit.Test;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.zalando.stups.fullstop.plugin.unapproved.UnapprovedServicesAndRolePlugin;
 
-import java.util.List;
-
-public class S3ServiceTest {
-
-    @Test
-    public void testS3ServiceListObject() {
-        S3Service service = new S3Service();
-        List<String> result = service.listCommonPrefixesS3Objects(
-                "zalando-fullstop",
-                "12094567/eu-central-1/2015/5/22/");
-        System.out.println(result.toString());
-    }
-
-}
+/**
+ * @author  jbellmann
+ */
+@Configuration
+@ComponentScan(basePackageClasses = {UnapprovedServicesAndRolePlugin.class})
+@EnableConfigurationProperties({ UnapprovedServicesAndRoleProperties.class })
+public class UnapprovedServiceAutoConfiguration { }

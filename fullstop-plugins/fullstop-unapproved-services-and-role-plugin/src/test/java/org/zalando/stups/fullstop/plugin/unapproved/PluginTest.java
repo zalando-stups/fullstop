@@ -42,7 +42,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 public class PluginTest extends AbstractPluginTest {
 
     @Autowired
-    private UnapprovesServicesAndRolePlugin plugin;
+    private UnapprovedServicesAndRolePlugin plugin;
 
     @Test
     public void testPlugin() {

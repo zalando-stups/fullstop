@@ -33,14 +33,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
  *
  * @author jbellmann
  */
 public class TestCloudTrailEventData extends CloudTrailEventData {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TestCloudTrailEventData.class);
 
     private Map<String, Object> data = new LinkedHashMap<String, Object>();
 
