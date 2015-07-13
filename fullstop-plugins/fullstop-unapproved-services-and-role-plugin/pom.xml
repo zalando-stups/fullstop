@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-aws-client-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-s3</artifactId>
             <version>${project.version}</version>
         </dependency>

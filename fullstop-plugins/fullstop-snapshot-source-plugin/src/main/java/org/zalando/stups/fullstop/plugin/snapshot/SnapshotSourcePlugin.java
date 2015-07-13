@@ -15,27 +15,32 @@
  */
 package org.zalando.stups.fullstop.plugin.snapshot;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static java.lang.String.format;
+
+import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-import java.util.Map;
+import com.amazonaws.AmazonServiceException;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
- *
- * @author npiccolotto
+ * @author  npiccolotto
  */
 @Component
 public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
@@ -60,13 +65,16 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
         this.violationSink = violationSink;
     }
 
+    //J-
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
         for (String id : instanceIds) {
             Map userData = null;
+            final String accountId = event.getEventData().getUserIdentity().getAccountId();
+            final String region = event.getEventData().getAwsRegion();
             try {
-                userData = userDataProvider.getUserData(event, id);
+                userData = userDataProvider.getUserData(accountId, region, id);
             }
             catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
@@ -103,9 +111,10 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             }
         }
     }
+    //J+
 
     @Override
-    public boolean supports(CloudTrailEvent event) {
+    public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
