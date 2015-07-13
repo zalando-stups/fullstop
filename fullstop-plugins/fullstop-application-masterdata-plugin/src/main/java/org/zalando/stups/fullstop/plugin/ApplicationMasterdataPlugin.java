@@ -43,7 +43,7 @@ import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
+//J-
 @Component
 public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
@@ -95,8 +95,11 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         for (String instanceId : instanceIds) {
             // 1) get user data
             Map userData;
+            
+            final String accountId = event.getEventData().getUserIdentity().getAccountId();
+            final String region = event.getEventData().getAwsRegion();
             try {
-                userData = userDataProvider.getUserData(event,
+                userData = userDataProvider.getUserData(accountId, region,
                                                         instanceId);
             }
             catch (AmazonServiceException ex) {
@@ -217,3 +220,4 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
     }
 }
+//J+

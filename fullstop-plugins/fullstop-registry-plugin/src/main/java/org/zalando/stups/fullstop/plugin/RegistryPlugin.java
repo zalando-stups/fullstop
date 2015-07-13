@@ -167,9 +167,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected Map getAndValidateUserData(CloudTrailEvent event, String instanceId) {
         Map userData;
+        final String accountId = event.getEventData().getUserIdentity().getAccountId();
+        final String region = event.getEventData().getAwsRegion();
         try {
             userData = userDataProvider.getUserData(
-                    event,
+                    accountId, region,
                     instanceId);
         }
         catch (AmazonServiceException ex) {
