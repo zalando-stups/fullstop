@@ -17,9 +17,11 @@ package org.zalando.stups.fullstop.plugin.scm;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -71,16 +73,17 @@ public class ScmRepositoryPluginTest {
 
         kioApp = new Application();
         kioApp.setScmUrl("git@github.com:zalando-stups/hello-world.git");
+        kioApp.setTeamId("stups");
     }
 
     @After
     public void tearDown() throws Exception {
-        //        verifyNoMoreInteractions(
-        //                mockViolationSink,
-        //                mockKioOperations,
-        //                mockPieroneOperations,
-        //                mockKontrollettiOperations,
-        //                mockUserDataProvider);
+        verifyNoMoreInteractions(
+                mockViolationSink,
+                mockKioOperations,
+                mockPieroneOperations,
+                mockKontrollettiOperations,
+                mockUserDataProvider);
     }
 
     @Test
@@ -88,7 +91,7 @@ public class ScmRepositoryPluginTest {
         when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
-                                "source", "stups/hello-world:0.1",
+                                "source", "hello-world:0.1",
                                 "application_id", "hello-world"));
         when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
         when(mockPieroneOperations.getScmSource(anyString(), anyString(), anyString()))
@@ -97,6 +100,11 @@ public class ScmRepositoryPluginTest {
                 "https://github.com/zalando-stups/fullstop.git");
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
+        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockKioOperations).getApplicationById(eq("hello-world"));
+        verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
         verify(mockViolationSink, never()).put(any(Violation.class));
     }
 }
