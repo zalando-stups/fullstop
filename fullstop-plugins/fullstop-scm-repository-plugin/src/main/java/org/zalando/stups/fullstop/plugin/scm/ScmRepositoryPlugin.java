@@ -15,22 +15,19 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
-import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -99,27 +96,31 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             try {
                 userData = userDataProvider.getUserData(event, instanceId);
             }
-            catch (AmazonServiceException e) {
-                log.warn("Could not get userData for instance {}. Caught exception: {}", instanceId, e);
+            catch (final AmazonServiceException e) {
+                log.warn("Could not get userData for EC2 instance '{}'. Caught exception: {}", instanceId, e);
                 return;
             }
 
             if (userData == null) {
-                log.warn("No userData available for instance {}. Skip execution of ScmRepositoryPlugin!", instanceId);
+                log.warn(
+                        "No userData available for EC2 instance '{}'. Skip execution of ScmRepositoryPlugin!",
+                        instanceId);
                 return;
             }
 
             final String source = (String) userData.get(SOURCE);
             if (isBlank(source)) {
                 log.warn(
-                        "Source is missing within userData for instance {}. Skip execution of ScmRepositoryPlugin!",
+                        "'Source' field is missing in userData of EC2 instance '{}'. Skip execution of ScmRepositoryPlugin!",
                         instanceId);
                 return;
             }
 
             final Matcher sourceMatcher = DOCKER_SOURCE_PATTERN.matcher(source);
             if (!sourceMatcher.matches()) {
-                log.warn("'{}' is not a valid docker source. Skip execution of ScmRepositoryPlugin!", source);
+                log.warn(
+                        "'{}' is not a valid docker source (or my regex is bulls**t). Skip execution of ScmRepositoryPlugin!",
+                        source);
                 return;
             }
 
@@ -129,7 +130,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             final String applicationId = (String) userData.get(APPLICATION_ID);
             if (isBlank(applicationId)) {
                 log.warn(
-                        "application_id is missing within userData for instance {}. Skip execution of ScmRepositoryPlugin!",
+                        "'application_id' is missing in userData of EC2 instance {}. Skip execution of ScmRepositoryPlugin!",
                         instanceId);
                 return;
             }
@@ -161,13 +162,11 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
                         violationFor(event)
                                 .withMessage("Scm url in scm-source.json does not match the url given in Kio")
                                 .withViolationObject(
-                                        Stream.of(
-                                                new SimpleEntry<>("normalized_scm_source_url", normalizedScmSourceUrl),
-                                                new SimpleEntry<>("normalized_kio_scm_url", normalizedKioScmUrl)
-                                        ).collect(toMap(Entry::getKey, Entry::getValue)))
+                                        ImmutableMap.of(
+                                                "normalized_scm_source_url", normalizedScmSourceUrl,
+                                                "normalized_kio_scm_url", normalizedKioScmUrl))
                                 .build());
             }
         }
-
     }
 }

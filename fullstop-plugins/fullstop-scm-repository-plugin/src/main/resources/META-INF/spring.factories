@@ -1,4 +1,2 @@
-#
-#
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.zalando.stups.fullstop.plugin.scm.config.ScmRepositoryPluginAutoConfiguration

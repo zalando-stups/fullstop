@@ -32,7 +32,8 @@ public class ScmRepositoryPluginAutoConfiguration {
             final ViolationSink violationSink,
             final KioOperations kioOperations,
             final PieroneOperations pieroneOperations,
-            KontrollettiOperations kontrollettiOperations, final UserDataProvider userDataProvider) {
+            final KontrollettiOperations kontrollettiOperations,
+            final UserDataProvider userDataProvider) {
         return new ScmRepositoryPlugin(
                 violationSink, kioOperations, pieroneOperations,
                 kontrollettiOperations,
