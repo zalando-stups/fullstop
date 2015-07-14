@@ -15,14 +15,12 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.springframework.plugin.metadata.PluginMetadata;
-import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
 
 /**
  * Base that can be used to implement a {@link FullstopPlugin}.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public abstract class AbstractFullstopPlugin implements FullstopPlugin {
 
@@ -30,18 +28,6 @@ public abstract class AbstractFullstopPlugin implements FullstopPlugin {
     public PluginMetadata getMetadata() {
 
         return new DefaultMetadataProvider(getClass().getName()).getMetadata();
-    }
-
-    protected String getCloudTrailEventId(final CloudTrailEvent event) {
-        return CloudtrailEventSupport.getEventId(event);
-    }
-
-    protected String getCloudTrailEventAccountId(final CloudTrailEvent event) {
-        return CloudtrailEventSupport.getAccountId(event);
-    }
-
-    protected String getCloudTrailEventRegion(final CloudTrailEvent event) {
-        return CloudtrailEventSupport.getRegionAsString(event);
     }
 
 }

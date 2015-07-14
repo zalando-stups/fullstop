@@ -15,26 +15,30 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.jayway.jsonpath.JsonPath;
-
-import java.util.List;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.List;
+import java.util.function.Predicate;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import com.jayway.jsonpath.JsonPath;
+
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
-public abstract class CloudtrailEventSupport {
+public abstract class CloudTrailEventSupport {
 
     public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
 
@@ -45,7 +49,7 @@ public abstract class CloudtrailEventSupport {
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
-            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+        "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
@@ -58,12 +62,16 @@ public abstract class CloudtrailEventSupport {
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
     private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-            "RegionString should never be null or empty";
+        "RegionString should never be null or empty";
 
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
-            "CloudTrailEventData should never be null";
+        "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
+
+    public static Predicate<CloudTrailEvent> EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
+
+    public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
 
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -170,11 +178,11 @@ public abstract class CloudtrailEventSupport {
     }
 
     public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EventSourcePredicate.EC2_EVENT.test(cloudTrailEvent);
+        return EC2_EVENT.test(cloudTrailEvent);
     }
 
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
+        return RUN_INSTANCES.test(cloudTrailEvent);
     }
 
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
@@ -190,8 +198,7 @@ public abstract class CloudtrailEventSupport {
     public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
         cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        CloudTrailEventData cloudTrailEventData = checkNotNull(
-                cloudTrailEvent.getEventData(),
+        CloudTrailEventData cloudTrailEventData = checkNotNull(cloudTrailEvent.getEventData(),
                 CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
 
         return getRegion(cloudTrailEventData.getAwsRegion());
@@ -207,8 +214,8 @@ public abstract class CloudtrailEventSupport {
     }
 
     /**
-     +     * Extract the 'roleName'.
-     +     */
+     * + * Extract the 'roleName'. +
+     */
     public static List<String> readRoleName(final String parameters) {
 
         if (parameters == null) {

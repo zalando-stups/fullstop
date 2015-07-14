@@ -17,7 +17,7 @@ package org.zalando.stups.fullstop.plugin.snapshot;
 
 import static java.lang.String.format;
 
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -80,16 +81,16 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                 LOG.error(e.getMessage());
                 violationSink.put(
                         new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                                .withAccountId(getCloudTrailEventAccountId(event)).build());
+                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
                 return;
             }
 
             if (userData == null) {
                 violationSink.put(
                         new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                                .withAccountId(getCloudTrailEventAccountId(event)).build());
+                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
             }
             String source = (String) userData.get(SOURCE);
             if (source == null) {
@@ -98,16 +99,16 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                         new ViolationBuilder(
                                 format(
                                         "InstanceID: %s is missing 'source' property in userData.", id))
-                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                                .withAccountId(getCloudTrailEventAccountId(event)).build());
+                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
             }
             else if (source.matches(SNAPSHOT_REGEX)) {
                 violationSink.put(
                         new ViolationBuilder(
                                 format(
                                         "InstanceID: %s was started with a mutable SNAPSHOT image.", id))
-                                .withEventId(getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event))
-                                .withAccountId(getCloudTrailEventAccountId(event)).build());
+                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
             }
         }
     }
