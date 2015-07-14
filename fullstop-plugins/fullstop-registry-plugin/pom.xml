@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
+            <artifactId>fullstop-violation-sink</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -42,7 +42,11 @@
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-userdata-support</artifactId>

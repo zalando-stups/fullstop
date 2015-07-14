@@ -15,24 +15,33 @@
  */
 package org.zalando.stups.fullstop.plugin.keypair;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static java.lang.String.format;
+
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.containsKeyNames;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+
 import org.springframework.util.CollectionUtils;
+
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.containsKeyNames;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
- * @author ljaeckel
+ * @author  ljaeckel
  */
 @Component
 public class KeyPairPlugin extends AbstractFullstopPlugin {
@@ -64,10 +73,8 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-            violationSink.put(
-                    new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
-                            getCloudTrailEventId(event)).withRegion(getCloudTrailEventRegion(event)).withAccountId(
-                            getCloudTrailEventAccountId(event)).build());
+            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
+                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
 
         }
     }

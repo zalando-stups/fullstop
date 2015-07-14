@@ -15,31 +15,47 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.s3.S3Service;
+import static org.joda.time.DateTimeZone.UTC;
+
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceLaunchTime;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.read;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+
 import java.util.List;
 
-import static org.joda.time.DateTimeZone.UTC;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
+import org.joda.time.DateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
+import org.zalando.stups.fullstop.s3.S3Service;
+
+import com.amazonaws.regions.Region;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 /**
- * @author gkneitschel
+ * @author  gkneitschel
  */
 @Component
 public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
@@ -85,7 +101,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         String accountId = getAccountId(event);
         List<String> instanceIds = getInstanceIds(event);
         if (instanceIds.isEmpty()) {
-            LOG.warn("No instanceIds for event : {}, skip processing", getCloudTrailEventId(event));
+            LOG.warn("No instanceIds for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
             return;
         }
 
@@ -93,9 +109,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         try {
 
             instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
-        }
-        catch (Exception e) {
-            LOG.warn("No 'launchTime' for event : {}, skip processing", getCloudTrailEventId(event));
+        } catch (Exception e) {
+            LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
             return;
         }
 
@@ -124,9 +139,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             DateTime instanceBootTimeControlElement = null;
 
             for (String instanceBucket : instanceBuckets) {
-                List<String> currentBucket = Lists.newArrayList(
-                        Splitter.on('-').limit(3).trimResults()
-                                .omitEmptyStrings().split(instanceBucket));
+                List<String> currentBucket = Lists.newArrayList(Splitter.on('-').limit(3).trimResults()
+                            .omitEmptyStrings().split(instanceBucket));
 
                 String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
                 DateTime currentBucketDate = new DateTime(currentBucket.get(2), UTC);
@@ -139,8 +153,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                         instanceBucketNameControlElement = currentBucketName;
                         instanceBootTimeControlElement = currentBucketDate;
                     }
-                }
-                else {
+                } else {
                     instanceBucketNameControlElement = currentBucketName;
                     instanceBootTimeControlElement = currentBucketDate;
                 }
