@@ -24,7 +24,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 /**
  * @author mrandi
  */
-@Table(name = "violation", schema = "fullstop_data")
+@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(columnNames = "XXFsdagrwb"))
 @Entity
 public class ViolationEntity extends AbstractModifiableEntity {
 
@@ -40,8 +40,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String pluginFullQualifiedClassName;
 
-    @OneToOne
-    @JoinTable(schema = "fullstop_data", name = "violation_type")
+    @ManyToOne
     private ViolationTypeEntity violationTypeEntity;
 
     public ViolationEntity(String eventId, String accountId, String region, Object metaInfo,

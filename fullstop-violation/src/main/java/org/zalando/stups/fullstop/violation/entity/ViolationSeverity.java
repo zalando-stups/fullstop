@@ -18,11 +18,11 @@ package org.zalando.stups.fullstop.violation.entity;
 /**
  * Created by mrandi.
  */
-public enum ViolationSeverityEntity {
+public enum ViolationSeverity {
 
     CRITICAL_IMPACT,
     SIGNIFICANT_IMPACT,
-    MINOR,
-    LOW
+    MINOR_IMPACT,
+    LOW_IMPACT
 
 }

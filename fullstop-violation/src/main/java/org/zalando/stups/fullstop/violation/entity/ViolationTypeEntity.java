@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,12 +15,16 @@
  */
 package org.zalando.stups.fullstop.violation.entity;
 
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -30,15 +34,54 @@ import static com.google.common.base.MoreObjects.toStringHelper;
  */
 @Table(name = "violation_type", schema = "fullstop_data")
 @Entity
-public class ViolationTypeEntity extends AbstractModifiableEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class ViolationTypeEntity {
+
+    @Id
+    @Enumerated(EnumType.STRING)
+    private ViolationType id;
 
     private String helpText;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private ViolationSeverityEntity violationSeverityEntity;
+    private ViolationSeverity violationSeverity;
 
     private boolean isAuditRelevant;
+
+    @CreatedDate
+    @NotNull(groups = { PersistenceOnly.class })
+    @Column(nullable = false)
+    private DateTime created;
+
+    @CreatedBy
+    @NotEmpty(groups = { PersistenceOnly.class })
+    @Column(nullable = false)
+    private String createdBy;
+
+    @LastModifiedDate
+    @NotNull(groups = { PersistenceOnly.class })
+    @Column(nullable = false)
+    private DateTime lastModified;
+
+    @LastModifiedBy
+    @NotEmpty(groups = { PersistenceOnly.class })
+    @Column(nullable = false)
+    private String lastModifiedBy;
+
+    /**
+     * Enables optimistic locking.
+     */
+    @Version
+    private Long version;
+
+    public ViolationType getId() {
+        return id;
+    }
+
+    public void setId(ViolationType id) {
+        this.id = id;
+    }
 
     public String getHelpText() {
         return helpText;
@@ -48,13 +91,13 @@ public class ViolationTypeEntity extends AbstractModifiableEntity {
         this.helpText = helpText;
     }
 
-    public ViolationSeverityEntity getViolationSeverityEntity() {
-        return violationSeverityEntity;
+    public ViolationSeverity getViolationSeverity() {
+        return violationSeverity;
     }
 
-    public void setViolationSeverityEntity(
-            ViolationSeverityEntity violationSeverityEntity) {
-        this.violationSeverityEntity = violationSeverityEntity;
+    public void setViolationSeverity(
+            ViolationSeverity violationSeverity) {
+        this.violationSeverity = violationSeverity;
     }
 
     public boolean isAuditRelevant() {
@@ -65,12 +108,58 @@ public class ViolationTypeEntity extends AbstractModifiableEntity {
         this.isAuditRelevant = isAuditRelevant;
     }
 
+    public DateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(final DateTime created) {
+        this.created = created;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(final String createdBy) {
+        this.createdBy = createdBy == null ? null : createdBy.trim();
+    }
+
+    public DateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(final DateTime lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(final String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy == null ? null : lastModifiedBy.trim();
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(final Long version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this)
+                .add("id", id)
                 .add("helpText", helpText)
-                .add("violationSeverityEntity", violationSeverityEntity)
+                .add("violationSeverity", violationSeverity)
                 .add("isAuditRelevant", isAuditRelevant)
+                .add("createdBy", createdBy)
+                .add("created", created)
+                .add("lastModifiedBy", lastModifiedBy)
+                .add("version", version)
+                .add("lastModified", lastModified)
                 .toString();
     }
 }
