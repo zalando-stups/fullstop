@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
+            <artifactId>fullstop-violation-sink</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -30,6 +30,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-iam</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
