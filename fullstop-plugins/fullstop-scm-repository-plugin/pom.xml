@@ -28,6 +28,16 @@
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-aws-userdata-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -40,6 +50,11 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- TEST DEPENDENCIES BELOW HERE -->

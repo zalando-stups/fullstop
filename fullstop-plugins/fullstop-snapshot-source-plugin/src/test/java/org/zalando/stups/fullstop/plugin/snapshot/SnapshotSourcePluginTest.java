@@ -15,25 +15,30 @@
  */
 package org.zalando.stups.fullstop.plugin.snapshot;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
-import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.plugin.snapshot.SnapshotSourcePlugin;
-import org.zalando.stups.fullstop.violation.Violation;
-import org.zalando.stups.fullstop.violation.ViolationSink;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.mockito.Mockito;
+
+import org.zalando.stups.fullstop.events.Records;
+import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
+import org.zalando.stups.fullstop.events.UserDataProvider;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 public class SnapshotSourcePluginTest {
 
@@ -45,7 +50,7 @@ public class SnapshotSourcePluginTest {
 
     private SnapshotSourcePlugin plugin;
 
-    protected CloudTrailEvent buildEvent(String type) {
+    protected CloudTrailEvent buildEvent(final String type) {
         List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
 
         return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
@@ -60,7 +65,7 @@ public class SnapshotSourcePluginTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(sink, provider);
+        Mockito.verifyNoMoreInteractions(sink, provider);
     }
 
     @Test
@@ -78,46 +83,49 @@ public class SnapshotSourcePluginTest {
     @Test
     public void shouldComplainWithoutSource() {
         event = buildEvent("run");
-        when(provider.getUserData(any(), any())).thenReturn(new HashMap<String, String>());
+        when(provider.getUserData(any(), any(String.class), any())).thenReturn(new HashMap<String, String>());
         plugin.processEvent(event);
 
-        verify(provider).getUserData(any(), any(String.class));
+        verify(provider).getUserData(any(), any(String.class), any(String.class));
         verify(sink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainWithSnapshotSource() {
         event = buildEvent("run");
+
         Map<String, String> userData = new HashMap<String, String>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
-        when(provider.getUserData(any(), any())).thenReturn(userData);
+        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
 
-        verify(provider).getUserData(any(), any(String.class));
+        verify(provider).getUserData(any(), any(String.class), any(String.class));
         verify(sink).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainWithSnapshotInName() {
         event = buildEvent("run");
+
         Map<String, String> userData = new HashMap<String, String>();
         userData.put("source", "docker://registry.zalando.com/stups/SNAPSHOT:1.0");
-        when(provider.getUserData(any(), any())).thenReturn(userData);
+        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
 
-        verify(provider).getUserData(any(), any(String.class));
+        verify(provider).getUserData(any(), any(String.class), any(String.class));
         verify(sink, never()).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainWithoutSnapshotSource() {
         event = buildEvent("run");
+
         Map<String, String> userData = new HashMap<String, String>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0");
-        when(provider.getUserData(any(), any())).thenReturn(userData);
+        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
 
-        verify(provider).getUserData(any(), any(String.class));
+        verify(provider).getUserData(any(), any(String.class), any(String.class));
         verify(sink, never()).put(any(Violation.class));
     }
 }

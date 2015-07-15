@@ -22,7 +22,7 @@ import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 
 import java.util.List;
 
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * @author jbellmann

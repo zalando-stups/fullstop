@@ -43,6 +43,7 @@ by all other accounts in order to perform this operations.
 * [fullstop-registry-plugin](fullstop-plugins/fullstop-registry-plugin)
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
 * [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
+* [fullstop-unapproved-services-and-role-plugin] (fullstop-plugins/fullstop-unapproved-services-and-role-plugin)
 
 ##Configuration
 
@@ -66,6 +67,8 @@ This environment variables should be set:
     ACCESS_TOKEN_URI
     CREDENTIALS_DIR
     TOKEN_INFO_URI
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME
+    FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX
 
 Example:
 
@@ -87,6 +90,8 @@ Example:
     $ export ACCESS_TOKEN_URI=accessTokenUri
     $ export CREDENTIALS_DIR=/location/credentials
     $ export TOKEN_INFO_URI=tokenInfoUri
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME=fullstop-bucket-policy
+    $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX=folder_containing_templates_files
     
 ### Disable CloudTrail Processing
 
@@ -97,13 +102,12 @@ Fullstop without CloudTrail processing.
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables
 for you. The database itself, however, has to be created by you.
 Your database password is encrypted with [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html). 
-We are using our [Spring Cloud Config add-on](https://github.com/zalando/spring-cloud-config-aws-kms) to decrypt the
-the password on the fly. 
+We are using [Taupage](http://docs.stups.io/en/latest/components/taupage.html#environment) to decrypt the password on the fly. 
 To use Amazons KMS for de/encryption, you need to to provide a region and the key id for your key. In Fullstop, both
 will be provided via environment variables.
 
 The password should be already encrypted, when you store it in the ```DATABASE_PASSWORD``` environment variable. An 
-encrypted password always starts with ```{cipher}```. You can use our [CLI tool](https://github.com/zalando/spring-cloud-config-aws-kms/tree/master/encryption-cli)
+encrypted password always starts with ```aws:kms:```. You can use our [CLI tool](https://github.com/zalando/spring-cloud-config-aws-kms/tree/master/encryption-cli)
 for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html#examples). 
 
 ##Propose API changes
@@ -182,10 +186,6 @@ Push docker image:
 Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
 
 ## Project TODO:
-- [x] Oauth 2.0 spring configuration
-- [x] Implement API for FE
-- [x] Auditing on entity
-- [ ] Pageable
 - [ ] ...
 
 ## License

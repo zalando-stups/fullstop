@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
+import static com.amazonaws.regions.Regions.EU_WEST_1;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -24,6 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -39,6 +42,8 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 public class ScmRepositoryPluginTest {
+
+    private static final Region EU_WEST_1 = Region.getRegion(Regions.EU_WEST_1);
 
     private LocalPluginProcessor processor;
 
@@ -88,7 +93,7 @@ public class ScmRepositoryPluginTest {
 
     @Test
     public void testProcessEventNoViolation() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -101,7 +106,7 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
         verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
@@ -110,28 +115,28 @@ public class ScmRepositoryPluginTest {
 
     @Test
     public void testProcessEventMissingUserData() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString())).thenReturn(null);
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString())).thenReturn(null);
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
     }
 
     @Test
     public void testProcessEventMissingUserDataSource() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "application_id", "hello-world"));
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
     }
 
     @Test
     public void testProcessEventIllegalUserDataSource() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "foobar",
@@ -139,24 +144,24 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
     }
 
     @Test
     public void testProcessEventMissingUserDataAppId() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1"));
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
     }
 
     @Test
     public void testProcessEventMissingKioApp() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -165,13 +170,13 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
     }
 
     @Test
     public void testProcessEventMissingKioScmUrl() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -181,7 +186,7 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
 
         verify(mockViolationSink).put(any(Violation.class));
@@ -189,7 +194,7 @@ public class ScmRepositoryPluginTest {
 
     @Test
     public void testProcessEventMissingPieroneScmSource() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -199,14 +204,14 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
         verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
     }
 
     @Test
     public void testProcessEventMissingPieroneScmSourceUrl() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -217,7 +222,7 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
         verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
 
@@ -226,7 +231,7 @@ public class ScmRepositoryPluginTest {
 
     @Test
     public void testProcessEventWithDifferentScmUrls() throws Exception {
-        when(mockUserDataProvider.getUserData(any(CloudTrailEvent.class), anyString()))
+        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
                 .thenReturn(
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
@@ -240,7 +245,7 @@ public class ScmRepositoryPluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 
-        verify(mockUserDataProvider).getUserData(any(CloudTrailEvent.class), eq("i-affenbanane"));
+        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
         verify(mockKioOperations).getApplicationById(eq("hello-world"));
         verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));

@@ -17,7 +17,10 @@ package org.zalando.stups.fullstop.plugin.scm;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 
 import java.util.Map;
 import java.util.Objects;
@@ -91,7 +94,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
         for (final String instanceId : getInstanceIds(event)) {
-            final Map userData = userDataProvider.getUserData(event, instanceId);
+            final Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
 
             if (userData == null) {
                 log.warn(
