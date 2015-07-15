@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
-import static com.amazonaws.regions.Regions.EU_WEST_1;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -27,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
