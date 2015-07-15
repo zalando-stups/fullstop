@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.ImmutableMap;
@@ -92,14 +91,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
         for (final String instanceId : getInstanceIds(event)) {
-            final Map userData;
-            try {
-                userData = userDataProvider.getUserData(event, instanceId);
-            }
-            catch (final AmazonServiceException e) {
-                log.warn("Could not get userData for EC2 instance '{}'. Caught exception: {}", instanceId, e);
-                return;
-            }
+            final Map userData = userDataProvider.getUserData(event, instanceId);
 
             if (userData == null) {
                 log.warn(
@@ -136,6 +128,11 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             }
 
             final Application app = kioOperations.getApplicationById(applicationId);
+            if (app == null) {
+                log.warn("app '{}' does not exist in Kio. Skip execution of ScmRepositoryPlugin!", applicationId);
+                return;
+            }
+
             final String team = app.getTeamId();
             final String kioScmUrl = app.getScmUrl();
             if (isBlank(kioScmUrl)) {
@@ -148,6 +145,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
                 log.warn("scm-source.json is missing. Skip execution of ScmRepositoryPlugin!");
                 return;
             }
+
             final String scmSourceUrl = scmSource.get(URL);
             if (isBlank(scmSourceUrl)) {
                 violationSink.put(violationFor(event).withMessage("scm-source.json does not contain the url").build());
