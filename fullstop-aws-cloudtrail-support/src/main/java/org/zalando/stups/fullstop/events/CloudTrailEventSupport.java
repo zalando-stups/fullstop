@@ -25,18 +25,16 @@ import java.util.function.Predicate;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
 import com.jayway.jsonpath.JsonPath;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class CloudTrailEventSupport {
 
@@ -49,7 +47,7 @@ public abstract class CloudTrailEventSupport {
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
-        "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
@@ -62,10 +60,10 @@ public abstract class CloudTrailEventSupport {
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
     private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-        "RegionString should never be null or empty";
+            "RegionString should never be null or empty";
 
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
-        "CloudTrailEventData should never be null";
+            "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
@@ -198,7 +196,8 @@ public abstract class CloudTrailEventSupport {
     public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
         cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        CloudTrailEventData cloudTrailEventData = checkNotNull(cloudTrailEvent.getEventData(),
+        CloudTrailEventData cloudTrailEventData = checkNotNull(
+                cloudTrailEvent.getEventData(),
                 CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
 
         return getRegion(cloudTrailEventData.getAwsRegion());
@@ -223,5 +222,12 @@ public abstract class CloudTrailEventSupport {
         }
 
         return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
+    }
+
+    public static ViolationBuilder violationFor(CloudTrailEvent cloudTrailEvent) {
+        return new ViolationBuilder()
+                .withEventId(getEventId(cloudTrailEvent))
+                .withAccountId(getAccountId(cloudTrailEvent))
+                .withRegion(getRegionAsString(cloudTrailEvent));
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.zalando.stups.fullstop.violation;
 
+import static java.lang.String.format;
+
 /**
  * Created by gkneitschel.
  */
@@ -28,6 +30,9 @@ public class ViolationBuilder {
     private String message;
 
     private Object violationObject;
+
+    public ViolationBuilder() {
+    }
 
     public ViolationBuilder(final String message) {
         this.message = message;
@@ -62,6 +67,11 @@ public class ViolationBuilder {
 
     public ViolationBuilder withMessage(final String message) {
         this.message = message;
+        return this;
+    }
+
+    public ViolationBuilder withMessage(final String messageFormat, final Object... args) {
+        this.message = format(messageFormat, args);
         return this;
     }
 

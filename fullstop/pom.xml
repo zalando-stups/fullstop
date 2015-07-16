@@ -121,6 +121,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+
         <!-- END PLUGINS -->
 
         <dependency>
@@ -159,6 +166,10 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>pierone-client-java-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-spring</artifactId>
         </dependency>
 
         <dependency>
