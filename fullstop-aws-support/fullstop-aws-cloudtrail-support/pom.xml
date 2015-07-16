@@ -57,7 +57,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-test-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-testing.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
