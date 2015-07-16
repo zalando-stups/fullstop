@@ -53,7 +53,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation-sink-reactor</artifactId>
+            <artifactId>fullstop-violation-api-reactor</artifactId>
             <version>${project.version}</version>
         </dependency>
 

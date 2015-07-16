@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation-sink</artifactId>
+            <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
         </dependency>
 

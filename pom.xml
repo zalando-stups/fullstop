@@ -63,6 +63,7 @@
     <modules>
         <module>fullstop-parent-poms/fullstop-parent</module>
         <module>fullstop-apis/fullstop-plugin-api</module>
+        <module>fullstop-apis/fullstop-violation-api</module>
 
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support/fullstop-aws-client-support</module>
@@ -82,8 +83,8 @@
         <module>fullstop-jobs</module>
         <module>fullstop-aws-s3-support</module>
         <module>fullstop-violation</module>
-        <module>fullstop-violation-sink</module>
-        <module>fullstop-violation-sink-reactor</module>
+        <module>fullstop-violation-api</module>
+        <module>fullstop-violation-api-reactor</module>
         <module>fullstop-violation-persister-jpa</module>
         <module>fullstop-it</module>
         <module>fullstop-it-autoshutdown</module>
@@ -337,8 +338,8 @@
                         <jacocoReport>fullstop-timemachine/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-persister-jpa/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink-reactor/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-violation-api/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-violation-api-reactor/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-store-slf4j/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <!--it end-->
 
@@ -377,8 +378,8 @@
                         <jacocoReport>fullstop-timemachine/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-persister-jpa/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink-reactor/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-violation-api/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-violation-api-reactor/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-store-slf4j/target/site/jacoco/jacoco.xml</jacocoReport>
                         <!--end-->
                     </jacocoReports>

@@ -4,13 +4,11 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>1</version>
+        <relativePath />
     </parent>
-    <artifactId>fullstop-violation-sink</artifactId>
-
-    <properties>
-        <main.basedir>${basedir}/..</main.basedir>
-    </properties>
+    <artifactId>fullstop-violation-api</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -27,4 +25,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>
