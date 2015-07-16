@@ -3,9 +3,14 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>1</version>
+        <relativePath />
     </parent>
     <artifactId>fullstop-aws-cloudtrail-support</artifactId>
+
+    <properties>
+        <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -20,7 +25,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-sink</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-violation-api.version}</version>
         </dependency>
 
         <!-- TESTING -->
@@ -61,4 +66,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

@@ -63,6 +63,13 @@
     <modules>
         <module>fullstop-parent-poms/fullstop-parent</module>
         <module>fullstop-apis/fullstop-plugin-api</module>
+
+        <!-- fullstop-aws-support -->
+        <module>fullstop-aws-support/fullstop-aws-client-support</module>
+        <module>fullstop-aws-support/fullstop-aws-cloudtrail-support</module>
+        <module>fullstop-aws-support/fullstop-aws-s3-support</module>
+        <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
+
         <!--
         <module>fullstop</module>
         <module>fullstop-plugin-api</module>
@@ -73,7 +80,7 @@
         <module>docs</module>
         <module>fullstop-timemachine</module>
         <module>fullstop-jobs</module>
-        <module>fullstop-s3</module>
+        <module>fullstop-aws-s3-support</module>
         <module>fullstop-violation</module>
         <module>fullstop-violation-sink</module>
         <module>fullstop-violation-sink-reactor</module>
@@ -325,7 +332,7 @@
                         <jacocoReport>fullstop-plugins/fullstop-scm-repository-plugin/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <!--plugins end-->
                         <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-s3/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-aws-s3-support/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-test-support/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-timemachine/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation/target/site/jacoco-it/jacoco.xml</jacocoReport>
@@ -365,7 +372,7 @@
                         </jacocoReport>
                         <!--plugins end-->
                         <jacocoReport>fullstop-processing/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-s3/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-aws-s3-support/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-test-support/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-timemachine/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation/target/site/jacoco/jacoco.xml</jacocoReport>

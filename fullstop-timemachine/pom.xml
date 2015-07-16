@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-s3</artifactId>
+            <artifactId>fullstop-aws-s3-support</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
