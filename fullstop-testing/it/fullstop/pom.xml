@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-testing</artifactId>
+        <artifactId>fullstop-testing-it</artifactId>
         <version>0.9.1-SNAPSHOT</version>
     </parent>
 
@@ -35,6 +35,7 @@
 
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
+
         <fullstop-plugin-api.version>0.9.0</fullstop-plugin-api.version>
         <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
 

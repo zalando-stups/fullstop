@@ -22,7 +22,7 @@
         <version>1</version>
         <relativePath />
     </parent>
-    <artifactId>fullstop-testing</artifactId>
+    <artifactId>fullstop-testing-it</artifactId>
     <name>Fullstop -- Testing - Modules for testing</name>
     <version>0.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
