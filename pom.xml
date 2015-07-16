@@ -79,6 +79,7 @@
         <!-- all-plugins -->
         <module>fullstop-plugins</module>
 
+        <module>fullstop-web/fullstop-timemachine</module>
 
         <!--
         <module>fullstop</module>

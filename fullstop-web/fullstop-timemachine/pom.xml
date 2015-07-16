@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>fullstop-parent</artifactId>
-        <groupId>org.zalando.stups</groupId>
-        <version>0.5.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>fullstop-parent</artifactId>
+        <version>1</version>
+        <relativePath />
+    </parent>
 
     <artifactId>fullstop-timemachine</artifactId>
     <name>Fullstop -- Time-Machine</name>
+    <version>0.9.0-SNAPSHOT</version>
 
     <properties>
-        <main.basedir>${basedir}/..</main.basedir>
+        <fullstop-aws-support.version>0.9.0</fullstop-aws-support.version>
+        <fullstop-core.version>0.9.0</fullstop-core.version>
     </properties>
 
     <dependencies>
@@ -36,7 +39,7 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-processing</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -45,7 +48,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-s3-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -75,10 +78,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -90,4 +95,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>
