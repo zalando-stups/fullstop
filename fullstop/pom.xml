@@ -194,12 +194,20 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>banner.txt</include>
+                    <include>config/*.yml</include>
                 </includes>
             </resource>
-            <!--to resolve values in application yaml for info endpoint-->
+            <resource>
+                <directory>src/main/docker</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>scm-source.json</include>
+                </includes>
+                <targetPath>${project.build.directory}/docker</targetPath>
+            </resource>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
