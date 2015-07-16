@@ -18,12 +18,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-violation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-plugin-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

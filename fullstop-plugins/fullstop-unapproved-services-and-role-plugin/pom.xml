@@ -34,12 +34,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-violation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-plugin-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-test</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-testing.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

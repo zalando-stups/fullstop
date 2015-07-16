@@ -35,22 +35,22 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-violation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-plugin-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-userdata-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
 
         <dependency>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-test-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-testing.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

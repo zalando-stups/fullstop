@@ -25,7 +25,7 @@
         <relativePath />
     </parent>
 
-    <artifactId>fullstop-plugins</artifactId>
+    <artifactId>fullstop-aws-support</artifactId>
     <name>Fullstop -- Plugins</name>
     <version>0.9.0-SNAPSHOT</version>
 
@@ -34,25 +34,20 @@
     <properties>
         <fullstop-plugin-api.version>0.9.0</fullstop-plugin-api.version>
         <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
-        <fullstop-aws-support.version>0.9.0</fullstop-aws-support.version>
         <fullstop-testing.version>0.9.0</fullstop-testing.version>
     </properties>
 
     <modules>
-        <module>fullstop-ami-plugin</module>
-        <!--
-        <module>fullstop-application-masterdata-plugin</module>
-        <module>fullstop-count-events-plugin</module>
-        <module>fullstop-hello-event-plugin</module>
-        <module>fullstop-instance-plugin</module>
-        <module>fullstop-keypair-plugin</module>
-        <module>fullstop-region-plugin</module>
-        <module>fullstop-registry-plugin</module>
-        <module>fullstop-save-securitygroups-plugin</module>
-        <module>fullstop-snapshot-source-plugin</module>
-        <module>fullstop-subnet-plugin</module>
-        <module>fullstop-unapproved-services-and-role-plugin</module>
-        <module>fullstop-scm-repository-plugin</module>
-        -->
+        <module>fullstop-aws-client-support</module>
+        <module>fullstop-aws-cloudtrail-support</module>
+        <module>fullstop-aws-s3-support</module>
+        <module>fullstop-aws-userdata-support</module>
     </modules>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

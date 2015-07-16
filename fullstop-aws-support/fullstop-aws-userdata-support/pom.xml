@@ -2,12 +2,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-parent</artifactId>
-        <version>1</version>
-        <relativePath />
+        <artifactId>fullstop-aws-support</artifactId>
+        <version>0.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-aws-userdata-support</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -16,13 +16,13 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
-            <version>${project.version}</version>
+            <artifactId>fullstop-violation-api</artifactId>
+            <version>${fullstop-violation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-plugin-api.version}</version>
         </dependency>
     </dependencies>
 

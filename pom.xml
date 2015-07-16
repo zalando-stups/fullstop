@@ -76,10 +76,12 @@
         <module>fullstop-aws-support/fullstop-aws-s3-support</module>
         <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
 
+        <module>fullstop-plugins</module>
+
+
         <!--
         <module>fullstop</module>
         <module>fullstop-plugin-api</module>
-        <module>fullstop-plugins</module>
         <module>fullstop-processing</module>
         <module>fullstop-plugin-test</module>
         <module>fullstop-test-support</module>
