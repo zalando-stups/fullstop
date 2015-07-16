@@ -19,3 +19,6 @@ violations.log
 violations.*.log
 
 **/src/generated
+
+pom.xml.releaseBackup
+release.properties
