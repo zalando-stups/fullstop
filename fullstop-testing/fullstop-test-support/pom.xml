@@ -20,7 +20,6 @@
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-testing</artifactId>
         <version>0.9.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>fullstop-test-support</artifactId>
     <name>Fullstop -- Test-Support</name>

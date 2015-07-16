@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-parent</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <artifactId>fullstop-violation</artifactId>
+        <version>0.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-violation-persister-jpa</artifactId>
 
     <properties>
-        <main.basedir>${basedir}/..</main.basedir>
+        <fullstop-core.version>0.9.0</fullstop-core.version>
     </properties>
 
     <dependencies>
@@ -19,13 +19,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
+            <artifactId>fullstop-violation-jpa</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation-api-reactor</artifactId>
-            <version>${project.version}</version>
+            <artifactId>fullstop-violation-sink-reactor</artifactId>
+            <version>${fullstop-core.version}</version>
         </dependency>
     </dependencies>
 

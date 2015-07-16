@@ -79,28 +79,15 @@
         <!-- all-plugins -->
         <module>fullstop-plugins</module>
 
-        <module>fullstop-web/fullstop-timemachine</module>
-
-        <!--
-        <module>fullstop</module>
-        <module>fullstop-plugin-api</module>
-        <module>fullstop-processing</module>
-        <module>fullstop-plugin-test</module>
-        <module>fullstop-test-support</module>
-        <module>docs</module>
-        <module>fullstop-timemachine</module>
-        <module>fullstop-jobs</module>
-        <module>fullstop-aws-s3-support</module>
+        <!-- all violation modules -->
         <module>fullstop-violation</module>
-        <module>fullstop-violation-api</module>
-        <module>fullstop-violation-api-reactor</module>
-        <module>fullstop-violation-persister-jpa</module>
-        <module>fullstop-it</module>
-        <module>fullstop-it-autoshutdown</module>
-        <module>fullstop-aws-client-support</module>
-        <module>fullstop-aws-userdata-support</module>
-        <module>fullstop-aws-cloudtrail-support</module>
-        -->
+
+        <!-- web-modules -->
+        <module>fullstop-web/fullstop-timemachine</module>
+        
+        <module>fullstop-testing/fullstop</module>
+        <module>fullstop-testing/fullstop-it-autoshutdown</module>
+        <module>fullstop-testing/fullstop-it</module>
     </modules>
 
     <build>

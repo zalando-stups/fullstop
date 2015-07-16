@@ -16,13 +16,14 @@
     <properties>
         <fullstop-aws-support.version>0.9.0</fullstop-aws-support.version>
         <fullstop-core.version>0.9.0</fullstop-core.version>
+        <fullstop-violation.version>0.9.0-SNAPSHOT</fullstop-violation.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-violation</artifactId>
-            <version>${project.version}</version>
+            <artifactId>fullstop-violation-jpa</artifactId>
+            <version>${fullstop-violation.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
