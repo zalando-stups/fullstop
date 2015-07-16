@@ -1,0 +1,1 @@
+### Contains plugins to be used with fullstop to extend processing of CloudTrailEvents.

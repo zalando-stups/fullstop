@@ -1,0 +1,1 @@
+### Contains modules shared with multiple plugins to reduce boilerplate code.
