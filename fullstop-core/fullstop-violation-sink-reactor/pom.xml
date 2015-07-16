@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-core</artifactId>
-        <version>0.9.0</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-violation-sink-reactor</artifactId>
     <name>Fullstop -- Violation-Sink with Reactor</name>

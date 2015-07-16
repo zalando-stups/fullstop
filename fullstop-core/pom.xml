@@ -24,7 +24,7 @@
     </parent>
     <artifactId>fullstop-core</artifactId>
     <name>Fullstop -- Core - Processing, Sink-Implementation</name>
-    <version>0.9.0</version>
+    <version>0.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -41,6 +41,6 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
-        <tag>fullstop-core-0.9.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
