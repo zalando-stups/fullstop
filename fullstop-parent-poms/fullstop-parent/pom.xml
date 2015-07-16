@@ -16,9 +16,15 @@
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.zalando.stups.build</groupId>
+        <artifactId>stups-parent</artifactId>
+        <version>6</version>
+        <relativePath />
+    </parent>
     <groupId>org.zalando.stups</groupId>
-    <artifactId>fullstop-reactor</artifactId>
-    <version>0</version>
+    <artifactId>fullstop-parent</artifactId>
+    <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
@@ -59,32 +65,6 @@
         <spring-cloud-starter-hystrix.version>1.0.3.RELEASE</spring-cloud-starter-hystrix.version>
         <kontrolletti-client-java.version>0.1.0-RC-1</kontrolletti-client-java.version>
     </properties>
-
-    <modules>
-        <module>fullstop-parent-poms/fullstop-parent</module>
-        <module>fullstop-apis/fullstop-plugin-api</module>
-        <!--
-        <module>fullstop</module>
-        <module>fullstop-plugin-api</module>
-        <module>fullstop-plugins</module>
-        <module>fullstop-processing</module>
-        <module>fullstop-plugin-test</module>
-        <module>fullstop-test-support</module>
-        <module>docs</module>
-        <module>fullstop-timemachine</module>
-        <module>fullstop-jobs</module>
-        <module>fullstop-s3</module>
-        <module>fullstop-violation</module>
-        <module>fullstop-violation-sink</module>
-        <module>fullstop-violation-sink-reactor</module>
-        <module>fullstop-violation-persister-jpa</module>
-        <module>fullstop-it</module>
-        <module>fullstop-it-autoshutdown</module>
-        <module>fullstop-aws-client-support</module>
-        <module>fullstop-aws-userdata-support</module>
-        <module>fullstop-aws-cloudtrail-support</module>
-        -->
-    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -284,110 +264,16 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>1.9.2</version>
                 <configuration>
-                    <sourceDirectories>
-                        <sourceDirectory>fullstop-violation/target/generated-sources/java</sourceDirectory>
-                    </sourceDirectories>
-                    <dryRun>${coveralls.dryRun}</dryRun>
-                    <jacocoReports>
-                        <!--it start-->
-                        <jacocoReport>fullstop/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-clients/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-job/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <!--plugins start-->
-                        <jacocoReport>fullstop-plugins/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-ami-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-count-events-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-region-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-registry-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>
-                            fullstop-plugins/fullstop-save-securitygroups-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-subnet-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>
-                            fullstop-plugins/fullstop-unapproved-services-and-role-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-scm-repository-plugin/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <!--plugins end-->
-                        <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-s3/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-test-support/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-timemachine/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-persister-jpa/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink-reactor/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-store-slf4j/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <!--it end-->
-
-                        <!--start-->
-                        <jacocoReport>fullstop/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-clients/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-job/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugin-api/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <!--plugins start-->
-                        <jacocoReport>fullstop-plugins/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-ami-plugin/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-count-events-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-region-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-registry-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>
-                            fullstop-plugins/fullstop-save-securitygroups-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-subnet-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>
-                            fullstop-plugins/fullstop-unapproved-services-and-role-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <!--plugins end-->
-                        <jacocoReport>fullstop-processing/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-s3/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-test-support/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-timemachine/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-persister-jpa/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-sink-reactor/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-violation-store-slf4j/target/site/jacoco/jacoco.xml</jacocoReport>
-                        <!--end-->
-                    </jacocoReports>
+                    <connectionType>connection</connectionType>
+                    <tag>${project.artifactId}-${project.version}</tag>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>travis</id>
-            <properties>
-                <coveralls.dryRun>false</coveralls.dryRun>
-            </properties>
-        </profile>
-    </profiles>
 
     <scm>
         <url>https://github.com/zalando-stups/fullstop.git</url>
@@ -396,14 +282,6 @@
         <tag>HEAD</tag>
     </scm>
 
-    <repositories>
-        <repository>
-            <id>jcenter-snapshots</id>
-            <name>jcenter</name>
-            <url>https://jcenter.bintray.com/</url>
-        </repository>
-    </repositories>
-
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -411,6 +289,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <developers>
         <developer>
             <id>mrandi</id>
