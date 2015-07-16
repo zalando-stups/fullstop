@@ -65,6 +65,11 @@
         <module>fullstop-apis/fullstop-plugin-api</module>
         <module>fullstop-apis/fullstop-violation-api</module>
 
+        <module>fullstop-core</module>
+
+        <!-- fullstop-testing -->
+        <module>fullstop-testing</module>
+
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support/fullstop-aws-client-support</module>
         <module>fullstop-aws-support/fullstop-aws-cloudtrail-support</module>
