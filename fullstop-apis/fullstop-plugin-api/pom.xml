@@ -24,7 +24,7 @@
     </parent>
     <artifactId>fullstop-plugin-api</artifactId>
     <name>Fullstop -- Plugin API</name>
-    <version>0.9.0</version>
+    <version>0.9.1-SNAPSHOT</version>
 
 <!-- 
     <properties>
@@ -103,6 +103,6 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
-        <tag>fullstop-plugin-api-0.9.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
