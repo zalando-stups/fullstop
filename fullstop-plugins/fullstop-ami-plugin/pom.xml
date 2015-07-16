@@ -61,11 +61,20 @@
             <version>${aws-java-sdk.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-test-support</artifactId>
             <version>${fullstop-testing.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
