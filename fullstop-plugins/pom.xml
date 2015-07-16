@@ -40,7 +40,6 @@
 
     <modules>
         <module>fullstop-ami-plugin</module>
-        <!--
         <module>fullstop-application-masterdata-plugin</module>
         <module>fullstop-count-events-plugin</module>
         <module>fullstop-hello-event-plugin</module>
@@ -53,6 +52,5 @@
         <module>fullstop-subnet-plugin</module>
         <module>fullstop-unapproved-services-and-role-plugin</module>
         <module>fullstop-scm-repository-plugin</module>
-        -->
     </modules>
 </project>

@@ -20,15 +20,10 @@
     <parent>
         <artifactId>fullstop-plugins</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>fullstop-subnet-plugin</artifactId>
     <name>Fullstop -- subnet plugin</name>
-
-    <properties>
-        <main.basedir>${basedir}/../..</main.basedir>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -45,12 +40,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-client-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -65,13 +60,6 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-processing</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
