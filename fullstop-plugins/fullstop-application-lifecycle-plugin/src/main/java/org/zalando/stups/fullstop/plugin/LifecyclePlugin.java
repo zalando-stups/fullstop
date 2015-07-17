@@ -80,12 +80,15 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instances = getInstances(event);
+        String region = getRegionAsString(event);
         for (String instance : instances) {
             DateTime eventDate = getLifecycleDate(event, instance);
 
             LifecycleEntity lifecycleEntity = new LifecycleEntity();
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
+            lifecycleEntity.setRegion(region);
+            lifecycleEntity.setInstanceId(getSingleInstance(instance));
             ApplicationEntity applicationEntity;
             VersionEntity versionEntity;
             try {
@@ -97,7 +100,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                  applicationEntity = new ApplicationEntity(applicationName);
             }
             catch (AmazonServiceException e) {
-                LOG.warn("Lifecycle: {}", e.getMessage());
+                LOG.warn("Could not get version/application for lifecycle event.", e);
                 return;
             }
 

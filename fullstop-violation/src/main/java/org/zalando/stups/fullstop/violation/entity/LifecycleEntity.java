@@ -15,11 +15,15 @@
  */
 package org.zalando.stups.fullstop.violation.entity;
 
-import com.google.common.base.MoreObjects;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * Created by gkneitschel.
@@ -41,6 +45,10 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private String eventType;
 
+    private String userdataPath;
+
+    private DateTime instanceBootTime;
+
     private String instanceId;
 
     public DateTime getEventDate() {
@@ -59,22 +67,6 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.region = region;
     }
 
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
     public ApplicationEntity getApplicationEntity() {
         return applicationEntity;
     }
@@ -91,15 +83,49 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.versionEntity = versionEntity;
     }
 
+    public String getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public String getUserdataPath() {
+        return userdataPath;
+    }
+
+    public void setUserdataPath(String userdataPath) {
+        this.userdataPath = userdataPath;
+    }
+
+    public DateTime getInstanceBootTime() {
+        return instanceBootTime;
+    }
+
+    public void setInstanceBootTime(DateTime instanceBootTime) {
+        this.instanceBootTime = instanceBootTime;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
-                          .add("eventDate", eventDate)
-                          .add("region", region)
-                          .add("application", applicationEntity)
-                          .add("applicationVersion", versionEntity)
-                          .add("eventType", eventType)
-                          .add("instanceId", instanceId)
-                          .toString();
+        return toStringHelper(this)
+                .add("eventDate", eventDate)
+                .add("region", region)
+                .add("applicationEntity", applicationEntity)
+                .add("versionEntity", versionEntity)
+                .add("eventType", eventType)
+                .add("userdataPath", userdataPath)
+                .add("instanceBootTime", instanceBootTime)
+                .add("instanceId", instanceId)
+                .toString();
     }
 }

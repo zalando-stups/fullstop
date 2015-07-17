@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation.service;
 
+import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -23,6 +24,11 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
  * Created by gkneitschel.
  */
 public interface ApplicationLifecycleService {
-    void saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
+    LifecycleEntity saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity);
+
+    LifecycleEntity saveInstanceLogLifecycle(String instanceId, DateTime instanceBootTime, String userdataPath,
+            String region,
+            String logData);
+
 }

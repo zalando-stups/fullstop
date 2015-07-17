@@ -96,10 +96,10 @@ public class LifecyclePluginTest {
         value.put("application_version", "test");
 
         when(userDataProviderMock.getUserData(any(CloudTrailEvent.class), any(String.class))).thenReturn(value);
-        doNothing().when(applicationLifecycleServiceMock).saveLifecycle(
+        when(applicationLifecycleServiceMock.saveLifecycle(
                 any(ApplicationEntity.class),
                 any(VersionEntity.class),
-                any(LifecycleEntity.class));
+                any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 

@@ -15,8 +15,10 @@
  */
 package org.zalando.stups.fullstop.violation.service.impl;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -26,6 +28,7 @@ import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
 import javax.transaction.Transactional;
+import java.util.Map;
 
 /**
  * Created by gkneitschel.
@@ -44,7 +47,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
 
     @Override
     @Transactional
-    public void saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
+    public LifecycleEntity saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity) {
 
         if (applicationEntity == null || versionEntity == null || lifecycleEntity == null) {
@@ -53,33 +56,59 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
 
         ApplicationEntity applicationByName = applicationRepository.findByName(applicationEntity.getName());
         VersionEntity versionByName = versionRepository.findByName(versionEntity.getName());
+        LifecycleEntity lifecycleByInstanceId = lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(
+                lifecycleEntity.getInstanceId(),
+                applicationByName,
+                versionByName,
+                lifecycleEntity.getRegion());
 
-        if(applicationByName == null){
+        if (applicationByName == null) {
             applicationByName = applicationRepository.save(applicationEntity);
         }
 
         if (versionByName == null) {
-           versionByName = versionRepository.save(versionEntity);
+            versionByName = versionRepository.save(versionEntity);
         }
 
-        if(lifecycleEntity.getId() != null){
-            throw new UnsupportedOperationException("No update possible for Lifecycle Entity");
+        if (lifecycleByInstanceId != null) {
+            lifecycleByInstanceId.setEventDate(lifecycleEntity.getEventDate());
+            lifecycleByInstanceId.setEventType(lifecycleEntity.getEventType());
+            lifecycleByInstanceId = lifecycleRepository.save(lifecycleByInstanceId);
+            return lifecycleByInstanceId;
         }
 
-        // applicationEntity has not versionEntity
-        if(!applicationByName.getVersionEntities().contains(versionByName)){
+
+        if (!applicationByName.getVersionEntities().contains(versionByName)) {
             applicationByName.getVersionEntities().add(versionByName);
             applicationRepository.save(applicationByName);
         }
 
-        if(!versionByName.getApplicationEntities().contains(applicationByName)){
 
-            versionByName.getApplicationEntities().add(applicationByName);
-            versionRepository.save(versionByName);
-        }
 
         lifecycleEntity.setApplicationEntity(applicationByName);
         lifecycleEntity.setVersionEntity(versionByName);
-        lifecycleRepository.save(lifecycleEntity);
+        LifecycleEntity savedLifecycleEntity = lifecycleRepository.save(lifecycleEntity);
+        return savedLifecycleEntity;
+    }
+
+    @Override
+    public LifecycleEntity saveInstanceLogLifecycle(String instanceId, DateTime instanceBootTime,
+            String userdataPath, String region, String logData) {
+        Yaml yaml = new Yaml();
+        Map userdata = (Map) yaml.load(logData);
+
+        ApplicationEntity applicationEntity = new ApplicationEntity(userdata.get("application_id").toString());
+
+        VersionEntity versionEntity = new VersionEntity(userdata.get("application_version").toString());
+
+        LifecycleEntity lifecycleEntity = new LifecycleEntity();
+        lifecycleEntity.setInstanceBootTime(instanceBootTime);
+        lifecycleEntity.setInstanceId(instanceId);
+        lifecycleEntity.setRegion(region);
+        lifecycleEntity.setUserdataPath(userdataPath);
+
+        LifecycleEntity savedLifecycleEntity = saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
+
+        return savedLifecycleEntity;
     }
 }

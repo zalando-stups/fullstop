@@ -136,6 +136,23 @@ public class LifecycleRepositoryTest {
         assertThat(lce.getApplicationEntity().getId()).isEqualTo(savedApplication1.getId());
     }
 
+    @Test
+    public void testInstanceBootTime() throws Exception {
+        DateTime now = DateTime.now();
+
+        LifecycleEntity lifecycleEntity12 = new LifecycleEntity();
+        lifecycleEntity12.setInstanceBootTime(now);
+        lifecycleEntity12.setInstanceId("i-12345");
+        lifecycleEntity12.setApplicationEntity(application1);
+        lifecycleEntity12.setVersionEntity(version1);
+
+        LifecycleEntity saveLifecycleEntity = lifecycleRepository.save(lifecycleEntity12);
+
+        assertThat(saveLifecycleEntity.getInstanceBootTime()).isEqualTo(now);
+        assertThat(lifecycleRepository.findAll()).hasSize(3);
+
+    }
+
     @Configuration
     @EnableAutoConfiguration
     @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")

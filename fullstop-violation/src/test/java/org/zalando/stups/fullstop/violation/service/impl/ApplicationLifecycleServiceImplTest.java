@@ -135,11 +135,6 @@ public class ApplicationLifecycleServiceImplTest {
         assertThat(lifecycleRepository.findAll()).isNotEmpty().hasSize(2);
     }
 
-    @Test(expected = UnsupportedOperationException.class )
-    public void testIdAlreadyGiven() {
-        runInstance.setId(1l);
-        applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
-    }
 
     @Test(expected = RuntimeException.class )
     public void testSaveWithLifecyleNull() {
@@ -160,7 +155,45 @@ public class ApplicationLifecycleServiceImplTest {
         applicationLifecycleService.saveLifecycle(null, null, null);
     }
 
-        @Configuration
+    @Test
+    public void testSaveInstanceLogLifecycle() throws Exception {
+        String userdataPath = "URL/to/File";
+        DateTime instanceBootTime = DateTime.now();
+        String instanceId = "i-1234";
+        String region = "eu-west-1";
+        String userdata = "#taupage-ami-config\n"
+                                         + "application_id: Fullstop\n"
+                                         + "application_version: '0.22'\n"
+                                         + "environment:\n"
+                                         + "  xx: xx";
+        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                instanceId,
+                instanceBootTime,
+                userdataPath, region, userdata);
+        assertThat(lifecycleEntity.getId()).isNotNull();
+
+    }
+    @Test
+    public void testSaveInstanceLogLifecycle1() throws Exception {
+        String userdataPath = "URL/to/File";
+        DateTime instanceBootTime = DateTime.now();
+        String instanceId = "i-1234";
+        String region = "eu-west-1";
+        String userdata = "#taupage-ami-config\n"
+                + "application_id: Fullstop\n"
+                + "application_version: '0.5-Snaphot'\n"
+                + "environment:\n"
+                + "  xx: xx";
+        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                instanceId,
+                instanceBootTime,
+                userdataPath,region, userdata);
+
+        applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
+        assertThat(lifecycleRepository.findAll()).hasSize(1);
+
+    }
+    @Configuration
     @EnableAutoConfiguration
     @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
     @EntityScan("org.zalando.stups.fullstop.violation")
