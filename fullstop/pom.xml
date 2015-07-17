@@ -47,17 +47,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-processing</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-s3</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -136,12 +126,15 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+
         <!-- END PLUGINS -->
 
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -179,11 +172,17 @@
             <groupId>org.zalando.stups</groupId>
             <artifactId>pierone-client-java-spring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-spring</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-hystrix</artifactId>
         </dependency>
+
+
 
         <!-- TESTING -->
         <dependency>
@@ -211,18 +210,25 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>banner.txt</include>
+                    <include>config/*.yml</include>
                 </includes>
             </resource>
-            <!--to resolve values in application yaml for info endpoint-->
+            <resource>
+                <directory>src/main/docker</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>scm-source.json</include>
+                </includes>
+                <targetPath>${project.build.directory}/docker</targetPath>
+            </resource>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
                 <executions>
                     <execution>
                         <goals>

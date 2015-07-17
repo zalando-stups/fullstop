@@ -14,14 +14,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups.build</groupId>
         <artifactId>stups-parent</artifactId>
         <version>5</version>
-        <relativePath/>
+        <relativePath />
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
@@ -48,7 +47,7 @@
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine/>
+        <argLine />
 
         <maven-clean-plugin.version>2.6.1</maven-clean-plugin.version>
         <querydsl.version>3.6.3</querydsl.version>
@@ -64,6 +63,7 @@
 
         <archaius.version>0.7.1</archaius.version>
         <spring-cloud-starter-hystrix.version>1.0.3.RELEASE</spring-cloud-starter-hystrix.version>
+        <kontrolletti-client-java.version>0.1.0-RC-1</kontrolletti-client-java.version>
     </properties>
 
     <modules>
@@ -85,6 +85,9 @@
         <module>fullstop-violation-persister-jpa</module>
         <module>fullstop-it</module>
         <module>fullstop-it-autoshutdown</module>
+        <module>fullstop-aws-client-support</module>
+        <module>fullstop-aws-userdata-support</module>
+        <module>fullstop-aws-cloudtrail-support</module>
     </modules>
 
     <dependencyManagement>
@@ -183,6 +186,16 @@
                 <artifactId>pierone-client-java-spring</artifactId>
                 <version>${pierone-client.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>kontrolletti-client-java-api</artifactId>
+                <version>${kontrolletti-client-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>kontrolletti-client-java-spring</artifactId>
+                <version>${kontrolletti-client-java.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -194,6 +207,12 @@
                 <groupId>com.netflix.archaius</groupId>
                 <artifactId>archaius-core</artifactId>
                 <version>${archaius.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.10.19</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -310,6 +329,7 @@
                         <jacocoReport>
                             fullstop-plugins/fullstop-application-lifecycle-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
+                        <jacocoReport>fullstop-plugins/fullstop-scm-repository-plugin/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <!--plugins end-->
                         <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-s3/target/site/jacoco-it/jacoco.xml</jacocoReport>

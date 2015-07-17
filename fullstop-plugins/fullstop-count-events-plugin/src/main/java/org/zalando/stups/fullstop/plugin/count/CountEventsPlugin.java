@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
-import org.zalando.stups.fullstop.events.CloudtrailEventSupport;
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -62,7 +62,7 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
             type = event.getEventData().getEventName();
         }
 
-        String accountId = CloudtrailEventSupport.getAccountId(event);
+        String accountId = CloudTrailEventSupport.getAccountId(event);
         String counterKey = JOINER.join(source, type, accountId);
         countEventsMetric.markEvent(counterKey);
     }

@@ -15,23 +15,18 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.google.common.base.Preconditions;
-
-import java.util.function.Predicate;
-
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 final class EventNamePredicate extends CloudTrailEventPredicate {
 
     private static final String MESSAGE = "EventName should never be null or empty";
-
-    @Deprecated
-    public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
 
     private final String eventName;
 
@@ -42,6 +37,6 @@ final class EventNamePredicate extends CloudTrailEventPredicate {
 
     @Override
     public boolean doTest(final CloudTrailEvent input) {
-        return eventName.equals(Preconditions.checkNotNull(input.getEventData()).getEventName());
+        return eventName.equals(checkNotNull(input.getEventData(), EVENT_DATA_NOT_NULL).getEventName());
     }
 }

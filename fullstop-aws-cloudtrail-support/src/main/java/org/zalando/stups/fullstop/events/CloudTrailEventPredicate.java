@@ -15,16 +15,18 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
 import java.util.function.Predicate;
+
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 
 /**
  * Base for {@link Predicate} implementations.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEvent> {
+
+    protected static final String EVENT_DATA_NOT_NULL = "EventData should never be null";
 
     public static CloudTrailEventPredicate fromSource(final String eventSource) {
         return new EventSourcePredicate(eventSource);
@@ -52,7 +54,7 @@ public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEv
     /**
      * For type.
      *
-     * @author jbellmann
+     * @author  jbellmann
      */
     static class Internal extends CloudTrailEventPredicate {
 

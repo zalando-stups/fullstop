@@ -15,16 +15,16 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import java.util.Properties;
+
 import org.springframework.plugin.metadata.MetadataProvider;
 import org.springframework.plugin.metadata.PluginMetadata;
 import org.springframework.plugin.metadata.SimplePluginMetadata;
 
-import java.util.Properties;
-
 /**
- * Reads the version from classpath.
+ * Reads metadata of plugin from classpath.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public class DefaultMetadataProvider implements MetadataProvider {
 
@@ -58,8 +58,7 @@ public class DefaultMetadataProvider implements MetadataProvider {
             }
 
             return UNDEFINED;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return UNDEFINED;
         }
     }

@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.collect.Maps;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +33,9 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-
+//J-
 public class RegistryPluginUserdataTest {
 
     private KioOperations kioOperations;
@@ -86,14 +88,14 @@ public class RegistryPluginUserdataTest {
     public void shouldComplainWithMissingUserData() {
         when(
                 userDataProvider.getUserData(
-                        any(),
+                        any(),any(String.class),
                         any())).thenReturn(null);
         registryPlugin.getAndValidateUserData(
                 event,
                 "foo");
 
         verify(userDataProvider).getUserData(
-                any(),
+                any(),any(String.class),
                 any());
         verify(violationSink).put(any(Violation.class));
     }
@@ -103,7 +105,7 @@ public class RegistryPluginUserdataTest {
         Map<String, String> userData = Maps.newHashMap();
         when(
                 userDataProvider.getUserData(
-                        any(),
+                        any(),any(String.class),
                         any())).thenReturn(userData);
 
         registryPlugin.getAndValidateUserData(
@@ -111,7 +113,7 @@ public class RegistryPluginUserdataTest {
                 "foo");
 
         verify(userDataProvider).getUserData(
-                any(),
+                any(),any(String.class),
                 any());
 
         verify(violationSink).put(any(Violation.class));
@@ -125,7 +127,7 @@ public class RegistryPluginUserdataTest {
                 "bar");
         when(
                 userDataProvider.getUserData(
-                        any(),
+                        any(),any(String.class),
                         any())).thenReturn(userData);
 
         registryPlugin.getAndValidateUserData(
@@ -133,7 +135,7 @@ public class RegistryPluginUserdataTest {
                 "foo");
 
         verify(userDataProvider).getUserData(
-                any(),
+                any(),any(String.class),
                 any());
 
         verify(
@@ -236,4 +238,5 @@ public class RegistryPluginUserdataTest {
                 violationSink,
                 never()).put(any(Violation.class));
     }
+//J+
 }

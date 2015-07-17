@@ -15,6 +15,15 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmis;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -32,18 +41,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAmis;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 /**
  * @author mrandi
@@ -120,8 +121,8 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
             violationSink.put(new ViolationBuilder(format("Instances with ids: %s was started with wrong images: %s",
-                    getInstanceIds(event), invalidAmis)).withEventId(getCloudTrailEventId(event))
-                    .withRegion(getCloudTrailEventRegion(event)).withAccountId(getCloudTrailEventAccountId(event))
+                    getInstanceIds(event), invalidAmis)).withEventId(CloudTrailEventSupport.getEventId(event))
+                    .withRegion(CloudTrailEventSupport.getRegionAsString(event)).withAccountId(CloudTrailEventSupport.getAccountId(event))
                     .build());
         }
     }

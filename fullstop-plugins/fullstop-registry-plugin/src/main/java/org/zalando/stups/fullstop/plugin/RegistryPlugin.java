@@ -15,11 +15,20 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +39,12 @@ import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.clients.kio.*;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getInstanceIds;
 
 /**
  * @author mrandi
@@ -167,9 +168,11 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected Map getAndValidateUserData(CloudTrailEvent event, String instanceId) {
         Map userData;
+        final String accountId = event.getEventData().getUserIdentity().getAccountId();
+        final String region = event.getEventData().getAwsRegion();
         try {
             userData = userDataProvider.getUserData(
-                    event,
+                    accountId, region,
                     instanceId);
         }
         catch (AmazonServiceException ex) {
@@ -179,9 +182,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "InstanceId: %s doesn't have any userData.",
                                     instanceId))
-                            .withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
                             .build());
             return null;
         }
@@ -192,9 +195,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "InstanceId: %s doesn't have any userData.",
                                     instanceId))
-                            .withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
                             .build());
             return null;
         }
@@ -205,9 +208,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "InstanceId: %s has empty userData.",
                                     instanceId))
-                            .withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
                             .build());
             return null;
         }
@@ -240,9 +243,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                           applicationId,
                                                           approverCount,
                                                           minApprovals))
-                                                                        .withAccountId(getCloudTrailEventAccountId(event))
-                                                                        .withRegion(getCloudTrailEventRegion(event))
-                                                                        .withEventId(getCloudTrailEventId(event))
+                                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
+                                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                                        .withEventId(CloudTrailEventSupport.getEventId(event))
                                                                         .build());
         }
 
@@ -270,9 +273,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                     version.getId(),
                                     diff.toString(),
                                     version.getApplicationId()))
-                            .withAccountId(getCloudTrailEventAccountId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withEventId(getCloudTrailEventId(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
                             .build());
         }
     }
@@ -293,9 +296,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                     "Image for team: %s and application: %s with version: %s not found in pierone.",
                                     teamId,
                                     applicationId,
-                                    applicationVersion)).withEventId(getCloudTrailEventId(event))
-                                                        .withRegion(getCloudTrailEventRegion(event))
-                                                        .withAccountId(getCloudTrailEventAccountId(event))
+                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                         .build());
             return;
         }
@@ -306,9 +309,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                     "Image for team: %s and application: %s with version: %s does not contain scm-source.json.",
                                     teamId,
                                     applicationId,
-                                    applicationVersion)).withEventId(getCloudTrailEventId(event))
-                                                        .withRegion(getCloudTrailEventRegion(event))
-                                                        .withAccountId(getCloudTrailEventAccountId(event))
+                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                         .build());
         }
     }
@@ -322,9 +325,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "Application: %s has not a valid artifact for version: %s.",
                                     applicationId,
-                                    applicationVersion)).withEventId(getCloudTrailEventId(event))
-                                                        .withRegion(getCloudTrailEventRegion(event))
-                                                        .withAccountId(getCloudTrailEventAccountId(event))
+                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                         .build());
         }
 
@@ -348,9 +351,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "Source: %s is not present in pierone.",
                                     source))
-                            .withEventId(getCloudTrailEventId(event))
-                            .withRegion(getCloudTrailEventRegion(event))
-                            .withAccountId(getCloudTrailEventAccountId(event))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
                             .build());
         }
         else {
@@ -361,9 +364,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                 format(
                                         "Source: %s is not present in pierone.",
                                         source))
-                                .withEventId(getCloudTrailEventId(event))
-                                .withRegion(getCloudTrailEventRegion(event))
-                                .withAccountId(getCloudTrailEventAccountId(event))
+                                .withEventId(CloudTrailEventSupport.getEventId(event))
+                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                 .build());
             }
         }
@@ -378,9 +381,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         catch (NotFoundException e) {
             violationSink.put(new ViolationBuilder(format("Application: %s is not present in kio.",
                                                           applicationId))
-                                                                         .withEventId(getCloudTrailEventId(event))
-                                                                         .withRegion(getCloudTrailEventRegion(event))
-                                                                         .withAccountId(getCloudTrailEventAccountId(event))
+                                                                         .withEventId(CloudTrailEventSupport.getEventId(event))
+                                                                         .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                                         .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                                          .build());
             return null;
         }
@@ -405,9 +408,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         catch (NotFoundException e) {
             violationSink.put(new ViolationBuilder(format("Application: %s is not present with version %s in kio.",
                                                           applicationId,
-                                                          applicationVersion)).withEventId(getCloudTrailEventId(event))
-                                                                              .withRegion(getCloudTrailEventRegion(event))
-                                                                              .withAccountId(getCloudTrailEventAccountId(event))
+                                                          applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                                              .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                                              .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                                               .build());
             return null;
         }
@@ -432,9 +435,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "No 'application_id' defined for this instance %s, "
                                             + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(getCloudTrailEventId(event))
-                                                .withRegion(getCloudTrailEventRegion(event))
-                                                .withAccountId(getCloudTrailEventAccountId(event))
+                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                 .build());
             return null;
         }
@@ -452,9 +455,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "No 'application_version' defined for this instance %s, "
                                             + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(getCloudTrailEventId(event))
-                                                .withRegion(getCloudTrailEventRegion(event))
-                                                .withAccountId(getCloudTrailEventAccountId(event))
+                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                 .build());
             return null;
         }
@@ -472,9 +475,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                             format(
                                     "No 'source' defined for this instance %s, "
                                             + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(getCloudTrailEventId(event))
-                                                .withRegion(getCloudTrailEventRegion(event))
-                                                .withAccountId(getCloudTrailEventAccountId(event))
+                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
                                                 .build());
             return null;
         }

@@ -15,18 +15,24 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+
+import static org.mockito.Matchers.any;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.util.Lists;
-
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.mockito.Mockito;
+
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
@@ -38,10 +44,14 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import com.amazonaws.AmazonServiceException;
+
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class ApplicationMasterdataPluginTest {
+    //J-
     private static final String URL = "https://github.com/zalando-stups/fullstop";
 
     private static final String APP = "test";
@@ -73,7 +83,7 @@ public class ApplicationMasterdataPluginTest {
             userData.put("application_id",
                          APP);
         }
-        when(userDataProvider.getUserData(any(),
+        when(userDataProvider.getUserData(any(),any(String.class),
                                           any())).thenReturn(userData);
     }
 
@@ -98,7 +108,7 @@ public class ApplicationMasterdataPluginTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(kioOperations,
+        Mockito.verifyNoMoreInteractions(kioOperations,
                                  userDataProvider,
                                  violationSink);
     }
@@ -110,10 +120,10 @@ public class ApplicationMasterdataPluginTest {
 
     @Test
     public void shouldComplainOnException() {
-        when(userDataProvider.getUserData(any(),
+        when(userDataProvider.getUserData(any(),any(String.class),
                                           any())).thenThrow(new AmazonServiceException("foo"));
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(violationSink).put(any(Violation.class));
     }
@@ -122,17 +132,17 @@ public class ApplicationMasterdataPluginTest {
     public void shouldComplainOnEmptyUserdata() {
         mockUserData(true);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainOnNullUserdata() {
-        when(userDataProvider.getUserData(any(),
+        when(userDataProvider.getUserData(any(),any(String.class),
                                           any())).thenReturn(null);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(violationSink).put(any(Violation.class));
     }
@@ -142,7 +152,7 @@ public class ApplicationMasterdataPluginTest {
         mockUserData(false);
         when(kioOperations.getApplicationById(APP)).thenThrow(new NotFoundException());
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -156,7 +166,7 @@ public class ApplicationMasterdataPluginTest {
         app.setSpecificationUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -170,7 +180,7 @@ public class ApplicationMasterdataPluginTest {
         app.setSpecificationUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -184,7 +194,7 @@ public class ApplicationMasterdataPluginTest {
         app.setScmUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -199,7 +209,7 @@ public class ApplicationMasterdataPluginTest {
         app.setScmUrl("http://localhost");
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -214,7 +224,7 @@ public class ApplicationMasterdataPluginTest {
         app.setScmUrl("foo");
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink).put(any(Violation.class));
@@ -229,10 +239,11 @@ public class ApplicationMasterdataPluginTest {
         app.setScmUrl(URL);
         when(kioOperations.getApplicationById(APP)).thenReturn(app);
         plugin.processEvent(event);
-        verify(userDataProvider).getUserData(any(),
+        verify(userDataProvider).getUserData(any(),any(String.class),
                                              any());
         verify(kioOperations).getApplicationById(APP);
         verify(violationSink,
                never()).put(any(Violation.class));
     }
+    //J+
 }
