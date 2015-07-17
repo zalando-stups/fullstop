@@ -15,30 +15,23 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.List;
-import java.util.function.Predicate;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -253,7 +246,7 @@ public abstract class CloudTrailEventSupport {
 
     public static List<String> getInstances(CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
-        Gson gson = new Gson();
+        ObjectMapper mapper = new ObjectMapper();
         List<String> instances = newArrayList();
         String responseElements = eventData.getResponseElements();
         if (isNullOrEmpty(responseElements)) {
@@ -262,7 +255,12 @@ public abstract class CloudTrailEventSupport {
 
         JSONArray items = JsonPath.read(responseElements, INSTANCE_JSON_PATH);
         for (Object item : items) {
-            instances.add(gson.toJson(item, LinkedHashMap.class));
+            try {
+                instances.add(mapper.writeValueAsString(item));
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
 
         return instances;

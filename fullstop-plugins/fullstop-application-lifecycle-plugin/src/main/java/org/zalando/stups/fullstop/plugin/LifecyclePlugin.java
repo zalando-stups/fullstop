@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.joda.time.DateTime;
@@ -32,7 +33,7 @@ import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleSer
 import java.util.List;
 import java.util.Map;
 
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * Created by gkneitschel.
@@ -111,14 +112,14 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private String getApplicationName(CloudTrailEvent event, String instance) {
         String instanceId = getSingleInstance(instance);
-         Map userData = userDataProvider.getUserData(event, instanceId);
+        Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_id").toString();
     }
 
     private String getVersionName(CloudTrailEvent event, String instance) {
         String instanceId = getSingleInstance(instance);
 
-        Map userData = userDataProvider.getUserData(event, instanceId);
+        Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_version").toString();
 
     }

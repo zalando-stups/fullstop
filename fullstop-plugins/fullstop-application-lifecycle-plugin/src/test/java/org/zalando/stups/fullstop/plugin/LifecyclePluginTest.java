@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -95,7 +96,7 @@ public class LifecyclePluginTest {
         value.put("application_id", "test");
         value.put("application_version", "test");
 
-        when(userDataProviderMock.getUserData(any(CloudTrailEvent.class), any(String.class))).thenReturn(value);
+        when(userDataProviderMock.getUserData(any(String.class), any(Region.class), any(String.class))).thenReturn(value);
         when(applicationLifecycleServiceMock.saveLifecycle(
                 any(ApplicationEntity.class),
                 any(VersionEntity.class),
@@ -103,7 +104,7 @@ public class LifecyclePluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
-        verify(userDataProviderMock, atLeast(2)).getUserData(any(), any());
+        verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
     }
 
