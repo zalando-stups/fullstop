@@ -1,6 +1,6 @@
 {
     "url": "${git.remote.origin.url}",
-    "revision": "${git.commit.id.full}",
+    "revision": "${git.commit.id}",
     "author": "${git.commit.user.name}",
     "status": "",
     "dirty": "${git.dirty}",

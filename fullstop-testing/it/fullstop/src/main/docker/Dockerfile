@@ -2,8 +2,8 @@ FROM zalando/openjdk:8u45-b14-5
 
 MAINTAINER Zalando SE
 
-COPY target/${project.artifactId}-${project.version}.jar /fullstop.jar
-COPY target/docker/scm-source.json /
+COPY ${project.build.finalName}.jar /fullstop.jar
+COPY scm-source.json /
 
 EXPOSE 8080
 
