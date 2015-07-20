@@ -15,9 +15,10 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "")
 public class Violation {
@@ -51,7 +52,7 @@ public class Violation {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -60,117 +61,117 @@ public class Violation {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getEventId() {
         return eventId;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(final String eventId) {
         this.eventId = eventId;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getRegion() {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public Object getViolationObject() {
         return violationObject;
     }
 
-    public void setViolationObject(Object violationObject) {
+    public void setViolationObject(final Object violationObject) {
         this.violationObject = violationObject;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getComment() {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(final DateTime created) {
         this.created = created;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(final DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(String lastModifiedBy) {
+    public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 

@@ -15,11 +15,12 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+
 import org.zalando.stups.fullstop.s3.LogType;
 
-import java.util.Date;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "")
 public class LogObj {
@@ -37,68 +38,68 @@ public class LogObj {
     private String logData = null;
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public LogType getLogType() {
         return logType;
     }
 
-    public void setLogType(LogType logType) {
+    public void setLogType(final LogType logType) {
         this.logType = logType;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getInstanceId() {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getRegion() {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public Date getInstanceBootTime() {
         return instanceBootTime;
     }
 
-    public void setInstanceBootTime(Date instanceBootTime) {
+    public void setInstanceBootTime(final Date instanceBootTime) {
         this.instanceBootTime = instanceBootTime;
     }
 
     /**
-     **/
+     */
     @ApiModelProperty(value = "")
     public String getLogData() {
         return logData;
     }
 
-    public void setLogData(String logData) {
+    public void setLogData(final String logData) {
         this.logData = logData;
     }
 
