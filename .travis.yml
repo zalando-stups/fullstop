@@ -12,7 +12,7 @@ before_script:
 #  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
 
 script:
-    - mvn clean install -Pfullstop-startup,pg-travis
+    - mvn clean install -Pfullstop-startup,pg-travis -U
 
 after_success:
     - mvn coveralls:report -Ptravis

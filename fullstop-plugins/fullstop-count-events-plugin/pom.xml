@@ -4,29 +4,20 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-plugins</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-count-events-plugin</artifactId>
-
-    <properties>
-        <main.basedir>${basedir}/../..</main.basedir>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-plugin-api</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-plugin-api.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-processing</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -40,7 +31,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-test-support</artifactId>
-            <version>${project.version}</version>
+            <version>${fullstop-testing.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

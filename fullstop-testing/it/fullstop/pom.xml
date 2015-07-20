@@ -1,0 +1,337 @@
+<!--~
+  ~ Copyright 2015 Zalando SE
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>fullstop-testing-it</artifactId>
+        <version>0.9.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fullstop</artifactId>
+    <name>Fullstop</name>
+    <description>Audit reporting application</description>
+    <url>http://stups.io/fullstop/</url>
+
+    <organization>
+        <name>Zalando SE</name>
+        <url>http://stups.io/</url>
+    </organization>
+
+    <properties>
+        <main.basedir>${basedir}/..</main.basedir>
+
+        <fullstop-plugin-api.version>0.9.0</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
+
+        <fullstop-processing.version>0.9.0</fullstop-processing.version>
+
+        <fullstop-core.version>0.9.0</fullstop-core.version>
+        <fullstop-timemachine.version>0.9.0-SNAPSHOT</fullstop-timemachine.version>
+        <fullstop-violation.version>0.9.0-SNAPSHOT</fullstop-violation.version>
+
+        <fullstop-plugin.version>0.9.0-SNAPSHOT</fullstop-plugin.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-timemachine</artifactId>
+            <version>${fullstop-timemachine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-processing</artifactId>
+            <version>${fullstop-processing.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation-sink-reactor</artifactId>
+            <version>${fullstop-core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation-persister-jpa</artifactId>
+            <version>${fullstop-violation.version}</version>
+        </dependency>
+
+
+        <!-- START PLUGINS -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-ami-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-masterdata-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-count-events-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-instance-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-keypair-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-region-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-registry-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-save-securitygroups-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-snapshot-source-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-subnet-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-lifecycle-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+
+        <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+
+        <!-- END PLUGINS -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>stups-spring-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>stups-spring-oauth2-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>spring-boot-zalando-stups-tokens</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>kio-client-java-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>pierone-client-java-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
+
+
+
+        <!-- TESTING -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>fullstop</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>banner.txt</include>
+                    <include>config/*.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/docker</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>scm-source.json</include>
+                </includes>
+                <targetPath>${project.build.directory}/docker</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <!-- an jar build here could contain sensible data -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <!--add git information to spring info endpoint-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.1.15</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                    <generateGitPropertiesFile>false</generateGitPropertiesFile>
+                    <!-- <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename> -->
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/docker.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-deployment</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot.version}</version>
+                        <configuration>
+                            <jvmArguments>-Dspring.profiles.active=local</jvmArguments>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

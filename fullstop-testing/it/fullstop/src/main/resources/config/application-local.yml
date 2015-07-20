@@ -1,0 +1,115 @@
+spring:
+    # JACKSON (JacksonProperties)
+    jackson:
+        property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+        date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+        serialization:
+              write-dates-as-timestamps: false
+        deserialization:
+            fail-on-unknown-properties: false
+    oauth2:
+        resource:
+            tokenInfoUri: ${TOKEN_INFO_URI}
+    datasource:
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USER}
+        password: ${DATABASE_PASSWORD}
+        driver-class-name: ${DATABASE_DRIVER}
+#    jpa:
+#        hibernate:
+#            ddl-auto: create-drop
+#        show-sql: true
+# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
+
+fullstop:
+
+    logging:
+        dir: ${java.io.tmpdir}/fullstop_logs
+
+    container:
+        autoStart: false
+
+    processor:
+        properties:
+            # The sqs url where you wish to pull CloudTrail notification from (required)
+            sqsUrl: ${FULLSTOP_SQS_URL}
+
+            # The SQS end point specific to a region
+            sqsRegion: ${FULLSTOP_SQS_REGION}
+
+            # A period of time during which Amazon SQS prevents other consuming components
+            # from receiving and processing that message
+            visibilityTimeout: 60
+
+            # The S3 end point specific to a region
+            s3Region: ${FULLSTOP_S3_REGION}
+
+            # Number of threads to download S3 files in parallel when you enable thread mode
+            threadCount: 1
+
+            # The duration in seconds to wait for thread pool termination before issue shutDownNow
+            threadTerminationDelaySeconds: 60
+
+            # Max number of AWSCloudTrailEvent that buffered before emit. EagleEye may emit 0 events
+            maxEventsPerEmit: 10
+
+            # Whether to include raw event in CloudTrailEventMetadata
+            enableRawEventInfo: false
+    instanceData:
+      # Bucket, where USER_DATA and AUDIT_LOG will be stored
+      bucketName: ${INSTANCE_LOGS_S3_BUCKET}
+
+    plugins:
+        properties:
+            # The bucket, where our enriched data will be stored
+            s3bucket: ${FULLSTOP_S3_BUCKET}
+
+        region:
+            # The whitelist of regions
+            whitelistedRegions:
+              - 'eu-west-1'
+              - 'eu-central-1'
+
+        ami:
+            # Account containing whitelisted AMI
+            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
+            amiNameStartWith: ${FULLSTOP_AMI_NAME_START_WITH}
+
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            url: ${FULLSTOP_PIERONE_URL}
+
+    clients:
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            url: ${FULLSTOP_PIERONE_URL}
+
+#
+# OAuth2
+#
+tokens:
+    accessTokenUri: ${ACCESS_TOKEN_URI}
+    credentialsDirectory: ${CREDENTIALS_DIR}
+
+    token-configuration-list:
+        - tokenId: kio
+          scopes:
+              - uid
+        - tokenId: pierone
+          scopes:
+              - uid
+
+
+javax:
+    persistence:
+        validation:
+            # force validation - fail fast if something goes wrong
+            mode: CALLBACK
+            group:
+                pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
