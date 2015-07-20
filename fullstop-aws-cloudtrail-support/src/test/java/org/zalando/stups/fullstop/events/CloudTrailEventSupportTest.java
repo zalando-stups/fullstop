@@ -19,8 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.when;
 
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmis;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstances;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 import java.util.List;
@@ -64,6 +66,13 @@ public class CloudTrailEventSupportTest {
         Assertions.assertThat(instanceIds).isNotEmpty();
     }
 
+    @Test
+    public void getInstancesTest(){
+        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/responseElements.json");
+        List<String> instances = getInstances(cloudTrailEvent);
+        Assertions.assertThat(instances).isNotEmpty();
+    }
+
     @Test(expected = NullPointerException.class)
     public void getInstanceIdsNullEvent() {
         List<String> instanceIds = getInstanceIds(null);
@@ -91,25 +100,25 @@ public class CloudTrailEventSupportTest {
     @Test
     public void EventSourcePredicateTrue() {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec2.amazonaws.com");
-        assertThat(CloudTrailEventSupport.EC2_EVENT.test(cloudTrailEvent)).isTrue();
+        assertThat(EC2_EVENT.test(cloudTrailEvent)).isTrue();
     }
 
     @Test
     public void EventSourcePredicateFalse() {
         when(cloudTrailEventData.getEventSource()).thenReturn("ec3.amazonaws.com");
-        assertThat(CloudTrailEventSupport.EC2_EVENT.test(cloudTrailEvent)).isFalse();
+        assertThat(EC2_EVENT.test(cloudTrailEvent)).isFalse();
     }
 
     @Test
     public void EventNamePredicateFalse() {
         when(cloudTrailEventData.getEventName()).thenReturn("RunNothing");
-        assertThat(CloudTrailEventSupport.RUN_INSTANCES.test(cloudTrailEvent)).isFalse();
+        assertThat(RUN_INSTANCES.test(cloudTrailEvent)).isFalse();
     }
 
     @Test
     public void EventNamePredicateTrue() {
         when(cloudTrailEventData.getEventName()).thenReturn("RunInstances");
-        assertThat(CloudTrailEventSupport.RUN_INSTANCES.test(cloudTrailEvent)).isTrue();
+        assertThat(RUN_INSTANCES.test(cloudTrailEvent)).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)

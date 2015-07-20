@@ -15,14 +15,13 @@
  */
 package org.zalando.stups.fullstop.violation.domain;
 
-import com.google.common.base.Objects;
-
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import static com.google.common.base.Objects.ToStringHelper;
+import static com.google.common.base.MoreObjects.ToStringHelper;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author ahartmann
@@ -44,7 +43,8 @@ public abstract class AbstractEntity {
 
     @Override
     public String toString() {
-        final ToStringHelper helper = Objects.toStringHelper(this);
+
+        final ToStringHelper helper = toStringHelper(this);
         helper.add("id", id);
 
         addToStringFields(helper);
