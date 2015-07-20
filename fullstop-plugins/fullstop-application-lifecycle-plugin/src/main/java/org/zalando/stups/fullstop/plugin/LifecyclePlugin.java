@@ -15,25 +15,36 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventTime;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRunInstanceTime;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getSingleInstance;
+
+import java.util.List;
+import java.util.Map;
+
 import org.joda.time.DateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+
+import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 
-import java.util.List;
-import java.util.Map;
+import com.amazonaws.AmazonServiceException;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
 /**
  * Created by gkneitschel.
@@ -59,28 +70,25 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Autowired
     public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
-            UserDataProvider userDataProvider) {
+            final UserDataProvider userDataProvider) {
         this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
     }
 
     @Override
-    public boolean supports(CloudTrailEvent event) {
+    public boolean supports(final CloudTrailEvent event) {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
         String eventName = cloudTrailEventData.getEventName();
 
-        return eventSource.equals(EC2_SOURCE_EVENTS) &&
-                (eventName.equals(RUN_EVENT_NAME) ||
-                        eventName.equals(START_EVENT_NAME) ||
-                        eventName.equals(STOP_EVENT_NAME) ||
-                        eventName.equals(TERMINATE_EVENT_NAME)
-                );
+        return eventSource.equals(EC2_SOURCE_EVENTS)
+                && (eventName.equals(RUN_EVENT_NAME) || eventName.equals(START_EVENT_NAME)
+                    || eventName.equals(STOP_EVENT_NAME) || eventName.equals(TERMINATE_EVENT_NAME));
     }
 
     @Override
-    public void processEvent(CloudTrailEvent event) {
-        List<String> instances = getInstances(event);
+    public void processEvent(final CloudTrailEvent event) {
+        List<String> instances = CloudTrailEventSupport.getInstances(event);
         String region = getRegionAsString(event);
         for (String instance : instances) {
             DateTime eventDate = getLifecycleDate(event, instance);
@@ -89,18 +97,18 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
             lifecycleEntity.setRegion(region);
-            lifecycleEntity.setInstanceId(getSingleInstance(instance));
+            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getSingleInstance(instance));
+
             ApplicationEntity applicationEntity;
             VersionEntity versionEntity;
             try {
 
                 String versionName = getVersionName(event, instance);
-                 versionEntity = new VersionEntity(versionName);
+                versionEntity = new VersionEntity(versionName);
 
                 String applicationName = getApplicationName(event, instance);
-                 applicationEntity = new ApplicationEntity(applicationName);
-            }
-            catch (AmazonServiceException e) {
+                applicationEntity = new ApplicationEntity(applicationName);
+            } catch (AmazonServiceException e) {
                 LOG.warn("Could not get version/application for lifecycle event.", e);
                 return;
             }
@@ -110,13 +118,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     }
 
-    private String getApplicationName(CloudTrailEvent event, String instance) {
+    private String getApplicationName(final CloudTrailEvent event, final String instance) {
         String instanceId = getSingleInstance(instance);
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_id").toString();
     }
 
-    private String getVersionName(CloudTrailEvent event, String instance) {
+    private String getVersionName(final CloudTrailEvent event, final String instance) {
         String instanceId = getSingleInstance(instance);
 
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
@@ -124,14 +132,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     }
 
-    private DateTime getLifecycleDate(CloudTrailEvent event, String instance) {
+    private DateTime getLifecycleDate(final CloudTrailEvent event, final String instance) {
 
         String eventName = event.getEventData().getEventName();
 
         if (eventName.equals(RUN_EVENT_NAME)) {
             return getRunInstanceTime(instance);
-        }
-        else {
+        } else {
             return getEventTime(event);
         }
     }
