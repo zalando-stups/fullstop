@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-client-support</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -50,6 +55,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-s3</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-iam</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
 
         <dependency>

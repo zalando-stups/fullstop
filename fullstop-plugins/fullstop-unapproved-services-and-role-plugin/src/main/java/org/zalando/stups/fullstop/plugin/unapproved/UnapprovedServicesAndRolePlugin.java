@@ -15,28 +15,37 @@
  */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
+import static java.lang.String.format;
+
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
+
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
+
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.io.IOException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudtrailEventSupport.getRegion;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.jayway.jsonpath.JsonPath;
 
 /**
- * @author mrandi
+ * @author  mrandi
  */
 @Component
 public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
@@ -58,7 +67,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     @Autowired
     public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
             final PolicyTemplatesProvider policyTemplatesProvider,
-            UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
+            final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
         this.policyProvider = policyProvider;
         this.violationSink = violationSink;
         this.policyTemplatesProvider = policyTemplatesProvider;
@@ -70,8 +79,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         CloudTrailEventData cloudTrailEventData = event.getEventData();
         String eventSource = cloudTrailEventData.getEventSource();
 
-        return eventSource.equals(EVENT_SOURCE) && (unapprovedServicesAndRoleProperties.getEventNames().contains(
-                cloudTrailEventData.getEventName()))
+        return eventSource.equals(EVENT_SOURCE)
+                && (unapprovedServicesAndRoleProperties.getEventNames().contains(cloudTrailEventData.getEventName()))
                 && (policyTemplatesProvider.getPolicyTemplateNames().contains(getRoleName(event)));
     }
 
@@ -90,26 +99,19 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         try {
             policyJson = objectMapper.readTree(policy);
             templatePolicyJson = objectMapper.readTree(policyTemplate);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
             return;
         }
 
         if (!policyJson.equals(templatePolicyJson)) {
-            violationSink.put(
-                    new ViolationBuilder(
-                            format("Role: %s must not be modified", roleName)).withEventId(getCloudTrailEventId(event))
-                                                                            .withRegion(getCloudTrailEventRegion(event))
-                                                                            .withAccountId(
-                                                                                    getCloudTrailEventAccountId(
-                                                                                            event))
-                                                                            .build());
+            violationSink.put(new ViolationBuilder(format("Role: %s must not be modified", roleName)).withEventId(
+                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
 
         }
     }
 
-    private String getRoleName(CloudTrailEvent event) {
+    private String getRoleName(final CloudTrailEvent event) {
         return JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
     }
 

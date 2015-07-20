@@ -15,6 +15,14 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.List;
+import java.util.function.Predicate;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -23,18 +31,12 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserId
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
-
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 /**
  * @author jbellmann
  */
-public abstract class CloudtrailEventSupport {
+public abstract class CloudTrailEventSupport {
 
     public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
 
@@ -64,6 +66,10 @@ public abstract class CloudtrailEventSupport {
             "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
+
+    public static Predicate<CloudTrailEvent> EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
+
+    public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
 
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -170,11 +176,11 @@ public abstract class CloudtrailEventSupport {
     }
 
     public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EventSourcePredicate.EC2_EVENT.test(cloudTrailEvent);
+        return EC2_EVENT.test(cloudTrailEvent);
     }
 
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return EventNamePredicate.RUN_INSTANCES.test(cloudTrailEvent);
+        return RUN_INSTANCES.test(cloudTrailEvent);
     }
 
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
@@ -207,8 +213,8 @@ public abstract class CloudtrailEventSupport {
     }
 
     /**
-     +     * Extract the 'roleName'.
-     +     */
+     * + * Extract the 'roleName'. +
+     */
     public static List<String> readRoleName(final String parameters) {
 
         if (parameters == null) {
@@ -216,5 +222,12 @@ public abstract class CloudtrailEventSupport {
         }
 
         return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
+    }
+
+    public static ViolationBuilder violationFor(CloudTrailEvent cloudTrailEvent) {
+        return new ViolationBuilder()
+                .withEventId(getEventId(cloudTrailEvent))
+                .withAccountId(getAccountId(cloudTrailEvent))
+                .withRegion(getRegionAsString(cloudTrailEvent));
     }
 }

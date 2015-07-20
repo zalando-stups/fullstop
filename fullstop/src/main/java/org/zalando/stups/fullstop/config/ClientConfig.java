@@ -22,12 +22,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
+import org.zalando.kontrolletti.KontrollettiOperations;
+import org.zalando.kontrolletti.KontrollettiResponseErrorHandler;
+import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixKioOperations;
+import org.zalando.stups.fullstop.hystrix.HystrixKontrollettiOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
@@ -54,6 +59,9 @@ public class ClientConfig {
     @Value("${fullstop.clients.teamService.url}")
     private String teamServiceBaseUrl;
 
+    @Value("${fullstop.clients.kontrolletti.url}")
+    private String kontrollettiBaseUrl;
+
     @Bean
     public KioOperations kioOperations() {
         return new HystrixKioOperations(new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl));
@@ -75,7 +83,19 @@ public class ClientConfig {
                         teamServiceBaseUrl));
     }
 
+    @Bean
+    public KontrollettiOperations kontrollettiOperations() {
+        return new HystrixKontrollettiOperations(
+                new RestTemplateKontrollettiOperations(
+                        buildOAuth2RestTemplate("kontrolletti", new KontrollettiResponseErrorHandler()),
+                        kontrollettiBaseUrl));
+    }
+
     private RestOperations buildOAuth2RestTemplate(final String tokenName) {
+        return buildOAuth2RestTemplate(tokenName, null);
+    }
+
+    private RestOperations buildOAuth2RestTemplate(final String tokenName, final ResponseErrorHandler errorHandler) {
         final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
         resource.setClientId("fullstop");
 
@@ -84,6 +104,10 @@ public class ClientConfig {
                 new StupsAccessTokenProvider(
                         new AutoRefreshTokenProvider(tokenName, accessTokens)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        if (errorHandler != null) {
+            restTemplate.setErrorHandler(errorHandler);
+        }
+
         return restTemplate;
     }
 
