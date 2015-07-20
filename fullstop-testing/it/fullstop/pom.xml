@@ -126,6 +126,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-application-lifecycle-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
             <version>${fullstop-plugin.version}</version>
         </dependency>

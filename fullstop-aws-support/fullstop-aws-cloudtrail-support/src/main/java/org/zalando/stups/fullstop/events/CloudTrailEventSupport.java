@@ -15,23 +15,28 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.List;
-import java.util.function.Predicate;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
+import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
+
+import java.util.Date;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @author jbellmann
@@ -42,6 +47,12 @@ public abstract class CloudTrailEventSupport {
 
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
+    public static final String INSTANCE_JSON_PATH = "$.instancesSet.items[*]";
+
+    public static final String RUN_INSTANCE_DATE_JSON_PATH = "$.launchTime";
+
+    public static final String SINGLE_INSTANCE_ID_JSON_PATH = "$.instanceId";
+
     public static final String PRIVATE_IP_JSON_PATH = "$.instancesSet.items[*].privateIpAddress";
 
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
@@ -50,6 +61,8 @@ public abstract class CloudTrailEventSupport {
             "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
+
+    public static final String EVENT_TIME = "$.eventTime";
 
     public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
 
@@ -229,5 +242,47 @@ public abstract class CloudTrailEventSupport {
                 .withEventId(getEventId(cloudTrailEvent))
                 .withAccountId(getAccountId(cloudTrailEvent))
                 .withRegion(getRegionAsString(cloudTrailEvent));
+    }
+
+    public static List<String> getInstances(CloudTrailEvent event) {
+        CloudTrailEventData eventData = getEventData(event);
+        ObjectMapper mapper = new ObjectMapper();
+        List<String> instances = newArrayList();
+        String responseElements = eventData.getResponseElements();
+        if (isNullOrEmpty(responseElements)) {
+            return newArrayList();
+        }
+
+        JSONArray items = JsonPath.read(responseElements, INSTANCE_JSON_PATH);
+        for (Object item : items) {
+            try {
+                instances.add(mapper.writeValueAsString(item));
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return instances;
+    }
+
+    public static String getSingleInstance(String instance) {
+
+        return JsonPath.read(instance, SINGLE_INSTANCE_ID_JSON_PATH);
+
+    }
+
+    public static DateTime getRunInstanceTime(String instance) {
+
+        return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
+    }
+
+    public static DateTime getEventTime(CloudTrailEvent event) {
+
+        event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
+
+        Date eventTime = event.getEventData().getEventTime();
+
+        return new DateTime(eventTime);
     }
 }

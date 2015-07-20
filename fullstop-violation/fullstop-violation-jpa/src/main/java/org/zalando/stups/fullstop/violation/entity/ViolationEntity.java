@@ -40,6 +40,9 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String comment;
 
+    public ViolationEntity() {
+    }
+
     public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject,
             String comment) {
         this.eventId = eventId;
@@ -48,9 +51,6 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.message = message;
         this.violationObject = violationObject;
         this.comment = comment;
-    }
-
-    public ViolationEntity() {
     }
 
     public String getEventId() {
