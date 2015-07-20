@@ -38,8 +38,11 @@ import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.teams.InfrastructureAccount;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 import sun.misc.BASE64Encoder;
 
 import java.util.Date;
@@ -92,6 +95,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Autowired
     private TeamOperations mockTeamOperations;
 
+    @Autowired
+    private ApplicationLifecycleService mockApplicationLifecycleService;
+
     private Violation violationRequest;
 
     private LogObj logObjRequest;
@@ -100,7 +106,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        reset(violationServiceMock, mockTeamOperations);
+        reset(violationServiceMock, mockTeamOperations, mockApplicationLifecycleService);
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
@@ -129,17 +135,21 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @After
     public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
-        verifyNoMoreInteractions(violationServiceMock, mockTeamOperations);
+        verifyNoMoreInteractions(violationServiceMock, mockTeamOperations, mockApplicationLifecycleService);
     }
 
     @Test
     public void testInstanceLogs() throws Exception {
+
+        when(mockApplicationLifecycleService.saveInstanceLogLifecycle(any(), any(), any(), any(), any())).thenReturn(new LifecycleEntity());
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
         this.mockMvc.perform(
                 post("/api/instance-logs").contentType(APPLICATION_JSON).content(bytes))
                     .andExpect(status().isCreated());
+
+        verify(mockApplicationLifecycleService).saveInstanceLogLifecycle(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -289,6 +299,11 @@ public class FullstopApiTest extends RestControllerTestSupport {
         @Bean
         public FullstopApi fullstopApi() {
             return new FullstopApi();
+        }
+
+        @Bean
+        public ApplicationLifecycleService applicationLifecycleService(){
+            return mock(ApplicationLifecycleService.class);
         }
 
         @Bean

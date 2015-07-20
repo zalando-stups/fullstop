@@ -31,13 +31,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.zalando.stups.fullstop.s3.LogType;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
 import org.zalando.stups.fullstop.teams.InfrastructureAccount;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.io.IOException;
@@ -45,6 +48,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.joda.time.DateTimeZone.UTC;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -59,6 +63,9 @@ public class FullstopApi {
 
     @Autowired
     private S3Service s3Writer;
+
+    @Autowired
+    private ApplicationLifecycleService applicationLifecycleService;
 
     @Autowired
     private ViolationService violationService;
@@ -195,18 +202,28 @@ public class FullstopApi {
 
     private void saveLog(final LogObj instanceLog) {
 
+        String userdataPath = null;
         if (instanceLog.getLogType() == null) {
             log.error("You should use one of the allowed types.");
             throw new IllegalArgumentException("You should use one of the allowed types.");
         }
 
         try {
-            s3Writer.writeToS3(
+            userdataPath = s3Writer.writeToS3(
                     instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
                     instanceLog.getLogData(), instanceLog.getLogType().toString(), instanceLog.getInstanceId());
         }
         catch (IOException e) {
             log.error(e.getMessage(), e);
+        }
+
+        if (instanceLog.getLogType() == LogType.USER_DATA) {
+            LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                    instanceLog.getInstanceId(),
+                    new DateTime(instanceLog.getInstanceBootTime(),UTC),
+                    userdataPath,
+                    instanceLog.getRegion(),
+                    instanceLog.getLogData());
         }
     }
 

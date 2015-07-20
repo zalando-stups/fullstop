@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.violation.domain;
 
-import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -26,6 +25,8 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+
+import static com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * @author ahartmann
@@ -74,7 +75,7 @@ public abstract class AbstractModifiableEntity extends AbstractCreatableEntity {
     }
 
     @Override
-    protected void addToStringFields(final Objects.ToStringHelper helper) {
+    protected void addToStringFields(final ToStringHelper helper) {
         super.addToStringFields(helper);
 
         helper.add("lastModified", lastModified);

@@ -1,0 +1,5 @@
+#taupage-ami-config
+application_id: fullstop
+application_version: '0.22'
+environment:
+  xx: xx

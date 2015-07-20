@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.violation.domain;
 
-import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.CreatedBy;
@@ -27,6 +26,8 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
+
+import static com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * @author ahartmann
@@ -62,7 +63,7 @@ public abstract class AbstractCreatableEntity extends AbstractEntity {
     }
 
     @Override
-    protected void addToStringFields(final Objects.ToStringHelper helper) {
+    protected void addToStringFields(final ToStringHelper helper) {
         helper.add("created", created);
         helper.add("createdBy", createdBy);
     }

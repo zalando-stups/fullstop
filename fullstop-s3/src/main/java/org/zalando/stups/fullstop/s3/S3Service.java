@@ -55,7 +55,7 @@ public class S3Service {
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
 
-    public void writeToS3(final String accountId, final String region, final Date instanceBootTime,
+    public String writeToS3(final String accountId, final String region, final Date instanceBootTime,
             final String logData, final String logType, final String instanceId) throws IOException {
         String fileName = null;
 
@@ -87,6 +87,8 @@ public class S3Service {
         InputStream stream = new ByteArrayInputStream(decodedLogData);
 
         putObjectToS3(bucketName, fileName, keyName, metadata, stream);
+
+        return Paths.get(bucketName, keyName, fileName).toString();
     }
 
     public void putObjectToS3(final String bucket, final String fileName, final String keyName,
