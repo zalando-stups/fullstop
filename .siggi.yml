@@ -4,9 +4,13 @@ sudo: true
 
 jdk: oraclejdk8
 
-before_script:
-  - psql -c 'CREATE DATABASE fullstop;' -U postgres
+services:
+    - postgresql
+
+#before_script:
+#  - psql -c 'CREATE DATABASE fullstop;' -U postgres
 #  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
 
 script:
+    - psql -c 'CREATE DATABASE fullstop;' -U postgres
     - mvn clean install -Pfullstop-startup,pg-travis --batch-mode
