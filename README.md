@@ -9,6 +9,8 @@
 
 #Fullstop - Audit reporting
 
+trigger build
+
 ###Fullstop AWS overview
 ![Fullstop](images/fullstop.png)
 ###Fullstop Architecture overview
