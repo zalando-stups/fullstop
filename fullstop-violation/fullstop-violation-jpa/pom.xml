@@ -87,25 +87,6 @@
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
-                <version>${apt-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/generated-sources/queryDsl</outputDirectory>
-                            <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.mysema.querydsl</groupId>
-                        <artifactId>querydsl-apt</artifactId>
-                        <version>${querydsl.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
