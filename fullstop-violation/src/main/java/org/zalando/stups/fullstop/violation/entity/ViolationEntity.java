@@ -24,7 +24,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 /**
  * @author mrandi
  */
-@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(columnNames = "XXFsdagrwb"))
+@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(columnNames = {"event_id","account_id","region"}))//,"violation_type_entity_id"
 @Entity
 public class ViolationEntity extends AbstractModifiableEntity {
 
