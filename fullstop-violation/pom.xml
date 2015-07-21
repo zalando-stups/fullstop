@@ -24,12 +24,12 @@
     </parent>
     <artifactId>fullstop-violation</artifactId>
     <name>Fullstop -- Core - Processing, Sink-Implementation</name>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <fullstop-plugin-api.version>0.9.0</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
+        <fullstop-plugin-api.version>0.9.1-SNAPSHOT</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>0.9.1-SNAPSHOT</fullstop-violation-api.version>
     </properties>
 
     <modules>

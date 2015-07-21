@@ -27,7 +27,7 @@
 
     <artifactId>fullstop-plugins</artifactId>
     <name>Fullstop -- Plugins</name>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -45,8 +45,8 @@
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-instance-plugin</module>
         <module>fullstop-keypair-plugin</module>
-        <module>fullstop-region-plugin</module>        
-        <module>fullstop-registry-plugin</module>                
+        <module>fullstop-region-plugin</module>
+        <module>fullstop-registry-plugin</module>
         <module>fullstop-save-securitygroups-plugin</module>
         <module>fullstop-application-lifecycle-plugin</module>
         <module>fullstop-snapshot-source-plugin</module>
