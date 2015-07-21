@@ -3,4 +3,4 @@
 -Instance-Plugin
 -Can Spring parse a list from application.yaml?
 
-trigger build
+trigger build again
