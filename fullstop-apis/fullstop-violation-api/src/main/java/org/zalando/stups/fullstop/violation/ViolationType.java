@@ -19,5 +19,10 @@ package org.zalando.stups.fullstop.violation;
  * Created by mrandi.
  */
 public enum ViolationType {
-    MISSING_SOMETHING
+
+    MISSING_USER_DATA,
+    WRONG_AMI,
+    EC2_WITH_SSH_KEY,
+    WRONG_REGION
+
 }

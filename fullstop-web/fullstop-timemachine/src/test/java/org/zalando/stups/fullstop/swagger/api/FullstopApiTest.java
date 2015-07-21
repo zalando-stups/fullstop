@@ -76,7 +76,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
 
-    public static final String MESSAGE = "my comment";
+    public static final String COMMENT = "my comment";
 
     public static final String ENCODED_LOG_FILE = new BASE64Encoder().encode("this is my log".getBytes());
 
