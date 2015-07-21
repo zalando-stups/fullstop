@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,14 +17,18 @@ package org.zalando.stups.fullstop.violation.entity;
 
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author mrandi
  */
-@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(columnNames = {"event_id","account_id","region"}))//,"violation_type_entity_id"
+@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(name = "unique_violation", columnNames = {
+        "eventId","accountId","region","violation_type_entity_id" }))
 @Entity
 public class ViolationEntity extends AbstractModifiableEntity {
 
