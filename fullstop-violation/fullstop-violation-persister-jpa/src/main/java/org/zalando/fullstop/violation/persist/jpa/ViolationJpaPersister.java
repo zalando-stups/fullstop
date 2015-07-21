@@ -21,10 +21,10 @@ import org.springframework.boot.actuate.metrics.CounterService;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import reactor.bus.EventBus;
 
 /**
@@ -40,12 +40,16 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private final ViolationRepository violationRepository;
 
+    private final ViolationTypeRepository violationTypeRepository;
+
     private final CounterService counterService;
 
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
+            final ViolationTypeRepository violationTypeRepository,
             final CounterService counterService) {
         super(eventBus);
         this.violationRepository = violationRepository;
+        this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
     }
 
@@ -65,12 +69,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setPluginFullQualifiedClassName(violation.getPluginFullQualifiedClassName());
 
-        ViolationTypeEntity violationTypeEntity = new ViolationTypeEntity();
-        violationTypeEntity.setHelpText(violationType.getHelpText());
-        violationTypeEntity.setIsAuditRelevant(violationType.isAuditRelevant());
-        violationTypeEntity.setViolationSeverity(
-                ViolationSeverity.valueOf(
-                        violationType.getViolationSeverityEntity()));
+        ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationType);
 
         entity.setViolationTypeEntity(violationTypeEntity);
 

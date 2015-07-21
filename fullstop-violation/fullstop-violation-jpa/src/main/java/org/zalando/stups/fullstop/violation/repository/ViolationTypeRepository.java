@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation.entity;
+package org.zalando.stups.fullstop.violation.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import org.zalando.stups.fullstop.violation.ViolationType;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 /**
  * Created by mrandi.
  */
-public enum ViolationType {
-    MISSING_SOMETHING
+@Repository
+public interface ViolationTypeRepository extends JpaRepository<ViolationTypeEntity, ViolationType> {
+
 }
