@@ -15,34 +15,24 @@
  */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
-import static java.lang.String.format;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
-
-import java.io.IOException;
-
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.jayway.jsonpath.JsonPath;
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * @author  mrandi
@@ -93,8 +83,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
 
-        JsonNode policyJson = null;
-        JsonNode templatePolicyJson = null;
+        JsonNode policyJson;
+        JsonNode templatePolicyJson;
 
         try {
             policyJson = objectMapper.readTree(policy);

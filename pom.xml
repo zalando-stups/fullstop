@@ -46,13 +46,14 @@
 
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support</module>
-        <!-- 
+        <!--
         <module>fullstop-aws-support/fullstop-aws-client-support</module>
         <module>fullstop-aws-support/fullstop-aws-cloudtrail-support</module>
         <module>fullstop-aws-support/fullstop-aws-s3-support</module>
         <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
          -->
 
+        <module>fullstop-jobs</module>
 
         <!-- all-plugins -->
         <module>fullstop-plugins</module>

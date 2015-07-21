@@ -68,3 +68,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
   FOREIGN KEY (application) REFERENCES fullstop_data.application (id),
   FOREIGN KEY (application_version) REFERENCES fullstop_data.app_version (id)
 );
+
+CREATE TABLE IF NOT EXISTS fullstop_data.violation_type(
+
+ );
