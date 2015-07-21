@@ -40,7 +40,7 @@
 
         <fullstop-processing.version>0.9.1-SNAPSHOT</fullstop-processing.version>
 
-        <fullstop-core.version>0.9.0</fullstop-core.version>
+        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
         <fullstop-timemachine.version>0.9.1-SNAPSHOT</fullstop-timemachine.version>
         <fullstop-violation.version>0.9.1-SNAPSHOT</fullstop-violation.version>
 

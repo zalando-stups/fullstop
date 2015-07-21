@@ -14,8 +14,8 @@
     <version>0.9.1-SNAPSHOT</version>
 
     <properties>
-        <fullstop-aws-support.version>0.9.0</fullstop-aws-support.version>
-        <fullstop-core.version>0.9.0</fullstop-core.version>
+        <fullstop-aws-support.version>0.9.1-SNAPSHOT</fullstop-aws-support.version>
+        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
         <fullstop-violation.version>0.9.1-SNAPSHOT</fullstop-violation.version>
     </properties>
 
