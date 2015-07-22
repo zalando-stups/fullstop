@@ -34,7 +34,7 @@ class DefaultViolation implements Violation {
 
     private Boolean checked;
 
-    private String pluginFullQualifiedClassName;
+    private String pluginFullyQualifiedClassName;
 
     private String violationType;
 
@@ -109,12 +109,12 @@ class DefaultViolation implements Violation {
     }
 
     @Override
-    public String getPluginFullQualifiedClassName() {
-        return pluginFullQualifiedClassName;
+    public String getPluginFullyQualifiedClassName() {
+        return pluginFullyQualifiedClassName;
     }
 
-    public void setPluginFullQualifiedClassName(String pluginFullQualifiedClassName) {
-        this.pluginFullQualifiedClassName = pluginFullQualifiedClassName;
+    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
     }
 
     @Override
@@ -126,7 +126,7 @@ class DefaultViolation implements Violation {
                 .add("metaInfo", metaInfo)
                 .add("comment", comment)
                 .add("checked", checked)
-                .add("pluginFullQualifiedClassName", pluginFullQualifiedClassName)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationType", violationType)
                 .toString();
     }

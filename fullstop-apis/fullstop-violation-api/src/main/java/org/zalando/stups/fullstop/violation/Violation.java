@@ -31,7 +31,7 @@ public interface Violation {
 
     Object getMetaInfo();
 
-    String getPluginFullQualifiedClassName();
+    String getPluginFullyQualifiedClassName();
 
     String getViolationType();
 }

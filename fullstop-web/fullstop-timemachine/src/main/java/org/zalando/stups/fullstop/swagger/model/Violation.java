@@ -15,13 +15,12 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "")
 public class Violation {
@@ -48,7 +47,7 @@ public class Violation {
 
     private String lastModifiedBy = null;
 
-    private String pluginFullQualifiedClassName;
+    private String pluginFullyQualifiedClassName;
 
     private ViolationTypeEntity violationTypeEntity;
 
@@ -152,12 +151,12 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    public String getPluginFullQualifiedClassName() {
-        return pluginFullQualifiedClassName;
+    public String getPluginFullyQualifiedClassName() {
+        return pluginFullyQualifiedClassName;
     }
 
-    public void setPluginFullQualifiedClassName(String pluginFullQualifiedClassName) {
-        this.pluginFullQualifiedClassName = pluginFullQualifiedClassName;
+    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
     }
 
     @ApiModelProperty(value = "")
@@ -183,7 +182,7 @@ public class Violation {
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)
                 .add("lastModifiedBy", lastModifiedBy)
-                .add("pluginFullQualifiedClassName", pluginFullQualifiedClassName)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationTypeEntity", violationTypeEntity)
                 .toString();
     }

@@ -36,7 +36,7 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     private String comment = "my comment" + Math.random();
 
-    private String pluginFullQualifiedClassName =  "my plugin class" + Math.random();
+    private String pluginFullyQualifiedClassName =  "my plugin class" + Math.random();
 
     private ViolationTypeEntity violationTypeEntity;
 
@@ -57,7 +57,7 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         entity.setRegion(region);
         entity.setMetaInfo(metaInfo);
         entity.setComment(comment);
-        entity.setPluginFullQualifiedClassName(pluginFullQualifiedClassName);
+        entity.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
         entity.setViolationTypeEntity(violationTypeEntity);
 
         return entity;
@@ -88,8 +88,8 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         return this;
     }
 
-    public ViolationEntityBuilder pluginFullQualifiedClassName(final String pluginFullQualifiedClasssName){
-        this.pluginFullQualifiedClassName = pluginFullQualifiedClasssName;
+    public ViolationEntityBuilder pluginFullyQualifiedClassName(final String pluginFullQualifiedClasssName){
+        this.pluginFullyQualifiedClassName = pluginFullQualifiedClasssName;
         return this;
     }
 
