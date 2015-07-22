@@ -36,7 +36,7 @@ class DefaultViolation implements Violation {
 
     private String pluginFullQualifiedClassName;
 
-    private ViolationType violationType;
+    private String violationType;
 
     DefaultViolation(final String eventId, final String accountId, final String region, final String message,
             final Object metaInfo, final String comment, final Boolean checked) {
@@ -99,15 +99,17 @@ class DefaultViolation implements Violation {
         this.checked = checked;
     }
 
-    @Override public ViolationType getViolationType() {
+    @Override
+    public String getViolationType() {
         return violationType;
     }
 
-    public void setViolationType(ViolationType violationType) {
+    public void setViolationType(String violationType) {
         this.violationType = violationType;
     }
 
-    @Override public String getPluginFullQualifiedClassName() {
+    @Override
+    public String getPluginFullQualifiedClassName() {
         return pluginFullQualifiedClassName;
     }
 

@@ -18,11 +18,11 @@ package org.zalando.stups.fullstop.violation;
 /**
  * Created by mrandi.
  */
-public enum ViolationType {
+public class ViolationType {
 
-    MISSING_USER_DATA,
-    WRONG_AMI,
-    EC2_WITH_SSH_KEY,
-    WRONG_REGION
+    public static final String MISSING_USER_DATA = "MISSING_USER_DATA";
+    public static final String WRONG_AMI = "WRONG_AMI";
+    public static final String EC2_WITH_SSH_KEY = "EC2_WITH_SSH_KEY";
+    public static final String WRONG_REGION = "WRONG_REGION";
 
 }

@@ -33,5 +33,5 @@ public interface Violation {
 
     String getPluginFullQualifiedClassName();
 
-    ViolationType getViolationType();
+    String getViolationType();
 }

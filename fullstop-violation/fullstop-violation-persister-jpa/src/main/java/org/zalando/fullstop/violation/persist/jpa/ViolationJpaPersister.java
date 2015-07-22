@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.zalando.stups.fullstop.violation.Violation;
-import org.zalando.stups.fullstop.violation.ViolationType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
@@ -60,7 +59,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-        ViolationType violationType = violation.getViolationType();
+        String violationType = violation.getViolationType();
 
         ViolationEntity entity = new ViolationEntity();
 

@@ -22,7 +22,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.zalando.stups.fullstop.violation.ViolationType;
 import org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly;
 
 import javax.persistence.*;
@@ -39,8 +38,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 public class ViolationTypeEntity {
 
     @Id
-    @Enumerated(EnumType.STRING)
-    private ViolationType id;
+    private String id;
 
     private String helpText;
 
@@ -76,11 +74,11 @@ public class ViolationTypeEntity {
     @Version
     private Long version;
 
-    public ViolationType getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ViolationType id) {
+    public void setId(String id) {
         this.id = id;
     }
 
