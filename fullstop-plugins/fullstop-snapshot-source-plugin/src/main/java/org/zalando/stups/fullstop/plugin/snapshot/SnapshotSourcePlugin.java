@@ -15,30 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin.snapshot;
 
-import static java.lang.String.format;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.events.UserDataProvider;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
-import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.AmazonServiceException;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 /**
  * @author  npiccolotto
@@ -66,12 +59,11 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
         this.violationSink = violationSink;
     }
 
-    //J-
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
         for (String id : instanceIds) {
-            Map userData = null;
+            Map userData;
             final String accountId = event.getEventData().getUserIdentity().getAccountId();
             final String region = event.getEventData().getAwsRegion();
             try {
@@ -79,40 +71,23 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             }
             catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
-                violationSink.put(
-                        new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
+                violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(id).build());
                 return;
             }
 
             if (userData == null) {
-                violationSink.put(
-                        new ViolationBuilder(format("InstanceId: %s doesn't have any userData.", id))
-                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
+                violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(id).build());
             }
+
             String source = (String) userData.get(SOURCE);
             if (source == null) {
-                // no source provided :o
-                violationSink.put(
-                        new ViolationBuilder(
-                                format(
-                                        "InstanceID: %s is missing 'source' property in userData.", id))
-                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
+                violationSink.put(violationFor(event).withType(MISSING_SOURCE_IN_USER_DATA).withMetaInfo(id).build());
             }
             else if (source.matches(SNAPSHOT_REGEX)) {
-                violationSink.put(
-                        new ViolationBuilder(
-                                format(
-                                        "InstanceID: %s was started with a mutable SNAPSHOT image.", id))
-                                .withEventId(CloudTrailEventSupport.getEventId(event)).withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event)).build());
+                violationSink.put(violationFor(event).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(id).build());
             }
         }
     }
-    //J+
 
     @Override
     public boolean supports(final CloudTrailEvent event) {

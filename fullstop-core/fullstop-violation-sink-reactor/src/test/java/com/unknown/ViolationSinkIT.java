@@ -67,11 +67,11 @@ public class ViolationSinkIT {
     @Test
     public void handleViolation() throws InterruptedException {
 
-        ViolationBuilder vBuilder = new ViolationBuilder("Hello_TEST");
+        ViolationBuilder vBuilder = new ViolationBuilder();
         vBuilder.withAccountId("1234567");
         vBuilder.withEventId(UUID.randomUUID().toString());
         vBuilder.withRegion("sig-west-13");
-        vBuilder.withViolationObject("{\"key\": \"value\"}");
+        vBuilder.withMetaInfo("{\"key\": \"value\"}");
 
         violationSink.put(vBuilder.build());
 

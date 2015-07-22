@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,36 +15,36 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.clients.kio.Version;
+import org.zalando.stups.clients.kio.*;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.violation.ViolationType;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.*;
+import static java.lang.String.format;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
 /**
  * @author mrandi
@@ -153,8 +153,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                 applicationId,
                                 applicationVersion);
 
-                        validateContainsMandatoryApprovals(applicationVersionFromKio,
-                                                           event);
+                        validateContainsMandatoryApprovals(
+                                applicationVersionFromKio,
+                                event);
                         validateMultipleEyesPrinciple(
                                 event,
                                 applicationVersionFromKio.getApplicationId(),
@@ -177,41 +178,17 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (AmazonServiceException ex) {
             LOG.error(ex.getMessage());
-            violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s doesn't have any userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
             return null;
         }
 
         if (userData == null) {
-            violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s doesn't have any userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
             return null;
         }
 
         if (userData.isEmpty()) {
-            violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s has empty userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
             return null;
         }
 
@@ -220,8 +197,9 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected void validateMultipleEyesPrinciple(CloudTrailEvent event, String applicationId, String versionId,
             int minApprovals) {
-        List<Approval> approvals = kioOperations.getApplicationApprovals(applicationId,
-                                                                         versionId);
+        List<Approval> approvals = kioOperations.getApplicationApprovals(
+                applicationId,
+                versionId);
         List<String> approvalsFromMany = registryPluginProperties.getApprovalsFromMany();
 
         // #140
@@ -229,24 +207,20 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // => code, test and deploy approvals have to be done by at least two different people
         // e.g. four-eyes-principle
         int approverCount = approvals
-                                     .stream()
-                                     .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
-                                     .map(a -> a.getUserId())
-                                     .distinct()
-                                     .collect(Collectors.toList())
-                                     .size();
+                .stream()
+                .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
+                .map(a -> a.getUserId())
+                .distinct()
+                .collect(Collectors.toList())
+                .size();
         if (approverCount < minApprovals) {
-            violationSink
-                         .put(new ViolationBuilder(
-                                                   format("Version %s of application %s was approved by only %s people instead of %s.",
-                                                          versionId,
-                                                          applicationId,
-                                                          approverCount,
-                                                          minApprovals))
-                                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                        .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                        .build());
+            violationSink.put(
+                    violationFor(event).withType(ViolationType.VERSION_APPROVAL_NOT_ENOUGH).withMetaInfo(
+                            newArrayList(
+                                    versionId,
+                                    applicationId,
+                                    approverCount,
+                                    minApprovals)).build());
         }
 
     }
@@ -267,22 +241,17 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Version %s of application %s is missing approvals: %s.",
+                    violationFor(event).withType(ViolationType.MISSING_VERSION_APPROVAL).withMetaInfo(
+                            newArrayList(
                                     version.getId(),
                                     diff.toString(),
-                                    version.getApplicationId()))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .build());
+                                    version.getApplicationId())).build());
         }
     }
 
     protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
             String applicationVersion) {
-        Map<String, String> scmSource = Maps.newHashMap();
+        Map<String, String> scmSource = newHashMap();
         try {
             scmSource = pieroneOperations.getScmSource(
                     teamId,
@@ -331,7 +300,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                         .build());
         }
 
-        Map<String, String> tags = Maps.newHashMap();
+        Map<String, String> tags = newHashMap();
         try {
             tags = this.pieroneOperations.listTags(
                     team,
@@ -379,12 +348,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             return application;
         }
         catch (NotFoundException e) {
-            violationSink.put(new ViolationBuilder(format("Application: %s is not present in kio.",
-                                                          applicationId))
-                                                                         .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                         .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                         .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                         .build());
+            violationSink.put(
+                    new ViolationBuilder(
+                            format(
+                                    "Application: %s is not present in kio.",
+                                    applicationId))
+                            .withEventId(CloudTrailEventSupport.getEventId(event))
+                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
+                            .build());
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -406,12 +378,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     applicationVersion);
         }
         catch (NotFoundException e) {
-            violationSink.put(new ViolationBuilder(format("Application: %s is not present with version %s in kio.",
-                                                          applicationId,
-                                                          applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                              .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                              .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                              .build());
+            violationSink.put(
+                    new ViolationBuilder(
+                            format(
+                                    "Application: %s is not present with version %s in kio.",
+                                    applicationId,
+                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
+                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
+                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
+                                                        .build());
             return null;
         }
         catch (HttpClientErrorException e) {

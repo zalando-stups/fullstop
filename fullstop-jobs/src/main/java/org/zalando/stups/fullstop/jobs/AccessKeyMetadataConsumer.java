@@ -23,14 +23,13 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.function.Consumer;
 
-import static java.lang.String.format;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_OLD;
 
 /**
  * @author jbellmann
  */
 @Component class AccessKeyMetadataConsumer implements Consumer<AccessKeyMetadata> {
-
-    private static final String VIOLATION_MESSAGE = "User [%s] has an active key [%s] older than 1 week.";
 
     private final ViolationSink violationSink;
 
@@ -41,8 +40,9 @@ import static java.lang.String.format;
     @Override
     public void accept(final AccessKeyMetadata input) {
         violationSink.put(
-                new ViolationBuilder(format(VIOLATION_MESSAGE, input.getUserName(), input.getAccessKeyId()))
-                        .build());
+                new ViolationBuilder().withType(ACTIVE_KEY_TO_OLD)
+                                      .withMetaInfo(newArrayList(input.getUserName(), input.getAccessKeyId()))
+                                      .build());
     }
 
 }

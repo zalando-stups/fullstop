@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.violation;
 
-import static java.lang.String.format;
-
 /**
  * Created by gkneitschel.
  */
@@ -27,15 +25,11 @@ public class ViolationBuilder {
 
     private String region;
 
-    private String comment;
+    private Object metaInfo;
 
-    private Object violationObject;
+    private String type;
 
     public ViolationBuilder() {
-    }
-
-    public ViolationBuilder(final String comment) {
-        this.comment = comment;
     }
 
     public Violation build() {
@@ -44,8 +38,8 @@ public class ViolationBuilder {
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
         violation.setRegion(region);
-        violation.setComment(comment);
-        violation.setMetaInfo(violationObject);
+        violation.setMetaInfo(metaInfo);
+        violation.setViolationType(type);
 
         return violation;
     }
@@ -65,19 +59,13 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withComment(final String comment) {
-        this.comment = comment;
+    public ViolationBuilder withMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
         return this;
     }
 
-    public ViolationBuilder withComment(final String commentFormat, final Object... args) {
-        this.comment = format(commentFormat, args);
+    public ViolationBuilder withType(String type) {
+        this.type = type;
         return this;
     }
-
-    public ViolationBuilder withViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
-        return this;
-    }
-
 }

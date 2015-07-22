@@ -15,28 +15,22 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_REGION;
 
 /**
  * @author  gkneitschel
@@ -81,11 +75,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
         }
 
         if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
-
-            String message = String.format("Region: EC2 instances %s are running in the wrong region! (%s)",
-                    instances.toString(), region);
-            violationSink.put(new ViolationBuilder(message).withEventId(getEventId(event)).withRegion(
-                    getRegionAsString(event)).withAccountId(getAccountId(event)).build());
+            violationSink.put(violationFor(event).withType(WRONG_REGION).withMetaInfo(newArrayList(instances.toString(), region)).build());
         }
     }
 }

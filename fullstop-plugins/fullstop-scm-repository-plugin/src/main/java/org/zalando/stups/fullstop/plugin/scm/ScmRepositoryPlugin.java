@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 @Component
 public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
@@ -136,7 +137,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             final String team = app.getTeamId();
             final String kioScmUrl = app.getScmUrl();
             if (isBlank(kioScmUrl)) {
-                violationSink.put(violationFor(event).withComment("Scm URL is missing in Kio.").build());
+                violationSink.put(violationFor(event).withType(SCM_URL_IS_MISSING_IN_KIO).build());
                 return;
             }
 
@@ -148,7 +149,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             final String scmSourceUrl = scmSource.get(URL);
             if (isBlank(scmSourceUrl)) {
-                violationSink.put(violationFor(event).withComment("scm-source.json does not contain the url").build());
+                violationSink.put(violationFor(event).withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON).build());
                 return;
             }
 
@@ -157,13 +158,12 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             if (!Objects.equals(normalizedKioScmUrl, normalizedScmSourceUrl)) {
                 violationSink.put(
-                        violationFor(event)
-                                .withComment("Scm url in scm-source.json does not match the url given in Kio")
-                                .withViolationObject(
-                                        ImmutableMap.of(
-                                                "normalized_scm_source_url", normalizedScmSourceUrl,
-                                                "normalized_kio_scm_url", normalizedKioScmUrl))
-                                .build());
+                        violationFor(event).withType(SCM_URL_NOT_MATCH_WITH_KIO).withMetaInfo(
+                                ImmutableMap.of(
+                                        "normalized_scm_source_url",
+                                        normalizedScmSourceUrl,
+                                        "normalized_kio_scm_url",
+                                        normalizedKioScmUrl)).build());
             }
         }
     }

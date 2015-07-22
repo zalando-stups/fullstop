@@ -26,13 +26,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
 
-import static java.lang.String.format;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
 /**
  * @author  mrandi
@@ -95,9 +95,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         }
 
         if (!policyJson.equals(templatePolicyJson)) {
-            violationSink.put(new ViolationBuilder(format("Role: %s must not be modified", roleName)).withEventId(
-                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
-
+            violationSink.put(violationFor(event).withType(MODIFIED_ROLE_OR_SERVICE).withMetaInfo(newArrayList(roleName)).build());
         }
     }
 
