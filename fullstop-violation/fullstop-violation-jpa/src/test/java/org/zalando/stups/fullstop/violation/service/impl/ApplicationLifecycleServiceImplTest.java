@@ -115,14 +115,25 @@ public class ApplicationLifecycleServiceImplTest {
     public void testSave() throws Exception {
 
         fullstop = applicationRepository.save(fullstop);
-        release.getApplicationEntities().add(fullstop);
+        snapshot.getApplicationEntities().add(fullstop);
+        snapshot = versionRepository.save(snapshot);
+
+
+        applicationLifecycleService.saveLifecycle(fullstop2, snapshot2, stopInstance);
+        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
+    }
+    @Test
+    public void testSaveAttachVersionToApplication() throws Exception {
         release = versionRepository.save(release);
+
+        fullstop.getVersionEntities().add(release);
+        fullstop = applicationRepository.save(fullstop);
 
         em.flush();
         em.clear();
 
-        applicationLifecycleService.saveLifecycle(fullstop, release, stopInstance);
-        assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
+        VersionEntity versionEntity = versionRepository.findOne(release.getId());
+        assertThat(versionEntity.getApplicationEntities()).isNotEmpty().hasSize(1);
     }
 
 

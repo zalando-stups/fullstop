@@ -75,13 +75,13 @@ public class ApplicationRepositoryTest {
         version2.setName("0.9.3-SNAPSHOT");
         versionRepository.save(version2);
 
-        // Add all versions
-        List<VersionEntity> versionEntities = newArrayList(version1, version2);
 
         // Build Application
         application = new ApplicationEntity();
         application.setName("Application");
-        application.setVersionEntities(versionEntities);
+        application.getVersionEntities().add(version1);
+        application.getVersionEntities().add(version2);
+
 
         savedApplication = applicationRepository.save(application);
         em.flush();
