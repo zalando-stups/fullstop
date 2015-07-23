@@ -33,10 +33,7 @@ public class VersionEntity extends AbstractModifiableEntity {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany
-    @JoinTable(schema = "fullstop_data", name = "app_has_version",
-            joinColumns = @JoinColumn(name = "app_version_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "app_id", referencedColumnName = "id"))
+    @ManyToMany(mappedBy = "versionEntities")
     private List<ApplicationEntity> applicationEntities;
 
     public VersionEntity() {
