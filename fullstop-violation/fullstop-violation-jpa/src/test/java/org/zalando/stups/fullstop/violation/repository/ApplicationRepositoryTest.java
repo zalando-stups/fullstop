@@ -39,7 +39,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
