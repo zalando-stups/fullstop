@@ -53,13 +53,13 @@ CREATE TABLE IF NOT EXISTS fullstop_data.app_version (
   CONSTRAINT unique_version_name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS fullstop_data.app_has_version (
-  id             BIGSERIAL NOT NULL PRIMARY KEY,
-  app_id         INTEGER,
-  app_version_id INTEGER,
-  FOREIGN KEY (app_id) REFERENCES fullstop_data.application (id),
-  FOREIGN KEY (app_version_id) REFERENCES fullstop_data.app_version (id),
-  CONSTRAINT uniqe_appid_versionid UNIQUE (app_id, app_version_id)
+
+CREATE TABLE IF NOT EXISTS fullstop_data.application_version_entities (
+  application_entities_id INTEGER,
+  version_entities_id     INTEGER,
+  FOREIGN KEY (application_entities_id) REFERENCES fullstop_data.application (id),
+  FOREIGN KEY (version_entities_id) REFERENCES fullstop_data.app_version (id),
+  PRIMARY KEY (application_entities_id, version_entities_id)
 );
 
 CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
