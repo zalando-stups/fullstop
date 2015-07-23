@@ -97,7 +97,7 @@ public class FullstopApi {
 
         violation.setRegion(entity.getRegion());
         violation.setComment(entity.getComment());
-        violation.setViolationObject(entity.getMetaInfo());
+        violation.setMetaInfo(entity.getMetaInfo());
         return violation;
     }
 

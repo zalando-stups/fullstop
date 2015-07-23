@@ -35,7 +35,7 @@ public class Violation {
 
     private String region = null;
 
-    private Object violationObject = null;
+    private Object metaInfo = null;
 
     private String comment = null;
 
@@ -97,12 +97,12 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    public Object getViolationObject() {
-        return violationObject;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setViolationObject(Object violationObject) {
-        this.violationObject = violationObject;
+    public void setMetaInfo(Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
     @ApiModelProperty(value = "")
@@ -176,7 +176,7 @@ public class Violation {
                 .add("eventId", eventId)
                 .add("accountId", accountId)
                 .add("region", region)
-                .add("violationObject", violationObject)
+                .add("metaInfo", metaInfo)
                 .add("comment", comment)
                 .add("created", created)
                 .add("createdBy", createdBy)
