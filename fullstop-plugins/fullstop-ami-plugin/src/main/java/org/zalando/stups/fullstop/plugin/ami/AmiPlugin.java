@@ -33,7 +33,6 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-import org.zalando.stups.fullstop.violation.ViolationType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +41,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 /**
  * @author mrandi
@@ -120,7 +120,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
             violationSink.put(
-                    violationFor(event).withType(ViolationType.WRONG_AMI).withMetaInfo(
+                    violationFor(event).withType(WRONG_AMI).withMetaInfo(
                             newArrayList(getInstanceIds(event), invalidAmis)).build());
 
         }

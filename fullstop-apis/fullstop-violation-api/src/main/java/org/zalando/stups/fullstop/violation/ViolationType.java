@@ -34,6 +34,8 @@ public class ViolationType {
 
     public static final String PASSWORD_USED = "PASSWORD_USED";
 
+    public static final String WRONG_AMI = "WRONG_AMI";
+
     public static final String MISSING_USER_DATA = "MISSING_USER_DATA";
 
     public static final String SECURITY_GROUPS_PORT_NOT_ALLOWED = "SECURITY_GROUPS_PORT_NOT_ALLOWED";
