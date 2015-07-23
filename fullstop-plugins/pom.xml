@@ -22,7 +22,7 @@
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
         <version>1</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <artifactId>fullstop-plugins</artifactId>

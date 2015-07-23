@@ -33,7 +33,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_REGION;
 
 /**
- * @author  gkneitschel
+ * @author gkneitschel
  */
 @Component
 public class RegionPlugin extends AbstractFullstopPlugin {
@@ -75,7 +75,10 @@ public class RegionPlugin extends AbstractFullstopPlugin {
         }
 
         if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
-            violationSink.put(violationFor(event).withType(WRONG_REGION).withMetaInfo(newArrayList(instances.toString(), region)).build());
+            violationSink.put(
+                    violationFor(event).withType(WRONG_REGION)
+                                       .withMetaInfo(newArrayList(instances.toString(), region))
+                                       .build());
         }
     }
 }

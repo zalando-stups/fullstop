@@ -35,7 +35,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
 /**
- * @author  mrandi
+ * @author mrandi
  */
 @Component
 public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
@@ -89,13 +89,17 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         try {
             policyJson = objectMapper.readTree(policy);
             templatePolicyJson = objectMapper.readTree(policyTemplate);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
             return;
         }
 
         if (!policyJson.equals(templatePolicyJson)) {
-            violationSink.put(violationFor(event).withType(MODIFIED_ROLE_OR_SERVICE).withMetaInfo(newArrayList(roleName)).build());
+            violationSink.put(
+                    violationFor(event).withType(MODIFIED_ROLE_OR_SERVICE)
+                                       .withMetaInfo(newArrayList(roleName))
+                                       .build());
         }
     }
 

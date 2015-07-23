@@ -21,7 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Just for testing.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @SpringBootApplication
 public class ExampleApplication {

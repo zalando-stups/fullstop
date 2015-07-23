@@ -15,15 +15,12 @@
  */
 package org.zalando.stups.fullstop.testing;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import org.junit.Test;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
-import org.springframework.context.support.AbstractApplicationContext;
+import static org.mockito.Mockito.*;
 
 public class AutoShutdownTest {
 

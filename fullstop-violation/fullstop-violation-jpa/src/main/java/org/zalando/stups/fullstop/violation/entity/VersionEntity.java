@@ -21,7 +21,7 @@ import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 import javax.persistence.*;
 import java.util.List;
 
-import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Created by gkneitschel.
@@ -46,16 +46,16 @@ public class VersionEntity extends AbstractModifiableEntity {
         this.name = name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<ApplicationEntity> getApplicationEntities() {
-        if (applicationEntities == null){
+        if (applicationEntities == null) {
             applicationEntities = newArrayList();
         }
         return applicationEntities;
@@ -91,7 +91,7 @@ public class VersionEntity extends AbstractModifiableEntity {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("name", name)
-                .toString();
+                          .add("name", name)
+                          .toString();
     }
 }

@@ -42,7 +42,6 @@ import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
-import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 import sun.misc.BASE64Encoder;
 
 import java.util.Date;
@@ -141,7 +140,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testInstanceLogs() throws Exception {
 
-        when(mockApplicationLifecycleService.saveInstanceLogLifecycle(any(), any(), any(), any(), any())).thenReturn(new LifecycleEntity());
+        when(
+                mockApplicationLifecycleService.saveInstanceLogLifecycle(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any())).thenReturn(new LifecycleEntity());
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
@@ -171,7 +176,8 @@ public class FullstopApiTest extends RestControllerTestSupport {
     public void testGetOneNullViolation() throws Exception {
         when(violationServiceMock.findOne(948439L)).thenReturn(null);
 
-        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isNotFound());
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439"))
+                                                        .andExpect(status().isNotFound());
         resultActions.andExpect(content().string("\"Violation with id: 948439 not found!\""));
         verify(violationServiceMock).findOne(948439L);
     }
@@ -302,7 +308,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         }
 
         @Bean
-        public ApplicationLifecycleService applicationLifecycleService(){
+        public ApplicationLifecycleService applicationLifecycleService() {
             return mock(ApplicationLifecycleService.class);
         }
 

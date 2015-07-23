@@ -54,9 +54,8 @@ public class PluginEventsProcessor implements EventsProcessor {
     /**
      * Processes an single event by looping available plugins.
      *
-     * @param  event
-     *
-     * @see    #doProcess(CloudTrailEvent, FullstopPlugin)
+     * @param event
+     * @see #doProcess(CloudTrailEvent, FullstopPlugin)
      */
     protected void doProcess(final CloudTrailEvent event) {
         for (FullstopPlugin plugin : getPluginsForEvent(event)) {
@@ -67,8 +66,8 @@ public class PluginEventsProcessor implements EventsProcessor {
     /**
      * Processes an specific event on specified plugin.
      *
-     * @param  event
-     * @param  plugin
+     * @param event
+     * @param plugin
      */
     protected void doProcess(final CloudTrailEvent event, final FullstopPlugin plugin) {
         try {
@@ -85,8 +84,7 @@ public class PluginEventsProcessor implements EventsProcessor {
     /**
      * Returns a list of plugins configured.
      *
-     * @param   event
-     *
+     * @param event
      * @return list of plugins configured
      */
     protected List<FullstopPlugin> getPluginsForEvent(final CloudTrailEvent event) {

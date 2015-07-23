@@ -20,7 +20,7 @@ import org.springframework.plugin.metadata.PluginMetadata;
 /**
  * Base that can be used to implement a {@link FullstopPlugin}.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class AbstractFullstopPlugin implements FullstopPlugin {
 

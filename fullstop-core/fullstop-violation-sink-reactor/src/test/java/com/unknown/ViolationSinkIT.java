@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  * Testing autoconfiguration.
  *
  * @author jbellmann
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleApplication.class)

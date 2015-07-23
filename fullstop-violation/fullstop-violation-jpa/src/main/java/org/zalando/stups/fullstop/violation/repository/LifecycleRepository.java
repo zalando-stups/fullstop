@@ -27,5 +27,6 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 @Repository
 public interface LifecycleRepository extends JpaRepository<LifecycleEntity, Long>, LifecycleRepositoryCustom {
 
-    LifecycleEntity findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(String instanceId, ApplicationEntity applicationEntity, VersionEntity versionEntity, String region);
+    LifecycleEntity findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(String instanceId,
+            ApplicationEntity applicationEntity, VersionEntity versionEntity, String region);
 }

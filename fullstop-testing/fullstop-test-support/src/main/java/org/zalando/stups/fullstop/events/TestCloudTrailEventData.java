@@ -22,16 +22,6 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserId
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import java.io.IOException;
 import java.io.StringWriter;

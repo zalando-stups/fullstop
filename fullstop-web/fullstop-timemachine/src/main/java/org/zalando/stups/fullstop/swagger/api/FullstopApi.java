@@ -220,7 +220,7 @@ public class FullstopApi {
         if (instanceLog.getLogType() == LogType.USER_DATA) {
             LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                     instanceLog.getInstanceId(),
-                    new DateTime(instanceLog.getInstanceBootTime(),UTC),
+                    new DateTime(instanceLog.getInstanceBootTime(), UTC),
                     userdataPath,
                     instanceLog.getRegion(),
                     instanceLog.getLogData());

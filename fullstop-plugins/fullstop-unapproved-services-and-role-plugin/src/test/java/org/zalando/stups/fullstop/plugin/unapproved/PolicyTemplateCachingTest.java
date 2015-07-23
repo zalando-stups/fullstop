@@ -65,7 +65,7 @@ public class PolicyTemplateCachingTest {
 
         policyTemplatesProvider.getPolicyTemplate("test");
 
-        verify(s3ServiceMock).downloadObject(any(),any());
+        verify(s3ServiceMock).downloadObject(any(), any());
     }
 
 }

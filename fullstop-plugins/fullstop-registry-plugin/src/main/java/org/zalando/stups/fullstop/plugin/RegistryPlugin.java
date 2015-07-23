@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,6 @@ package org.zalando.stups.fullstop.plugin;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +26,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.*;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-import org.zalando.stups.fullstop.violation.ViolationType;
 
 import java.util.List;
 import java.util.Map;
@@ -40,11 +36,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.*;
-import static java.lang.String.format;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 /**
  * @author mrandi
@@ -215,7 +210,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 .size();
         if (approverCount < minApprovals) {
             violationSink.put(
-                    violationFor(event).withType(ViolationType.VERSION_APPROVAL_NOT_ENOUGH).withMetaInfo(
+                    violationFor(event).withType(VERSION_APPROVAL_NOT_ENOUGH).withMetaInfo(
                             newArrayList(
                                     versionId,
                                     applicationId,
@@ -241,7 +236,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(
-                    violationFor(event).withType(ViolationType.MISSING_VERSION_APPROVAL).withMetaInfo(
+                    violationFor(event).withType(MISSING_VERSION_APPROVAL).withMetaInfo(
                             newArrayList(
                                     version.getId(),
                                     diff.toString(),
@@ -260,28 +255,20 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (HttpClientErrorException e) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Image for team: %s and application: %s with version: %s not found in pierone.",
+                    violationFor(event).withType(IMAGE_IN_PIERONE_NOT_FOUND).withMetaInfo(
+                            newArrayList(
                                     teamId,
                                     applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                                    applicationVersion)).build());
             return;
         }
         if (scmSource.isEmpty()) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Image for team: %s and application: %s with version: %s does not contain scm-source.json.",
+                    violationFor(event).withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE).withMetaInfo(
+                            newArrayList(
                                     teamId,
                                     applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                                    applicationVersion)).build());
         }
     }
 
@@ -290,14 +277,12 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (!artifact.contains(source)) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Application: %s has not a valid artifact for version: %s.",
-                                    applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                    violationFor(event).withType(APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
         }
 
         Map<String, String> tags = newHashMap();
@@ -316,27 +301,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (tags.isEmpty()) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Source: %s is not present in pierone.",
-                                    source))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withMetaInfo(
+                            newArrayList(source)).build());
         }
         else {
             String value = tags.get(applicationVersion);
             if (value == null) {
                 violationSink.put(
-                        new ViolationBuilder(
-                                format(
-                                        "Source: %s is not present in pierone.",
-                                        source))
-                                .withEventId(CloudTrailEventSupport.getEventId(event))
-                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                .build());
+                        violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withMetaInfo(
+                                newArrayList(source)).build());
             }
         }
     }
@@ -349,14 +322,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (NotFoundException e) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Application: %s is not present in kio.",
-                                    applicationId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withType(APPLICATION_NOT_PRESENT_IN_KIO).withMetaInfo(
+                            newArrayList(applicationId)).build());
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -379,14 +346,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (NotFoundException e) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Application: %s is not present with version %s in kio.",
+                    violationFor(event).withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO).withMetaInfo(
+                            newArrayList(
                                     applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                                    applicationVersion)).build());
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -406,14 +369,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationId == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'application_id' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                            newArrayList(instanceId)).build());
             return null;
         }
 
@@ -426,14 +383,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationVersion == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'application_version' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                            newArrayList(instanceId)).build());
             return null;
         }
 
@@ -446,14 +397,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (source == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'source' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                            newArrayList(instanceId)).build());
             return null;
         }
 

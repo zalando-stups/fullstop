@@ -15,27 +15,21 @@
  */
 package org.zalando.stups.fullstop.plugin.subnet;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.assertj.core.api.Assertions;
-
 import org.junit.Test;
-
 import org.mockito.Mockito;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.AbstractPluginTest;
 import org.zalando.stups.fullstop.violation.NoOpViolationSink;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class PluginTest extends AbstractPluginTest {
 

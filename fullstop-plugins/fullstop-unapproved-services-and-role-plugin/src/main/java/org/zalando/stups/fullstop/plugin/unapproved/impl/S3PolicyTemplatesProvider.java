@@ -71,7 +71,7 @@ public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
 
     @Override public List<String> getPolicyTemplateNames() {
         // when application starts, need 2 seconds to fetch the first entries
-        if ( policyTemplateNames == null || policyTemplateNames.isEmpty()) {
+        if (policyTemplateNames == null || policyTemplateNames.isEmpty()) {
             fetchFromS3();
         }
         return policyTemplateNames;
@@ -93,8 +93,8 @@ public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
                         String key = prefix + roleName + ".json";
 
                         String result = s3Service.downloadObject(bucketName, key);
-                        if (result == null){
-                            throw  new RuntimeException("Could not download key:" + key);
+                        if (result == null) {
+                            throw new RuntimeException("Could not download key:" + key);
                         }
                         return result;
                     }

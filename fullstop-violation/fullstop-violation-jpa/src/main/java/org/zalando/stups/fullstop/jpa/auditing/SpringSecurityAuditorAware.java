@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * @author  <a href="mailto:michele.randi@zalando.de" title="Michele Randi">mrandi</a>
+ * @author <a href="mailto:michele.randi@zalando.de" title="Michele Randi">mrandi</a>
  */
 public final class SpringSecurityAuditorAware implements AuditorAware<String> {
 

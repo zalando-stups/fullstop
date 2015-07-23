@@ -15,30 +15,22 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.mockito.Mockito.when;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmis;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstances;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.mockito.Mockito;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class CloudTrailEventSupportTest {
 
@@ -67,7 +59,7 @@ public class CloudTrailEventSupportTest {
     }
 
     @Test
-    public void getInstancesTest(){
+    public void getInstancesTest() {
         CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/responseElements.json");
         List<String> instances = getInstances(cloudTrailEvent);
         Assertions.assertThat(instances).isNotEmpty();

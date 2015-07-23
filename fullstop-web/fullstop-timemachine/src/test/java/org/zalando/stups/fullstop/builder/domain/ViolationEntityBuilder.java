@@ -36,7 +36,7 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     private String comment = "my comment" + Math.random();
 
-    private String pluginFullyQualifiedClassName =  "my plugin class" + Math.random();
+    private String pluginFullyQualifiedClassName = "my plugin class" + Math.random();
 
     private ViolationTypeEntity violationTypeEntity;
 
@@ -88,12 +88,12 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         return this;
     }
 
-    public ViolationEntityBuilder pluginFullyQualifiedClassName(final String pluginFullQualifiedClasssName){
+    public ViolationEntityBuilder pluginFullyQualifiedClassName(final String pluginFullQualifiedClasssName) {
         this.pluginFullyQualifiedClassName = pluginFullQualifiedClasssName;
         return this;
     }
 
-    public ViolationEntityBuilder violationTypeEntity(final ViolationTypeEntity violationTypeEntity){
+    public ViolationEntityBuilder violationTypeEntity(final ViolationTypeEntity violationTypeEntity) {
         this.violationTypeEntity = violationTypeEntity;
         return this;
     }

@@ -15,30 +15,21 @@
  */
 package org.zalando.stups.fullstop.violation.repository.impl;
 
-import static java.util.Collections.emptyList;
-
-import static com.google.common.collect.Iterables.isEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-
-import static com.mysema.query.types.ExpressionUtils.allOf;
-
-import java.util.List;
-
+import com.mysema.query.jpa.JPQLQuery;
+import com.mysema.query.types.Predicate;
 import org.joda.time.DateTime;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
-
 import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
-import com.mysema.query.jpa.JPQLQuery;
-import com.mysema.query.types.Predicate;
+import java.util.List;
+
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.mysema.query.types.ExpressionUtils.allOf;
+import static java.util.Collections.emptyList;
 
 /**
  * Created by mrandi.
@@ -78,7 +69,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         if (checked != null) {
             if (checked) {
                 predicates.add(qViolationEntity.comment.isNotEmpty());
-            } else {
+            }
+            else {
                 predicates.add(qViolationEntity.comment.isNull().or(qViolationEntity.comment.isEmpty()));
             }
         }

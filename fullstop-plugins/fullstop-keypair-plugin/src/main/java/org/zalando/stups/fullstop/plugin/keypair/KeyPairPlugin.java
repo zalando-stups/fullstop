@@ -33,7 +33,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violation
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_SSH_KEY;
 
 /**
- * @author  ljaeckel
+ * @author ljaeckel
  */
 @Component
 public class KeyPairPlugin extends AbstractFullstopPlugin {
@@ -65,9 +65,12 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
 
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
         if (!CollectionUtils.isEmpty(keyNames)) {
-//            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
-//                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
-            violationSink.put(violationFor(event).withType(EC2_WITH_SSH_KEY).withMetaInfo(newArrayList(keyNames)).build());
+            //            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
+            //                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
+            violationSink.put(
+                    violationFor(event).withType(EC2_WITH_SSH_KEY)
+                                       .withMetaInfo(newArrayList(keyNames))
+                                       .build());
 
         }
     }

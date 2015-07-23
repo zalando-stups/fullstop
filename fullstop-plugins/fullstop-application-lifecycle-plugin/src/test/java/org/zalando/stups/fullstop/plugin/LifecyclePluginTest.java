@@ -73,8 +73,6 @@ public class LifecyclePluginTest {
         verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock);
     }
 
-
-
     @Test
     public void testSupports() throws Exception {
         event = buildEvent("run");
@@ -96,11 +94,16 @@ public class LifecyclePluginTest {
         value.put("application_id", "test");
         value.put("application_version", "test");
 
-        when(userDataProviderMock.getUserData(any(String.class), any(Region.class), any(String.class))).thenReturn(value);
-        when(applicationLifecycleServiceMock.saveLifecycle(
-                any(ApplicationEntity.class),
-                any(VersionEntity.class),
-                any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
+        when(
+                userDataProviderMock.getUserData(
+                        any(String.class),
+                        any(Region.class),
+                        any(String.class))).thenReturn(value);
+        when(
+                applicationLifecycleServiceMock.saveLifecycle(
+                        any(ApplicationEntity.class),
+                        any(VersionEntity.class),
+                        any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
@@ -109,7 +112,7 @@ public class LifecyclePluginTest {
     }
 
     @Test
-    public void testNullEvent() throws Exception{
+    public void testNullEvent() throws Exception {
         processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
     }
 }

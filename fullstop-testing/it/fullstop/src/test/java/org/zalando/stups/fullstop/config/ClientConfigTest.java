@@ -15,9 +15,6 @@
  */
 package org.zalando.stups.fullstop.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +30,9 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.tokens.AccessTokens;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -75,12 +75,12 @@ public class ClientConfigTest {
     @PropertySource("classpath:config/application-ClientConfigTest.properties")
     static class TestConfig {
 
-        @Bean AccessTokens accessTokens() {
-            return mock(AccessTokens.class);
-        }
-
         @Bean static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
             return new PropertySourcesPlaceholderConfigurer();
+        }
+
+        @Bean AccessTokens accessTokens() {
+            return mock(AccessTokens.class);
         }
     }
 }

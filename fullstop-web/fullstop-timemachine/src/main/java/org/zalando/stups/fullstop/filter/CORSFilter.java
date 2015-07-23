@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * A simple filter to allow  Cross-Origin Resource Sharing (CORS)
- * */
+ */
 @Component
 public class CORSFilter implements Filter {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

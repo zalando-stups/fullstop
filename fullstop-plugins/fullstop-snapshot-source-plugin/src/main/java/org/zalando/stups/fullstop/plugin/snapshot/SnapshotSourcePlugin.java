@@ -34,7 +34,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violation
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 /**
- * @author  npiccolotto
+ * @author npiccolotto
  */
 @Component
 public class SnapshotSourcePlugin extends AbstractFullstopPlugin {

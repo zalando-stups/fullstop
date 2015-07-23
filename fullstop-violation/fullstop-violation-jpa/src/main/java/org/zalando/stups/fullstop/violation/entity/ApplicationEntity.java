@@ -94,7 +94,7 @@ public class ApplicationEntity extends AbstractModifiableEntity {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("name", name)
-                .toString();
+                          .add("name", name)
+                          .toString();
     }
 }

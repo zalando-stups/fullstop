@@ -55,15 +55,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationLifecycleServiceImplTest {
 
     private VersionEntity snapshot;
+
     private VersionEntity snapshot2;
+
     private VersionEntity release;
 
     private ApplicationEntity fullstop;
+
     private ApplicationEntity fullstop2;
+
     private ApplicationEntity yourturn;
 
     private LifecycleEntity runInstance;
+
     private LifecycleEntity terminteInstance;
+
     private LifecycleEntity stopInstance;
 
     @Autowired
@@ -125,7 +131,6 @@ public class ApplicationLifecycleServiceImplTest {
         assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
     }
 
-
     @Test
     public void testSaveMultipleLifecycle() throws Exception {
         applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
@@ -135,22 +140,22 @@ public class ApplicationLifecycleServiceImplTest {
         assertThat(lifecycleRepository.findAll()).isNotEmpty().hasSize(2);
     }
 
-
-    @Test(expected = RuntimeException.class )
+    @Test(expected = RuntimeException.class)
     public void testSaveWithLifecyleNull() {
         applicationLifecycleService.saveLifecycle(fullstop, snapshot, null);
     }
-    @Test(expected = RuntimeException.class )
+
+    @Test(expected = RuntimeException.class)
     public void testSaveWithVersionNull() {
         applicationLifecycleService.saveLifecycle(fullstop, null, runInstance);
     }
 
-    @Test(expected = RuntimeException.class )
+    @Test(expected = RuntimeException.class)
     public void testSaveWithApplicationNull() {
         applicationLifecycleService.saveLifecycle(null, snapshot, runInstance);
     }
 
-    @Test(expected = RuntimeException.class )
+    @Test(expected = RuntimeException.class)
     public void testSaveAllNull() {
         applicationLifecycleService.saveLifecycle(null, null, null);
     }
@@ -162,10 +167,10 @@ public class ApplicationLifecycleServiceImplTest {
         String instanceId = "i-1234";
         String region = "eu-west-1";
         String userdata = "#taupage-ami-config\n"
-                                         + "application_id: Fullstop\n"
-                                         + "application_version: '0.22'\n"
-                                         + "environment:\n"
-                                         + "  xx: xx";
+                + "application_id: Fullstop\n"
+                + "application_version: '0.22'\n"
+                + "environment:\n"
+                + "  xx: xx";
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
@@ -173,6 +178,7 @@ public class ApplicationLifecycleServiceImplTest {
         assertThat(lifecycleEntity.getId()).isNotNull();
 
     }
+
     @Test
     public void testSaveInstanceLogLifecycle1() throws Exception {
         String userdataPath = "URL/to/File";
@@ -187,12 +193,13 @@ public class ApplicationLifecycleServiceImplTest {
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath,region, userdata);
+                userdataPath, region, userdata);
 
         applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
         assertThat(lifecycleRepository.findAll()).hasSize(1);
 
     }
+
     @Configuration
     @EnableAutoConfiguration
     @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
@@ -200,23 +207,19 @@ public class ApplicationLifecycleServiceImplTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean
-        DataSource dataSource() throws IOException {
+        @Bean DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean
-        AuditorAware<String> auditorAware() {
+        @Bean AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
 
-        @Bean
-        ApplicationLifecycleService applicationLifecycleService(){
+        @Bean ApplicationLifecycleService applicationLifecycleService() {
             return new ApplicationLifecycleServiceImpl();
         }
     }

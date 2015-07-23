@@ -112,11 +112,9 @@ public class FileEventReader {
     /**
      * Get the EventSerializer based on user's configuration.
      *
-     * @param   inputStream  the Gzipped content from CloudTrail log file
-     * @param   ctLog        CloudTrail log file
-     *
+     * @param inputStream the Gzipped content from CloudTrail log file
+     * @param ctLog       CloudTrail log file
      * @return parser that parses CloudTrail log file
-     *
      * @throws IOException
      */
     protected EventSerializer getEventSerializer(final InputStream inputStream, final CloudTrailLog ctLog)

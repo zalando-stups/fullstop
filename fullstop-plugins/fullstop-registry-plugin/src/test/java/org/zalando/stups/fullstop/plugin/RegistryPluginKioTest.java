@@ -124,8 +124,10 @@ public class RegistryPluginKioTest {
 
     @Test
     public void shouldComplainWhenVersionNotFound() {
-        when(kioOperations.getApplicationVersion(APPLICATION_ID,
-                                                 APPLICATION_VERSION)).thenThrow(new NotFoundException());
+        when(
+                kioOperations.getApplicationVersion(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenThrow(new NotFoundException());
 
         registryPlugin.getAndValidateApplicationVersionFromKio(
                 event,

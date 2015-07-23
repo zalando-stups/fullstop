@@ -15,14 +15,14 @@
  */
 package org.zalando.stups.fullstop.events;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 final class EventNamePredicate extends CloudTrailEventPredicate {
 

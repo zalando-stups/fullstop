@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import java.util.List;
-
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.UserTeam;
+
+import java.util.List;
 
 public class HystrixTeamOperations implements TeamOperations {
 

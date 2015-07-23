@@ -1,25 +1,25 @@
 {
-    "Records": [
-        {
-            "eventVersion": "1.02",
-            "userIdentity": {
-                "type": "Root",
-                "principalId": "123456789111",
-                "arn": "arn:aws:iam::123456789111:root",
-                "accountId": "123456789111",
-                "userName": "zalando-stups",
-                "invokedBy": "autoscaling.amazonaws.com"
-            },
-            "eventTime": "2015-06-18T08:31:45Z",
-            "eventSource": "ec2.amazonaws.com",
-            "eventName": "RunInstances",
-            "awsRegion": "eu-west-1",
-            "sourceIPAddress": "autoscaling.amazonaws.com",
-            "userAgent": "autoscaling.amazonaws.com",
-            "requestID": "fc75d086-7088-42ef-8ac4-527279ed0bc4",
-            "eventID": "21cad05b-d412-4ef5-b238-1b01a08a595c",
-            "eventType": "AwsApiCall",
-            "recipientAccountId": "123456789111"
-        }
-    ]
+  "Records": [
+    {
+      "eventVersion": "1.02",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123456789111",
+        "arn": "arn:aws:iam::123456789111:root",
+        "accountId": "123456789111",
+        "userName": "zalando-stups",
+        "invokedBy": "autoscaling.amazonaws.com"
+      },
+      "eventTime": "2015-06-18T08:31:45Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "RunInstances",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "autoscaling.amazonaws.com",
+      "userAgent": "autoscaling.amazonaws.com",
+      "requestID": "fc75d086-7088-42ef-8ac4-527279ed0bc4",
+      "eventID": "21cad05b-d412-4ef5-b238-1b01a08a595c",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "123456789111"
+    }
+  ]
 }

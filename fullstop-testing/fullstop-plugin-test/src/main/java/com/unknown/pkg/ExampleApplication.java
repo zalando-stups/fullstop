@@ -21,7 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Application for testing. Using 'com.unknown.pkg' helps to verify component-scan works as expected.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @SpringBootApplication
 public class ExampleApplication {

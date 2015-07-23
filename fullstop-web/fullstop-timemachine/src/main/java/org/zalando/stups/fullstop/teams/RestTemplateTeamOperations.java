@@ -15,27 +15,23 @@
  */
 package org.zalando.stups.fullstop.teams;
 
-import static org.springframework.http.RequestEntity.get;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestOperations;
+
+import java.net.URI;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-
-import java.net.URI;
-
-import java.util.List;
-
-import org.springframework.core.ParameterizedTypeReference;
-
-import org.springframework.http.ResponseEntity;
-
-import org.springframework.util.StringUtils;
-
-import org.springframework.web.client.RestOperations;
+import static org.springframework.http.RequestEntity.get;
 
 public class RestTemplateTeamOperations implements TeamOperations {
 
     private final ParameterizedTypeReference<List<UserTeam>> userTeamListType =
-        new ParameterizedTypeReference<List<UserTeam>>() { };
+            new ParameterizedTypeReference<List<UserTeam>>() {
+            };
 
     private final RestOperations restOperations;
 
@@ -50,8 +46,9 @@ public class RestTemplateTeamOperations implements TeamOperations {
     public List<UserTeam> getTeamsByUser(final String userId) {
         checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
-        final ResponseEntity<List<UserTeam>> response = restOperations.exchange(get(
-                    URI.create(baseUrl + "/user/" + userId)).build(), userTeamListType);
+        final ResponseEntity<List<UserTeam>> response = restOperations.exchange(
+                get(
+                        URI.create(baseUrl + "/user/" + userId)).build(), userTeamListType);
         checkState(response.getStatusCode().is2xxSuccessful(), "getTeamsByUser failed: %s", response);
         return response.getBody();
     }

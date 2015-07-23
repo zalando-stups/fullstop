@@ -21,9 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.fullstop.plugin.unapproved.UnapprovedServicesAndRolePlugin;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
-@ComponentScan(basePackageClasses = {UnapprovedServicesAndRolePlugin.class})
+@ComponentScan(basePackageClasses = { UnapprovedServicesAndRolePlugin.class })
 @EnableConfigurationProperties({ UnapprovedServicesAndRoleProperties.class })
-public class UnapprovedServiceAutoConfiguration { }
+public class UnapprovedServiceAutoConfiguration {
+}

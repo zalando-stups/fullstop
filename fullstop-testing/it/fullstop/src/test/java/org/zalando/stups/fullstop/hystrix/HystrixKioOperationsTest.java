@@ -15,30 +15,19 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.zalando.stups.clients.kio.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.ApplicationBase;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.ApprovalBase;
-import org.zalando.stups.clients.kio.CreateOrUpdateApplicationRequest;
-import org.zalando.stups.clients.kio.CreateOrUpdateVersionRequest;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.clients.kio.VersionBase;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
 
 public class HystrixKioOperationsTest {
 
