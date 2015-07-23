@@ -1,5 +1,17 @@
 CREATE SCHEMA IF NOT EXISTS fullstop_data;
 
+CREATE TABLE IF NOT EXISTS fullstop_data.violation_type (
+  id                 TEXT   NOT NULL PRIMARY KEY,
+  help_text          TEXT,
+  violation_severity TEXT,
+  is_audit_relevant  BOOLEAN,
+  created            TIMESTAMP,
+  created_by         TEXT,
+  last_modified      TIMESTAMP,
+  last_modified_by   TEXT,
+  version            BIGINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   id                                BIGSERIAL NOT NULL PRIMARY KEY,
   event_id                          TEXT,
@@ -67,16 +79,4 @@ CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
   version             BIGINT    NOT NULL,
   FOREIGN KEY (application) REFERENCES fullstop_data.application (id),
   FOREIGN KEY (application_version) REFERENCES fullstop_data.app_version (id)
-);
-
-CREATE TABLE IF NOT EXISTS fullstop_data.violation_type (
-  id                 TEXT   NOT NULL PRIMARY KEY,
-  help_text          TEXT,
-  violation_severity TEXT,
-  is_audit_relevant  BOOLEAN,
-  created            TIMESTAMP,
-  created_by         TEXT,
-  last_modified      TIMESTAMP,
-  last_modified_by   TEXT,
-  version            BIGINT NOT NULL
 );
