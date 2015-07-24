@@ -26,6 +26,8 @@ import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import reactor.bus.EventBus;
 
+import static org.zalando.stups.fullstop.violation.entity.ViolationSeverity.MINOR_IMPACT;
+
 /**
  * @author jbellmann
  */
@@ -59,7 +61,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-        String violationType = violation.getViolationType();
+        String violationTypeId = violation.getViolationType();
 
         ViolationEntity entity = new ViolationEntity();
 
@@ -68,9 +70,22 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setPluginFullyQualifiedClassName(violation.getPluginFullyQualifiedClassName());
 
-        ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationType);
+        ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationTypeId);
 
-        entity.setViolationTypeEntity(violationTypeEntity);
+        if (violationTypeEntity != null) {
+            entity.setViolationTypeEntity(violationTypeEntity);
+        }
+        else {
+            ViolationTypeEntity vte = new ViolationTypeEntity();
+            vte.setId(violationTypeId);
+            vte.setViolationSeverity(MINOR_IMPACT);
+            vte.setIsAuditRelevant(false);
+            vte.setHelpText("This is only a default message");
+
+            ViolationTypeEntity savedViolationTypeEntity = violationTypeRepository.save(vte);
+
+            entity.setViolationTypeEntity(savedViolationTypeEntity);
+        }
 
         entity.setMetaInfo(violation.getMetaInfo());
 
