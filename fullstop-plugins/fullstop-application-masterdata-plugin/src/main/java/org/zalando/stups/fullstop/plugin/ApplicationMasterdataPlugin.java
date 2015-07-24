@@ -105,7 +105,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
             }
             catch (AmazonServiceException ex) {
                 violationSink.put(
-                        violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(
+                        violationFor(event).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
                                 newArrayList(instanceId)).build());
                 return;
             }

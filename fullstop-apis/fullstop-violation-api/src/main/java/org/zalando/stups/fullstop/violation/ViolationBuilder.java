@@ -29,6 +29,8 @@ public class ViolationBuilder {
 
     private String type;
 
+    private String pluginFullyQualifiedClassName;
+
     public ViolationBuilder() {
     }
 
@@ -40,6 +42,7 @@ public class ViolationBuilder {
         violation.setRegion(region);
         violation.setMetaInfo(metaInfo);
         violation.setViolationType(type);
+        violation.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
 
         return violation;
     }
@@ -66,6 +69,11 @@ public class ViolationBuilder {
 
     public ViolationBuilder withType(String type) {
         this.type = type;
+        return this;
+    }
+
+    public ViolationBuilder withPluginFullyQualifiedClassName(Class pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName.getName();
         return this;
     }
 }

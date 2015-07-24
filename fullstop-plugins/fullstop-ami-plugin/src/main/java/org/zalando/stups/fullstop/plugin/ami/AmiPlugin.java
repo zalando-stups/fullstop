@@ -120,7 +120,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
             violationSink.put(
-                    violationFor(event).withType(WRONG_AMI).withMetaInfo(
+                    violationFor(event).withType(WRONG_AMI).withPluginFullyQualifiedClassName(AmiPlugin.class).withMetaInfo(
                             newArrayList(getInstanceIds(event), invalidAmis)).build());
 
         }
