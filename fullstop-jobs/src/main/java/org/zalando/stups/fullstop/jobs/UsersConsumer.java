@@ -41,6 +41,7 @@ class UsersConsumer implements Consumer<User> {
     public void accept(final User t) {
         violationSink.put(
                 new ViolationBuilder().withAccountId(accountId)
+                                      .withPluginFullyQualifiedClassName(UsersConsumer.class)
                                       .withType(PASSWORD_USED)
                                       .withMetaInfo(t.getUserName())
                                       .build());

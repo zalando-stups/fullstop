@@ -97,7 +97,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         if (!policyJson.equals(templatePolicyJson)) {
             violationSink.put(
-                    violationFor(event).withType(MODIFIED_ROLE_OR_SERVICE)
+                    violationFor(event).withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
+                                       .withType(MODIFIED_ROLE_OR_SERVICE)
                                        .withMetaInfo(newArrayList(roleName))
                                        .build());
         }

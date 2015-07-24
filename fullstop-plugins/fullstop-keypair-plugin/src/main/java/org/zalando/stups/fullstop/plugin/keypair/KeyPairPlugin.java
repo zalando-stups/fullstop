@@ -69,6 +69,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
             //                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
             violationSink.put(
                     violationFor(event).withType(EC2_WITH_SSH_KEY)
+                                       .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
                                        .withMetaInfo(newArrayList(keyNames))
                                        .build());
 

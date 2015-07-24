@@ -113,14 +113,16 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
             if (userData == null) {
                 violationSink.put(
-                        violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(
+                        violationFor(event).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
                                 newArrayList(instanceId)).build());
                 return;
             }
             // 2) read application id from user data
             if (userData.get(APPLICATION_ID) == null) {
                 violationSink.put(
-                        violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                        violationFor(event).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
                                 newArrayList(instanceId, APPLICATION_ID)).build());
                 return;
             }
@@ -132,7 +134,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
             }
             catch (NotFoundException ex) {
                 violationSink.put(
-                        violationFor(event).withType(APPLICATION_NOT_PRESENT_IN_KIO).withMetaInfo(
+                        violationFor(event).withType(APPLICATION_NOT_PRESENT_IN_KIO).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
                                 newArrayList(applicationId)).build());
                 return;
             }
@@ -150,7 +153,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
                                                "",
                                                (s, m) -> s.concat(m + "\n"));
                 violationSink.put(
-                        violationFor(event).withType(WRONG_APPLICATION_MASTERDATA).withMetaInfo(
+                        violationFor(event).withType(WRONG_APPLICATION_MASTERDATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
                                 newArrayList(
                                         applicationId,
                                         message)).build());

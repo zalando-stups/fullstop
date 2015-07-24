@@ -41,6 +41,7 @@ import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_O
     public void accept(final AccessKeyMetadata input) {
         violationSink.put(
                 new ViolationBuilder().withType(ACTIVE_KEY_TO_OLD)
+                                      .withPluginFullyQualifiedClassName(AccessKeyMetadataConsumer.class)
                                       .withMetaInfo(newArrayList(input.getUserName(), input.getAccessKeyId()))
                                       .build());
     }

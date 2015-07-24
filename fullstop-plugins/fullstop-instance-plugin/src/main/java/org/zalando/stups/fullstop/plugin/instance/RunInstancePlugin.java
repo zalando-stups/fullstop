@@ -100,6 +100,7 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
             violationSink.put(
                     violationFor(event).withType(SECURITY_GROUPS_PORT_NOT_ALLOWED)
+                                       .withPluginFullyQualifiedClassName(RunInstancePlugin.class)
                                        .withMetaInfo(getPorts(securityGroupList.get()))
                                        .build());
         }

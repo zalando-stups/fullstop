@@ -173,17 +173,23 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (AmazonServiceException ex) {
             LOG.error(ex.getMessage());
-            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
+            violationSink.put(
+                    violationFor(event).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(instanceId).build());
             return null;
         }
 
         if (userData == null) {
-            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
+            violationSink.put(
+                    violationFor(event).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(instanceId).build());
             return null;
         }
 
         if (userData.isEmpty()) {
-            violationSink.put(violationFor(event).withType(MISSING_USER_DATA).withMetaInfo(instanceId).build());
+            violationSink.put(
+                    violationFor(event).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(instanceId).build());
             return null;
         }
 
@@ -210,7 +216,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 .size();
         if (approverCount < minApprovals) {
             violationSink.put(
-                    violationFor(event).withType(VERSION_APPROVAL_NOT_ENOUGH).withMetaInfo(
+                    violationFor(event).withType(VERSION_APPROVAL_NOT_ENOUGH).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(
                                     versionId,
                                     applicationId,
@@ -236,7 +243,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(
-                    violationFor(event).withType(MISSING_VERSION_APPROVAL).withMetaInfo(
+                    violationFor(event).withType(MISSING_VERSION_APPROVAL).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(
                                     version.getId(),
                                     diff.toString(),
@@ -255,7 +263,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (HttpClientErrorException e) {
             violationSink.put(
-                    violationFor(event).withType(IMAGE_IN_PIERONE_NOT_FOUND).withMetaInfo(
+                    violationFor(event).withType(IMAGE_IN_PIERONE_NOT_FOUND).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(
                                     teamId,
                                     applicationId,
@@ -264,7 +273,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         if (scmSource.isEmpty()) {
             violationSink.put(
-                    violationFor(event).withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE).withMetaInfo(
+                    violationFor(event).withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(
                                     teamId,
                                     applicationId,
@@ -278,6 +288,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         if (!artifact.contains(source)) {
             violationSink.put(
                     violationFor(event).withType(APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
                                        .withMetaInfo(
                                                newArrayList(
                                                        applicationId,
@@ -301,14 +313,16 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (tags.isEmpty()) {
             violationSink.put(
-                    violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withMetaInfo(
+                    violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(source)).build());
         }
         else {
             String value = tags.get(applicationVersion);
             if (value == null) {
                 violationSink.put(
-                        violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withMetaInfo(
+                        violationFor(event).withType(SOURCE_NOT_PRESENT_IN_PIERONE).withPluginFullyQualifiedClassName(
+                                RegistryPlugin.class).withMetaInfo(
                                 newArrayList(source)).build());
             }
         }
@@ -322,7 +336,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (NotFoundException e) {
             violationSink.put(
-                    violationFor(event).withType(APPLICATION_NOT_PRESENT_IN_KIO).withMetaInfo(
+                    violationFor(event).withType(APPLICATION_NOT_PRESENT_IN_KIO).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(applicationId)).build());
             return null;
         }
@@ -346,10 +361,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (NotFoundException e) {
             violationSink.put(
-                    violationFor(event).withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO).withMetaInfo(
-                            newArrayList(
-                                    applicationId,
-                                    applicationVersion)).build());
+                    violationFor(event).withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -369,7 +388,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationId == null) {
             violationSink.put(
-                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                    violationFor(event).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(instanceId)).build());
             return null;
         }
@@ -383,7 +403,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationVersion == null) {
             violationSink.put(
-                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                    violationFor(event).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(instanceId)).build());
             return null;
         }
@@ -397,7 +418,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (source == null) {
             violationSink.put(
-                    violationFor(event).withType(WRONG_USER_DATA).withMetaInfo(
+                    violationFor(event).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
                             newArrayList(instanceId)).build());
             return null;
         }

@@ -110,7 +110,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
         if (routeTables == null || routeTables.size() == 0) {
             violationSink.put(
-                    violationFor(event).withType(EC2_WITHOUT_ROUTING_INFORMATION)
+                    violationFor(event).withPluginFullyQualifiedClassName(SubnetPlugin.class)
+                                       .withType(EC2_WITHOUT_ROUTING_INFORMATION)
                                        .withMetaInfo(instanceIds)
                                        .build());
             return;
@@ -122,7 +123,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
                           route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
                                   !route.getNetworkInterfaceId().startsWith("eni")).forEach(
                     route -> violationSink.put(
-                            violationFor(event).withType(EC2_RUN_IN_PUBLIC_SUBNET)
+                            violationFor(event).withPluginFullyQualifiedClassName(SubnetPlugin.class)
+                                               .withType(EC2_RUN_IN_PUBLIC_SUBNET)
                                                .withMetaInfo(
                                                        newArrayList(
                                                                route.getInstanceId(),

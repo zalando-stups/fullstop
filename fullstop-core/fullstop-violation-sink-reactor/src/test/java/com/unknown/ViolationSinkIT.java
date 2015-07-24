@@ -67,6 +67,7 @@ public class ViolationSinkIT {
     public void handleViolation() throws InterruptedException {
 
         ViolationBuilder vBuilder = new ViolationBuilder();
+        vBuilder.withPluginFullyQualifiedClassName(ViolationSinkIT.class);
         vBuilder.withAccountId("1234567");
         vBuilder.withEventId(UUID.randomUUID().toString());
         vBuilder.withRegion("sig-west-13");
