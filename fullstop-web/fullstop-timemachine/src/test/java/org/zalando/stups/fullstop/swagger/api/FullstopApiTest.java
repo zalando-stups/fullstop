@@ -240,10 +240,10 @@ public class FullstopApiTest extends RestControllerTestSupport {
         when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
                 newArrayList(
                         new Account(
-                                "foo",
-                                "Foo",
                                 violationResult.getAccountId(),
-                                "aws")));
+                                "Foo",
+                                "aws",
+                                "account desc")));
 
         violationRequest.setComment("my comment");
 
