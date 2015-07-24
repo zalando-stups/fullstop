@@ -59,7 +59,7 @@ public class ViolationServiceImpl implements ViolationService {
 
     @Override
     public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation,
-            Boolean checked, ViolationSeverity severity, Boolean auditRelevant, ViolationTypeEntity type,
+            Boolean checked, ViolationSeverity severity, Boolean auditRelevant, String type,
             Pageable pageable) {
         return violationRepository.queryViolations(accounts, since, lastViolation, checked, severity, auditRelevant, type, pageable);
     }

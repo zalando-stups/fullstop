@@ -200,7 +200,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
                 isNull(Boolean.class),
                 isNull(ViolationSeverity.class),
                 isNull(Boolean.class),
-                isNull(ViolationTypeEntity.class),
+                isNull(String.class),
                 any());
     }
 

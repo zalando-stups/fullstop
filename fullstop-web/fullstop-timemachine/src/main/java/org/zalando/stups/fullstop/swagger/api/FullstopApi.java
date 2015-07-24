@@ -147,7 +147,7 @@ public class FullstopApi {
             final Boolean auditRelevant,
             @ApiParam(value = "Include only violations with a certain type")
             @RequestParam(value = "type", required = false)
-            final ViolationTypeEntity type,
+            final String type,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         return mapBackendToFrontendViolations(

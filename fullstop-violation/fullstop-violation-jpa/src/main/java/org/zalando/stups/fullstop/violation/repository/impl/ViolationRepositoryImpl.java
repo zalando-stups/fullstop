@@ -47,7 +47,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime since,
             final Long lastViolation, final Boolean checked, final ViolationSeverity severity, Boolean auditRelevant,
-            ViolationTypeEntity type, final Pageable pageable) {
+            String type, final Pageable pageable) {
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
         QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
@@ -87,7 +87,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         }
 
         if (type != null) {
-            predicates.add(qViolationEntity.violationTypeEntity.eq(type));
+            predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
         }
 
         final long total = query.where(allOf(predicates)).count();
