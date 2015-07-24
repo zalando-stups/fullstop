@@ -40,6 +40,8 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.UserTeam;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -138,12 +140,21 @@ public class FullstopApi {
             @ApiParam(value = "Include only violations where checked field equals this value")
             @RequestParam(value = "checked", required = false)
             final Boolean checked,
+            @ApiParam(value = "Include only violations with a certain severity")
+            @RequestParam(value = "severity", required = false)
+            final ViolationSeverity severity,
+            @ApiParam(value = "Include only violations that are audit relevant")
+            @RequestParam(value = "audit-relevant", required = false)
+            final Boolean auditRelevant,
+            @ApiParam(value = "Include only violations with a certain type")
+            @RequestParam(value = "type", required = false)
+            final ViolationTypeEntity type,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, since, lastViolation,
-                        checked, pageable));
+                        checked, severity, auditRelevant, type, pageable));
     }
 
     @ApiOperation(

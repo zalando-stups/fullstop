@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,8 +20,7 @@ import com.mysema.query.types.Predicate;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
-import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.*;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
 import java.util.List;
@@ -47,10 +46,13 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime since,
-            final Long lastViolation, final Boolean checked, final Pageable pageable) {
-        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+            final Long lastViolation, final Boolean checked, final ViolationSeverity severity, Boolean auditRelevant,
+            ViolationTypeEntity type, final Pageable pageable) {
 
-        final JPQLQuery query = from(qViolationEntity);
+        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+        QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
+
+        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationTypeEntity);
 
         final List<Predicate> predicates = newArrayList();
 
@@ -73,6 +75,19 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             else {
                 predicates.add(qViolationEntity.comment.isNull().or(qViolationEntity.comment.isEmpty()));
             }
+        }
+
+        if (severity != null) {
+            predicates.add(qViolationTypeEntity.violationSeverity.eq(severity));
+        }
+
+        if (auditRelevant != null) {
+
+            predicates.add(qViolationTypeEntity.isAuditRelevant.eq(auditRelevant));
+        }
+
+        if (type != null) {
+            predicates.add(qViolationTypeEntity.eq(type));
         }
 
         final long total = query.where(allOf(predicates)).count();

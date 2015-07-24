@@ -21,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -57,8 +59,8 @@ public class ViolationServiceImpl implements ViolationService {
 
     @Override
     public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation,
-            Boolean checked,
+            Boolean checked, ViolationSeverity severity, Boolean auditRelevant, ViolationTypeEntity type,
             Pageable pageable) {
-        return violationRepository.queryViolations(accounts, since, lastViolation, checked, pageable);
+        return violationRepository.queryViolations(accounts, since, lastViolation, checked, severity, auditRelevant, type, pageable);
     }
 }

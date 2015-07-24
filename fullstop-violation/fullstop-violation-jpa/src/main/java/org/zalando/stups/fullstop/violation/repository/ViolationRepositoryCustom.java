@@ -20,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import java.util.List;
 
@@ -30,5 +32,5 @@ import java.util.List;
 public interface ViolationRepositoryCustom {
 
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
-            Pageable pageable);
+            ViolationSeverity severity, Boolean auditRelevant, ViolationTypeEntity type, Pageable pageable);
 }

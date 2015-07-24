@@ -40,6 +40,8 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.UserTeam;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
@@ -184,7 +186,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -197,6 +199,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
                 isNull(DateTime.class),
                 isNull(Long.class),
                 isNull(Boolean.class),
+                isNull(ViolationSeverity.class),
+                isNull(Boolean.class),
+                isNull(ViolationTypeEntity.class),
                 any());
     }
 
@@ -212,6 +217,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
                         any(DateTime.class),
                         eq(lastViolation),
                         eq(true),
+                        any(),
+                        any(),
+                        any(),
                         any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -223,7 +231,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), eq(lastViolation), eq(
-                        true), any());
+                        true), any(), any(), any(), any());
     }
 
     @Test
