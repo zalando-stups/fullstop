@@ -17,13 +17,20 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.zalando.stups</groupId>
+    <parent>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>fullstop-parent</artifactId>
+        <version>1</version>
+        <relativePath/>
+    </parent>
+
     <artifactId>fullstop-reactor</artifactId>
     <version>0</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
     <url>http://stups.io/fullstop/</url>
+
 
     <organization>
         <name>Zalando SE</name>
