@@ -35,9 +35,8 @@ import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
-import org.zalando.stups.fullstop.teams.InfrastructureAccount;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
@@ -238,15 +237,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
     public void testResolveViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
         when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString()))
-                .thenReturn(
-                        newArrayList(
-                                new UserTeam(
-                                        "foo", "Foo",
-                                        newArrayList(
-                                                new InfrastructureAccount(
-                                                        violationResult.getAccountId(),
-                                                        "aws")))));
+        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+                newArrayList(
+                        new Account(
+                                "foo",
+                                "Foo",
+                                violationResult.getAccountId(),
+                                "aws")));
 
         violationRequest.setComment("my comment");
 
@@ -281,12 +278,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testResolveOtherTeamsViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString()))
-                .thenReturn(
-                        newArrayList(
-                                new UserTeam(
-                                        "foo", "Foo",
-                                        newArrayList(new InfrastructureAccount("other_teams_account", "aws")))));
+        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+                newArrayList(
+                        new Account(
+                                "foo",
+                                "Foo",
+                                "other_teams_account",
+                                "aws")));
 
         violationRequest.setComment("my comment");
 

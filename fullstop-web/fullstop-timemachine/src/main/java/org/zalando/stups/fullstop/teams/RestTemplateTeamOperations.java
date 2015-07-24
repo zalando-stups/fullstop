@@ -29,8 +29,8 @@ import static org.springframework.http.RequestEntity.get;
 
 public class RestTemplateTeamOperations implements TeamOperations {
 
-    private final ParameterizedTypeReference<List<UserTeam>> userTeamListType =
-            new ParameterizedTypeReference<List<UserTeam>>() {
+    private final ParameterizedTypeReference<List<Account>> userTeamListType =
+            new ParameterizedTypeReference<List<Account>>() {
             };
 
     private final RestOperations restOperations;
@@ -43,12 +43,12 @@ public class RestTemplateTeamOperations implements TeamOperations {
     }
 
     @Override
-    public List<UserTeam> getTeamsByUser(final String userId) {
+    public List<Account> getTeamsByUser(final String userId) {
         checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
-        final ResponseEntity<List<UserTeam>> response = restOperations.exchange(
+        final ResponseEntity<List<Account>> response = restOperations.exchange(
                 get(
-                        URI.create(baseUrl + "/user/" + userId)).build(), userTeamListType);
+                        URI.create(baseUrl + "/api/accounts/aws?member=" + userId)).build(), userTeamListType);
         checkState(response.getStatusCode().is2xxSuccessful(), "getTeamsByUser failed: %s", response);
         return response.getBody();
     }

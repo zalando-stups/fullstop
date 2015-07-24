@@ -19,6 +19,6 @@ import java.util.List;
 
 public interface TeamOperations {
 
-    List<UserTeam> getTeamsByUser(String userId);
+    List<Account> getTeamsByUser(String userId);
 
 }
