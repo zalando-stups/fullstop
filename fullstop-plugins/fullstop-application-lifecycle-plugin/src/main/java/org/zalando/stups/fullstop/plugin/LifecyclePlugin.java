@@ -99,7 +99,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 applicationEntity = new ApplicationEntity(applicationName);
             }
             catch (AmazonServiceException e) {
-                LOG.warn("Could not get version/application for lifecycle event.", e);
+                LOG.warn("Could not get version/application for lifecycle event.");
                 return;
             }
 
