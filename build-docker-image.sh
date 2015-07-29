@@ -42,6 +42,9 @@ senza print $SENZA_CONFIGURATION_YAML --region eu-west-1 $STACK_VERSION $APP_VER
 echo '##### Create stack in aws with senza with --disable-rollback option #####'
 senza create $SENZA_CONFIGURATION_YAML --disable-rollback --region eu-west-1 $STACK_VERSION $APP_VERSION
 
+# clear trap
+trap - SIGINT
+
 echo '##### Show senza events #####'
 senza events $SENZA_CONFIGURATION_YAML $STACK_VERSION --region eu-west-1 -w 2
 
