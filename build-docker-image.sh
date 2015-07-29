@@ -4,6 +4,11 @@
 # Usage: ./build-docker-image.sh {pierone.address}/{team}/fullstop ../deploy-fullstop/production.yaml b1 0.1
 #
 
+# load interrupt lib
+. bash_libs/interrupt.sh
+# enable ctrl+c prompt cancelation
+trap ctrl_c SIGINT
+
 IMAGE=$1
 SENZA_CONFIGURATION_YAML=$2
 STACK_VERSION=$3
