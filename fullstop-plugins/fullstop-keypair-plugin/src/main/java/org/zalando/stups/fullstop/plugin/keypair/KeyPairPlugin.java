@@ -28,8 +28,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.containsKeyNames;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_SSH_KEY;
 
 /**
@@ -63,17 +62,21 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
+        List<String> instanceIds = getInstanceIds(event);
         List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
-        if (!CollectionUtils.isEmpty(keyNames)) {
-            //            violationSink.put(new ViolationBuilder(format("KeyPair must be blank, but was %s", keyNames)).withEventId(
-            //                    getEventId(event)).withRegion(getRegionAsString(event)).withAccountId(getAccountId(event)).build());
-            violationSink.put(
-                    violationFor(event).withType(EC2_WITH_SSH_KEY)
-                                       .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
-                                       .withMetaInfo(newArrayList(keyNames))
-                                       .build());
 
+        for (String instanceId : instanceIds) {
+            if (!CollectionUtils.isEmpty(keyNames)) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(EC2_WITH_SSH_KEY)
+                                           .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
+                                           .withMetaInfo(newArrayList(keyNames))
+                                           .build());
+
+            }
         }
+
     }
 
 }

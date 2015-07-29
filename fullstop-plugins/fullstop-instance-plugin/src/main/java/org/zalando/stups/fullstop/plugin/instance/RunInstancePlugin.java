@@ -84,6 +84,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
+        List<String> instanceIds = getInstanceIds(event);
+
         if (not(hasPublicIp(event))) {
 
             // no public IP, so skip more checks
@@ -96,14 +98,17 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             // no securityGroups, maybe instance already down
             return;
         }
-
-        if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
-            violationSink.put(
-                    violationFor(event).withType(SECURITY_GROUPS_PORT_NOT_ALLOWED)
-                                       .withPluginFullyQualifiedClassName(RunInstancePlugin.class)
-                                       .withMetaInfo(getPorts(securityGroupList.get()))
-                                       .build());
+        for (String instanceId : instanceIds) {
+            if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(SECURITY_GROUPS_PORT_NOT_ALLOWED)
+                                           .withPluginFullyQualifiedClassName(RunInstancePlugin.class)
+                                           .withMetaInfo(getPorts(securityGroupList.get()))
+                                           .build());
+            }
         }
+
     }
 
     protected Set<String> getPorts(final List<SecurityGroup> securityGroups) {

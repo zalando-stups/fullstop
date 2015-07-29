@@ -74,12 +74,16 @@ public class RegionPlugin extends AbstractFullstopPlugin {
             LOG.error("No instanceIds found, maybe autoscaling?");
         }
 
-        if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
-            violationSink.put(
-                    violationFor(event).withType(WRONG_REGION)
-                                       .withPluginFullyQualifiedClassName(RegionPlugin.class)
-                                       .withMetaInfo(newArrayList(instances.toString(), region))
-                                       .build());
+        for (String instance : instances) {
+            if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instance)
+                                           .withType(WRONG_REGION)
+                                           .withPluginFullyQualifiedClassName(RegionPlugin.class)
+                                           .withMetaInfo(newArrayList(instances.toString(), region))
+                                           .build());
+            }
         }
+
     }
 }

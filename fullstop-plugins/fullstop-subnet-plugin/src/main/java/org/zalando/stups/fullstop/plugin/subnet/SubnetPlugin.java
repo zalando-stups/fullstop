@@ -108,12 +108,17 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client
                 .describeRouteTables(describeRouteTablesRequest);
         List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
+
         if (routeTables == null || routeTables.size() == 0) {
-            violationSink.put(
-                    violationFor(event).withPluginFullyQualifiedClassName(SubnetPlugin.class)
-                                       .withType(EC2_WITHOUT_ROUTING_INFORMATION)
-                                       .withMetaInfo(instanceIds)
-                                       .build());
+            for (String instanceId : instanceIds) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withPluginFullyQualifiedClassName(SubnetPlugin.class)
+                                           .withType(EC2_WITHOUT_ROUTING_INFORMATION)
+                                           .withMetaInfo(instanceIds)
+                                           .build());
+            }
+
             return;
         }
         for (RouteTable routeTable : routeTables) {
@@ -122,14 +127,17 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
                   .filter(
                           route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
                                   !route.getNetworkInterfaceId().startsWith("eni")).forEach(
-                    route -> violationSink.put(
-                            violationFor(event).withPluginFullyQualifiedClassName(SubnetPlugin.class)
-                                               .withType(EC2_RUN_IN_PUBLIC_SUBNET)
-                                               .withMetaInfo(
-                                                       newArrayList(
-                                                               route.getInstanceId(),
-                                                               route.getNetworkInterfaceId()))
-                                               .build()));
+                    route -> instanceIds.forEach(
+                            id -> violationSink.put(
+                                    violationFor(event).withInstanceId(id)
+                                                       .withPluginFullyQualifiedClassName(
+                                                               SubnetPlugin.class)
+                                                       .withType(EC2_RUN_IN_PUBLIC_SUBNET)
+                                                       .withMetaInfo(
+                                                               newArrayList(
+                                                                       route.getInstanceId(),
+                                                                       route.getNetworkInterfaceId()))
+                                                       .build())));
         }
 
     }

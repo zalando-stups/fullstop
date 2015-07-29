@@ -28,6 +28,8 @@ class DefaultViolation implements Violation {
 
     private String region;
 
+    private String instanceId;
+
     private Object metaInfo;
 
     private String comment;
@@ -38,11 +40,12 @@ class DefaultViolation implements Violation {
 
     private String violationType;
 
-    DefaultViolation(final String eventId, final String accountId, final String region, final String message,
+    DefaultViolation(final String eventId, final String accountId, final String region, final String instanceId, final String message,
             final Object metaInfo, final String comment, final Boolean checked) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
+        this.instanceId = instanceId;
         this.metaInfo = metaInfo;
         this.comment = comment;
         this.checked = checked;
@@ -73,6 +76,14 @@ class DefaultViolation implements Violation {
 
     public void setRegion(final String region) {
         this.region = region;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public Object getMetaInfo() {

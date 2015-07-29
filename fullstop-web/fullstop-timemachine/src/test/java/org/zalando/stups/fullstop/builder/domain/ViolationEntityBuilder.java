@@ -32,6 +32,8 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     private String region = "my region" + Math.random();
 
+    private String instanceId = "my instanceId " + Math.random();
+
     private Object metaInfo;
 
     private String comment = "my comment" + Math.random();
@@ -55,6 +57,7 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         entity.setEventId(eventId);
         entity.setAccountId(accountId);
         entity.setRegion(region);
+        entity.setInstanceId(instanceId);
         entity.setMetaInfo(metaInfo);
         entity.setComment(comment);
         entity.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
@@ -75,6 +78,11 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     public ViolationEntityBuilder region(final String region) {
         this.region = region;
+        return this;
+    }
+
+    public ViolationEntityBuilder instanceId(final String instanceId){
+        this.instanceId = instanceId;
         return this;
     }
 

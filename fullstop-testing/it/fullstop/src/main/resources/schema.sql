@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   event_id                          TEXT,
   account_id                        TEXT,
   region                            TEXT,
+  instance_id                       TEXT,
   meta_info                         TEXT,
   comment                           TEXT,
   plugin_fully_qualified_class_name TEXT,

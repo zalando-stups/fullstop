@@ -38,6 +38,8 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String region;
 
+    private String instanceId;
+
     private Object metaInfo;
 
     private String comment;
@@ -47,11 +49,12 @@ public class ViolationEntity extends AbstractModifiableEntity {
     @ManyToOne
     private ViolationTypeEntity violationTypeEntity;
 
-    public ViolationEntity(String eventId, String accountId, String region, Object metaInfo,
+    public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
             String comment) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
+        this.instanceId = instanceId;
         this.metaInfo = metaInfo;
         this.comment = comment;
     }
@@ -81,6 +84,14 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     public void setRegion(final String region) {
         this.region = region;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public Object getMetaInfo() {
@@ -122,6 +133,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
                 .add("eventId", eventId)
                 .add("accountId", accountId)
                 .add("region", region)
+                .add("instanceId", instanceId)
                 .add("metaInfo", metaInfo)
                 .add("comment", comment)
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)

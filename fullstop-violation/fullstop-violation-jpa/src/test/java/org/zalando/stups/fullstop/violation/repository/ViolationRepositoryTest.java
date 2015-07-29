@@ -65,13 +65,13 @@ public class ViolationRepositoryTest {
     @Before
     public void setUp() throws Exception {
         vio1 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1", null, "a comment"));
+                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1","i-1234", null, "a comment"));
         vio2 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1", null, null));
+                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1","i-1234", null, null));
         vio3 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc2", "germany-east-1", null, "no comment ;-)"));
+                .save(new ViolationEntity("runThatThing", "acc2", "germany-east-1","i-1234", null, "no comment ;-)"));
         vio4 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc3", "germany-east-1", null, null));
+                .save(new ViolationEntity("runThatThing", "acc3", "germany-east-1","i-1234", null, null));
 
         em.flush();
         em.clear();

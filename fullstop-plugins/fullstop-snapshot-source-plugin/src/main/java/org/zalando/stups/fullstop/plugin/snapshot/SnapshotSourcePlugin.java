@@ -71,23 +71,23 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             }
             catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).withMetaInfo(id).build());
                 return;
             }
 
             if (userData == null) {
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).withMetaInfo(id).build());
             }
 
             String source = (String) userData.get(SOURCE);
             if (source == null) {
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).withMetaInfo(id).build());
             }
             else if (source.matches(SNAPSHOT_REGEX)) {
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(id).build());
             }
         }
