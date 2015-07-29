@@ -25,6 +25,8 @@ public class ViolationBuilder {
 
     private String region;
 
+    private String instanceId;
+
     private Object metaInfo;
 
     private String type;
@@ -40,6 +42,7 @@ public class ViolationBuilder {
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
         violation.setRegion(region);
+        violation.setInstanceId(instanceId);
         violation.setMetaInfo(metaInfo);
         violation.setViolationType(type);
         violation.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
@@ -59,6 +62,11 @@ public class ViolationBuilder {
 
     public ViolationBuilder withRegion(final String region) {
         this.region = region;
+        return this;
+    }
+
+    public ViolationBuilder withInstanceId(final String instanceId){
+        this.instanceId = instanceId;
         return this;
     }
 

@@ -83,6 +83,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
 
         List<String> amis = getAmis(event);
+        List<String> instanceIds = getInstanceIds(event);
 
         final List<String> whitelistedAmis = Lists.newArrayList();
 
@@ -119,9 +120,15 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         }
 
         if (!CollectionUtils.isEmpty(invalidAmis)) {
-            violationSink.put(
-                    violationFor(event).withType(WRONG_AMI).withPluginFullyQualifiedClassName(AmiPlugin.class).withMetaInfo(
-                            newArrayList(getInstanceIds(event), invalidAmis)).build());
+            for (String instanceId : instanceIds) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(WRONG_AMI)
+                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                                           .withMetaInfo(
+                                                   newArrayList(instanceIds, invalidAmis))
+                                           .build());
+            }
 
         }
     }

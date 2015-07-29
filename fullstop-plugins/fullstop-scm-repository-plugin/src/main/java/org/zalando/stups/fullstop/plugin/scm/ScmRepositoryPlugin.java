@@ -137,7 +137,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             final String team = app.getTeamId();
             final String kioScmUrl = app.getScmUrl();
             if (isBlank(kioScmUrl)) {
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
                                           ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_KIO).build());
                 return;
             }
@@ -150,7 +150,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             final String scmSourceUrl = scmSource.get(URL);
             if (isBlank(scmSourceUrl)) {
-                violationSink.put(violationFor(event).withPluginFullyQualifiedClassName(
+                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
                                           ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON).build());
                 return;
             }
@@ -160,7 +160,7 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             if (!Objects.equals(normalizedKioScmUrl, normalizedScmSourceUrl)) {
                 violationSink.put(
-                        violationFor(event).withPluginFullyQualifiedClassName(
+                        violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
                                 ScmRepositoryPlugin.class).withType(SCM_URL_NOT_MATCH_WITH_KIO).withMetaInfo(
                                 ImmutableMap.of(
                                         "normalized_scm_source_url",

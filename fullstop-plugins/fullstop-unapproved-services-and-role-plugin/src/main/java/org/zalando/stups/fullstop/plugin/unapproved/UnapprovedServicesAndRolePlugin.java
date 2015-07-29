@@ -29,6 +29,7 @@ import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAnd
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
@@ -79,6 +80,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         String roleName = getRoleName(event);
 
+        List<String> instanceIds = getInstanceIds(event);
+
         String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
 
         String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
@@ -96,11 +99,26 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         }
 
         if (!policyJson.equals(templatePolicyJson)) {
-            violationSink.put(
-                    violationFor(event).withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
-                                       .withType(MODIFIED_ROLE_OR_SERVICE)
-                                       .withMetaInfo(newArrayList(roleName))
-                                       .build());
+            if (instanceIds.isEmpty()) {
+                violationSink.put(
+                        violationFor(event)
+                                .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
+                                .withType(MODIFIED_ROLE_OR_SERVICE)
+                                .withMetaInfo(newArrayList(roleName))
+                                .build());
+            }
+            else {
+                for (String instanceId : instanceIds) {
+                    violationSink.put(
+                            violationFor(event).withInstanceId(instanceId)
+                                               .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
+                                               .withType(MODIFIED_ROLE_OR_SERVICE)
+                                               .withMetaInfo(newArrayList(roleName))
+                                               .build());
+                }
+
+            }
+
         }
     }
 
