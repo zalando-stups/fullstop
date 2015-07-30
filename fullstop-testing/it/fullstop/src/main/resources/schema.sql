@@ -27,11 +27,17 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
   last_modified                     TIMESTAMP,
   last_modified_by                  TEXT,
   version                           BIGINT    NOT NULL,
-  FOREIGN KEY (violation_type_entity_id) REFERENCES fullstop_data.violation_type (id),
-  CONSTRAINT unique_violation UNIQUE (account_id, region, event_id, violation_type_entity_id)
+  FOREIGN KEY (violation_type_entity_id) REFERENCES fullstop_data.violation_type (id)
 );
 
+CREATE UNIQUE INDEX unique_violation_instance_null ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+  WHERE instance_id IS NULL;
+
+CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+  WHERE instance_id IS NOT NULL;
+
 --ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
+
 CREATE TABLE IF NOT EXISTS fullstop_data.application (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
   name             TEXT,
