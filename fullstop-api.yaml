@@ -36,12 +36,11 @@ definitions:
       region:
         type: string
         example: "eu-west-1"
-      message:
-        type: string
-        example: "The instance i-3w4fdsa is running in the wrong region"
-      violation_object:
+      meta_info:
         type: object
         example: ""
+      # add also plugin name
+      # and violation type obj
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
@@ -145,6 +144,26 @@ paths:
           required: false
           type: boolean
           description: Include only violations where checked field equals this value
+        - name: severity
+          in: query
+          required: false
+          type: string
+          enum:
+            - CRITICAL_IMPACT
+            - SIGNIFICANT_IMPACT
+            - MINOR_IMPACT
+            - LOW_IMPACT
+          description: Include only violations where checked field equals this value
+        - name: audit-relevant
+          in: query
+          required: false
+          type: boolean
+          description: Include only violations that re audit relevant
+        - name: type
+          in: query
+          required: false
+          type: string
+          description: Include only violations with a certain type
       responses:
         "200":
           description: List of all violations
@@ -170,7 +189,7 @@ paths:
           in: path
           type: integer
           required: true
-        - name: message
+        - name: comment
           in: body
           required: true
           schema:

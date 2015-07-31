@@ -1,24 +1,43 @@
 CREATE SCHEMA IF NOT EXISTS fullstop_data;
 
-CREATE TABLE IF NOT EXISTS fullstop_data.violation (
-  id               BIGSERIAL NOT NULL PRIMARY KEY,
-  event_id         TEXT,
-  account_id       TEXT,
-  region           TEXT,
-  message          TEXT      NOT NULL,
-  violation_object TEXT,
-  comment          TEXT,
-  created          TIMESTAMP,
-  created_by       TEXT,
-  last_modified    TIMESTAMP,
-  last_modified_by TEXT,
-  version          BIGINT    NOT NULL,
-
-  -- TODO: we should think about that
-  CONSTRAINT unique_violation UNIQUE (account_id, region, event_id, message)
+CREATE TABLE IF NOT EXISTS fullstop_data.violation_type (
+  id                 TEXT   NOT NULL PRIMARY KEY,
+  help_text          TEXT,
+  violation_severity TEXT,
+  is_audit_relevant  BOOLEAN,
+  created            TIMESTAMP,
+  created_by         TEXT,
+  last_modified      TIMESTAMP,
+  last_modified_by   TEXT,
+  version            BIGINT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS fullstop_data.violation (
+  id                                BIGSERIAL NOT NULL PRIMARY KEY,
+  event_id                          TEXT,
+  account_id                        TEXT,
+  region                            TEXT,
+  instance_id                       TEXT,
+  meta_info                         TEXT,
+  comment                           TEXT,
+  plugin_fully_qualified_class_name TEXT,
+  violation_type_entity_id          TEXT      NOT NULL,
+  created                           TIMESTAMP,
+  created_by                        TEXT,
+  last_modified                     TIMESTAMP,
+  last_modified_by                  TEXT,
+  version                           BIGINT    NOT NULL,
+  FOREIGN KEY (violation_type_entity_id) REFERENCES fullstop_data.violation_type (id)
+);
+
+CREATE UNIQUE INDEX unique_violation_instance_null ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+  WHERE instance_id IS NULL;
+
+CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+  WHERE instance_id IS NOT NULL;
+
 --ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
+
 CREATE TABLE IF NOT EXISTS fullstop_data.application (
   id               BIGSERIAL NOT NULL PRIMARY KEY,
   name             TEXT,

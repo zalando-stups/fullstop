@@ -15,17 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin.instance;
 
-import static java.util.stream.Collectors.toList;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.PUBLIC_IP_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.SECURITY_GROUP_IDS_JSON_PATH;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.read;
-import static org.zalando.stups.fullstop.plugin.instance.Bool.not;
-import static org.zalando.stups.fullstop.plugin.instance.IpPermissionPredicates.withToPort;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
+import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,35 +39,16 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Component;
-
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import com.amazonaws.AmazonClientException;
-
-import com.amazonaws.regions.Region;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
-import com.google.common.collect.Sets;
+import static java.util.stream.Collectors.toList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.plugin.instance.Bool.not;
+import static org.zalando.stups.fullstop.plugin.instance.IpPermissionPredicates.withToPort;
+import static org.zalando.stups.fullstop.violation.ViolationType.SECURITY_GROUPS_PORT_NOT_ALLOWED;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class RunInstancePlugin extends AbstractFullstopPlugin {
@@ -97,28 +84,32 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
+        List<String> instances = getInstances(event);
+        for (String instance : instances) {
+
         if (not(hasPublicIp(event))) {
 
             // no public IP, so skip more checks
             return;
         }
 
-        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroups(event);
+        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroupsForInstance(instance, event);
         if (not(securityGroupList.isPresent())) {
 
             // no securityGroups, maybe instance already down
             return;
         }
 
-        if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
-
-            String message = String.format("SecurityGroups configured with ports not allowed: %s",
-                    getPorts(securityGroupList.get()));
-            violationSink.put(new ViolationBuilder(message).withEventId(CloudTrailEventSupport.getEventId(event))
-                    .withRegion(CloudTrailEventSupport.getRegionAsString(event)).withAccountId(
-                    CloudTrailEventSupport.getAccountId(event)).build());
-
+            if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(getInstanceId(instance))
+                                           .withType(SECURITY_GROUPS_PORT_NOT_ALLOWED)
+                                           .withPluginFullyQualifiedClassName(RunInstancePlugin.class)
+                                           .withMetaInfo(getPorts(securityGroupList.get()))
+                                           .build());
+            }
         }
+
     }
 
     protected Set<String> getPorts(final List<SecurityGroup> securityGroups) {
@@ -143,14 +134,14 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         return securityGroups.stream().map(transformer).collect(toList());
     }
 
-    protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
+    protected List<String> readSecurityGroupIds(final String instance) {
 
-        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
+        return read(instance, SECURITY_GROUP_IDS_JSON_PATH, true);
     }
 
-    protected Optional<List<SecurityGroup>> getSecurityGroups(final CloudTrailEvent event) {
+    protected Optional<List<SecurityGroup>> getSecurityGroupsForInstance(final String instance, CloudTrailEvent event) {
 
-        List<String> securityGroupIds = readSecurityGroupIds(event);
+        List<String> securityGroupIds = readSecurityGroupIds(instance);
 
         return getSecurityGroupsForIds(securityGroupIds, event);
     }
@@ -164,10 +155,12 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         AmazonEC2Client amazonEC2Client = getClient(accountId, region);
 
         if (amazonEC2Client == null) {
-            throw new RuntimeException(String.format(
-                    "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
-                    region.toString()));
-        } else {
+            throw new RuntimeException(
+                    String.format(
+                            "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
+                            region.toString()));
+        }
+        else {
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
@@ -175,15 +168,12 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
                 DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(request);
 
                 return Optional.of(result.getSecurityGroups());
-            } catch (AmazonClientException e) {
-
-                // TODO, better ways?
-                String message = String.format("Unable to get SecurityGroups for SecurityGroupIds [%s] | %s",
-                        securityGroupIds.toString(), e.getMessage());
-
-                violationSink.put(new ViolationBuilder(message).withEventId(CloudTrailEventSupport.getEventId(event))
-                        .withRegion(CloudTrailEventSupport.getRegionAsString(event)).withAccountId(
-                        CloudTrailEventSupport.getAccountId(event)).build());
+            }
+            catch (AmazonClientException e) {
+                LOG.warn(
+                        "Unable to get SecurityGroups for SecurityGroupIds [{}] | {}",
+                        securityGroupIds.toString(),
+                        e.getMessage());
                 return Optional.empty();
             }
 

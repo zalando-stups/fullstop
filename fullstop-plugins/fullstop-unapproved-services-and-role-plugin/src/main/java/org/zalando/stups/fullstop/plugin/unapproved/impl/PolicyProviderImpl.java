@@ -51,10 +51,11 @@ public class PolicyProviderImpl implements PolicyProvider {
                 .getClient(AmazonIdentityManagementClient.class, accountId, region);
 
         if (iamClient == null) {
-            throw new RuntimeException(String.format(
-                    "Somehow we could not create an AmazonIdentityManagementClient with accountId: %s and region: %s",
-                    accountId,
-                    region.toString()));
+            throw new RuntimeException(
+                    String.format(
+                            "Somehow we could not create an AmazonIdentityManagementClient with accountId: %s and region: %s",
+                            accountId,
+                            region.toString()));
         }
         else {
 
@@ -67,14 +68,17 @@ public class PolicyProviderImpl implements PolicyProvider {
 
                 if (role != null && role.getRole() != null && role.getRole().getAssumeRolePolicyDocument() != null) {
                     try {
-                        assumeRolePolicyDocument = URLDecoder.decode(role.getRole().getAssumeRolePolicyDocument(), "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
+                        assumeRolePolicyDocument = URLDecoder.decode(
+                                role.getRole().getAssumeRolePolicyDocument(),
+                                "UTF-8");
+                    }
+                    catch (UnsupportedEncodingException e) {
                         log.warn("Could not decode policy document for role: {}", roleName);
                     }
-                } else {
+                }
+                else {
                     return null;
                 }
-
 
             }
             catch (AmazonClientException e) {

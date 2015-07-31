@@ -51,7 +51,7 @@ public class PolicyProviderTest {
     @Test
     public void testGetPolicy() throws Exception {
 
-        when(clientProviderMock.getClient(any(),any(),any())).thenReturn(new AmazonIdentityManagementClient());
+        when(clientProviderMock.getClient(any(), any(), any())).thenReturn(new AmazonIdentityManagementClient());
 
         policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
 
@@ -61,16 +61,17 @@ public class PolicyProviderTest {
     @Test
     public void testGetPolicyException() throws Exception {
 
-        when(clientProviderMock.getClient(any(),any(),any())).thenReturn(null);
+        when(clientProviderMock.getClient(any(), any(), any())).thenReturn(null);
 
         try {
             policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
-        } catch (RuntimeException e){
+        }
+        catch (RuntimeException e) {
             assertThat(
                     e.getMessage()
                      .startsWith("Somehow we could not create an AmazonIdentityManagementClient with accountId:"));
         }
 
-        verify(clientProviderMock).getClient(any(),any(),any());
+        verify(clientProviderMock).getClient(any(), any(), any());
     }
 }

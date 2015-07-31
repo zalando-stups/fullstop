@@ -39,8 +39,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
@@ -95,8 +94,7 @@ public class ApplicationRepositoryTest {
 
     }
 
-
-        @Test
+    @Test
     public void testManyToMany() throws IOException {
         List<ApplicationEntity> applications = applicationRepository.findAll();
         assertThat(applications).isNotNull();
@@ -125,18 +123,15 @@ public class ApplicationRepositoryTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean
-        DataSource dataSource() throws IOException {
+        @Bean DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean
-        AuditorAware<String> auditorAware() {
+        @Bean AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
     }

@@ -21,6 +21,8 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.function.Consumer;
 
+import static org.zalando.stups.fullstop.violation.ViolationType.PASSWORD_USED;
+
 /**
  * @author jbellmann
  */
@@ -37,8 +39,12 @@ class UsersConsumer implements Consumer<User> {
 
     @Override
     public void accept(final User t) {
-        String message = String.format("Password was used by %s", t.getUserName());
-        violationSink.put(new ViolationBuilder(message).withAccountId(accountId).build());
+        violationSink.put(
+                new ViolationBuilder().withAccountId(accountId)
+                                      .withPluginFullyQualifiedClassName(UsersConsumer.class)
+                                      .withType(PASSWORD_USED)
+                                      .withMetaInfo(t.getUserName())
+                                      .build());
     }
 
 }

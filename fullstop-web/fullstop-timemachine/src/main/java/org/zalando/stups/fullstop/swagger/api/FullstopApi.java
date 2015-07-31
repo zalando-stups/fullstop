@@ -15,22 +15,7 @@
  */
 package org.zalando.stups.fullstop.swagger.api;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static org.joda.time.DateTimeZone.UTC;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import java.io.IOException;
-import java.util.List;
-
+import io.swagger.annotations.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,24 +30,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.s3.LogType;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
-import org.zalando.stups.fullstop.teams.InfrastructureAccount;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+
+import java.io.IOException;
+import java.util.List;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+import static org.joda.time.DateTimeZone.UTC;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api", produces = { APPLICATION_JSON_VALUE })
@@ -101,10 +92,13 @@ public class FullstopApi {
 
         violation.setAccountId(entity.getAccountId());
         violation.setEventId(entity.getEventId());
-        violation.setMessage(entity.getMessage());
+
+        violation.setPluginFullyQualifiedClassName(entity.getPluginFullyQualifiedClassName());
+        violation.setViolationTypeEntity(entity.getViolationTypeEntity());
+
         violation.setRegion(entity.getRegion());
         violation.setComment(entity.getComment());
-        violation.setViolationObject(entity.getViolationObject());
+        violation.setMetaInfo(entity.getMetaInfo());
         return violation;
     }
 
@@ -145,12 +139,21 @@ public class FullstopApi {
             @ApiParam(value = "Include only violations where checked field equals this value")
             @RequestParam(value = "checked", required = false)
             final Boolean checked,
+            @ApiParam(value = "Include only violations with a certain severity")
+            @RequestParam(value = "severity", required = false)
+            final ViolationSeverity severity,
+            @ApiParam(value = "Include only violations that are audit relevant")
+            @RequestParam(value = "audit-relevant", required = false)
+            final Boolean auditRelevant,
+            @ApiParam(value = "Include only violations with a certain type")
+            @RequestParam(value = "type", required = false)
+            final String type,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable,
             @AuthenticationPrincipal(errorOnInvalidType = true) final String uid) throws NotFoundException {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, since, lastViolation,
-                        checked, pageable));
+                        checked, severity, auditRelevant, type, pageable));
     }
 
     @ApiOperation(
@@ -164,7 +167,7 @@ public class FullstopApi {
             @PathVariable("id")
             final Long id,
             @ApiParam(value = "", required = true)
-            @RequestBody final String message,
+            @RequestBody final String comment,
             @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
             throws NotFoundException, ForbiddenException {
         final ViolationEntity violation = violationService.findOne(id);
@@ -180,7 +183,7 @@ public class FullstopApi {
                             violation.getAccountId(), id));
         }
 
-        violation.setComment(message);
+        violation.setComment(comment);
         final ViolationEntity dbViolationEntity = violationService.save(violation);
         return mapToDto(dbViolationEntity);
     }
@@ -200,11 +203,14 @@ public class FullstopApi {
     }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
-        final List<UserTeam> teams = teamOperations.getTeamsByUser(userId);
-        return teams.stream()
-                    .flatMap(team -> team.getInfrastructureAccounts().stream())
-                    .map(InfrastructureAccount::getId)
-                    .anyMatch(accountId -> accountId.equals(targetAccountId));
+        final List<Account> teams = teamOperations.getTeamsByUser(userId);
+
+        for (Account team : teams) {
+            if (team.getId().equals(targetAccountId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void saveLog(final LogObj instanceLog) {
@@ -227,7 +233,7 @@ public class FullstopApi {
         if (instanceLog.getLogType() == LogType.USER_DATA) {
             LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                     instanceLog.getInstanceId(),
-                    new DateTime(instanceLog.getInstanceBootTime(),UTC),
+                    new DateTime(instanceLog.getInstanceBootTime(), UTC),
                     userdataPath,
                     instanceLog.getRegion(),
                     instanceLog.getLogData());

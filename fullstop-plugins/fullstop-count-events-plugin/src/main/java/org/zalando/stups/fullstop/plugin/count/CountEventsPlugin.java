@@ -15,21 +15,17 @@
  */
 package org.zalando.stups.fullstop.plugin.count;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.base.Joiner;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-
-import com.google.common.base.Joiner;
 
 /**
  * Count all events by type an account.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @Component
 public class CountEventsPlugin extends AbstractFullstopPlugin {
@@ -58,7 +54,8 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
         String type = null;
         if (event.getEventData().getEventType() != null) {
             type = event.getEventData().getEventType();
-        } else if (event.getEventData().getEventName() != null) {
+        }
+        else if (event.getEventData().getEventName() != null) {
             type = event.getEventData().getEventName();
         }
 

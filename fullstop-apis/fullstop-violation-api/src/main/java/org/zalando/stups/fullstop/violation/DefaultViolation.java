@@ -15,7 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation;
 
-import com.google.common.base.MoreObjects;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author jbellmann
@@ -28,21 +28,25 @@ class DefaultViolation implements Violation {
 
     private String region;
 
-    private String message;
+    private String instanceId;
 
-    private Object violationObject;
+    private Object metaInfo;
 
     private String comment;
 
     private Boolean checked;
 
-    DefaultViolation(final String eventId, final String accountId, final String region, final String message,
-            final Object violationObject, final String comment, final Boolean checked) {
+    private String pluginFullyQualifiedClassName;
+
+    private String violationType;
+
+    DefaultViolation(final String eventId, final String accountId, final String region, final String instanceId, final String message,
+            final Object metaInfo, final String comment, final Boolean checked) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
-        this.message = message;
-        this.violationObject = violationObject;
+        this.instanceId = instanceId;
+        this.metaInfo = metaInfo;
         this.comment = comment;
         this.checked = checked;
     }
@@ -74,20 +78,20 @@ class DefaultViolation implements Violation {
         this.region = region;
     }
 
-    public String getMessage() {
-        return message;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
-    public Object getViolationObject() {
-        return violationObject;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+    public void setMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
     public String getComment() {
@@ -107,10 +111,34 @@ class DefaultViolation implements Violation {
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues().add("accountId", accountId).add("region", region)
-                          .add("message", message).add("violationObject", violationObject).add("eventId", eventId)
-                          .add("comment", comment).add("checked", checked).toString();
+    public String getViolationType() {
+        return violationType;
     }
 
+    public void setViolationType(String violationType) {
+        this.violationType = violationType;
+    }
+
+    @Override
+    public String getPluginFullyQualifiedClassName() {
+        return pluginFullyQualifiedClassName;
+    }
+
+    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("metaInfo", metaInfo)
+                .add("comment", comment)
+                .add("checked", checked)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
+                .add("violationType", violationType)
+                .toString();
+    }
 }

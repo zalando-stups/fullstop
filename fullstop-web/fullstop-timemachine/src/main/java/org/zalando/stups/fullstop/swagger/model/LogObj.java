@@ -15,12 +15,11 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import java.util.Date;
-
-import org.zalando.stups.fullstop.s3.LogType;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.zalando.stups.fullstop.s3.LogType;
+
+import java.util.Date;
 
 @ApiModel(description = "")
 public class LogObj {

@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.violation;
 
-import static java.lang.String.format;
-
 /**
  * Created by gkneitschel.
  */
@@ -27,15 +25,15 @@ public class ViolationBuilder {
 
     private String region;
 
-    private String message;
+    private String instanceId;
 
-    private Object violationObject;
+    private Object metaInfo;
+
+    private String type;
+
+    private String pluginFullyQualifiedClassName;
 
     public ViolationBuilder() {
-    }
-
-    public ViolationBuilder(final String message) {
-        this.message = message;
     }
 
     public Violation build() {
@@ -44,8 +42,10 @@ public class ViolationBuilder {
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
         violation.setRegion(region);
-        violation.setMessage(message);
-        violation.setViolationObject(violationObject);
+        violation.setInstanceId(instanceId);
+        violation.setMetaInfo(metaInfo);
+        violation.setViolationType(type);
+        violation.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
 
         return violation;
     }
@@ -65,19 +65,23 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withMessage(final String message) {
-        this.message = message;
+    public ViolationBuilder withInstanceId(final String instanceId){
+        this.instanceId = instanceId;
         return this;
     }
 
-    public ViolationBuilder withMessage(final String messageFormat, final Object... args) {
-        this.message = format(messageFormat, args);
+    public ViolationBuilder withMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
         return this;
     }
 
-    public ViolationBuilder withViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+    public ViolationBuilder withType(String type) {
+        this.type = type;
         return this;
     }
 
+    public ViolationBuilder withPluginFullyQualifiedClassName(Class pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName.getName();
+        return this;
+    }
 }

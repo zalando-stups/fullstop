@@ -15,10 +15,10 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import java.util.Map;
-
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+
+import java.util.Map;
 
 public class HystrixPieroneOperations implements PieroneOperations {
 

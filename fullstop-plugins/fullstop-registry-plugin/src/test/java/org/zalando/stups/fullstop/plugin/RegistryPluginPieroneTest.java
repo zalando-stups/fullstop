@@ -45,6 +45,8 @@ public class RegistryPluginPieroneTest {
     private static final String TEAM = "stups";
 
     private static final String ARTIFACT = "docker://stups/yourturn:1.0";
+    private static final String INSTANCE_ID = "i-12345";
+
 
     private KioOperations kioOperations;
 
@@ -108,7 +110,8 @@ public class RegistryPluginPieroneTest {
                 VERSION,
                 TEAM,
                 "stups/yourturn:2.0",
-                ARTIFACT);
+                ARTIFACT,
+                INSTANCE_ID);
         verify(pieroneOperations).listTags(
                 TEAM,
                 APP);
@@ -128,7 +131,8 @@ public class RegistryPluginPieroneTest {
                 VERSION,
                 TEAM,
                 ARTIFACT,
-                ARTIFACT);
+                ARTIFACT,
+                INSTANCE_ID);
         verify(pieroneOperations).listTags(
                 TEAM,
                 APP);
@@ -151,7 +155,8 @@ public class RegistryPluginPieroneTest {
                 VERSION,
                 TEAM,
                 ARTIFACT,
-                ARTIFACT);
+                ARTIFACT,
+                INSTANCE_ID);
         verify(pieroneOperations).listTags(
                 TEAM,
                 APP);
@@ -174,7 +179,8 @@ public class RegistryPluginPieroneTest {
                 VERSION,
                 TEAM,
                 "stups/yourturn",
-                ARTIFACT);
+                ARTIFACT,
+                INSTANCE_ID);
         verify(pieroneOperations).listTags(
                 TEAM,
                 APP);
@@ -195,7 +201,8 @@ public class RegistryPluginPieroneTest {
                 event,
                 TEAM,
                 APP,
-                VERSION);
+                VERSION,
+                INSTANCE_ID);
         verify(pieroneOperations).getScmSource(
                 TEAM,
                 APP,
@@ -215,7 +222,8 @@ public class RegistryPluginPieroneTest {
                 event,
                 TEAM,
                 APP,
-                VERSION);
+                VERSION,
+                INSTANCE_ID);
         verify(pieroneOperations).getScmSource(
                 TEAM,
                 APP,
@@ -238,7 +246,8 @@ public class RegistryPluginPieroneTest {
                 event,
                 TEAM,
                 APP,
-                VERSION);
+                VERSION,
+                INSTANCE_ID);
         verify(pieroneOperations).getScmSource(
                 TEAM,
                 APP,

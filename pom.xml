@@ -14,15 +14,23 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.zalando.stups</groupId>
+    <parent>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>fullstop-parent</artifactId>
+        <version>1</version>
+        <relativePath/>
+    </parent>
+
     <artifactId>fullstop-reactor</artifactId>
     <version>0</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
     <url>http://stups.io/fullstop/</url>
+
 
     <organization>
         <name>Zalando SE</name>
@@ -46,13 +54,14 @@
 
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support</module>
-        <!-- 
+        <!--
         <module>fullstop-aws-support/fullstop-aws-client-support</module>
         <module>fullstop-aws-support/fullstop-aws-cloudtrail-support</module>
         <module>fullstop-aws-support/fullstop-aws-s3-support</module>
         <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
          -->
 
+        <module>fullstop-jobs</module>
 
         <!-- all-plugins -->
         <module>fullstop-plugins</module>
@@ -111,7 +120,8 @@
                         <jacocoReport>
                             fullstop-plugins/fullstop-application-lifecycle-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-scm-repository-plugin/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-plugins/fullstop-scm-repository-plugin/target/site/jacoco-it/jacoco.xml
+                        </jacocoReport>
                         <!--plugins end-->
                         <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-aws-s3-support/target/site/jacoco-it/jacoco.xml</jacocoReport>

@@ -30,20 +30,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.zalando.stups.fullstop.common.RestControllerTestSupport;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
-import org.zalando.stups.fullstop.teams.InfrastructureAccount;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
-import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 import sun.misc.BASE64Encoder;
 
 import java.util.Date;
@@ -64,8 +63,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.builder.domain.ViolationEntityBuilder.violation;
 import static org.zalando.stups.fullstop.common.test.mvc.matcher.MatcherHelper.hasSize;
 import static org.zalando.stups.fullstop.s3.LogType.USER_DATA;
@@ -79,7 +76,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
 
-    public static final String MESSAGE = "my message";
+    public static final String COMMENT = "my comment";
 
     public static final String ENCODED_LOG_FILE = new BASE64Encoder().encode("this is my log".getBytes());
 
@@ -113,7 +110,6 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
-        violationRequest.setMessage(MESSAGE);
         violationRequest.setRegion(REGION);
         violationRequest.setEventId(UUID.randomUUID().toString());
 
@@ -145,7 +141,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testInstanceLogs() throws Exception {
 
-        when(mockApplicationLifecycleService.saveInstanceLogLifecycle(any(), any(), any(), any(), any())).thenReturn(new LifecycleEntity());
+        when(
+                mockApplicationLifecycleService.saveInstanceLogLifecycle(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any())).thenReturn(new LifecycleEntity());
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
@@ -175,14 +177,15 @@ public class FullstopApiTest extends RestControllerTestSupport {
     public void testGetOneNullViolation() throws Exception {
         when(violationServiceMock.findOne(948439L)).thenReturn(null);
 
-        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isNotFound());
+        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439"))
+                                                        .andExpect(status().isNotFound());
         resultActions.andExpect(content().string("\"Violation with id: 948439 not found!\""));
         verify(violationServiceMock).findOne(948439L);
     }
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -195,6 +198,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
                 isNull(DateTime.class),
                 isNull(Long.class),
                 isNull(Boolean.class),
+                isNull(ViolationSeverity.class),
+                isNull(Boolean.class),
+                isNull(String.class),
                 any());
     }
 
@@ -210,6 +216,9 @@ public class FullstopApiTest extends RestControllerTestSupport {
                         any(DateTime.class),
                         eq(lastViolation),
                         eq(true),
+                        any(),
+                        any(),
+                        any(),
                         any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -221,22 +230,20 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), eq(lastViolation), eq(
-                        true), any());
+                        true), any(), any(), any(), any());
     }
 
     @Test
     public void testResolveViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
         when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString()))
-                .thenReturn(
-                        newArrayList(
-                                new UserTeam(
-                                        "foo", "Foo",
-                                        newArrayList(
-                                                new InfrastructureAccount(
-                                                        violationResult.getAccountId(),
-                                                        "aws")))));
+        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+                newArrayList(
+                        new Account(
+                                violationResult.getAccountId(),
+                                "Foo",
+                                "aws",
+                                "account desc")));
 
         violationRequest.setComment("my comment");
 
@@ -271,12 +278,13 @@ public class FullstopApiTest extends RestControllerTestSupport {
     @Test
     public void testResolveOtherTeamsViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString()))
-                .thenReturn(
-                        newArrayList(
-                                new UserTeam(
-                                        "foo", "Foo",
-                                        newArrayList(new InfrastructureAccount("other_teams_account", "aws")))));
+        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+                newArrayList(
+                        new Account(
+                                "foo",
+                                "Foo",
+                                "other_teams_account",
+                                "aws")));
 
         violationRequest.setComment("my comment");
 
@@ -306,7 +314,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
         }
 
         @Bean
-        public ApplicationLifecycleService applicationLifecycleService(){
+        public ApplicationLifecycleService applicationLifecycleService() {
             return mock(ApplicationLifecycleService.class);
         }
 

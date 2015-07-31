@@ -15,16 +15,20 @@
  */
 package org.zalando.stups.fullstop.violation.entity;
 
-import com.google.common.base.MoreObjects;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
  * @author mrandi
  */
-@Table(name = "violation", schema = "fullstop_data")
+@Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(name = "unique_violation", columnNames = {
+        "eventId", "accountId", "region", "violation_type_entity_id" }))
 @Entity
 public class ViolationEntity extends AbstractModifiableEntity {
 
@@ -34,23 +38,28 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String region;
 
-    private String message;
+    private String instanceId;
 
-    private Object violationObject;
+    private Object metaInfo;
 
     private String comment;
 
-    public ViolationEntity() {
-    }
+    private String pluginFullyQualifiedClassName;
 
-    public ViolationEntity(String eventId, String accountId, String region, String message, Object violationObject,
+    @ManyToOne
+    private ViolationTypeEntity violationTypeEntity;
+
+    public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
             String comment) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
-        this.message = message;
-        this.violationObject = violationObject;
+        this.instanceId = instanceId;
+        this.metaInfo = metaInfo;
         this.comment = comment;
+    }
+
+    public ViolationEntity() {
     }
 
     public String getEventId() {
@@ -77,20 +86,20 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.region = region;
     }
 
-    public String getMessage() {
-        return message;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
-    public Object getViolationObject() {
-        return violationObject;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+    public void setMetaInfo(final Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
     public String getComment() {
@@ -101,15 +110,34 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.comment = comment;
     }
 
+    public String getPluginFullyQualifiedClassName() {
+        return pluginFullyQualifiedClassName;
+    }
+
+    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
+    }
+
+    public ViolationTypeEntity getViolationTypeEntity() {
+        return violationTypeEntity;
+    }
+
+    public void setViolationTypeEntity(
+            ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
-                          .add("accountId", accountId)
-                          .add("region", region)
-                          .add("message", message)
-                          .add("violationObject", violationObject)
-                          .add("eventId", eventId)
-                          .add("comment", comment)
-                          .toString();
+        return toStringHelper(this)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("instanceId", instanceId)
+                .add("metaInfo", metaInfo)
+                .add("comment", comment)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
+                .add("violationTypeEntity", violationTypeEntity)
+                .toString();
     }
 }

@@ -15,19 +15,10 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +30,19 @@ import org.springframework.validation.Validator;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
+
 //J-
 @Component
 public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
@@ -56,15 +55,15 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
 
     private static final String APPLICATION_ID = "application_id";
 
-    private KioOperations kioOperations;
-
     private final ApplicationMasterdataPluginProperties applicationMasterdataPluginProperties;
 
     private final List<NamedValidator> namedValidators;
 
-    private Validator chainingValidator;
-
     private final ViolationSink violationSink;
+
+    private KioOperations kioOperations;
+
+    private Validator chainingValidator;
 
     private UserDataProvider userDataProvider;
 
@@ -96,38 +95,35 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         for (String instanceId : instanceIds) {
             // 1) get user data
             Map userData;
-            
+
             final String accountId = event.getEventData().getUserIdentity().getAccountId();
             final String region = event.getEventData().getAwsRegion();
             try {
-                userData = userDataProvider.getUserData(accountId, region,
-                                                        instanceId);
+                userData = userDataProvider.getUserData(
+                        accountId, region,
+                        instanceId);
             }
             catch (AmazonServiceException ex) {
-                violationSink.put(new ViolationBuilder(format("Instance %s does not have any userData",
-                                                              instanceId)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                          .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                          .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                          .build());
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
+                                newArrayList(instanceId)).build());
                 return;
             }
 
             if (userData == null) {
-                violationSink.put(new ViolationBuilder(format("Instance %s does not have any userData",
-                                                              instanceId)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                          .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                          .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                          .build());
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
+                                newArrayList(instanceId)).build());
                 return;
             }
             // 2) read application id from user data
             if (userData.get(APPLICATION_ID) == null) {
-                violationSink.put(new ViolationBuilder(format("userData of instance %s is missing %s.",
-                                                              instanceId,
-                                                              APPLICATION_ID)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                              .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                              .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                              .build());
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
+                                newArrayList(instanceId, APPLICATION_ID)).build());
                 return;
             }
             String applicationId = userData.get(APPLICATION_ID)
@@ -137,37 +133,39 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
                 application = kioOperations.getApplicationById(applicationId);
             }
             catch (NotFoundException ex) {
-                violationSink.put(new ViolationBuilder(format("Application %s does not exist in Kio.",
-                                                              applicationId)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                             .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                             .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                             .build());
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId).withType(APPLICATION_NOT_PRESENT_IN_KIO).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
+                                newArrayList(applicationId)).build());
                 return;
             }
             // ACTUAL VALIDATION
             Errors errors = buildErrorsObject(application);
-            this.chainingValidator.validate(application,
-                                            errors);
+            this.chainingValidator.validate(
+                    application,
+                    errors);
 
             if (errors.hasErrors()) {
                 String message = errors.getAllErrors()
                                        .stream()
                                        .map(e -> e.getDefaultMessage())
-                                       .reduce("",
+                                       .reduce(
+                                               "",
                                                (s, m) -> s.concat(m + "\n"));
-                violationSink.put(new ViolationBuilder(format("Masterdata of application %s has errors: %s",
-                                                              applicationId,
-                                                              message)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                       .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                       .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                       .build());
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId).withType(WRONG_APPLICATION_MASTERDATA).withPluginFullyQualifiedClassName(
+                                ApplicationMasterdataPlugin.class).withMetaInfo(
+                                newArrayList(
+                                        applicationId,
+                                        message)).build());
             }
         }
     }
 
     protected Errors buildErrorsObject(final Application application) {
-        return new BeanPropertyBindingResult(application,
-                                             "application");
+        return new BeanPropertyBindingResult(
+                application,
+                "application");
     }
 
     @PostConstruct
@@ -177,8 +175,9 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
             if (this.applicationMasterdataPluginProperties.getDefaultValidatorsIfValidatorsEnabledIsEmpty()
                                                           .contains(v.getName())) {
                 validators.add(v);
-                LOG.info("VALIDATOR : '{}' IS ENABLED",
-                         v.getName());
+                LOG.info(
+                        "VALIDATOR : '{}' IS ENABLED",
+                        v.getName());
             }
         }
 
@@ -193,8 +192,9 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         private Validator[] validators;
 
         public ChainingValidator(final Validator... validators) {
-            Assert.notNull(validators,
-                           "Validators must not be null");
+            Assert.notNull(
+                    validators,
+                    "Validators must not be null");
             this.validators = validators;
         }
 
@@ -213,8 +213,9 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
         public void validate(final Object target, final Errors errors) {
             for (Validator validator : this.validators) {
                 if (validator.supports(target.getClass())) {
-                    validator.validate(target,
-                                       errors);
+                    validator.validate(
+                            target,
+                            errors);
                 }
             }
         }

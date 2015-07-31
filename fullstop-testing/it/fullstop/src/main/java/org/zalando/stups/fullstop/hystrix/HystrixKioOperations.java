@@ -15,18 +15,10 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import java.util.List;
-
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.ApplicationBase;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.ApprovalBase;
-import org.zalando.stups.clients.kio.CreateOrUpdateApplicationRequest;
-import org.zalando.stups.clients.kio.CreateOrUpdateVersionRequest;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.clients.kio.VersionBase;
+import org.zalando.stups.clients.kio.*;
+
+import java.util.List;
 
 public class HystrixKioOperations implements KioOperations {
 

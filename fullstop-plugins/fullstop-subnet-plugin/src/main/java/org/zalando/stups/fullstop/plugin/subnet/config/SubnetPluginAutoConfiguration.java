@@ -17,12 +17,12 @@ package org.zalando.stups.fullstop.plugin.subnet.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
 import org.zalando.stups.fullstop.plugin.subnet.SubnetPlugin;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
-@ComponentScan(basePackageClasses = {SubnetPlugin.class})
-public class SubnetPluginAutoConfiguration { }
+@ComponentScan(basePackageClasses = { SubnetPlugin.class })
+public class SubnetPluginAutoConfiguration {
+}

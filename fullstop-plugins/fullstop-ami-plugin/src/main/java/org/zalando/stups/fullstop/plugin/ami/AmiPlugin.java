@@ -15,15 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmis;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -32,19 +23,24 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
+import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 /**
  * @author mrandi
@@ -84,25 +80,20 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
+        List<String> jsonInstances = getInstances(event);
+        List<String> whitelistedAmis = Lists.newArrayList();
 
-        List<String> amis = getAmis(event);
+        whitelistedAmis = getWhitelistedAmis(event, whitelistedAmis);
 
-        final List<String> whitelistedAmis = Lists.newArrayList();
-
-        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, whitelistedAmiAccount,
-                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
-
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
-
-        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
-        List<Image> images = describeImagesResult.getImages();
-
-        whitelistedAmis.addAll(images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
-                .map(Image::getImageId).collect(Collectors.toList()));
-
-        List<String> invalidAmis = Lists.newArrayList();
-
-        for (String ami : amis) {
+        for (String jsonInstance : jsonInstances) {
+            String ami = getAmi(jsonInstance);
+            if (ami == null) {
+                break;
+            }
+            String instanceId = getInstanceId(jsonInstance);
+            if (instanceId == null) {
+                break;
+            }
 
             boolean valid = false;
 
@@ -114,16 +105,30 @@ public class AmiPlugin extends AbstractFullstopPlugin {
             }
 
             if (!valid) {
-                invalidAmis.add(ami);
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(WRONG_AMI)
+                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                                           .withMetaInfo(
+                                                   newArrayList(ami))
+                                           .build());
             }
-
         }
+    }
 
-        if (!CollectionUtils.isEmpty(invalidAmis)) {
-            violationSink.put(new ViolationBuilder(format("Instances with ids: %s was started with wrong images: %s",
-                    getInstanceIds(event), invalidAmis)).withEventId(CloudTrailEventSupport.getEventId(event))
-                    .withRegion(CloudTrailEventSupport.getRegionAsString(event)).withAccountId(CloudTrailEventSupport.getAccountId(event))
-                    .build());
-        }
+    private List<String> getWhitelistedAmis(CloudTrailEvent event, List<String> whitelistedAmis) {
+        AmazonEC2Client ec2Client = clientProvider.getClient(
+                AmazonEC2Client.class, whitelistedAmiAccount,
+                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+
+        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
+
+        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
+        List<Image> images = describeImagesResult.getImages();
+
+        whitelistedAmis.addAll(
+                images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
+                      .map(Image::getImageId).collect(Collectors.toList()));
+        return whitelistedAmis;
     }
 }

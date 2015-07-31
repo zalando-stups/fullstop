@@ -15,38 +15,28 @@
  */
 package com.unknown.pkg;
 
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.unknown.pkg.PluginTest.TestConfig;
 import org.assertj.core.api.Assertions;
-
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.mockito.Mockito;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.test.SpringApplicationConfiguration;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.ami.AmiPlugin;
 import org.zalando.stups.fullstop.violation.NoOpViolationSink;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-
-import com.unknown.pkg.PluginTest.TestConfig;
-
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ExampleApplication.class, TestConfig.class})
+@SpringApplicationConfiguration(classes = { ExampleApplication.class, TestConfig.class })
 public class PluginTest {
 
     @Autowired

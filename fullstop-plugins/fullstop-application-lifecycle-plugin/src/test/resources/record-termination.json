@@ -1,68 +1,68 @@
 {
-   "Records":[
-      {
-         "eventVersion":"1.01",
-         "userIdentity":{
-            "type":"Root",
-            "principalId":"111122223333",
-            "arn":"arn:aws:iam::111122223333:user/testuser",
-            "accountId":"111122223333",
-            "accessKeyId":"AKIAIOSFODNN7EXAMPLE",
-            "sessionContext":{
-               "attributes":{
-                  "mfaAuthenticated":"false",
-                  "creationDate":"2014-05-02T08:27:22Z"
-               }
+  "Records": [
+    {
+      "eventVersion": "1.01",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "111122223333",
+        "arn": "arn:aws:iam::111122223333:user/testuser",
+        "accountId": "111122223333",
+        "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
+        "sessionContext": {
+          "attributes": {
+            "mfaAuthenticated": "false",
+            "creationDate": "2014-05-02T08:27:22Z"
+          }
+        }
+      },
+      "eventTime": "2014-05-02T08:27:45Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "TerminateInstances",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "192.0.2.64",
+      "userAgent": "EC2ConsoleBackend, aws-sdk-java/unknown-version Linux/2.6.18-308.24.1.1123.6.fleetxen Java_HotSpot(TM)_64-Bit_Server_VM/24.51-b03",
+      "requestParameters": {
+        "instancesSet": {
+          "items": [
+            {
+              "instanceId": "i-1a2b3c4d"
+            },
+            {
+              "instanceId": "i-111bbb33"
             }
-         },
-         "eventTime":"2014-05-02T08:27:45Z",
-         "eventSource":"ec2.amazonaws.com",
-         "eventName":"TerminateInstances",
-         "awsRegion":"us-east-1",
-         "sourceIPAddress":"192.0.2.64",
-         "userAgent":"EC2ConsoleBackend, aws-sdk-java/unknown-version Linux/2.6.18-308.24.1.1123.6.fleetxen Java_HotSpot(TM)_64-Bit_Server_VM/24.51-b03",
-         "requestParameters":{
-            "instancesSet":{
-               "items":[
-                  {
-                     "instanceId":"i-1a2b3c4d"
-                  },
-                  {
-                     "instanceId":"i-111bbb33"
-                  }
-               ]
+          ]
+        }
+      },
+      "responseElements": {
+        "instancesSet": {
+          "items": [
+            {
+              "instanceId": "i-1a2b3c4d",
+              "currentState": {
+                "code": 48,
+                "name": "terminated"
+              },
+              "previousState": {
+                "code": 48,
+                "name": "terminated"
+              }
+            },
+            {
+              "instanceId": "i-111bbb33",
+              "currentState": {
+                "code": 48,
+                "name": "terminated"
+              },
+              "previousState": {
+                "code": 48,
+                "name": "terminated"
+              }
             }
-         },
-         "responseElements":{
-            "instancesSet":{
-               "items":[
-                  {
-                     "instanceId":"i-1a2b3c4d",
-                     "currentState":{
-                        "code":48,
-                        "name":"terminated"
-                     },
-                     "previousState":{
-                        "code":48,
-                        "name":"terminated"
-                     }
-                  },
-                  {
-                     "instanceId":"i-111bbb33",
-                     "currentState":{
-                        "code":48,
-                        "name":"terminated"
-                     },
-                     "previousState":{
-                        "code":48,
-                        "name":"terminated"
-                     }
-                  }
-               ]
-            }
-         },
-         "requestID":"be112233-1ba5-4ae0-8e2b-1c302example",
-         "eventID":"6e12345-2a4e-417c-aa78-7594fexample"
-      }
-   ]
+          ]
+        }
+      },
+      "requestID": "be112233-1ba5-4ae0-8e2b-1c302example",
+      "eventID": "6e12345-2a4e-417c-aa78-7594fexample"
+    }
+  ]
 }

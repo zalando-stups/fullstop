@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.zalando.stups.fullstop.plugin;
 
-import static java.lang.String.*;
+import com.google.common.base.Strings;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
-
-import com.google.common.base.Strings;
+import static java.lang.String.format;
 
 public class UrlValidator implements Validator {
 
@@ -55,10 +53,12 @@ public class UrlValidator implements Validator {
         }
         catch (MalformedURLException ex) {
             // reject
-            errors.rejectValue(null,
-                               "malformedUrl",
-                               format("%s is not a valid URL",
-                                      urlString));
+            errors.rejectValue(
+                    null,
+                    "malformedUrl",
+                    format(
+                            "%s is not a valid URL",
+                            urlString));
             return;
         }
         if (!privateHostsAllowed) {
@@ -67,11 +67,13 @@ public class UrlValidator implements Validator {
                              .toLowerCase();
             if (host.equals("localhost") || host.equals("127.0.0.1")) {
                 // reject
-                errors.rejectValue(null,
-                                   "privateHost",
-                                   format("%s is on a private host: %s",
-                                          urlString,
-                                          host));
+                errors.rejectValue(
+                        null,
+                        "privateHost",
+                        format(
+                                "%s is on a private host: %s",
+                                urlString,
+                                host));
             }
         }
         if (!protocolsAllowed.isEmpty()) {
@@ -79,11 +81,13 @@ public class UrlValidator implements Validator {
             String protocol = url.getProtocol()
                                  .toLowerCase();
             if (!protocolsAllowed.contains(protocol)) {
-                errors.rejectValue(null,
-                                   "illegalProtocol",
-                                   format("%s has an illegal protocol: %s",
-                                          urlString,
-                                          protocol));
+                errors.rejectValue(
+                        null,
+                        "illegalProtocol",
+                        format(
+                                "%s has an illegal protocol: %s",
+                                urlString,
+                                protocol));
             }
         }
     }

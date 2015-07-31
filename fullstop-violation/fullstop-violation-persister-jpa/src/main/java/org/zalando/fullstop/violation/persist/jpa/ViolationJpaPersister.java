@@ -15,47 +15,80 @@
  */
 package org.zalando.fullstop.violation.persist.jpa;
 
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import reactor.bus.EventBus;
+
+import static org.zalando.stups.fullstop.violation.entity.ViolationSeverity.MINOR_IMPACT;
 
 /**
  * @author jbellmann
  */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
-    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
-
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
 
     private static final String VIOLATIONS_PERSISTED_JPA = "violations.persisted.jpa";
 
+    private final Logger log = LoggerFactory.getLogger(ViolationJpaPersister.class);
+
     private final ViolationRepository violationRepository;
+
+    private final ViolationTypeRepository violationTypeRepository;
 
     private final CounterService counterService;
 
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
+            final ViolationTypeRepository violationTypeRepository,
             final CounterService counterService) {
         super(eventBus);
         this.violationRepository = violationRepository;
+        this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
 
+        if (violation == null || violation.getViolationType() == null) {
+            log.warn("Violation/Violation-Type must not be null!");
+            return null;
+        }
+
+        String violationTypeId = violation.getViolationType();
+
         ViolationEntity entity = new ViolationEntity();
 
         entity.setAccountId(violation.getAccountId());
         entity.setEventId(violation.getEventId());
-        entity.setMessage(violation.getMessage());
+        entity.setInstanceId(violation.getInstanceId());
 
-        entity.setViolationObject(violation.getViolationObject());
+        entity.setPluginFullyQualifiedClassName(violation.getPluginFullyQualifiedClassName());
+
+        ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationTypeId);
+
+        if (violationTypeEntity != null) {
+            entity.setViolationTypeEntity(violationTypeEntity);
+        }
+        else {
+            ViolationTypeEntity vte = new ViolationTypeEntity();
+            vte.setId(violationTypeId);
+            vte.setViolationSeverity(MINOR_IMPACT);
+            vte.setIsAuditRelevant(false);
+            vte.setHelpText("This is only a default message");
+
+            ViolationTypeEntity savedViolationTypeEntity = violationTypeRepository.save(vte);
+
+            entity.setViolationTypeEntity(savedViolationTypeEntity);
+        }
+
+        entity.setMetaInfo(violation.getMetaInfo());
 
         entity.setRegion(violation.getRegion());
 
@@ -68,9 +101,10 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         ViolationEntity entity = buildViolationEntity(violation);
 
-        try{
+        try {
             this.violationRepository.save(entity);
-        } catch (Exception e){
+        }
+        catch (Exception e) {
             log.warn("Cannot write into DB: {}", e.getMessage());
         }
 

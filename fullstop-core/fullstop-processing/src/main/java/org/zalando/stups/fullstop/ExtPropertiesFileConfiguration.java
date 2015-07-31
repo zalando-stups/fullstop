@@ -66,14 +66,14 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
 
     /**
      * The SQS Queue URL used to receive events.
-     *
+     * <p>
      * <p>The Queue must be subscribed to AWS CloudTrail.
      */
     private String sqsUrl = null;
 
     /**
      * The SQS region to use.
-     *
+     * <p>
      * <p>If not specified, the default SQS region ( {@value ProcessingConfiguration#DEFAULT_SQS_REGION}) will be used.
      */
     private String sqsRegion = DEFAULT_SQS_REGION;
@@ -86,14 +86,14 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
 
     /**
      * The S3 endpoint specific to a region.
-     *
+     * <p>
      * <p>If not specified, the default S3 region will be used.
      */
     private String s3Region = DEFAULT_S3_REGION;
 
     /**
      * The number of threads used to download log files from S3 in parallel.
-     *
+     * <p>
      * <p>Callbacks can be invoked from any thread.
      */
     private int threadCount = DEFAULT_THREAD_COUNT;
@@ -101,7 +101,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * The time allowed, in seconds, for threads to shut down after AWSCloudTrailEventProcessingExecutor.stop() is
      * called.
-     *
+     * <p>
      * <p>Any threads still running beyond this time will be forcibly terminated.
      */
     private int threadTerminationDelaySeconds = DEFAULT_THREAD_TERMINATION_DELAY_SECONDS;
@@ -123,8 +123,8 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * Creates a {@link PropertiesFileConfiguration} from values provided in a classpath properties file.
      *
-     * @param  prop                the classpath properties file to load.
-     * @param  credentialProvider  credential provider.
+     * @param prop               the classpath properties file to load.
+     * @param credentialProvider credential provider.
      */
     public ExtPropertiesFileConfiguration(final Properties prop, final AWSCredentialsProviderChain credentialProvider) {
 
@@ -163,10 +163,9 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * Load properties from a classpath property file.
      *
-     * @param   propertiesFile  the classpath properties file to read.
-     *
+     * @param propertiesFile the classpath properties file to read.
      * @return a <a href= "http://docs.oracle.com/javase/7/docs/api/java/util/Properties.html" >Properties</a> object
-     *          containing the properties set in the file.
+     * containing the properties set in the file.
      */
     protected static Properties loadProperty(final String propertiesFile) {
         Properties prop = new Properties();
@@ -266,9 +265,8 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * Convert a string representation of a property to an integer type.
      *
-     * @param   prop  the property class
-     * @param   name  a name to evaluate in the property file.
-     *
+     * @param prop the property class
+     * @param name a name to evaluate in the property file.
      * @return an integer representation of the value associated with the property name.
      */
     private int getIntProperty(final Properties prop, final String name) {
@@ -279,9 +277,8 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     /**
      * Convert a string representation of a property to a boolean type.
      *
-     * @param   prop  the property class
-     * @param   name  a name to evaluate in the property file.
-     *
+     * @param prop the property class
+     * @param name a name to evaluate in the property file.
      * @return a boolean representation of the value associated with the property name.
      */
     private Boolean getBooleanProperty(final Properties prop, final String name) {

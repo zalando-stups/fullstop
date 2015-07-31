@@ -23,9 +23,7 @@ import reactor.bus.registry.Registration;
 import reactor.bus.selector.Selectors;
 
 /**
- *
  * @author jbellmann
- *
  */
 public abstract class EventBusViolationHandler implements SmartLifecycle {
 

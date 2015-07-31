@@ -15,36 +15,31 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static java.lang.String.format;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.zalando.stups.clients.kio.*;
+import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.events.UserDataProvider;
+import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
-import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 /**
  * @author mrandi
@@ -128,14 +123,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
                 Application applicationFromKio = getAndValidateApplicationFromKio(
                         event,
-                        applicationId);
+                        applicationId, instanceId);
 
                 if (applicationFromKio != null) {
 
                     Version applicationVersionFromKio = getAndValidateApplicationVersionFromKio(
                             event,
                             applicationId,
-                            applicationVersion);
+                            applicationVersion, instanceId);
 
                     if (applicationVersionFromKio != null) {
 
@@ -145,21 +140,22 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                 applicationVersion,
                                 applicationFromKio.getTeamId(),
                                 source,
-                                applicationVersionFromKio.getArtifact());
+                                applicationVersionFromKio.getArtifact(), instanceId);
 
                         validateScmSource(
                                 event,
                                 applicationFromKio.getTeamId(),
                                 applicationId,
-                                applicationVersion);
+                                applicationVersion, instanceId);
 
-                        validateContainsMandatoryApprovals(applicationVersionFromKio,
-                                                           event);
+                        validateContainsMandatoryApprovals(
+                                applicationVersionFromKio,
+                                event, instanceId);
                         validateMultipleEyesPrinciple(
                                 event,
                                 applicationVersionFromKio.getApplicationId(),
                                 applicationVersionFromKio.getId(),
-                                applicationFromKio.getRequiredApprovers());
+                                applicationFromKio.getRequiredApprovers(), instanceId);
                     }
                 }
             }
@@ -178,40 +174,34 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         catch (AmazonServiceException ex) {
             LOG.error(ex.getMessage());
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s doesn't have any userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(MISSING_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(instanceId)
+                                       .build());
             return null;
         }
 
         if (userData == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s doesn't have any userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(MISSING_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(instanceId)
+                                       .build());
             return null;
         }
 
         if (userData.isEmpty()) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "InstanceId: %s has empty userData.",
-                                    instanceId))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(MISSING_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(instanceId)
+                                       .build());
             return null;
         }
 
@@ -219,9 +209,10 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     protected void validateMultipleEyesPrinciple(CloudTrailEvent event, String applicationId, String versionId,
-            int minApprovals) {
-        List<Approval> approvals = kioOperations.getApplicationApprovals(applicationId,
-                                                                         versionId);
+            int minApprovals, String instanceId) {
+        List<Approval> approvals = kioOperations.getApplicationApprovals(
+                applicationId,
+                versionId);
         List<String> approvalsFromMany = registryPluginProperties.getApprovalsFromMany();
 
         // #140
@@ -229,29 +220,26 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         // => code, test and deploy approvals have to be done by at least two different people
         // e.g. four-eyes-principle
         int approverCount = approvals
-                                     .stream()
-                                     .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
-                                     .map(a -> a.getUserId())
-                                     .distinct()
-                                     .collect(Collectors.toList())
-                                     .size();
+                .stream()
+                .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
+                .map(a -> a.getUserId())
+                .distinct()
+                .collect(Collectors.toList())
+                .size();
         if (approverCount < minApprovals) {
-            violationSink
-                         .put(new ViolationBuilder(
-                                                   format("Version %s of application %s was approved by only %s people instead of %s.",
-                                                          versionId,
-                                                          applicationId,
-                                                          approverCount,
-                                                          minApprovals))
-                                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                        .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                        .build());
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(VERSION_APPROVAL_NOT_ENOUGH).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
+                            newArrayList(
+                                    versionId,
+                                    applicationId,
+                                    approverCount,
+                                    minApprovals)).build());
         }
-
     }
 
-    protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event) {
+    protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event, String instanceId) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(
                 version.getApplicationId(),
                 version.getId());
@@ -267,22 +255,20 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Version %s of application %s is missing approvals: %s.",
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(MISSING_VERSION_APPROVAL).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
+                            newArrayList(
                                     version.getId(),
                                     diff.toString(),
-                                    version.getApplicationId()))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .build());
+                                    version.getApplicationId())).build());
         }
+
     }
 
     protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
-            String applicationVersion) {
-        Map<String, String> scmSource = Maps.newHashMap();
+            String applicationVersion, String instanceId) {
+        Map<String, String> scmSource = newHashMap();
         try {
             scmSource = pieroneOperations.getScmSource(
                     teamId,
@@ -291,47 +277,54 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (HttpClientErrorException e) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Image for team: %s and application: %s with version: %s not found in pierone.",
-                                    teamId,
-                                    applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(IMAGE_IN_PIERONE_NOT_FOUND)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       teamId,
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
             return;
         }
         if (scmSource.isEmpty()) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Image for team: %s and application: %s with version: %s does not contain scm-source.json.",
-                                    teamId,
-                                    applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       teamId,
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
         }
     }
 
     protected void validateSourceWithPierone(final CloudTrailEvent event, final String applicationId,
-            final String applicationVersion, final String team, final String source, final String artifact) {
-
+            final String applicationVersion, final String team, final String source, final String artifact,
+            String instanceId) {
+        List<String> instanceIds = getInstanceIds(event);
         if (!artifact.contains(source)) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Application: %s has not a valid artifact for version: %s.",
-                                    applicationId,
-                                    applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                        .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                        .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                        .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
         }
 
-        Map<String, String> tags = Maps.newHashMap();
+        Map<String, String> tags = newHashMap();
         try {
             tags = this.pieroneOperations.listTags(
                     team,
@@ -347,44 +340,48 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (tags.isEmpty()) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "Source: %s is not present in pierone.",
-                                    source))
-                            .withEventId(CloudTrailEventSupport.getEventId(event))
-                            .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                            .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                            .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(source))
+                                       .build());
+
         }
         else {
             String value = tags.get(applicationVersion);
             if (value == null) {
                 violationSink.put(
-                        new ViolationBuilder(
-                                format(
-                                        "Source: %s is not present in pierone.",
-                                        source))
-                                .withEventId(CloudTrailEventSupport.getEventId(event))
-                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                .build());
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
+                                           .withPluginFullyQualifiedClassName(
+                                                   RegistryPlugin.class)
+                                           .withMetaInfo(
+                                                   newArrayList(source))
+                                           .build());
             }
+
         }
     }
 
-    protected Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
+    protected Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId,
+            String instanceId) {
 
         try {
             Application application = kioOperations.getApplicationById(applicationId);
             return application;
         }
         catch (NotFoundException e) {
-            violationSink.put(new ViolationBuilder(format("Application: %s is not present in kio.",
-                                                          applicationId))
-                                                                         .withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                         .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                         .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                         .build());
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_NOT_PRESENT_IN_KIO)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(applicationId))
+                                       .build());
+
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -398,7 +395,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     protected Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
-            final String applicationVersion) {
+            final String applicationVersion, String instanceId) {
 
         try {
             return kioOperations.getApplicationVersion(
@@ -406,12 +403,17 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     applicationVersion);
         }
         catch (NotFoundException e) {
-            violationSink.put(new ViolationBuilder(format("Application: %s is not present with version %s in kio.",
-                                                          applicationId,
-                                                          applicationVersion)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                                              .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                                              .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                                              .build());
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -431,14 +433,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationId == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'application_id' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(WRONG_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(instanceId))
+                                       .build());
             return null;
         }
 
@@ -451,14 +452,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (applicationVersion == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'application_version' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(WRONG_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(instanceId))
+                                       .build());
             return null;
         }
 
@@ -471,14 +471,13 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         if (source == null) {
             violationSink.put(
-                    new ViolationBuilder(
-                            format(
-                                    "No 'source' defined for this instance %s, "
-                                            + "please change the userData configuration for this instance and add this information.",
-                                    instanceId)).withEventId(CloudTrailEventSupport.getEventId(event))
-                                                .withRegion(CloudTrailEventSupport.getRegionAsString(event))
-                                                .withAccountId(CloudTrailEventSupport.getAccountId(event))
-                                                .build());
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(WRONG_USER_DATA)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(instanceId))
+                                       .build());
             return null;
         }
 

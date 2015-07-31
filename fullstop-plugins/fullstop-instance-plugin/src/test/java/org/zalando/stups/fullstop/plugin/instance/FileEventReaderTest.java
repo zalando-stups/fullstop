@@ -19,7 +19,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
-import org.zalando.stups.fullstop.plugin.instance.RunInstancePlugin;
 
 import java.util.ArrayList;
 import java.util.List;

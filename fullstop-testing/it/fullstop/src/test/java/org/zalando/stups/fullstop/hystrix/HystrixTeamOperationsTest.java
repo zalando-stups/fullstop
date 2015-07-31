@@ -15,26 +15,21 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.same;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.teams.Account;
+
+import java.util.ArrayList;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class HystrixTeamOperationsTest {
 
-    private static final ArrayList<UserTeam> USER_TEAMS = newArrayList();
+    private static final ArrayList<Account> ACCOUNTS = newArrayList();
 
     private static final String USER_ID = "foo";
 
@@ -55,8 +50,8 @@ public class HystrixTeamOperationsTest {
 
     @Test
     public void testGetTeamsByUser() throws Exception {
-        when(mockDelegate.getTeamsByUser(anyString())).thenReturn(USER_TEAMS);
-        assertThat(hystrixTeamOperations.getTeamsByUser(USER_ID)).isSameAs(USER_TEAMS);
+        when(mockDelegate.getTeamsByUser(anyString())).thenReturn(ACCOUNTS);
+        assertThat(hystrixTeamOperations.getTeamsByUser(USER_ID)).isSameAs(ACCOUNTS);
         verify(mockDelegate).getTeamsByUser(same(USER_ID));
     }
 }

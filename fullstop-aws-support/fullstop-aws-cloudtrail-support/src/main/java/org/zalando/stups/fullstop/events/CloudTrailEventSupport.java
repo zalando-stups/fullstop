@@ -43,7 +43,9 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public abstract class CloudTrailEventSupport {
 
-    public static final String IMAGE_ID_JSON_PATH = "$.instancesSet.items[*].imageId";
+    public static final String IMAGE_ID_JSON_PATH = "$.imageId";
+
+    public static final String IMAGE_ID_AND_INSTANCE_JSON_PATH = "$.instancesSet.items[*].imageId";
 
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
@@ -58,7 +60,7 @@ public abstract class CloudTrailEventSupport {
     public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
 
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
-            "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId";
+            "$.groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
@@ -87,16 +89,12 @@ public abstract class CloudTrailEventSupport {
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
      */
-    public static List<String> getAmis(final CloudTrailEvent event) {
+    public static String getAmi(final String instanceJson) {
 
-        CloudTrailEventData eventData = getEventData(event);
-
-        String responseElements = eventData.getResponseElements();
-        if (isNullOrEmpty(responseElements)) {
-            return newArrayList();
+        if (instanceJson == null) {
+            return null;
         }
-
-        return read(responseElements, IMAGE_ID_JSON_PATH);
+        return JsonPath.read(instanceJson, IMAGE_ID_JSON_PATH);
     }
 
     /**
@@ -266,12 +264,6 @@ public abstract class CloudTrailEventSupport {
         return instances;
     }
 
-    public static String getSingleInstance(String instance) {
-
-        return JsonPath.read(instance, SINGLE_INSTANCE_ID_JSON_PATH);
-
-    }
-
     public static DateTime getRunInstanceTime(String instance) {
 
         return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
@@ -284,5 +276,13 @@ public abstract class CloudTrailEventSupport {
         Date eventTime = event.getEventData().getEventTime();
 
         return new DateTime(eventTime);
+    }
+
+    public static String getInstanceId(String instanceJson) {
+        if (instanceJson == null) {
+            return null;
+        }
+        return JsonPath.read(instanceJson, SINGLE_INSTANCE_ID_JSON_PATH);
+
     }
 }

@@ -37,7 +37,7 @@ public class SimplePlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        this.violationSink.put(new ViolationBuilder("test").build());
+        this.violationSink.put(new ViolationBuilder().build());
     }
 
 }

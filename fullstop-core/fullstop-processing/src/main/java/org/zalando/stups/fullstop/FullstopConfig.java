@@ -41,7 +41,7 @@ public class FullstopConfig {
     }
 
     /**
-     * @return  {@link AWSCloudTrailProcessingExecutor}
+     * @return {@link AWSCloudTrailProcessingExecutor}
      */
     @Bean
     public AWSCloudTrailProcessingExecutor awsCloudTrailProcessingExecutor() {

@@ -15,13 +15,11 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
-
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.zalando.stups.clients.kio.Application;
-
-import com.google.common.collect.Lists;
 
 @Component
 public class DocumentationUrlValidator extends AbstractApplicationValidator {
@@ -34,16 +32,20 @@ public class DocumentationUrlValidator extends AbstractApplicationValidator {
     @Override
     public void validate(final Object target, final Errors errors) {
         Application app = (Application) target;
-        ValidationUtils.rejectIfEmpty(errors,
-                                      "documentationUrl",
-                                      "documentationUrl.missing",
-                                      "Documentation URL is missing");
+        ValidationUtils.rejectIfEmpty(
+                errors,
+                "documentationUrl",
+                "documentationUrl.missing",
+                "Documentation URL is missing");
         errors.pushNestedPath("documentationUrl");
         try {
-            (new UrlValidator(Lists.newArrayList("http",
-                                                 "https"),
-                              false)).validate(app.getScmUrl(),
-                                               errors);
+            (new UrlValidator(
+                    Lists.newArrayList(
+                            "http",
+                            "https"),
+                    false)).validate(
+                    app.getScmUrl(),
+                    errors);
         }
         finally {
             errors.popNestedPath();

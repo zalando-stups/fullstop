@@ -38,22 +38,26 @@ public class ValidatorTest {
         Assertions.assertThat(validator.supports(application.getClass()))
                   .isTrue();
 
-        Errors errors = new BeanPropertyBindingResult(application,
-                                                      "application");
-        validator.validate(application,
-                           errors);
+        Errors errors = new BeanPropertyBindingResult(
+                application,
+                "application");
+        validator.validate(
+                application,
+                errors);
 
         Assertions.assertThat(errors.getErrorCount())
                   .isEqualTo(1);
         Assertions.assertThat(errors.getFieldErrorCount("specificationUrl"))
                   .isEqualTo(1);
-        Assertions.assertThat(errors.getFieldError("specificationUrl")
-                                    .getCode())
+        Assertions.assertThat(
+                errors.getFieldError("specificationUrl")
+                      .getCode())
                   .isEqualTo("specificationUrl.missing");
-        Assertions.assertThat(errors.getFieldError("specificationUrl")
-                                    .getDefaultMessage())
+        Assertions.assertThat(
+                errors.getFieldError("specificationUrl")
+                      .getDefaultMessage())
                   .isEqualTo(
-                             "Specification URL is missing");
+                          "Specification URL is missing");
     }
 
     @Test
@@ -63,22 +67,26 @@ public class ValidatorTest {
         Assertions.assertThat(validator.supports(application.getClass()))
                   .isTrue();
 
-        Errors errors = new BeanPropertyBindingResult(application,
-                                                      "application");
-        validator.validate(application,
-                           errors);
+        Errors errors = new BeanPropertyBindingResult(
+                application,
+                "application");
+        validator.validate(
+                application,
+                errors);
 
         Assertions.assertThat(errors.getErrorCount())
                   .isEqualTo(1);
         Assertions.assertThat(errors.getFieldErrorCount("documentationUrl"))
                   .isEqualTo(1);
-        Assertions.assertThat(errors.getFieldError("documentationUrl")
-                                    .getCode())
+        Assertions.assertThat(
+                errors.getFieldError("documentationUrl")
+                      .getCode())
                   .isEqualTo("documentationUrl.missing");
-        Assertions.assertThat(errors.getFieldError("documentationUrl")
-                                    .getDefaultMessage())
+        Assertions.assertThat(
+                errors.getFieldError("documentationUrl")
+                      .getDefaultMessage())
                   .isEqualTo(
-                             "Documentation URL is missing");
+                          "Documentation URL is missing");
     }
 
     @Test
@@ -88,21 +96,25 @@ public class ValidatorTest {
         Assertions.assertThat(validator.supports(application.getClass()))
                   .isTrue();
 
-        Errors errors = new BeanPropertyBindingResult(application,
-                                                      "application");
-        validator.validate(application,
-                           errors);
+        Errors errors = new BeanPropertyBindingResult(
+                application,
+                "application");
+        validator.validate(
+                application,
+                errors);
 
         Assertions.assertThat(errors.getErrorCount())
                   .isEqualTo(1);
         Assertions.assertThat(errors.getFieldErrorCount("scmUrl"))
                   .isEqualTo(1);
-        Assertions.assertThat(errors.getFieldError("scmUrl")
-                                    .getCode())
+        Assertions.assertThat(
+                errors.getFieldError("scmUrl")
+                      .getCode())
                   .isEqualTo("scmUrl.missing");
-        Assertions.assertThat(errors.getFieldError("scmUrl")
-                                    .getDefaultMessage())
+        Assertions.assertThat(
+                errors.getFieldError("scmUrl")
+                      .getDefaultMessage())
                   .isEqualTo(
-                             "SCM URL is missing");
+                          "SCM URL is missing");
     }
 }

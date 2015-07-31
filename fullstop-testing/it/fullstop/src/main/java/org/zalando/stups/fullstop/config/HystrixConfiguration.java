@@ -22,4 +22,5 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @Configuration
 @EnableHystrix
 @EnableAspectJAutoProxy
-public class HystrixConfiguration { }
+public class HystrixConfiguration {
+}

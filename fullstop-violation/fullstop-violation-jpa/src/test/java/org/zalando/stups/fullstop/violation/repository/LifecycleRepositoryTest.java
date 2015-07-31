@@ -160,18 +160,15 @@ public class LifecycleRepositoryTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean
-        DataSource dataSource() throws IOException {
+        @Bean DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean
-        AuditorAware<String> auditorAware() {
+        @Bean AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
     }

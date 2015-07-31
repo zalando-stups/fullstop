@@ -15,10 +15,12 @@
  */
 package org.zalando.stups.fullstop.swagger.model;
 
-import org.joda.time.DateTime;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.joda.time.DateTime;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 @ApiModel(description = "")
 public class Violation {
@@ -33,9 +35,7 @@ public class Violation {
 
     private String region = null;
 
-    private String message = null;
-
-    private Object violationObject = null;
+    private Object metaInfo = null;
 
     private String comment = null;
 
@@ -47,12 +47,16 @@ public class Violation {
 
     private String lastModifiedBy = null;
 
+    private String pluginFullyQualifiedClassName;
+
+    private ViolationTypeEntity violationTypeEntity;
+
     @ApiModelProperty(value = "")
     public Long getId() {
         return id;
     }
 
-    public void setId(final Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -61,138 +65,125 @@ public class Violation {
         return version;
     }
 
-    public void setVersion(final Long version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getEventId() {
         return eventId;
     }
 
-    public void setEventId(final String eventId) {
+    public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(final String accountId) {
+    public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getRegion() {
         return region;
     }
 
-    public void setRegion(final String region) {
+    public void setRegion(String region) {
         this.region = region;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
-    public String getMessage() {
-        return message;
+    public Object getMetaInfo() {
+        return metaInfo;
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
+    public void setMetaInfo(Object metaInfo) {
+        this.metaInfo = metaInfo;
     }
 
-    /**
-     */
-    @ApiModelProperty(value = "")
-    public Object getViolationObject() {
-        return violationObject;
-    }
-
-    public void setViolationObject(final Object violationObject) {
-        this.violationObject = violationObject;
-    }
-
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getComment() {
         return comment;
     }
 
-    public void setComment(final String comment) {
+    public void setComment(String comment) {
         this.comment = comment;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(final DateTime created) {
+    public void setCreated(DateTime created) {
         this.created = created;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(final String createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public DateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(final DateTime lastModified) {
+    public void setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
-    /**
-     */
     @ApiModelProperty(value = "")
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(final String lastModifiedBy) {
+    public void setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
+    }
+
+    @ApiModelProperty(value = "")
+    public String getPluginFullyQualifiedClassName() {
+        return pluginFullyQualifiedClassName;
+    }
+
+    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+        this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
+    }
+
+    @ApiModelProperty(value = "")
+    public ViolationTypeEntity getViolationTypeEntity() {
+        return violationTypeEntity;
+    }
+
+    public void setViolationTypeEntity(ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Violation {\n");
-
-        sb.append("  id: ").append(id).append("\n");
-        sb.append("  version: ").append(version).append("\n");
-        sb.append("  eventId: ").append(eventId).append("\n");
-        sb.append("  accountId: ").append(accountId).append("\n");
-        sb.append("  region: ").append(region).append("\n");
-        sb.append("  message: ").append(message).append("\n");
-        sb.append("  violationObject: ").append(violationObject).append("\n");
-        sb.append("  comment: ").append(comment).append("\n");
-        sb.append("  created: ").append(created).append("\n");
-        sb.append("  createdBy: ").append(createdBy).append("\n");
-        sb.append("  lastModified: ").append(lastModified).append("\n");
-        sb.append("  lastModifiedBy: ").append(lastModifiedBy).append("\n");
-        sb.append("}\n");
-        return sb.toString();
+        return toStringHelper(this)
+                .add("id", id)
+                .add("version", version)
+                .add("eventId", eventId)
+                .add("accountId", accountId)
+                .add("region", region)
+                .add("metaInfo", metaInfo)
+                .add("comment", comment)
+                .add("created", created)
+                .add("createdBy", createdBy)
+                .add("lastModified", lastModified)
+                .add("lastModifiedBy", lastModifiedBy)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
+                .add("violationTypeEntity", violationTypeEntity)
+                .toString();
     }
 }

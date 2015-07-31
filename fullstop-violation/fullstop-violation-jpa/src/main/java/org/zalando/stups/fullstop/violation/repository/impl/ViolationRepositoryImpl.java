@@ -15,30 +15,20 @@
  */
 package org.zalando.stups.fullstop.violation.repository.impl;
 
-import static java.util.Collections.emptyList;
-
-import static com.google.common.collect.Iterables.isEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-
-import static com.mysema.query.types.ExpressionUtils.allOf;
+import com.mysema.query.jpa.JPQLQuery;
+import com.mysema.query.types.Predicate;
+import org.joda.time.DateTime;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
+import org.zalando.stups.fullstop.violation.entity.*;
+import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
 import java.util.List;
 
-import org.joda.time.DateTime;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
-
-import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
-
-import com.mysema.query.jpa.JPQLQuery;
-import com.mysema.query.types.Predicate;
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.mysema.query.types.ExpressionUtils.allOf;
+import static java.util.Collections.emptyList;
 
 /**
  * Created by mrandi.
@@ -56,10 +46,13 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime since,
-            final Long lastViolation, final Boolean checked, final Pageable pageable) {
-        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+            final Long lastViolation, final Boolean checked, final ViolationSeverity severity, Boolean auditRelevant,
+            String type, final Pageable pageable) {
 
-        final JPQLQuery query = from(qViolationEntity);
+        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+        QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
+
+        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
 
         final List<Predicate> predicates = newArrayList();
 
@@ -78,9 +71,23 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         if (checked != null) {
             if (checked) {
                 predicates.add(qViolationEntity.comment.isNotEmpty());
-            } else {
+            }
+            else {
                 predicates.add(qViolationEntity.comment.isNull().or(qViolationEntity.comment.isEmpty()));
             }
+        }
+
+        if (severity != null) {
+            predicates.add(qViolationTypeEntity.violationSeverity.eq(severity));
+        }
+
+        if (auditRelevant != null) {
+
+            predicates.add(qViolationTypeEntity.isAuditRelevant.eq(auditRelevant));
+        }
+
+        if (type != null) {
+            predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
         }
 
         final long total = query.where(allOf(predicates)).count();

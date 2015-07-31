@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-violation</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-violation-persister-jpa</artifactId>
 
     <properties>
-        <fullstop-core.version>0.9.0</fullstop-core.version>
+        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
     </properties>
 
     <dependencies>

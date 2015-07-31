@@ -42,6 +42,8 @@ public class RegistryPluginKioTest {
 
     private static final String APPLICATION_VERSION = "1.0";
 
+    private static final String INSTANCE_ID = "i-12345";
+
     private KioOperations kioOperations;
 
     private PieroneOperations pieroneOperations;
@@ -104,7 +106,7 @@ public class RegistryPluginKioTest {
 
         registryPlugin.getAndValidateApplicationFromKio(
                 event,
-                APPLICATION_ID);
+                APPLICATION_ID, INSTANCE_ID);
         verify(kioOperations).getApplicationById(APPLICATION_ID);
         verify(violationSink).put(any(Violation.class));
     }
@@ -115,7 +117,7 @@ public class RegistryPluginKioTest {
 
         registryPlugin.getAndValidateApplicationFromKio(
                 event,
-                APPLICATION_ID);
+                APPLICATION_ID, INSTANCE_ID);
         verify(kioOperations).getApplicationById(APPLICATION_ID);
         verify(
                 violationSink,
@@ -124,13 +126,15 @@ public class RegistryPluginKioTest {
 
     @Test
     public void shouldComplainWhenVersionNotFound() {
-        when(kioOperations.getApplicationVersion(APPLICATION_ID,
-                                                 APPLICATION_VERSION)).thenThrow(new NotFoundException());
+        when(
+                kioOperations.getApplicationVersion(
+                        APPLICATION_ID,
+                        APPLICATION_VERSION)).thenThrow(new NotFoundException());
 
         registryPlugin.getAndValidateApplicationVersionFromKio(
                 event,
                 APPLICATION_ID,
-                APPLICATION_VERSION);
+                APPLICATION_VERSION, INSTANCE_ID);
 
         verify(kioOperations).getApplicationVersion(
                 APPLICATION_ID,
@@ -148,7 +152,7 @@ public class RegistryPluginKioTest {
         registryPlugin.getAndValidateApplicationVersionFromKio(
                 event,
                 APPLICATION_ID,
-                APPLICATION_VERSION);
+                APPLICATION_VERSION, INSTANCE_ID);
 
         verify(kioOperations).getApplicationVersion(
                 APPLICATION_ID,

@@ -28,10 +28,9 @@ class PrefixBuilder {
      * Builds the prefix that will be prepended to the 'bucketname'<br/>
      * Something like '123456789/eu-west-1/2015/06/12/'
      *
-     * @param   accountId
-     * @param   region              name of region
-     * @param   instanceLaunchTime
-     *
+     * @param accountId
+     * @param region             name of region
+     * @param instanceLaunchTime
      * @return
      */
     static String build(final String accountId, final String region, final DateTime instanceLaunchTime) {

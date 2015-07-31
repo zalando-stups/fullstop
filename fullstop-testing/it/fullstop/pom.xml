@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -35,16 +36,16 @@
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
 
-        <fullstop-plugin-api.version>0.9.0</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>0.9.0</fullstop-violation-api.version>
+        <fullstop-plugin-api.version>0.9.1-SNAPSHOT</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>0.9.1-SNAPSHOT</fullstop-violation-api.version>
 
-        <fullstop-processing.version>0.9.0</fullstop-processing.version>
+        <fullstop-processing.version>0.9.1-SNAPSHOT</fullstop-processing.version>
 
-        <fullstop-core.version>0.9.0</fullstop-core.version>
-        <fullstop-timemachine.version>0.9.0-SNAPSHOT</fullstop-timemachine.version>
-        <fullstop-violation.version>0.9.0-SNAPSHOT</fullstop-violation.version>
+        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
+        <fullstop-timemachine.version>0.9.1-SNAPSHOT</fullstop-timemachine.version>
+        <fullstop-violation.version>0.9.1-SNAPSHOT</fullstop-violation.version>
 
-        <fullstop-plugin.version>0.9.0-SNAPSHOT</fullstop-plugin.version>
+        <fullstop-plugin.version>0.9.1-SNAPSHOT</fullstop-plugin.version>
     </properties>
 
 
@@ -137,9 +138,9 @@
 
         <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
         <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
 
         <!-- END PLUGINS -->
@@ -190,7 +191,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-hystrix</artifactId>
         </dependency>
-
 
 
         <!-- TESTING -->

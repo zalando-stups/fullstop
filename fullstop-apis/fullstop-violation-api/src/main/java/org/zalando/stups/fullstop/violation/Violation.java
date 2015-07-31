@@ -27,7 +27,13 @@ public interface Violation {
 
     String getRegion();
 
-    String getMessage();
+    String getComment();
 
-    Object getViolationObject();
+    Object getMetaInfo();
+
+    String getPluginFullyQualifiedClassName();
+
+    String getViolationType();
+
+    String getInstanceId();
 }

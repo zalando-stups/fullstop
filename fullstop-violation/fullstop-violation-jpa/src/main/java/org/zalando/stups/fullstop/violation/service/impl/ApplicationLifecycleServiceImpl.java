@@ -15,18 +15,10 @@
  */
 package org.zalando.stups.fullstop.violation.service.impl;
 
-import java.util.Map;
-
-import javax.transaction.Transactional;
-
 import org.joda.time.DateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
-
 import org.yaml.snakeyaml.Yaml;
-
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -34,6 +26,9 @@ import org.zalando.stups.fullstop.violation.repository.ApplicationRepository;
 import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
+
+import javax.transaction.Transactional;
+import java.util.Map;
 
 /**
  * Created by gkneitschel.
@@ -62,8 +57,8 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         ApplicationEntity applicationByName = applicationRepository.findByName(applicationEntity.getName());
         VersionEntity versionByName = versionRepository.findByName(versionEntity.getName());
         LifecycleEntity lifecycleByInstanceId =
-            lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(
-                lifecycleEntity.getInstanceId(), applicationByName, versionByName, lifecycleEntity.getRegion());
+                lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(
+                        lifecycleEntity.getInstanceId(), applicationByName, versionByName, lifecycleEntity.getRegion());
 
         if (applicationByName == null) {
             applicationByName = applicationRepository.save(applicationEntity);

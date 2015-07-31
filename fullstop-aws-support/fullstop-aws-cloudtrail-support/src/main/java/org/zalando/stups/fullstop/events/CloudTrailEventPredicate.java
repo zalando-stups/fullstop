@@ -15,14 +15,14 @@
  */
 package org.zalando.stups.fullstop.events;
 
-import java.util.function.Predicate;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+
+import java.util.function.Predicate;
 
 /**
  * Base for {@link Predicate} implementations.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEvent> {
 
@@ -54,7 +54,7 @@ public abstract class CloudTrailEventPredicate implements Predicate<CloudTrailEv
     /**
      * For type.
      *
-     * @author  jbellmann
+     * @author jbellmann
      */
     static class Internal extends CloudTrailEventPredicate {
 

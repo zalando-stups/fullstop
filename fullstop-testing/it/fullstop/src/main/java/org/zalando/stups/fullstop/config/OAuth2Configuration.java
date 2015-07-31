@@ -46,7 +46,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(NEVER)
 
-                // configure form login
+                        // configure form login
                 .and().formLogin().disable()
 
                 // configure logout

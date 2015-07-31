@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.builder.domain;
 
 import org.zalando.stups.fullstop.builder.AbstractModifiableEntityBuilder;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import java.util.UUID;
 
@@ -31,11 +32,15 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
 
     private String region = "my region" + Math.random();
 
-    private String message = "my message" + Math.random();
+    private String instanceId = "my instanceId " + Math.random();
 
-    private Object violationObject;
+    private Object metaInfo;
 
     private String comment = "my comment" + Math.random();
+
+    private String pluginFullyQualifiedClassName = "my plugin class" + Math.random();
+
+    private ViolationTypeEntity violationTypeEntity;
 
     public ViolationEntityBuilder() {
         super(ViolationEntity.class);
@@ -52,9 +57,11 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         entity.setEventId(eventId);
         entity.setAccountId(accountId);
         entity.setRegion(region);
-        entity.setMessage(message);
-        entity.setViolationObject(violationObject);
+        entity.setInstanceId(instanceId);
+        entity.setMetaInfo(metaInfo);
         entity.setComment(comment);
+        entity.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
+        entity.setViolationTypeEntity(violationTypeEntity);
 
         return entity;
     }
@@ -74,18 +81,28 @@ public class ViolationEntityBuilder extends AbstractModifiableEntityBuilder<Viol
         return this;
     }
 
-    public ViolationEntityBuilder message(final String message) {
-        this.message = message;
+    public ViolationEntityBuilder instanceId(final String instanceId){
+        this.instanceId = instanceId;
         return this;
     }
 
     public ViolationEntityBuilder violationObject(final Object violationObject) {
-        this.violationObject = violationObject;
+        this.metaInfo = violationObject;
         return this;
     }
 
     public ViolationEntityBuilder comment(final String comment) {
         this.comment = comment;
+        return this;
+    }
+
+    public ViolationEntityBuilder pluginFullyQualifiedClassName(final String pluginFullQualifiedClasssName) {
+        this.pluginFullyQualifiedClassName = pluginFullQualifiedClasssName;
+        return this;
+    }
+
+    public ViolationEntityBuilder violationTypeEntity(final ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
         return this;
     }
 }

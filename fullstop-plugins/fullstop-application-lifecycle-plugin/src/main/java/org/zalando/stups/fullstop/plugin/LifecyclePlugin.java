@@ -15,25 +15,14 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventTime;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegionAsString;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRunInstanceTime;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getSingleInstance;
-
-import java.util.List;
-import java.util.Map;
-
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import org.joda.time.DateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
-
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -41,10 +30,10 @@ import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 
-import com.amazonaws.AmazonServiceException;
+import java.util.List;
+import java.util.Map;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * Created by gkneitschel.
@@ -83,7 +72,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
         return eventSource.equals(EC2_SOURCE_EVENTS)
                 && (eventName.equals(RUN_EVENT_NAME) || eventName.equals(START_EVENT_NAME)
-                    || eventName.equals(STOP_EVENT_NAME) || eventName.equals(TERMINATE_EVENT_NAME));
+                || eventName.equals(STOP_EVENT_NAME) || eventName.equals(TERMINATE_EVENT_NAME));
     }
 
     @Override
@@ -97,7 +86,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
             lifecycleEntity.setRegion(region);
-            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getSingleInstance(instance));
+            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getInstanceId(instance));
 
             ApplicationEntity applicationEntity;
             VersionEntity versionEntity;
@@ -108,8 +97,9 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
                 String applicationName = getApplicationName(event, instance);
                 applicationEntity = new ApplicationEntity(applicationName);
-            } catch (AmazonServiceException e) {
-                LOG.warn("Could not get version/application for lifecycle event.", e);
+            }
+            catch (AmazonServiceException e) {
+                LOG.warn("Could not get version/application for lifecycle event.");
                 return;
             }
 
@@ -119,13 +109,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     }
 
     private String getApplicationName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getSingleInstance(instance);
+        String instanceId = getInstanceId(instance);
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_id").toString();
     }
 
     private String getVersionName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getSingleInstance(instance);
+        String instanceId = getInstanceId(instance);
 
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_version").toString();
@@ -138,7 +128,8 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
         if (eventName.equals(RUN_EVENT_NAME)) {
             return getRunInstanceTime(instance);
-        } else {
+        }
+        else {
             return getEventTime(event);
         }
     }

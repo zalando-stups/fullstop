@@ -15,18 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +28,16 @@ import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 @Component
 public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
@@ -139,7 +137,8 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             final String team = app.getTeamId();
             final String kioScmUrl = app.getScmUrl();
             if (isBlank(kioScmUrl)) {
-                violationSink.put(violationFor(event).withMessage("Scm URL is missing in Kio.").build());
+                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
+                                          ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_KIO).build());
                 return;
             }
 
@@ -151,7 +150,8 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             final String scmSourceUrl = scmSource.get(URL);
             if (isBlank(scmSourceUrl)) {
-                violationSink.put(violationFor(event).withMessage("scm-source.json does not contain the url").build());
+                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
+                                          ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON).build());
                 return;
             }
 
@@ -160,13 +160,13 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             if (!Objects.equals(normalizedKioScmUrl, normalizedScmSourceUrl)) {
                 violationSink.put(
-                        violationFor(event)
-                                .withMessage("Scm url in scm-source.json does not match the url given in Kio")
-                                .withViolationObject(
-                                        ImmutableMap.of(
-                                                "normalized_scm_source_url", normalizedScmSourceUrl,
-                                                "normalized_kio_scm_url", normalizedKioScmUrl))
-                                .build());
+                        violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
+                                ScmRepositoryPlugin.class).withType(SCM_URL_NOT_MATCH_WITH_KIO).withMetaInfo(
+                                ImmutableMap.of(
+                                        "normalized_scm_source_url",
+                                        normalizedScmSourceUrl,
+                                        "normalized_kio_scm_url",
+                                        normalizedKioScmUrl)).build());
             }
         }
     }

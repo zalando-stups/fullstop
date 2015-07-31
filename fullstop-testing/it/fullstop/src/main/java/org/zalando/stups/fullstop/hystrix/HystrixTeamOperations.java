@@ -15,11 +15,11 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import java.util.List;
-
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.teams.UserTeam;
+import org.zalando.stups.fullstop.teams.Account;
+
+import java.util.List;
 
 public class HystrixTeamOperations implements TeamOperations {
 
@@ -31,7 +31,7 @@ public class HystrixTeamOperations implements TeamOperations {
 
     @Override
     @HystrixCommand
-    public List<UserTeam> getTeamsByUser(String userId) {
+    public List<Account> getTeamsByUser(String userId) {
         return delegate.getTeamsByUser(userId);
     }
 }
