@@ -106,16 +106,14 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
             catch (AmazonServiceException ex) {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
-                                ApplicationMasterdataPlugin.class).withMetaInfo(
-                                newArrayList(instanceId)).build());
+                                ApplicationMasterdataPlugin.class).build());
                 return;
             }
 
             if (userData == null) {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
-                                ApplicationMasterdataPlugin.class).withMetaInfo(
-                                newArrayList(instanceId)).build());
+                                ApplicationMasterdataPlugin.class).build());
                 return;
             }
             // 2) read application id from user data
@@ -123,7 +121,7 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId).withType(WRONG_USER_DATA).withPluginFullyQualifiedClassName(
                                 ApplicationMasterdataPlugin.class).withMetaInfo(
-                                newArrayList(instanceId, APPLICATION_ID)).build());
+                                APPLICATION_ID).build());
                 return;
             }
             String applicationId = userData.get(APPLICATION_ID)
@@ -136,7 +134,7 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId).withType(APPLICATION_NOT_PRESENT_IN_KIO).withPluginFullyQualifiedClassName(
                                 ApplicationMasterdataPlugin.class).withMetaInfo(
-                                newArrayList(applicationId)).build());
+                                applicationId).build());
                 return;
             }
             // ACTUAL VALIDATION

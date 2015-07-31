@@ -178,7 +178,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(MISSING_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(instanceId)
                                        .build());
             return null;
         }
@@ -189,7 +188,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(MISSING_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(instanceId)
                                        .build());
             return null;
         }
@@ -200,7 +198,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(MISSING_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(instanceId)
                                        .build());
             return null;
         }
@@ -344,8 +341,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(source))
+                                       .withMetaInfo(source)
                                        .build());
 
         }
@@ -357,8 +353,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                            .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
                                            .withPluginFullyQualifiedClassName(
                                                    RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(source))
+                                           .withMetaInfo(source)
                                            .build());
             }
 
@@ -378,8 +373,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(APPLICATION_NOT_PRESENT_IN_KIO)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(applicationId))
+                                       .withMetaInfo(applicationId)
                                        .build());
 
             return null;
@@ -437,8 +431,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(WRONG_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(instanceId))
                                        .build());
             return null;
         }
@@ -456,8 +448,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(WRONG_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(instanceId))
                                        .build());
             return null;
         }
@@ -475,8 +465,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                        .withType(WRONG_USER_DATA)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(instanceId))
                                        .build());
             return null;
         }

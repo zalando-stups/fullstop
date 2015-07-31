@@ -27,7 +27,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_KEYPAIR;
 
@@ -71,7 +70,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
                         violationFor(event).withInstanceId(instanceId)
                                            .withType(EC2_WITH_KEYPAIR)
                                            .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
-                                           .withMetaInfo(newArrayList(keyNames))
+                                           .withMetaInfo(keyNames)
                                            .build());
 
             }

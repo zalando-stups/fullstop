@@ -36,7 +36,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
@@ -109,8 +108,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
                         violationFor(event).withInstanceId(instanceId)
                                            .withType(WRONG_AMI)
                                            .withPluginFullyQualifiedClassName(AmiPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(ami))
+                                           .withMetaInfo(ami)
                                            .build());
             }
         }
