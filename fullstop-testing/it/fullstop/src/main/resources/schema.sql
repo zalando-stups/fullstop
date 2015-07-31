@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.violation (
 CREATE UNIQUE INDEX unique_violation_instance_null ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
   WHERE instance_id IS NULL;
 
-CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id, instance_id)
   WHERE instance_id IS NOT NULL;
 
 --ALTER DEFAULT PRIVILEGES IN SCHEMA fullstop_data GRANT SELECT ON SEQUENCES TO xxx;
