@@ -45,6 +45,7 @@ public class RegistryPluginApprovalsTest {
     private static final String APPLICATION_ID = "fullstop";
 
     private static final String APPLICATION_VERSION = "1.0";
+    private static final String INSTANCE_ID = "i-12345";
 
     private KioOperations kioOperations;
 
@@ -127,7 +128,7 @@ public class RegistryPluginApprovalsTest {
                         APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
         registryPlugin.validateContainsMandatoryApprovals(
                 version,
-                event);
+                event, INSTANCE_ID);
 
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
@@ -157,7 +158,7 @@ public class RegistryPluginApprovalsTest {
         // run validation
         registryPlugin.validateContainsMandatoryApprovals(
                 version,
-                event);
+                event, INSTANCE_ID);
         // ensure kio operations was called
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
@@ -178,7 +179,7 @@ public class RegistryPluginApprovalsTest {
         // run validation
         registryPlugin.validateContainsMandatoryApprovals(
                 version,
-                event);
+                event, INSTANCE_ID);
         // ensure kio operations was called
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
@@ -204,7 +205,7 @@ public class RegistryPluginApprovalsTest {
                 event,
                 APPLICATION_ID,
                 APPLICATION_VERSION,
-                2);
+                2, INSTANCE_ID);
         // ensure kio operations was called
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
@@ -238,7 +239,7 @@ public class RegistryPluginApprovalsTest {
                 event,
                 APPLICATION_ID,
                 APPLICATION_VERSION,
-                2);
+                2, INSTANCE_ID);
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
@@ -271,7 +272,7 @@ public class RegistryPluginApprovalsTest {
                 event,
                 APPLICATION_ID,
                 APPLICATION_VERSION,
-                2);
+                2, INSTANCE_ID);
         verify(kioOperations).getApplicationApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);

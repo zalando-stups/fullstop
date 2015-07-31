@@ -31,13 +31,11 @@ import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_RUN_IN_PUBLIC_SUBNET;
-import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITHOUT_ROUTING_INFORMATION;
 
 /**
  * @author mrandi
@@ -72,14 +70,60 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        List<String> subnetIds = newArrayList();
         List<Filter> SubnetIdFilters = newArrayList();
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         List<String> instanceIds = getInstanceIds(event);
         AmazonEC2Client amazonEC2Client = cachingClientProvider
                 .getClient(
                         AmazonEC2Client.class, event.getEventData().getAccountId(),
                         Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+
+
+        List<Reservation> reservations = fetchReservations(amazonEC2Client ,event, instanceIds);
+
+        if (reservations == null || reservations.isEmpty()) {
+            return;
+        }
+
+        for (Reservation reservation : reservations) {
+            List<Instance> instances = reservation.getInstances();
+            for (Instance instance : instances) {
+
+                List<RouteTable> routeTables = fetchRouteTables(SubnetIdFilters, amazonEC2Client, instance);
+
+                if (routeTables == null || routeTables.size() == 0) {
+                    LOG.warn(
+                            "Not Routetable found in: {} for ids: {}",
+                            SubnetPlugin.class.getName(),
+                            instance.getSubnetId());
+
+                    return;
+                }
+
+                for (RouteTable routeTable : routeTables) {
+                    List<Route> routes = routeTable.getRoutes();
+                    routes.stream()
+                          .filter(
+                                  route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
+                                          !route.getNetworkInterfaceId().startsWith("eni")).forEach(
+                            route ->
+                                    violationFor(event).withInstanceId(instance.getInstanceId())
+                                                       .withPluginFullyQualifiedClassName(
+                                                               SubnetPlugin.class)
+                                                       .withType(EC2_RUN_IN_PUBLIC_SUBNET)
+                                                       .withMetaInfo(
+                                                               newArrayList(
+                                                                       route.getInstanceId(),
+                                                                       route.getNetworkInterfaceId()))
+                                                       .build());
+                }
+
+            }
+        }
+    }
+
+    private List<Reservation> fetchReservations(AmazonEC2Client amazonEC2Client,CloudTrailEvent event, List<String> instanceIds){
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+
 
         DescribeInstancesResult describeInstancesResult = null;
         try {
@@ -89,57 +133,24 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         catch (AmazonServiceException e) {
 
             LOG.warn("Subnet plugin: {}", e.getErrorMessage());
-            return;
+            return null;
         }
 
-        List<Reservation> reservations = describeInstancesResult.getReservations();
-        if (reservations.isEmpty()) {
-            return;
-        }
-        for (Reservation reservation : reservations) {
-            List<Instance> instances = reservation.getInstances();
-            subnetIds.addAll(instances.stream().map(Instance::getSubnetId).collect(Collectors.toList()));
+        return describeInstancesResult.getReservations();
 
-        }
+    }
 
-        SubnetIdFilters.add(new Filter().withName("association.subnet-id").withValues(subnetIds)); // filter by subnetId
+    private List<RouteTable> fetchRouteTables(List<Filter> subnetIdFilters, AmazonEC2Client amazonEC2Client,
+            Instance instance) {
+        subnetIdFilters.add(
+                new Filter().withName("association.subnet-id")
+                            .withValues(instance.getSubnetId())); // filter by subnetId
         DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest()
-                .withFilters(SubnetIdFilters);
+                .withFilters(subnetIdFilters);
+
         DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client
                 .describeRouteTables(describeRouteTablesRequest);
-        List<RouteTable> routeTables = describeRouteTablesResult.getRouteTables();
-
-        if (routeTables == null || routeTables.size() == 0) {
-            for (String instanceId : instanceIds) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withPluginFullyQualifiedClassName(SubnetPlugin.class)
-                                           .withType(EC2_WITHOUT_ROUTING_INFORMATION)
-                                           .withMetaInfo(instanceIds)
-                                           .build());
-            }
-
-            return;
-        }
-        for (RouteTable routeTable : routeTables) {
-            List<Route> routes = routeTable.getRoutes();
-            routes.stream()
-                  .filter(
-                          route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
-                                  !route.getNetworkInterfaceId().startsWith("eni")).forEach(
-                    route -> instanceIds.forEach(
-                            id -> violationSink.put(
-                                    violationFor(event).withInstanceId(id)
-                                                       .withPluginFullyQualifiedClassName(
-                                                               SubnetPlugin.class)
-                                                       .withType(EC2_RUN_IN_PUBLIC_SUBNET)
-                                                       .withMetaInfo(
-                                                               newArrayList(
-                                                                       route.getInstanceId(),
-                                                                       route.getNetworkInterfaceId()))
-                                                       .build())));
-        }
-
+        return describeRouteTablesResult.getRouteTables();
     }
 
 }

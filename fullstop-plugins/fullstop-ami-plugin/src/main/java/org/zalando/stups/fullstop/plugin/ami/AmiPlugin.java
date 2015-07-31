@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
@@ -81,12 +80,43 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
+        List<String> jsonInstances = getInstances(event);
+        List<String> whitelistedAmis = Lists.newArrayList();
 
-        List<String> amis = getAmis(event);
-        List<String> instanceIds = getInstanceIds(event);
+        whitelistedAmis = getWhitelistedAmis(event, whitelistedAmis);
 
-        final List<String> whitelistedAmis = Lists.newArrayList();
+        for (String jsonInstance : jsonInstances) {
+            String ami = getAmi(jsonInstance);
+            if (ami == null) {
+                break;
+            }
+            String instanceId = getInstanceId(jsonInstance);
+            if (instanceId == null) {
+                break;
+            }
 
+            boolean valid = false;
+
+            for (String whitelistedAmi : whitelistedAmis) {
+
+                if (ami.equals(whitelistedAmi)) {
+                    valid = true;
+                }
+            }
+
+            if (!valid) {
+                violationSink.put(
+                        violationFor(event).withInstanceId(instanceId)
+                                           .withType(WRONG_AMI)
+                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                                           .withMetaInfo(
+                                                   newArrayList(ami))
+                                           .build());
+            }
+        }
+    }
+
+    private List<String> getWhitelistedAmis(CloudTrailEvent event, List<String> whitelistedAmis) {
         AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class, whitelistedAmiAccount,
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
@@ -99,37 +129,6 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         whitelistedAmis.addAll(
                 images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
                       .map(Image::getImageId).collect(Collectors.toList()));
-
-        List<String> invalidAmis = Lists.newArrayList();
-
-        for (String ami : amis) {
-
-            boolean valid = false;
-
-            for (String whitelistedAmi : whitelistedAmis) {
-
-                if (ami.equals(whitelistedAmi)) {
-                    valid = true;
-                }
-            }
-
-            if (!valid) {
-                invalidAmis.add(ami);
-            }
-
-        }
-
-        if (!CollectionUtils.isEmpty(invalidAmis)) {
-            for (String instanceId : instanceIds) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(WRONG_AMI)
-                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(instanceIds, invalidAmis))
-                                           .build());
-            }
-
-        }
+        return whitelistedAmis;
     }
 }

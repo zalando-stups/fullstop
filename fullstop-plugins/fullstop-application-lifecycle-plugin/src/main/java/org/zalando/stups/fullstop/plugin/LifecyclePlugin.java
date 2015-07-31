@@ -86,7 +86,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
             lifecycleEntity.setRegion(region);
-            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getSingleInstance(instance));
+            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getInstanceId(instance));
 
             ApplicationEntity applicationEntity;
             VersionEntity versionEntity;
@@ -109,13 +109,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     }
 
     private String getApplicationName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getSingleInstance(instance);
+        String instanceId = getInstanceId(instance);
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_id").toString();
     }
 
     private String getVersionName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getSingleInstance(instance);
+        String instanceId = getInstanceId(instance);
 
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
         return userData.get("application_version").toString();

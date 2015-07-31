@@ -123,14 +123,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
                 Application applicationFromKio = getAndValidateApplicationFromKio(
                         event,
-                        applicationId);
+                        applicationId, instanceId);
 
                 if (applicationFromKio != null) {
 
                     Version applicationVersionFromKio = getAndValidateApplicationVersionFromKio(
                             event,
                             applicationId,
-                            applicationVersion);
+                            applicationVersion, instanceId);
 
                     if (applicationVersionFromKio != null) {
 
@@ -140,22 +140,22 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                 applicationVersion,
                                 applicationFromKio.getTeamId(),
                                 source,
-                                applicationVersionFromKio.getArtifact());
+                                applicationVersionFromKio.getArtifact(), instanceId);
 
                         validateScmSource(
                                 event,
                                 applicationFromKio.getTeamId(),
                                 applicationId,
-                                applicationVersion);
+                                applicationVersion, instanceId);
 
                         validateContainsMandatoryApprovals(
                                 applicationVersionFromKio,
-                                event);
+                                event, instanceId);
                         validateMultipleEyesPrinciple(
                                 event,
                                 applicationVersionFromKio.getApplicationId(),
                                 applicationVersionFromKio.getId(),
-                                applicationFromKio.getRequiredApprovers());
+                                applicationFromKio.getRequiredApprovers(), instanceId);
                     }
                 }
             }
@@ -209,7 +209,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     protected void validateMultipleEyesPrinciple(CloudTrailEvent event, String applicationId, String versionId,
-            int minApprovals) {
+            int minApprovals, String instanceId) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(
                 applicationId,
                 versionId);
@@ -227,22 +227,19 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 .collect(Collectors.toList())
                 .size();
         if (approverCount < minApprovals) {
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(VERSION_APPROVAL_NOT_ENOUGH).withPluginFullyQualifiedClassName(
-                                RegistryPlugin.class).withMetaInfo(
-                                newArrayList(
-                                        versionId,
-                                        applicationId,
-                                        approverCount,
-                                        minApprovals)).build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(VERSION_APPROVAL_NOT_ENOUGH).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
+                            newArrayList(
+                                    versionId,
+                                    applicationId,
+                                    approverCount,
+                                    minApprovals)).build());
         }
-
     }
 
-    protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event) {
+    protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event, String instanceId) {
         List<Approval> approvals = kioOperations.getApplicationApprovals(
                 version.getApplicationId(),
                 version.getId());
@@ -257,21 +254,20 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         if (!approvalTypes.containsAll(defaultApprovals)) {
             Set<String> diff = Sets.newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(MISSING_VERSION_APPROVAL).withPluginFullyQualifiedClassName(
-                                RegistryPlugin.class).withMetaInfo(
-                                newArrayList(
-                                        version.getId(),
-                                        diff.toString(),
-                                        version.getApplicationId())).build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(MISSING_VERSION_APPROVAL).withPluginFullyQualifiedClassName(
+                            RegistryPlugin.class).withMetaInfo(
+                            newArrayList(
+                                    version.getId(),
+                                    diff.toString(),
+                                    version.getApplicationId())).build());
         }
+
     }
 
     protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
-            String applicationVersion) {
+            String applicationVersion, String instanceId) {
         Map<String, String> scmSource = newHashMap();
         try {
             scmSource = pieroneOperations.getScmSource(
@@ -280,54 +276,52 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     applicationVersion);
         }
         catch (HttpClientErrorException e) {
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(IMAGE_IN_PIERONE_NOT_FOUND)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(
-                                                           teamId,
-                                                           applicationId,
-                                                           applicationVersion))
-                                           .build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(IMAGE_IN_PIERONE_NOT_FOUND)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       teamId,
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
             return;
         }
         if (scmSource.isEmpty()) {
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(
-                                                           teamId,
-                                                           applicationId,
-                                                           applicationVersion))
-                                           .build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       teamId,
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
         }
     }
 
     protected void validateSourceWithPierone(final CloudTrailEvent event, final String applicationId,
-            final String applicationVersion, final String team, final String source, final String artifact) {
+            final String applicationVersion, final String team, final String source, final String artifact,
+            String instanceId) {
         List<String> instanceIds = getInstanceIds(event);
         if (!artifact.contains(source)) {
-            for (String instanceId : instanceIds) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(
-                                                           applicationId,
-                                                           applicationVersion))
-                                           .build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
         }
 
         Map<String, String> tags = newHashMap();
@@ -345,7 +339,19 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
 
         if (tags.isEmpty()) {
-            for (String instanceId : instanceIds) {
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(source))
+                                       .build());
+
+        }
+        else {
+            String value = tags.get(applicationVersion);
+            if (value == null) {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId)
                                            .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
@@ -355,41 +361,27 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                                                    newArrayList(source))
                                            .build());
             }
-        }
-        else {
-            String value = tags.get(applicationVersion);
-            if (value == null) {
-                for (String instanceId : instanceIds) {
-                    violationSink.put(
-                            violationFor(event).withInstanceId(instanceId)
-                                               .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
-                                               .withPluginFullyQualifiedClassName(
-                                                       RegistryPlugin.class)
-                                               .withMetaInfo(
-                                                       newArrayList(source))
-                                               .build());
-                }
-            }
+
         }
     }
 
-    protected Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId) {
+    protected Application getAndValidateApplicationFromKio(final CloudTrailEvent event, final String applicationId,
+            String instanceId) {
 
         try {
             Application application = kioOperations.getApplicationById(applicationId);
             return application;
         }
         catch (NotFoundException e) {
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(APPLICATION_NOT_PRESENT_IN_KIO)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(applicationId))
-                                           .build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_NOT_PRESENT_IN_KIO)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(applicationId))
+                                       .build());
+
             return null;
         }
         catch (HttpClientErrorException e) {
@@ -403,7 +395,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     protected Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
-            final String applicationVersion) {
+            final String applicationVersion, String instanceId) {
 
         try {
             return kioOperations.getApplicationVersion(
@@ -411,18 +403,17 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     applicationVersion);
         }
         catch (NotFoundException e) {
-            for (String instanceId : getInstanceIds(event)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(
-                                                   newArrayList(
-                                                           applicationId,
-                                                           applicationVersion))
-                                           .build());
-            }
+            violationSink.put(
+                    violationFor(event).withInstanceId(instanceId)
+                                       .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
+                                       .withPluginFullyQualifiedClassName(
+                                               RegistryPlugin.class)
+                                       .withMetaInfo(
+                                               newArrayList(
+                                                       applicationId,
+                                                       applicationVersion))
+                                       .build());
+
             return null;
         }
         catch (HttpClientErrorException e) {

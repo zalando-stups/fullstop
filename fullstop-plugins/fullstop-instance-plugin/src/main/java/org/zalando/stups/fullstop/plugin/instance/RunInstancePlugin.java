@@ -84,7 +84,8 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        List<String> instanceIds = getInstanceIds(event);
+        List<String> instances = getInstances(event);
+        for (String instance : instances) {
 
         if (not(hasPublicIp(event))) {
 
@@ -92,16 +93,16 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroups(event);
+        Optional<List<SecurityGroup>> securityGroupList = getSecurityGroupsForInstance(instance, event);
         if (not(securityGroupList.isPresent())) {
 
             // no securityGroups, maybe instance already down
             return;
         }
-        for (String instanceId : instanceIds) {
+
             if (securityGroupList.get().stream().anyMatch(SecurityGroupPredicates.anyMatch(filter))) {
                 violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
+                        violationFor(event).withInstanceId(getInstanceId(instance))
                                            .withType(SECURITY_GROUPS_PORT_NOT_ALLOWED)
                                            .withPluginFullyQualifiedClassName(RunInstancePlugin.class)
                                            .withMetaInfo(getPorts(securityGroupList.get()))
@@ -133,14 +134,14 @@ public class RunInstancePlugin extends AbstractFullstopPlugin {
         return securityGroups.stream().map(transformer).collect(toList());
     }
 
-    protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
+    protected List<String> readSecurityGroupIds(final String instance) {
 
-        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
+        return read(instance, SECURITY_GROUP_IDS_JSON_PATH, true);
     }
 
-    protected Optional<List<SecurityGroup>> getSecurityGroups(final CloudTrailEvent event) {
+    protected Optional<List<SecurityGroup>> getSecurityGroupsForInstance(final String instance, CloudTrailEvent event) {
 
-        List<String> securityGroupIds = readSecurityGroupIds(event);
+        List<String> securityGroupIds = readSecurityGroupIds(instance);
 
         return getSecurityGroupsForIds(securityGroupIds, event);
     }

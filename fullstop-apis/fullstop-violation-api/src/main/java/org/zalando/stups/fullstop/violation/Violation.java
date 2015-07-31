@@ -34,4 +34,6 @@ public interface Violation {
     String getPluginFullyQualifiedClassName();
 
     String getViolationType();
+
+    String getInstanceId();
 }

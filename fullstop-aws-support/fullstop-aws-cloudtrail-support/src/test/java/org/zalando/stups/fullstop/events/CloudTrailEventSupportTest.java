@@ -48,8 +48,12 @@ public class CloudTrailEventSupportTest {
 
     @Test
     public void getAmisTest() {
-        List<String> amis = getAmis(createCloudTrailEvent("/responseElements.json"));
-        Assertions.assertThat(amis).isNotEmpty();
+        List<String> instances = CloudTrailEventSupport.getInstances(createCloudTrailEvent("/responseElements.json"));
+        for (String instance : instances) {
+            String ami = getAmi(instance);
+            Assertions.assertThat(ami).isNotEmpty();
+        }
+
     }
 
     @Test
@@ -85,8 +89,14 @@ public class CloudTrailEventSupportTest {
 
     @Test
     public void testNullResponseElementsInstanceIds() {
-        List<String> instanceIds = getAmis(new CloudTrailEvent(new NullTestCloudTrailEventData(), null));
-        Assertions.assertThat(instanceIds).isEmpty();
+        List<String> instances = CloudTrailEventSupport.getInstances(
+                new CloudTrailEvent(
+                        new NullTestCloudTrailEventData(),
+                        null));
+        for (String instance : instances) {
+            String instanceId = getAmi(instance);
+            Assertions.assertThat(instanceId).isEmpty();
+        }
     }
 
     @Test
