@@ -39,8 +39,6 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
-import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import sun.misc.BASE64Encoder;
@@ -198,7 +196,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
                 isNull(DateTime.class),
                 isNull(Long.class),
                 isNull(Boolean.class),
-                isNull(ViolationSeverity.class),
+                isNull(Integer.class),
                 isNull(Boolean.class),
                 isNull(String.class),
                 any());

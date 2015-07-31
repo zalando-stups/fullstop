@@ -39,8 +39,6 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationSeverity;
-import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -141,7 +139,7 @@ public class FullstopApi {
             final Boolean checked,
             @ApiParam(value = "Include only violations with a certain severity")
             @RequestParam(value = "severity", required = false)
-            final ViolationSeverity severity,
+            final Integer severity,
             @ApiParam(value = "Include only violations that are audit relevant")
             @RequestParam(value = "audit-relevant", required = false)
             final Boolean auditRelevant,
