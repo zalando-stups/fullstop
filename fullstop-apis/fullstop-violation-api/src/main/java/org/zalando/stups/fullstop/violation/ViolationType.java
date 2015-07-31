@@ -20,13 +20,11 @@ package org.zalando.stups.fullstop.violation;
  */
 public class ViolationType {
 
-    public static final String EC2_WITH_SSH_KEY = "EC2_WITH_SSH_KEY";
+    public static final String EC2_WITH_KEYPAIR = "EC2_WITH_KEYPAIR";
 
     public static final String WRONG_REGION = "WRONG_REGION";
 
     public static final String MODIFIED_ROLE_OR_SERVICE = "MODIFIED_ROLE_OR_SERVICE";
-
-    public static final String EC2_WITHOUT_ROUTING_INFORMATION = "EC2_WITHOUT_ROUTING_INFORMATION";
 
     public static final String EC2_RUN_IN_PUBLIC_SUBNET = "EC2_RUN_IN_PUBLIC_SUBNET";
 
@@ -58,7 +56,7 @@ public class ViolationType {
 
     public static final String SCM_SOURCE_JSON_MISSING_FOR_IMAGE = "SCM_SOURCE_JSON_MISSING_FOR_IMAGE";
 
-    public static final String APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT = "APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT";
+    public static final String APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT = "APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT";
 
     public static final String SOURCE_NOT_PRESENT_IN_PIERONE = "SOURCE_NOT_PRESENT_IN_PIERONE";
 

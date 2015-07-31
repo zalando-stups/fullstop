@@ -29,7 +29,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
-import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_SSH_KEY;
+import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_KEYPAIR;
 
 /**
  * @author ljaeckel
@@ -69,7 +69,7 @@ public class KeyPairPlugin extends AbstractFullstopPlugin {
             if (!CollectionUtils.isEmpty(keyNames)) {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId)
-                                           .withType(EC2_WITH_SSH_KEY)
+                                           .withType(EC2_WITH_KEYPAIR)
                                            .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
                                            .withMetaInfo(newArrayList(keyNames))
                                            .build());

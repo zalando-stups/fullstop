@@ -313,7 +313,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         if (!artifact.contains(source)) {
             violationSink.put(
                     violationFor(event).withInstanceId(instanceId)
-                                       .withType(APPLICATION_VERSION_HAS_NOT_A_VALID_ARTIFACT)
+                                       .withType(APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT)
                                        .withPluginFullyQualifiedClassName(
                                                RegistryPlugin.class)
                                        .withMetaInfo(
