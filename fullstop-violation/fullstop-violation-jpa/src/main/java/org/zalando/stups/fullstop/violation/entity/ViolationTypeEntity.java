@@ -42,9 +42,7 @@ public class ViolationTypeEntity {
 
     private String helpText;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private ViolationSeverity violationSeverity;
+    private Integer violationSeverity;
 
     private boolean isAuditRelevant;
 
@@ -90,12 +88,12 @@ public class ViolationTypeEntity {
         this.helpText = helpText;
     }
 
-    public ViolationSeverity getViolationSeverity() {
+    public Integer getViolationSeverity() {
         return violationSeverity;
     }
 
     public void setViolationSeverity(
-            ViolationSeverity violationSeverity) {
+            Integer violationSeverity) {
         this.violationSeverity = violationSeverity;
     }
 

@@ -26,8 +26,6 @@ import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import reactor.bus.EventBus;
 
-import static org.zalando.stups.fullstop.violation.entity.ViolationSeverity.MINOR_IMPACT;
-
 /**
  * @author jbellmann
  */
@@ -79,7 +77,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         else {
             ViolationTypeEntity vte = new ViolationTypeEntity();
             vte.setId(violationTypeId);
-            vte.setViolationSeverity(MINOR_IMPACT);
+            vte.setViolationSeverity(0);
             vte.setIsAuditRelevant(false);
             vte.setHelpText("This is only a default message");
 

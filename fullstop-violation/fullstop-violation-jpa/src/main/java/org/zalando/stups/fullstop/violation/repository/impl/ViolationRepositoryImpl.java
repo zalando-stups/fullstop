@@ -46,7 +46,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime since,
-            final Long lastViolation, final Boolean checked, final ViolationSeverity severity, Boolean auditRelevant,
+            final Long lastViolation, final Boolean checked, final Integer severity, Boolean auditRelevant,
             String type, final Pageable pageable) {
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
