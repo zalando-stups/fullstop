@@ -8,10 +8,6 @@
     </parent>
     <artifactId>fullstop-violation-persister-jpa</artifactId>
 
-    <properties>
-        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
