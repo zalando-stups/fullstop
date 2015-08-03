@@ -14,9 +14,10 @@
     <version>0.9.1-SNAPSHOT</version>
 
     <properties>
-        <fullstop-aws-support.version>0.9.1-SNAPSHOT</fullstop-aws-support.version>
-        <fullstop-core.version>0.9.1-SNAPSHOT</fullstop-core.version>
-        <fullstop-violation.version>0.9.1-SNAPSHOT</fullstop-violation.version>
+        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
+        <fullstop-core.version>1.0.0.M1</fullstop-core.version>
+        <fullstop-violation.version>1.0.0.M1</fullstop-violation.version>
+        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
     </properties>
 
     <dependencies>
@@ -49,7 +50,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-s3-support</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
