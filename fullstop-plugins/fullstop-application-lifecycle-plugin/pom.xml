@@ -20,7 +20,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-jpa</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>${fullstop-violation-jpa.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
