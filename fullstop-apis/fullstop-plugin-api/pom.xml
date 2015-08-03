@@ -24,7 +24,7 @@
     </parent>
     <artifactId>fullstop-plugin-api</artifactId>
     <name>Fullstop -- Plugin API</name>
-    <version>1.0.1.M1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <!--
         <properties>
