@@ -34,6 +34,7 @@ CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, reg
 
 -- update violations 'update-violations.sql'
 
+select count(*) from fullstop_data.violation where violation_type_entity_id is null;
 
 select count(*) from fullstop_data.violation where meta_info is not null;
 

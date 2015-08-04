@@ -1,19 +1,9 @@
-BEGIN;
-
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'EC2_WITH_KEYPAIR')
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
   AND message LIKE '%KeyPair must be blank, but was %';
-
-
-UPDATE fullstop_data.violation
-SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'LEGACY')
-WHERE
-  violation_type_entity_id IS NULL
-  AND plugin_fully_qualified_class_name IS NULL
-  AND message LIKE '%have no routing information associated';
 
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'WRONG_REGION')
@@ -38,7 +28,7 @@ WHERE
 
 
 UPDATE fullstop_data.violation
-SET instance_id = substr(message,13,10) --"InstanceId: i-123456789 doesn't have any userData."
+SET instance_id = substr(message, 13, 10) --"InstanceId: i-123456789 doesn't have any userData."
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
@@ -49,10 +39,14 @@ SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violat
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
-  AND message LIKE '%InstanceId%doesn''t have any userData.%';
+  AND (
+    message LIKE '%InstanceId%doesn''t have any userData.%'
+    OR
+    message LIKE '%Instance%does not have any userData%'
+  );
 
 UPDATE fullstop_data.violation
-SET instance_id = substr(message,13,10) --"InstanceID: i-12345678 was started with a mutable SNAPSHOT image."
+SET instance_id = substr(message, 13, 10) --"InstanceID: i-12345678 was started with a mutable SNAPSHOT image."
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
@@ -160,7 +154,7 @@ WHERE
     OR
     message LIKE '%userData%is missing application_id.%'
   );
-  -- finish
+-- finish
 
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'WRONG_USER_DATA')
@@ -191,7 +185,7 @@ WHERE
   AND message LIKE '%Masterdata of%has errors%';
 
 
-DELETE from fullstop_data.violation
+DELETE FROM fullstop_data.violation
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
@@ -200,10 +194,9 @@ WHERE
     message LIKE '%AccessDenied%'
     OR
     message LIKE '%Request limit exceeded.%'
+    OR
+    message LIKE '%have no routing information associated'
   );
-
--- ROLLBACK;
--- COMMIT;
 
 
 
