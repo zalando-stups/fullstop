@@ -56,3 +56,6 @@ VALUES
    FALSE, now(), 'mrandi', 0);
 INSERT INTO fullstop_data.violation_type (id, help_text, violation_severity, is_audit_relevant, created, created_by, version)
 VALUES ('WRONG_APPLICATION_MASTERDATA', 'Wrong application masterdata.', 0, FALSE, now(), 'mrandi', 0);
+
+INSERT INTO fullstop_data.violation_type (id, help_text, violation_severity, is_audit_relevant, created, created_by, version)
+VALUES ('LEGACY', 'Old violations.', 0, FALSE, now(), 'mrandi', 0);
