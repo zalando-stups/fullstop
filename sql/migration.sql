@@ -34,6 +34,9 @@ CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, reg
 
 -- update violations 'update-violations.sql'
 
+
+select count(*) from fullstop_data.violation where meta_info is not null;
+
 -- migrate messages
 UPDATE fullstop_data.violation
 SET meta_info = message
@@ -43,6 +46,6 @@ ALTER TABLE fullstop_data.violation
 DROP COLUMN message;
 
 ALTER TABLE fullstop_data.violation
- violation_type_entity_id NOT NULL;
+ ALTER COLUMN violation_type_entity_id SET NOT NULL;
  
  

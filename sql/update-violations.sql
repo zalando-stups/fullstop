@@ -36,12 +36,27 @@ WHERE
   AND plugin_fully_qualified_class_name IS NULL
   AND message LIKE '%was started with wrong images:%';
 
+
+UPDATE fullstop_data.violation
+SET instance_id = substr(message,13,10) --"InstanceId: i-123456789 doesn't have any userData."
+WHERE
+  violation_type_entity_id IS NULL
+  AND plugin_fully_qualified_class_name IS NULL
+  AND message LIKE '%InstanceId%doesn''t have any userData.%';
+
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'MISSING_USER_DATA')
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
   AND message LIKE '%InstanceId%doesn''t have any userData.%';
+
+UPDATE fullstop_data.violation
+SET instance_id = substr(message,13,10) --"InstanceID: i-12345678 was started with a mutable SNAPSHOT image."
+WHERE
+  violation_type_entity_id IS NULL
+  AND plugin_fully_qualified_class_name IS NULL
+  AND message LIKE '%was started with a mutable SNAPSHOT image.%';
 
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'EC2_WITH_A_SNAPSHOT_IMAGE')
@@ -79,6 +94,74 @@ WHERE
   AND plugin_fully_qualified_class_name IS NULL
   AND message LIKE '%Application:%has not a valid artifact for version%';
 
+--
+-- -- parse message to get instance id
+-- UPDATE fullstop_data.violation
+-- SET instance_id = substr(message,22,10) --"userData of instance i-123468 is missing application_id."
+-- WHERE
+--   violation_type_entity_id IS NULL
+--   AND plugin_fully_qualified_class_name IS NULL
+--   AND message LIKE '%userData%is missing application_id.%';
+--
+--
+-- UPDATE fullstop_data.violation
+-- SET instance_id = substr(message,47,10) --"No 'application_id' defined for this instance i-12345678, please change the userData configuration for this instance and add this information."
+-- WHERE
+--   violation_type_entity_id IS NULL
+--   AND plugin_fully_qualified_class_name IS NULL
+--   AND message LIKE
+--     '%No ''application_id'' defined%please change the userData configuration for this instance and add this information.%';
+--
+--
+-- UPDATE fullstop_data.violation
+-- SET instance_id = substr(message,39,10) --"No 'source' defined for this instance i-12345767, please change the userData configuration for this instance and add this information."
+-- WHERE
+--   violation_type_entity_id IS NULL
+--   AND plugin_fully_qualified_class_name IS NULL
+--   AND message LIKE
+--     '%No ''source'' defined%please change the userData configuration for this instance and add this information.%';
+--
+-- UPDATE fullstop_data.violation
+-- SET instance_id = substr(message,13,10) --"InstanceID: i-12335678 is missing 'source' property in userData."
+-- WHERE
+--   violation_type_entity_id IS NULL
+--   AND plugin_fully_qualified_class_name IS NULL
+--   AND message LIKE '%InstanceID:%is missing ''source'' property in userData.%';
+--
+-- UPDATE fullstop_data.violation
+-- SET instance_id = substr(message,52,10) --"No 'application_version' defined for this instance i-1233567, please change the userData configuration for this instance and add this information."
+-- WHERE
+--   violation_type_entity_id IS NULL
+--   AND plugin_fully_qualified_class_name IS NULL
+--   AND  message LIKE
+--     '%No ''application_version'' defined%please change the userData configuration for this instance and add this information.%';
+--
+-- -- finish
+
+-- update instance id with message
+
+UPDATE fullstop_data.violation
+SET instance_id = message
+WHERE
+  violation_type_entity_id IS NULL
+  AND plugin_fully_qualified_class_name IS NULL
+  AND
+  (
+    message LIKE
+    '%No ''application_id'' defined%please change the userData configuration for this instance and add this information.%'
+    OR
+    message LIKE
+    '%No ''source'' defined%please change the userData configuration for this instance and add this information.%'
+    OR
+    message LIKE
+    '%No ''application_version'' defined%please change the userData configuration for this instance and add this information.%'
+    OR
+    message LIKE '%InstanceID:%is missing ''source'' property in userData.%'
+    OR
+    message LIKE '%userData%is missing application_id.%'
+  );
+  -- finish
+
 UPDATE fullstop_data.violation
 SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'WRONG_USER_DATA')
 WHERE
@@ -107,8 +190,8 @@ WHERE
   AND plugin_fully_qualified_class_name IS NULL
   AND message LIKE '%Masterdata of%has errors%';
 
-UPDATE fullstop_data.violation
-SET (plugin_fully_qualified_class_name, violation_type_entity_id) = ('old_violation', 'LEGACY')
+
+DELETE from fullstop_data.violation
 WHERE
   violation_type_entity_id IS NULL
   AND plugin_fully_qualified_class_name IS NULL
@@ -119,8 +202,8 @@ WHERE
     message LIKE '%Request limit exceeded.%'
   );
 
---ROLLBACK;
---COMMIT;
+-- ROLLBACK;
+-- COMMIT;
 
 
 
