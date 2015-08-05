@@ -28,6 +28,7 @@ import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
 import javax.transaction.Transactional;
+import java.util.Base64;
 import java.util.Map;
 
 /**
@@ -91,7 +92,9 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
             final String userdataPath, final String region, final String logData) {
         Yaml yaml = new Yaml();
-        Map userdata = (Map) yaml.load(logData);
+        String decodedLogData = new String(Base64.getDecoder().decode(logData));
+
+        Map userdata = (Map) yaml.load(decodedLogData);
 
         ApplicationEntity applicationEntity = new ApplicationEntity(userdata.get("application_id").toString());
 
