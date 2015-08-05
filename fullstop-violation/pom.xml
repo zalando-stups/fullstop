@@ -40,8 +40,8 @@
 
     <scm>
         <url>https://github.com/zalando-stups/fullstop.git</url>
-        <connection>scm:git:ssh://github.com/zalando-stups/fullstop.git</connection>
-        <developerConnection>scm:git:ssh://github.com/zalando-stups/fullstop.git</developerConnection>
+        <connection>scm:git:https://github.com/zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:https://github.com/zalando-stups/fullstop.git</developerConnection>
         <tag>fullstop-violation-1.0.1</tag>
     </scm>
 </project>
