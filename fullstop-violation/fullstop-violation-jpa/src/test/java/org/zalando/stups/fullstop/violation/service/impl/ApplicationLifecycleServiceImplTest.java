@@ -191,6 +191,20 @@ public class ApplicationLifecycleServiceImplTest {
         assertThat(lifecycleEntity.getId()).isNotNull();
 
     }
+    @Test
+    public void testSaveNullInstanceLogLifecycle() throws Exception {
+        String userdataPath = "URL/to/File";
+        DateTime instanceBootTime = DateTime.now();
+        String instanceId = "i-1234";
+        String region = "eu-west-1";
+        String userdata = null;
+        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                instanceId,
+                instanceBootTime,
+                userdataPath, region, userdata);
+        assertThat(lifecycleEntity.getId()).isNull();
+
+    }
 
     private String encodeToBase64(String toEncode) {
         return Base64.getEncoder().encodeToString(
