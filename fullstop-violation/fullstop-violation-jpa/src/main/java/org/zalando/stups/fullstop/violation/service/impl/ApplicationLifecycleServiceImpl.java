@@ -97,8 +97,8 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
             final String userdataPath, final String region, final String logData) {
         if (logData == null) {
-            log.warn("Logdata mus not be empty!");
-            return new LifecycleEntity();
+            log.warn("Logdata must not be null!");
+            return null;
         }
         Yaml yaml = new Yaml();
         String decodedLogData = new String(Base64.getDecoder().decode(logData));
