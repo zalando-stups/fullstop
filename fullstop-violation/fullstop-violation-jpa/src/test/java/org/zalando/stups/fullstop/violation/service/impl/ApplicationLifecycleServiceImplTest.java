@@ -202,7 +202,7 @@ public class ApplicationLifecycleServiceImplTest {
                 instanceId,
                 instanceBootTime,
                 userdataPath, region, userdata);
-        assertThat(lifecycleEntity.getId()).isNull();
+        assertThat(lifecycleEntity).isNull();
 
     }
 
