@@ -17,9 +17,36 @@ ALTER TABLE fullstop_data.violation DROP CONSTRAINT IF EXISTS unique_violation;
 
 ALTER TABLE fullstop_data.violation
 ADD COLUMN plugin_fully_qualified_class_name TEXT,
-ADD COLUMN violation_type_entity_id TEXT, -- NOT NULL,
-DROP COLUMN message, -- should we wait for that?
-ADD CONSTRAINT unique_violation UNIQUE (account_id, region, event_id, violation_type_entity_id),
+ADD COLUMN instance_id TEXT,
+ADD COLUMN violation_type_entity_id TEXT,
 ADD FOREIGN KEY (violation_type_entity_id) REFERENCES fullstop_data.violation_type (id);
 
 ALTER TABLE fullstop_data.violation RENAME COLUMN violation_object TO meta_info;
+
+
+CREATE UNIQUE INDEX unique_violation_instance_null ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id)
+  WHERE instance_id IS NULL;
+
+CREATE UNIQUE INDEX unique_violation ON fullstop_data.violation (account_id, region, event_id, violation_type_entity_id, instance_id)
+  WHERE instance_id IS NOT NULL;
+
+-- insert violation types 'violation-types.sql'
+
+-- update violations 'update-violations.sql'
+
+select count(*) from fullstop_data.violation where violation_type_entity_id is null;
+
+select count(*) from fullstop_data.violation where meta_info is not null;
+
+-- migrate messages
+UPDATE fullstop_data.violation
+SET meta_info = message
+WHERE meta_info is null;
+
+ALTER TABLE fullstop_data.violation
+DROP COLUMN message;
+
+ALTER TABLE fullstop_data.violation
+ ALTER COLUMN violation_type_entity_id SET NOT NULL;
+ 
+ 
