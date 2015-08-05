@@ -46,7 +46,7 @@ senza create $SENZA_CONFIGURATION_YAML --disable-rollback --region eu-west-1 $ST
 trap - SIGINT
 
 echo '##### Show senza events #####'
-senza events $SENZA_CONFIGURATION_YAML $STACK_VERSION --region eu-west-1 -w 2
+senza events $SENZA_CONFIGURATION_YAML $STACK_VERSION --region eu-west-1 --watch 2
 
 echo '##### Show senza traffic #####'
 senza traffic $SENZA_CONFIGURATION_YAML
