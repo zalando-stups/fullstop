@@ -16,6 +16,8 @@
 package org.zalando.stups.fullstop.violation.service.impl;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
@@ -28,6 +30,7 @@ import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
 import javax.transaction.Transactional;
+import java.util.Base64;
 import java.util.Map;
 
 /**
@@ -35,6 +38,9 @@ import java.util.Map;
  */
 @Service
 public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleService {
+
+    private final Logger log = LoggerFactory.getLogger(ApplicationLifecycleServiceImpl.class);
+
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -90,8 +96,14 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Override
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
             final String userdataPath, final String region, final String logData) {
+        if (logData == null) {
+            log.warn("Logdata must not be null!");
+            return null;
+        }
         Yaml yaml = new Yaml();
-        Map userdata = (Map) yaml.load(logData);
+        String decodedLogData = new String(Base64.getDecoder().decode(logData));
+
+        Map userdata = (Map) yaml.load(decodedLogData);
 
         ApplicationEntity applicationEntity = new ApplicationEntity(userdata.get("application_id").toString());
 

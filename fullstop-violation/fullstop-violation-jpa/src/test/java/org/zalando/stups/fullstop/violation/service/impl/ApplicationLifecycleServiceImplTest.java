@@ -43,6 +43,7 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -124,10 +125,10 @@ public class ApplicationLifecycleServiceImplTest {
         snapshot.getApplicationEntities().add(fullstop);
         snapshot = versionRepository.save(snapshot);
 
-
         applicationLifecycleService.saveLifecycle(fullstop2, snapshot2, stopInstance);
         assertThat(versionRepository.findAll()).isNotEmpty().hasSize(1);
     }
+
     @Test
     public void testSaveAttachVersionToApplication() throws Exception {
         release = versionRepository.save(release);
@@ -177,17 +178,37 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
-        String userdata = "#taupage-ami-config\n"
-                + "application_id: Fullstop\n"
-                + "application_version: '0.22'\n"
-                + "environment:\n"
-                + "  xx: xx";
+        String userdata = encodeToBase64(
+                "#taupage-ami-config\n"
+                        + "application_id: Fullstop\n"
+                        + "application_version: '0.5-Snaphot'\n"
+                        + "environment:\n"
+                        + "  xx: xx");
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
                 userdataPath, region, userdata);
         assertThat(lifecycleEntity.getId()).isNotNull();
 
+    }
+    @Test
+    public void testSaveNullInstanceLogLifecycle() throws Exception {
+        String userdataPath = "URL/to/File";
+        DateTime instanceBootTime = DateTime.now();
+        String instanceId = "i-1234";
+        String region = "eu-west-1";
+        String userdata = null;
+        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                instanceId,
+                instanceBootTime,
+                userdataPath, region, userdata);
+        assertThat(lifecycleEntity.getId()).isNull();
+
+    }
+
+    private String encodeToBase64(String toEncode) {
+        return Base64.getEncoder().encodeToString(
+                (toEncode).getBytes());
     }
 
     @Test
@@ -196,11 +217,12 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
-        String userdata = "#taupage-ami-config\n"
-                + "application_id: Fullstop\n"
-                + "application_version: '0.5-Snaphot'\n"
-                + "environment:\n"
-                + "  xx: xx";
+        String userdata = encodeToBase64(
+                "#taupage-ami-config\n"
+                        + "application_id: Fullstop\n"
+                        + "application_version: '0.5-Snaphot'\n"
+                        + "environment:\n"
+                        + "  xx: xx");
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
