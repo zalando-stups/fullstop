@@ -26,8 +26,8 @@
 
     <scm>
         <url>https://github.com/zalando-stups/fullstop.git</url>
-        <connection>scm:git:git://github.com/zalando-stups/fullstop.git</connection>
-        <developerConnection>scm:git:git://github.com/zalando-stups/fullstop.git</developerConnection>
+        <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 </project>
