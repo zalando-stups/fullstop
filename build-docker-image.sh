@@ -25,7 +25,7 @@ echo '##### Start docker #####'
 boot2docker start
 
 echo '##### Docker build #####'
-docker build -t $FULL_IMAGE fullstop
+docker build -t $FULL_IMAGE fullstop-testing/it/fullstop
 
 echo '##### Pierone login####'
 pierone login
