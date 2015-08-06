@@ -224,6 +224,8 @@ public class FullstopApi {
             userdataPath = s3Writer.writeToS3(
                     instanceLog.getAccountId(), instanceLog.getRegion(), instanceLog.getInstanceBootTime(),
                     instanceLog.getLogData(), instanceLog.getLogType().toString(), instanceLog.getInstanceId());
+            log.info("saving S3 logs with userdatapath: {}", userdataPath);
+
         }
         catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -236,6 +238,8 @@ public class FullstopApi {
                     userdataPath,
                     instanceLog.getRegion(),
                     instanceLog.getLogData());
+            log.info("saving Lifeccycle Entity: {}", lifecycleEntity);
+
         }
     }
 
