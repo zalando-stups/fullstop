@@ -3,7 +3,7 @@ FROM zalando/openjdk:8u45-b14-5
 MAINTAINER Zalando SE
 
 COPY target/fullstop.jar /
-COPY target/docker/scm-source.json /
+COPY target/scm-source.json /
 
 EXPOSE 8080
 
