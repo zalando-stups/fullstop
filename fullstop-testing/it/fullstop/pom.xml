@@ -43,7 +43,7 @@
 
         <fullstop-core.version>1.0.0.M1</fullstop-core.version>
         <fullstop-timemachine.version>1.0.0.M1</fullstop-timemachine.version>
-        <fullstop-violation.version>1.0.0.M1</fullstop-violation.version>
+        <fullstop-violation.version>1.0.1</fullstop-violation.version>
 
         <fullstop-plugin.version>1.0.0.M1</fullstop-plugin.version>
     </properties>
@@ -66,7 +66,11 @@
             <artifactId>fullstop-violation-sink-reactor</artifactId>
             <version>${fullstop-core.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-violation-jpa</artifactId>
+            <version>${fullstop-violation.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-persister-jpa</artifactId>
