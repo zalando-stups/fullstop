@@ -101,7 +101,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
             return null;
         }
         Yaml yaml = new Yaml();
-        String decodedLogData = new String(Base64.getDecoder().decode(logData));
+        String decodedLogData = new String(Base64.getMimeDecoder().decode(logData));
 
         Map userdata = (Map) yaml.load(decodedLogData);
 
