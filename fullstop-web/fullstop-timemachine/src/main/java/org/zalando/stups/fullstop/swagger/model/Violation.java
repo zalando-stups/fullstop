@@ -18,7 +18,6 @@ package org.zalando.stups.fullstop.swagger.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
-import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -39,6 +38,12 @@ public class Violation {
 
     private String comment = null;
 
+    private String instanceId = null;
+
+    private String pluginFullyQualifiedClassName = null;
+
+    private ViolationType violationType = null;
+
     private DateTime created = null;
 
     private String createdBy = null;
@@ -46,12 +51,6 @@ public class Violation {
     private DateTime lastModified = null;
 
     private String lastModifiedBy = null;
-
-    private String pluginFullyQualifiedClassName = null;
-
-    private ViolationTypeEntity violationTypeEntity = null;
-
-    private String instanceId = null;
 
     @ApiModelProperty(value = "")
     public Long getId() {
@@ -162,12 +161,12 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    public ViolationTypeEntity getViolationTypeEntity() {
-        return violationTypeEntity;
+    public ViolationType getViolationType() {
+        return violationType;
     }
 
-    public void setViolationTypeEntity(ViolationTypeEntity violationTypeEntity) {
-        this.violationTypeEntity = violationTypeEntity;
+    public void setViolationType(ViolationType violationType) {
+        this.violationType = violationType;
     }
 
     @ApiModelProperty(value = "")
@@ -189,13 +188,13 @@ public class Violation {
                 .add("region", region)
                 .add("metaInfo", metaInfo)
                 .add("comment", comment)
+                .add("instanceId", instanceId)
+                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
+                .add("violationType", violationType)
                 .add("created", created)
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)
                 .add("lastModifiedBy", lastModifiedBy)
-                .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
-                .add("violationTypeEntity", violationTypeEntity)
-                .add("instanceId", instanceId)
                 .toString();
     }
 }
