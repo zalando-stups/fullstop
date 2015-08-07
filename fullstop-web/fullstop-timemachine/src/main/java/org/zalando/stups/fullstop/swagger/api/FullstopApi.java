@@ -35,10 +35,12 @@ import org.zalando.stups.fullstop.s3.LogType;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.swagger.model.Violation;
-import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.swagger.model.ViolationType;
 import org.zalando.stups.fullstop.teams.Account;
+import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -92,7 +94,21 @@ public class FullstopApi {
         violation.setEventId(entity.getEventId());
 
         violation.setPluginFullyQualifiedClassName(entity.getPluginFullyQualifiedClassName());
-        violation.setViolationTypeEntity(entity.getViolationTypeEntity());
+
+        ViolationType violationType = new ViolationType();
+        ViolationTypeEntity violationTypeEntity = entity.getViolationTypeEntity();
+
+        violationType.setId(violationTypeEntity.getId());
+        violationType.setHelpText(violationTypeEntity.getHelpText());
+        violationType.setIsAuditRelevant(violationTypeEntity.isAuditRelevant());
+        violationType.setViolationSeverity(violationTypeEntity.getViolationSeverity());
+        violationType.setCreated(violationTypeEntity.getCreated());
+        violationType.setCreatedBy(violationTypeEntity.getCreatedBy());
+        violationType.setLastModified(violationTypeEntity.getLastModified());
+        violationType.setLastModifiedBy(violationTypeEntity.getLastModifiedBy());
+        violationType.setVersion(violationTypeEntity.getVersion());
+
+        violation.setViolationType(violationType);
 
         violation.setRegion(entity.getRegion());
         violation.setInstanceId(entity.getInstanceId());
