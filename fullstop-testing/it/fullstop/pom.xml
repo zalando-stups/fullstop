@@ -39,8 +39,6 @@
         <fullstop-plugin-api.version>1.0.0.M1</fullstop-plugin-api.version>
         <fullstop-violation-api.version>1.0.0.M1</fullstop-violation-api.version>
 
-        <fullstop-processing.version>1.0.0.M1</fullstop-processing.version>
-
         <fullstop-core.version>1.0.1</fullstop-core.version>
         <fullstop-timemachine.version>1.0.3</fullstop-timemachine.version>
         <fullstop-violation.version>1.0.2</fullstop-violation.version>
@@ -58,7 +56,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-processing</artifactId>
-            <version>${fullstop-processing.version}</version>
+            <version>${fullstop-core.version}</version>
         </dependency>
 
         <dependency>
