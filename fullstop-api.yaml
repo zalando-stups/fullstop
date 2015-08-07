@@ -72,6 +72,12 @@ definitions:
       meta_info:
         type: object
         example: ""
+      instance_id:
+        type: string
+        example: "i-1234"
+      plugin_fully_qualified_className:
+        type: string
+        example: "org.zalando.stups.fullstop.plugin.subnet.SubnetPlugin"
       violation_type:
         $ref: "#/definitions/ViolationType"
       comment:
