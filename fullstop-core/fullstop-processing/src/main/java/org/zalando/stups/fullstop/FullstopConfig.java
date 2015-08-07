@@ -47,6 +47,7 @@ public class FullstopConfig {
     public AWSCloudTrailProcessingExecutor awsCloudTrailProcessingExecutor() {
         return new AWSCloudTrailProcessingExecutor.Builder(
                 pluginEventsProcessor(),
-                new ExtPropertiesFileConfiguration(cloudTrailsProcessingLibraryProperties.getAsProperties())).build();
+                new ExtPropertiesFileConfiguration(cloudTrailsProcessingLibraryProperties.getAsProperties())).withProgressReporter(
+                new NoOpsProgressReporter()).build();
     }
 }
