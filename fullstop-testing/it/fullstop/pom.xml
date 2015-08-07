@@ -45,7 +45,7 @@
         <fullstop-timemachine.version>1.0.2</fullstop-timemachine.version>
         <fullstop-violation.version>1.0.1</fullstop-violation.version>
 
-        <fullstop-plugin.version>1.0.0.M1</fullstop-plugin.version>
+        <fullstop-plugin.version>1.0.1</fullstop-plugin.version>
     </properties>
 
 
