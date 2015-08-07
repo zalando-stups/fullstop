@@ -95,20 +95,23 @@ public class FullstopApi {
 
         violation.setPluginFullyQualifiedClassName(entity.getPluginFullyQualifiedClassName());
 
-        ViolationType violationType = new ViolationType();
         ViolationTypeEntity violationTypeEntity = entity.getViolationTypeEntity();
 
-        violationType.setId(violationTypeEntity.getId());
-        violationType.setHelpText(violationTypeEntity.getHelpText());
-        violationType.setIsAuditRelevant(violationTypeEntity.isAuditRelevant());
-        violationType.setViolationSeverity(violationTypeEntity.getViolationSeverity());
-        violationType.setCreated(violationTypeEntity.getCreated());
-        violationType.setCreatedBy(violationTypeEntity.getCreatedBy());
-        violationType.setLastModified(violationTypeEntity.getLastModified());
-        violationType.setLastModifiedBy(violationTypeEntity.getLastModifiedBy());
-        violationType.setVersion(violationTypeEntity.getVersion());
+        if (entity.getViolationTypeEntity() != null) {
+            ViolationType violationType = new ViolationType();
 
-        violation.setViolationType(violationType);
+            violationType.setId(violationTypeEntity.getId());
+            violationType.setHelpText(violationTypeEntity.getHelpText());
+            violationType.setIsAuditRelevant(violationTypeEntity.isAuditRelevant());
+            violationType.setViolationSeverity(violationTypeEntity.getViolationSeverity());
+            violationType.setCreated(violationTypeEntity.getCreated());
+            violationType.setCreatedBy(violationTypeEntity.getCreatedBy());
+            violationType.setLastModified(violationTypeEntity.getLastModified());
+            violationType.setLastModifiedBy(violationTypeEntity.getLastModifiedBy());
+            violationType.setVersion(violationTypeEntity.getVersion());
+
+            violation.setViolationType(violationType);
+        }
 
         violation.setRegion(entity.getRegion());
         violation.setInstanceId(entity.getInstanceId());
