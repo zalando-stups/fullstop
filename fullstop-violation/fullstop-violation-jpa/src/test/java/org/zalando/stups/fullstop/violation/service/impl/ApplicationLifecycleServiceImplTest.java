@@ -233,6 +233,29 @@ public class ApplicationLifecycleServiceImplTest {
 
     }
 
+    @Test
+    public void testBase64withNewlines() throws Exception {
+        String userdataPath = "URL/to/File";
+        DateTime instanceBootTime = DateTime.now();
+        String instanceId = "i-1234";
+        String region = "eu-west-1";
+        String userdata = "YXBwbGljYXRpb25faWQ6IENyYXp5IEFwcGxpY2F0aW9uCmFwcGxpY2F0aW9uX3ZlcnNpb246ICc\n"
+                +"xLVNOQVBTSE9UJwplbnZpcm9ubWVudDoge0VOVlZBUjogY29udGVudH0KaW5zdGFuY2VfbG9nc1\n"
+                +"91cmw6IGh0dHBzOi8vc2VydmVyLnRsZC9wYXRoL3RvL2VuZHBvaW50Cm5vdGlmeV9jZm46IHtyZ\n"
+                +"XNvdXJjZTogQXBwU2VydmVyLCBzdGFjazogY3JhenktYXBwbGljYXRpb24tMS1zbmFwc2hvdH0K\n"
+                +"cG9ydHM6IHsxMjM0OiAxMjM0fQpyb290OiBmYWxzZQpydW50aW1lOiBEb2NrZXIKc291cmNlOiB\n"
+                +"zb21lLnJlZ2lzdHJ5LnRsZC9maW5kL2NyYXp5LWFwcGxpY2F0aW9uOjAuMS4wLVNOQVBTSE9UCn\n"
+                +"Rva2VuX3NlcnZpY2VfdXJsOiBodHRwczovL3Rva2VuLnNlcnZpY2UvYWNjZXNzX3Rva2VuCg==";
+        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+                instanceId,
+                instanceBootTime,
+                userdataPath, region, userdata);
+
+        assertThat(lifecycleEntity).isNotNull();
+
+
+    }
+
     @Configuration
     @EnableAutoConfiguration
     @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")

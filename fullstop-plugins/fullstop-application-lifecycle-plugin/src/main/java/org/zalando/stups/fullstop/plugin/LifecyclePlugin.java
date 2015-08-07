@@ -103,6 +103,10 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 return;
             }
 
+            if (versionEntity.getName() == null || applicationEntity.getName() ==null) {
+                LOG.warn("Lifecycle: UserData does not contain application name or version!");
+                return;
+            }
             applicationLifecycleService.saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
         }
 
@@ -111,6 +115,9 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     private String getApplicationName(final CloudTrailEvent event, final String instance) {
         String instanceId = getInstanceId(instance);
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
+        if (userData.get("application_id") == null) {
+            return null;
+        }
         return userData.get("application_id").toString();
     }
 
@@ -118,6 +125,9 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         String instanceId = getInstanceId(instance);
 
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
+        if (userData.get("application_version") == null) {
+            return null;
+        }
         return userData.get("application_version").toString();
 
     }

@@ -115,4 +115,25 @@ public class LifecyclePluginTest {
     public void testNullEvent() throws Exception {
         processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
     }
+
+    @Test
+    public void testEmptyUserData() throws Exception {
+        HashMap<Object, Object> value = newHashMap();
+        value.put(null, null);
+        value.put(null, null);
+
+        when(
+                userDataProviderMock.getUserData(
+                        any(String.class),
+                        any(Region.class),
+                        any(String.class))).thenReturn(value);
+
+        processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
+        verify(userDataProviderMock, atLeast(2)).getUserData(
+                any(String.class),
+                any(Region.class),
+                any(String.class));
+
+
+    }
 }
