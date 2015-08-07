@@ -33,7 +33,7 @@ public class SwaggerConfig {
         ApiInfo apiInfo = new ApiInfo(
                 "Fullstop API",
                 "Audit reporting",
-                "0.0.1-alpha",
+                "",
                 "",
                 "",
                 "Apache 2.0",
