@@ -364,8 +364,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             String instanceId) {
 
         try {
-            Application application = kioOperations.getApplicationById(applicationId);
-            return application;
+            return kioOperations.getApplicationById(applicationId);
         }
         catch (NotFoundException e) {
             violationSink.put(

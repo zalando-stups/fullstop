@@ -28,6 +28,7 @@ import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.KontrollettiResponseErrorHandler;
 import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
@@ -64,7 +65,10 @@ public class ClientConfig {
 
     @Bean
     public KioOperations kioOperations() {
-        return new HystrixKioOperations(new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl));
+        return new HystrixKioOperations(
+                new RestTemplateKioOperations(
+                        buildOAuth2RestTemplate("kio", new KioClientResponseErrorHandler()),
+                        kioBaseUrl));
     }
 
     @Bean
