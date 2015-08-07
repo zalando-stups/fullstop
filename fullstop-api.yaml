@@ -1,7 +1,7 @@
 swagger: "2.0"
 
 info:
-  version: "0.0.1-alpha"
+  version: ""
   title: Fullstop API
   description: Audit reporting
 
@@ -16,6 +16,39 @@ produces:
   - application/json
 
 definitions:
+  ViolationType:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "MISSING_USERDATA"
+      version:
+        type: integer
+        format: int64
+        example: 3
+      help_text:
+        type: string
+        example: ""
+      violation_severity:
+        type: integer
+        example: 1
+      is_audit_relevant:
+        type: boolean
+      created:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      created_by:
+        type: string
+        example: "John Die"
+      last_modified:
+        type: string
+        format: date-time
+        example: 2015-05-21T10:24:47.788-02:00
+      last_modified_by:
+        type: string
+        example: "John Dae"
+  
   Violation:
     type: object
     properties:
@@ -39,8 +72,8 @@ definitions:
       meta_info:
         type: object
         example: ""
-      # add also plugin name
-      # and violation type obj
+      violation_type:
+        $ref: "#/definitions/ViolationType"
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
