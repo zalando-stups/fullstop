@@ -10,7 +10,7 @@
 
     <artifactId>fullstop-timemachine</artifactId>
     <name>Fullstop -- Time-Machine</name>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <properties>
         <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
@@ -101,6 +101,6 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>fullstop-timemachine-1.0.3</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
