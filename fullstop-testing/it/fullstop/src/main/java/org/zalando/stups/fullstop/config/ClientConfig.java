@@ -38,8 +38,7 @@ import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
-import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -100,13 +99,8 @@ public class ClientConfig {
     }
 
     private RestOperations buildOAuth2RestTemplate(final String tokenName, final ResponseErrorHandler errorHandler) {
-        final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId("fullstop");
-
-        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-        restTemplate.setAccessTokenProvider(
-                new StupsAccessTokenProvider(
-                        new AutoRefreshTokenProvider(tokenName, accessTokens)));
+        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(new BaseOAuth2ProtectedResourceDetails());
+        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider(tokenName, accessTokens));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         if (errorHandler != null) {
             restTemplate.setErrorHandler(errorHandler);
