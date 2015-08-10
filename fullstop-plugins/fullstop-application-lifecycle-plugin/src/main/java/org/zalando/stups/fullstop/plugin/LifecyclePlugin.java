@@ -115,7 +115,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     private String getApplicationName(final CloudTrailEvent event, final String instance) {
         String instanceId = getInstanceId(instance);
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
-        if (userData.get("application_id") == null) {
+        if (userData== null && userData.get("application_id") == null) {
             return null;
         }
         return userData.get("application_id").toString();
@@ -125,7 +125,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         String instanceId = getInstanceId(instance);
 
         Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
-        if (userData.get("application_version") == null) {
+        if (userData== null && userData.get("application_version") == null) {
             return null;
         }
         return userData.get("application_version").toString();
