@@ -29,6 +29,7 @@ public interface ApplicationLifecycleService {
 
     LifecycleEntity saveInstanceLogLifecycle(String instanceId, DateTime instanceBootTime, String userdataPath,
             String region,
-            String logData);
+            String logData,
+            String accountId);
 
 }

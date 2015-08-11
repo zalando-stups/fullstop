@@ -35,7 +35,7 @@
         <fullstop-violation-api.version>1.0.0.M1</fullstop-violation-api.version>
         <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
         <fullstop-testing.version>1.0.0.M1</fullstop-testing.version>
-        <fullstop-violation-jpa.version>1.0.0.M1</fullstop-violation-jpa.version>
+        <fullstop-violation-jpa.version>1.0.3-SNAPSHOT</fullstop-violation-jpa.version>
     </properties>
 
     <modules>

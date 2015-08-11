@@ -178,6 +178,7 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
+        String accountId = "123456";
         String userdata = encodeToBase64(
                 "#taupage-ami-config\n"
                         + "application_id: Fullstop\n"
@@ -187,7 +188,7 @@ public class ApplicationLifecycleServiceImplTest {
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath, region, userdata);
+                userdataPath, region, userdata, accountId);
         assertThat(lifecycleEntity.getId()).isNotNull();
 
     }
@@ -197,11 +198,12 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
+        String accountId = "123456";
         String userdata = null;
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath, region, userdata);
+                userdataPath, region, userdata, accountId);
         assertThat(lifecycleEntity).isNull();
 
     }
@@ -217,6 +219,7 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
+        String accountId = "123456";
         String userdata = encodeToBase64(
                 "#taupage-ami-config\n"
                         + "application_id: Fullstop\n"
@@ -226,7 +229,7 @@ public class ApplicationLifecycleServiceImplTest {
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath, region, userdata);
+                userdataPath, region, userdata, accountId);
 
         applicationLifecycleService.saveLifecycle(fullstop, snapshot, runInstance);
         assertThat(lifecycleRepository.findAll()).hasSize(1);
@@ -239,6 +242,7 @@ public class ApplicationLifecycleServiceImplTest {
         DateTime instanceBootTime = DateTime.now();
         String instanceId = "i-1234";
         String region = "eu-west-1";
+        String accountId = "123456";
         String userdata = "YXBwbGljYXRpb25faWQ6IENyYXp5IEFwcGxpY2F0aW9uCmFwcGxpY2F0aW9uX3ZlcnNpb246ICc\n"
                 +"xLVNOQVBTSE9UJwplbnZpcm9ubWVudDoge0VOVlZBUjogY29udGVudH0KaW5zdGFuY2VfbG9nc1\n"
                 +"91cmw6IGh0dHBzOi8vc2VydmVyLnRsZC9wYXRoL3RvL2VuZHBvaW50Cm5vdGlmeV9jZm46IHtyZ\n"
@@ -249,7 +253,7 @@ public class ApplicationLifecycleServiceImplTest {
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath, region, userdata);
+                userdataPath, region, userdata, accountId);
 
         assertThat(lifecycleEntity).isNotNull();
 
