@@ -15,6 +15,15 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
+import static java.util.Collections.singletonMap;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
@@ -24,17 +33,12 @@ import org.junit.Test;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-
-import static java.util.Collections.singletonMap;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 public class ScmRepositoryPluginTest {
 
@@ -161,7 +165,7 @@ public class ScmRepositoryPluginTest {
                         ImmutableMap.of(
                                 "source", "hello-world:0.1",
                                 "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(null);
+        when(mockKioOperations.getApplicationById(anyString())).thenThrow(new NotFoundException());
 
         processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
 

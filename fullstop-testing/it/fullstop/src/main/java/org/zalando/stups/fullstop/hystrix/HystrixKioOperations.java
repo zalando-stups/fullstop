@@ -15,10 +15,19 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.zalando.stups.clients.kio.*;
-
 import java.util.List;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.ApplicationBase;
+import org.zalando.stups.clients.kio.Approval;
+import org.zalando.stups.clients.kio.ApprovalBase;
+import org.zalando.stups.clients.kio.CreateOrUpdateApplicationRequest;
+import org.zalando.stups.clients.kio.CreateOrUpdateVersionRequest;
+import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.NotFoundException;
+import org.zalando.stups.clients.kio.Version;
+import org.zalando.stups.clients.kio.VersionBase;
 
 public class HystrixKioOperations implements KioOperations {
 
@@ -35,7 +44,7 @@ public class HystrixKioOperations implements KioOperations {
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public Application getApplicationById(final String applicationId) {
         return delegate.getApplicationById(applicationId);
     }
@@ -47,38 +56,38 @@ public class HystrixKioOperations implements KioOperations {
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public List<String> getApplicationApprovals(final String applicationId) {
         return delegate.getApplicationApprovals(applicationId);
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public List<VersionBase> getApplicationVersions(final String applicationId) {
         return delegate.getApplicationVersions(applicationId);
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public Version getApplicationVersion(final String applicationId, final String versionId) {
         return delegate.getApplicationVersion(applicationId, versionId);
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public void createOrUpdateVersion(final CreateOrUpdateVersionRequest request, final String applicationId,
             final String versionId) {
         delegate.createOrUpdateVersion(request, applicationId, versionId);
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public List<Approval> getApplicationApprovals(final String applicationId, final String versionId) {
         return delegate.getApplicationApprovals(applicationId, versionId);
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public void approveApplicationVersion(final ApprovalBase request, final String applicationId,
             final String versionId) {
         delegate.approveApplicationVersion(request, applicationId, versionId);
