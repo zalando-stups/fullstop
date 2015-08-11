@@ -14,18 +14,17 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups.build</groupId>
         <artifactId>stups-parent</artifactId>
         <version>6</version>
-        <relativePath/>
+        <relativePath />
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
-    <version>2-SNAPSHOT</version>
+    <version>2</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
@@ -44,7 +43,7 @@
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
-        <argLine/>
+        <argLine />
 
         <spring-boot.version>1.2.5.RELEASE</spring-boot.version>
         <spring-security-oauth2.version>2.0.7.RELEASE</spring-security-oauth2.version>
@@ -313,7 +312,7 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>fullstop-parent-2</tag>
     </scm>
 
     <licenses>
