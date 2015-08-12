@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-core</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.1.0</version>
     </parent>
     <artifactId>fullstop-processing</artifactId>
     <name>Fullstop -- AWS CloudTrail Processing - Spring</name>
