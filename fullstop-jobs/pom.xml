@@ -14,9 +14,9 @@
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
 
-        <fullstop-plugin-api.version>1.0.0.M1</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>1.0.0.M1</fullstop-violation-api.version>
-        <fullstop-aws-client-support.version>1.0.0.M1</fullstop-aws-client-support.version>
+        <fullstop-plugin-api.version>1.1.0</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>1.1.0</fullstop-violation-api.version>
+        <fullstop-aws-client-support.version>1.1.0</fullstop-aws-client-support.version>
     </properties>
 
     <dependencies>
