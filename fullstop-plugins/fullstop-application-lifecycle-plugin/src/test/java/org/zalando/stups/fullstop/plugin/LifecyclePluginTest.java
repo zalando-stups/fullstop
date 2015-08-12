@@ -20,6 +20,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -53,6 +54,8 @@ public class LifecyclePluginTest {
 
     private CloudTrailEvent event;
 
+    private CachingClientProvider cachingClientProvider;
+
     protected CloudTrailEvent buildEvent(String type) {
         List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
 
@@ -64,7 +67,9 @@ public class LifecyclePluginTest {
 
         userDataProviderMock = mock(UserDataProvider.class);
         applicationLifecycleServiceMock = mock(ApplicationLifecycleServiceImpl.class);
-        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock);
+        cachingClientProvider = mock(CachingClientProvider.class);
+
+        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, cachingClientProvider);
         processor = new LocalPluginProcessor(plugin);
     }
 

@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS fullstop_data.lifecycle (
   id                  BIGSERIAL NOT NULL PRIMARY KEY,
   event_date          DATE,
   account_id          TEXT,
+  image_id            TEXT,
+  image_name          TEXT,
   region              TEXT,
   application         INTEGER,
   application_version INTEGER,

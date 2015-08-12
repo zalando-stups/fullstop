@@ -16,13 +16,19 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -57,11 +63,14 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private UserDataProvider userDataProvider;
 
+    private CachingClientProvider cachingClientProvider;
+
     @Autowired
     public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
-            final UserDataProvider userDataProvider) {
+            final UserDataProvider userDataProvider, CachingClientProvider cachingClientProvider) {
         this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
+        this.cachingClientProvider = cachingClientProvider;
     }
 
     @Override
@@ -79,11 +88,18 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
         List<String> instances = CloudTrailEventSupport.getInstances(event);
         String region = getRegionAsString(event);
+        AmazonEC2Client amazonEC2Client = cachingClientProvider
+                .getClient(
+                        AmazonEC2Client.class, event.getEventData().getAccountId(),
+                        Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
         for (String instance : instances) {
+            String amiName = getAmiName(amazonEC2Client, getAmi(instance));
             DateTime eventDate = getLifecycleDate(event, instance);
             LifecycleEntity lifecycleEntity = new LifecycleEntity();
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
+            lifecycleEntity.setImageId(getAmi(instance));
+            lifecycleEntity.setImageName(amiName);
             lifecycleEntity.setAccountId(getAccountId(event));
             lifecycleEntity.setRegion(region);
             lifecycleEntity.setInstanceId(CloudTrailEventSupport.getInstanceId(instance));
@@ -110,6 +126,19 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             applicationLifecycleService.saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
         }
 
+    }
+
+    private String getAmiName(AmazonEC2Client amazonEC2Client, String ami) {
+        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
+        DescribeImagesResult describeImagesResult = null;
+        try{
+            describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
+        } catch (AmazonServiceException e){
+            LOG.warn("Lifecycle plugin: cannot fetch ami name");
+            return null;
+        }
+        String amiName = describeImagesResult.getImages().get(0).getName();
+        return amiName;
     }
 
     private String getApplicationName(final CloudTrailEvent event, final String instance) {
