@@ -28,9 +28,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <fullstop-plugin-api.version>1.0.0.M1</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>1.0.0.M1</fullstop-violation-api.version>
-        <fullstop-core.version>1.0.0.M1</fullstop-core.version>
+        <fullstop-plugin-api.version>1.1.0</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>1.1.0</fullstop-violation-api.version>
+        <fullstop-core.version>1.1.0</fullstop-core.version>
     </properties>
 
     <modules>
