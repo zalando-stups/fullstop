@@ -13,10 +13,9 @@
     <version>1.0.4-SNAPSHOT</version>
 
     <properties>
-        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
-        <fullstop-core.version>1.0.0.M1</fullstop-core.version>
-        <fullstop-violation.version>1.0.3-SNAPSHOT</fullstop-violation.version>
-        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
+        <fullstop-aws-support.version>1.1.0</fullstop-aws-support.version>
+        <fullstop-core.version>1.1.0</fullstop-core.version>
+        <fullstop-violation.version>1.1.0</fullstop-violation.version>
     </properties>
 
     <dependencies>
