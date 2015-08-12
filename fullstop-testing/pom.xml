@@ -24,7 +24,7 @@
     </parent>
     <artifactId>fullstop-testing</artifactId>
     <name>Fullstop -- Testing - Modules for testing</name>
-    <version>1.1.0</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -42,6 +42,6 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>fullstop-testing-1.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
