@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-aws-support</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-aws-cloudtrail-support</artifactId>
 
@@ -66,6 +66,6 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>fullstop-aws-support-1.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
