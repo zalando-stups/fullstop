@@ -95,7 +95,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
 
     @Override
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
-            final String userdataPath, final String region, final String logData) {
+            final String userdataPath, final String region, final String logData, final String accountId) {
         if (logData == null) {
             log.warn("Logdata must not be null!");
             return null;
@@ -112,6 +112,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         LifecycleEntity lifecycleEntity = new LifecycleEntity();
         lifecycleEntity.setInstanceBootTime(instanceBootTime);
         lifecycleEntity.setInstanceId(instanceId);
+        lifecycleEntity.setAccountId(accountId);
         lifecycleEntity.setRegion(region);
         lifecycleEntity.setUserdataPath(userdataPath);
 
