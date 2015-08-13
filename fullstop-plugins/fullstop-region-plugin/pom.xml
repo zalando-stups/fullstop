@@ -20,7 +20,7 @@
     <parent>
         <artifactId>fullstop-plugins</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullstop-region-plugin</artifactId>

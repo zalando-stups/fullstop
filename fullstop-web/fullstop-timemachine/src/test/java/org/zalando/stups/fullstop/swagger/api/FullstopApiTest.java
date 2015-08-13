@@ -145,6 +145,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
                         any(),
                         any(),
                         any(),
+                        any(),
                         any())).thenReturn(new LifecycleEntity());
 
         byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
@@ -153,7 +154,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
                 post("/api/instance-logs").contentType(APPLICATION_JSON).content(bytes))
                     .andExpect(status().isCreated());
 
-        verify(mockApplicationLifecycleService).saveInstanceLogLifecycle(any(), any(), any(), any(), any());
+        verify(mockApplicationLifecycleService).saveInstanceLogLifecycle(any(), any(), any(), any(), any(), any());
     }
 
     @Test

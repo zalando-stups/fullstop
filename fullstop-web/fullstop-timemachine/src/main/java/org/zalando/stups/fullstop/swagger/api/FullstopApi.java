@@ -256,7 +256,8 @@ public class FullstopApi {
                     new DateTime(instanceLog.getInstanceBootTime(), UTC),
                     userdataPath,
                     instanceLog.getRegion(),
-                    instanceLog.getLogData());
+                    instanceLog.getLogData(),
+                    instanceLog.getAccountId());
             log.info("Saving Lifecycle Entity: {}", lifecycleEntity);
 
         }

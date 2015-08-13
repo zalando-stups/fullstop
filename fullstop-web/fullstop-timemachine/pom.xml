@@ -4,19 +4,18 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>1</version>
+        <version>2</version>
         <relativePath />
     </parent>
 
     <artifactId>fullstop-timemachine</artifactId>
     <name>Fullstop -- Time-Machine</name>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <properties>
-        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
-        <fullstop-core.version>1.0.0.M1</fullstop-core.version>
-        <fullstop-violation.version>1.0.0.M1</fullstop-violation.version>
-        <fullstop-aws-support.version>1.0.0.M1</fullstop-aws-support.version>
+        <fullstop-aws-support.version>1.1.0</fullstop-aws-support.version>
+        <fullstop-core.version>1.1.0</fullstop-core.version>
+        <fullstop-violation.version>1.1.0</fullstop-violation.version>
     </properties>
 
     <dependencies>

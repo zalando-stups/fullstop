@@ -35,6 +35,8 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     private String region;
 
+    private String accountId;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "application", referencedColumnName = "id")
     private ApplicationEntity applicationEntity;
@@ -65,6 +67,14 @@ public class LifecycleEntity extends AbstractModifiableEntity {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public ApplicationEntity getApplicationEntity() {
@@ -119,6 +129,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
     public String toString() {
         return toStringHelper(this)
                 .add("eventDate", eventDate)
+                .add("accountId", accountId)
                 .add("region", region)
                 .add("applicationEntity", applicationEntity)
                 .add("versionEntity", versionEntity)
@@ -128,4 +139,5 @@ public class LifecycleEntity extends AbstractModifiableEntity {
                 .add("instanceId", instanceId)
                 .toString();
     }
+
 }
