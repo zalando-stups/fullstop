@@ -1,4 +1,4 @@
-# from pprint import pprint
+from pprint import pprint
 from boto3.session import Session
 import boto3
 import time
@@ -41,19 +41,38 @@ for accountid in accounts:
     instances = ec2.instances.filter(
         Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     for instance in instances:
+        name = ''
+        stack_name = ''
+        stack_version = ''
+        # pprint(instance.tags)
+        if instance and hasattr(instance, 'tags') and hasattr(instance.tags, '__iter__'):
+            for tag in instance.tags:
+                if tag['Key'] == 'Name':
+                    name = tag['Value']
+                elif tag['Key'] == 'StackName':
+                    stack_name = tag['Value']
+                elif tag['Key'] == 'StackVersion':
+                    stack_version = tag['Value']
+
         image = ec2.Image(instance.image_id)
-        if image and hasattr(image, 'name'): # if image is not None or not image or not image.name
+        if image and hasattr(image, 'name'):  # if image is not None or not image or not image.name
             print(accountid + separator +
                   'eu-west-1' + separator +
+                  name + separator +
+                  stack_name + separator +
+                  stack_version + separator +
                   instance.id + separator +
                   instance.image_id + separator +
                   image.name)
         else:
             print(accountid + separator +
                   'eu-west-1' + separator +
+                  name + separator +
+                  stack_name + separator +
+                  stack_version + separator +
                   instance.id + separator +
                   instance.image_id)
-        # break # remove this to list all instances
+            # break # remove this to list all instances
 
     time.sleep(5)
 
@@ -61,16 +80,34 @@ for accountid in accounts:
     instances = ec2_eu_central_1.instances.filter(
         Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     for instance in instances:
+        name = ''
+        stack_name = ''
+        stack_version = ''
+        if instance and hasattr(instance, 'tags') and hasattr(instance.tags, '__iter__'):
+            for tag in instance.tags:
+                if tag['Key'] == 'Name':
+                    name = tag['Value']
+                elif tag['Key'] == 'StackName':
+                    stack_name = tag['Value']
+                elif tag['Key'] == 'StackVersion':
+                    stack_version = tag['Value']
+
         image = ec2_eu_central_1.Image(instance.image_id)
-        if image and hasattr(image, 'name'): # if image is not None or not image or not image.name
+        if image and hasattr(image, 'name'):  # if image is not None or not image or not image.name
             print(accountid + separator +
                   'eu-central-1' + separator +
+                  name + separator +
+                  stack_name + separator +
+                  stack_version + separator +
                   instance.id + separator +
                   instance.image_id + separator +
                   image.name)
         else:
             print(accountid + separator +
                   'eu-central-1' + separator +
+                  name + separator +
+                  stack_name + separator +
+                  stack_version + separator +
                   instance.id + separator +
                   instance.image_id)
     # break
