@@ -17,6 +17,11 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +59,13 @@ public class LifecyclePluginTest {
 
     private CloudTrailEvent event;
 
-    private CachingClientProvider cachingClientProvider;
+    private CachingClientProvider cachingClientProviderMock;
+
+    private Image image;
+
+    private DescribeImagesResult describeImagesResultMock;
+
+    private AmazonEC2Client amazonEC2ClientMock;
 
     protected CloudTrailEvent buildEvent(String type) {
         List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
@@ -67,15 +78,21 @@ public class LifecyclePluginTest {
 
         userDataProviderMock = mock(UserDataProvider.class);
         applicationLifecycleServiceMock = mock(ApplicationLifecycleServiceImpl.class);
-        cachingClientProvider = mock(CachingClientProvider.class);
+        cachingClientProviderMock = mock(CachingClientProvider.class);
+        amazonEC2ClientMock = mock(AmazonEC2Client.class);
 
-        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, cachingClientProvider);
+        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, cachingClientProviderMock);
         processor = new LocalPluginProcessor(plugin);
+
+        image = new Image();
+        image.setName("amiName");
+        describeImagesResultMock = new DescribeImagesResult();
+        describeImagesResultMock.setImages(Lists.newArrayList(image));
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock);
+        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock, cachingClientProviderMock);
     }
 
     @Test
@@ -122,6 +139,38 @@ public class LifecyclePluginTest {
     }
 
     @Test
+    public void testAmiName() throws Exception {
+
+        HashMap<Object, Object> value = newHashMap();
+        value.put("application_id", "test");
+        value.put("application_version", "test");
+
+        when(
+                userDataProviderMock.getUserData(
+                        any(String.class),
+                        any(Region.class),
+                        any(String.class))).thenReturn(value);
+        when(
+                applicationLifecycleServiceMock.saveLifecycle(
+                        any(ApplicationEntity.class),
+                        any(VersionEntity.class),
+                        any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
+        when(
+                cachingClientProviderMock.getClient(
+                        any(),
+                        any(String.class),
+                        any(Region.class))).thenReturn(new AmazonEC2Client());
+
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
+
+        processor.processEvents(getClass().getResourceAsStream("/record-run.json"));
+
+        verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
+        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
+    }
+
+    @Test
     public void testEmptyUserData() throws Exception {
         HashMap<Object, Object> value = newHashMap();
         value.put(null, null);
@@ -138,7 +187,6 @@ public class LifecyclePluginTest {
                 any(String.class),
                 any(Region.class),
                 any(String.class));
-
 
     }
 }
