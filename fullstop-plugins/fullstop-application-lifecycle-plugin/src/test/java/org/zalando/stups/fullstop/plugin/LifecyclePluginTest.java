@@ -88,6 +88,12 @@ public class LifecyclePluginTest {
         image.setName("amiName");
         describeImagesResultMock = new DescribeImagesResult();
         describeImagesResultMock.setImages(Lists.newArrayList(image));
+
+        when(
+                cachingClientProviderMock.getClient(
+                        any(),
+                        any(String.class),
+                        any(Region.class))).thenReturn(amazonEC2ClientMock);
     }
 
     @After
@@ -126,11 +132,7 @@ public class LifecyclePluginTest {
                         any(ApplicationEntity.class),
                         any(VersionEntity.class),
                         any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
-        when(
-                cachingClientProviderMock.getClient(
-                        any(),
-                        any(String.class),
-                        any(Region.class))).thenReturn(amazonEC2ClientMock);
+
         when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
@@ -166,11 +168,7 @@ public class LifecyclePluginTest {
                         any(ApplicationEntity.class),
                         any(VersionEntity.class),
                         any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
-        when(
-                cachingClientProviderMock.getClient(
-                        any(),
-                        any(String.class),
-                        any(Region.class))).thenReturn(amazonEC2ClientMock);
+
 
         when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
@@ -193,11 +191,7 @@ public class LifecyclePluginTest {
                         any(String.class),
                         any(Region.class),
                         any(String.class))).thenReturn(value);
-        when(
-                cachingClientProviderMock.getClient(
-                        any(),
-                        any(String.class),
-                        any(Region.class))).thenReturn(amazonEC2ClientMock);
+
         when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -64,14 +65,14 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private UserDataProvider userDataProvider;
 
-    private CachingClientProvider cachingClientProvider;
+    private ClientProvider clientProvider;
 
     @Autowired
     public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
             final UserDataProvider userDataProvider, CachingClientProvider cachingClientProvider) {
         this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
-        this.cachingClientProvider = cachingClientProvider;
+        this.clientProvider = cachingClientProvider;
     }
 
     @Override
@@ -89,23 +90,24 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
         List<String> instances = CloudTrailEventSupport.getInstances(event);
         String region = getRegionAsString(event);
-        String amiId = null;
-        AmazonEC2Client amazonEC2Client = cachingClientProvider
+        AmazonEC2Client amazonEC2Client = clientProvider
                 .getClient(
-                        AmazonEC2Client.class, event.getEventData().getAccountId(),
-                        Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+                        AmazonEC2Client.class, event.getEventData().getAccountId(),CloudTrailEventSupport.getRegion(event));
         for (String instance : instances) {
+            String amiId = null;
+
             try {
                  amiId = getAmi(instance);
             } catch (PathNotFoundException e){
-                LOG.warn("no amiId found");
+                LOG.warn("no amiId found for instance {}", instance);
             }
+
             DateTime eventDate = getLifecycleDate(event, instance);
             LifecycleEntity lifecycleEntity = new LifecycleEntity();
 
             if (amiId != null) {
                 String amiName = getAmiName(amazonEC2Client, amiId);
-                lifecycleEntity.setImageId(getAmi(instance));
+                lifecycleEntity.setImageId(amiId);
                 lifecycleEntity.setImageName(amiName);
             }
 
@@ -146,7 +148,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         try{
             describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
         } catch (AmazonServiceException e){
-            LOG.warn("Lifecycle plugin: cannot fetch ami name");
+            LOG.warn("Lifecycle plugin: cannot fetch ami name. Reason {}", e.toString());
             return null;
         }
         return describeImagesResult.getImages().get(0).getName();
