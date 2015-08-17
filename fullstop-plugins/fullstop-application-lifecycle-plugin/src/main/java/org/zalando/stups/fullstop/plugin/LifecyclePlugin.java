@@ -23,6 +23,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,18 +89,29 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
         List<String> instances = CloudTrailEventSupport.getInstances(event);
         String region = getRegionAsString(event);
+        String amiId = null;
         AmazonEC2Client amazonEC2Client = cachingClientProvider
                 .getClient(
                         AmazonEC2Client.class, event.getEventData().getAccountId(),
                         Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
         for (String instance : instances) {
-            String amiName = getAmiName(amazonEC2Client, getAmi(instance));
+            try {
+                 amiId = getAmi(instance);
+            } catch (PathNotFoundException e){
+                LOG.warn("no amiId found");
+            }
             DateTime eventDate = getLifecycleDate(event, instance);
             LifecycleEntity lifecycleEntity = new LifecycleEntity();
+
+            if (amiId != null) {
+                String amiName = getAmiName(amazonEC2Client, amiId);
+                lifecycleEntity.setImageId(getAmi(instance));
+                lifecycleEntity.setImageName(amiName);
+            }
+
+
             lifecycleEntity.setEventType(event.getEventData().getEventName());
             lifecycleEntity.setEventDate(eventDate);
-            lifecycleEntity.setImageId(getAmi(instance));
-            lifecycleEntity.setImageName(amiName);
             lifecycleEntity.setAccountId(getAccountId(event));
             lifecycleEntity.setRegion(region);
             lifecycleEntity.setInstanceId(CloudTrailEventSupport.getInstanceId(instance));
@@ -137,8 +149,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             LOG.warn("Lifecycle plugin: cannot fetch ami name");
             return null;
         }
-        String amiName = describeImagesResult.getImages().get(0).getName();
-        return amiName;
+        return describeImagesResult.getImages().get(0).getName();
     }
 
     private String getApplicationName(final CloudTrailEvent event, final String instance) {

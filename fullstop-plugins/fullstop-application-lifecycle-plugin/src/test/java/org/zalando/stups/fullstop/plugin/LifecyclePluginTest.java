@@ -126,16 +126,27 @@ public class LifecyclePluginTest {
                         any(ApplicationEntity.class),
                         any(VersionEntity.class),
                         any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
+        when(
+                cachingClientProviderMock.getClient(
+                        any(),
+                        any(String.class),
+                        any(Region.class))).thenReturn(amazonEC2ClientMock);
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
         verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
+        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+
     }
 
     @Test
     public void testNullEvent() throws Exception {
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
         processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
+        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+
     }
 
     @Test
@@ -159,11 +170,12 @@ public class LifecyclePluginTest {
                 cachingClientProviderMock.getClient(
                         any(),
                         any(String.class),
-                        any(Region.class))).thenReturn(new AmazonEC2Client());
+                        any(Region.class))).thenReturn(amazonEC2ClientMock);
 
         when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
         processor.processEvents(getClass().getResourceAsStream("/record-run.json"));
+
 
         verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
@@ -181,12 +193,20 @@ public class LifecyclePluginTest {
                         any(String.class),
                         any(Region.class),
                         any(String.class))).thenReturn(value);
+        when(
+                cachingClientProviderMock.getClient(
+                        any(),
+                        any(String.class),
+                        any(Region.class))).thenReturn(amazonEC2ClientMock);
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
+
         verify(userDataProviderMock, atLeast(2)).getUserData(
                 any(String.class),
                 any(Region.class),
                 any(String.class));
+        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
 }
