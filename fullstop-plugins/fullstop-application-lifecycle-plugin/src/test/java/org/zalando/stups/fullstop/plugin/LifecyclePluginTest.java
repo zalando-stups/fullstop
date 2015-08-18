@@ -17,9 +17,16 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -51,7 +58,11 @@ public class LifecyclePluginTest {
 
     private LocalPluginProcessor processor;
 
-    private CloudTrailEvent event;
+    private ClientProvider clientProviderMock;
+
+    private DescribeImagesResult describeImagesResultMock;
+
+    private AmazonEC2Client amazonEC2ClientMock;
 
     protected CloudTrailEvent buildEvent(String type) {
         List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
@@ -64,18 +75,32 @@ public class LifecyclePluginTest {
 
         userDataProviderMock = mock(UserDataProvider.class);
         applicationLifecycleServiceMock = mock(ApplicationLifecycleServiceImpl.class);
-        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock);
+        clientProviderMock = mock(ClientProvider.class);
+        amazonEC2ClientMock = mock(AmazonEC2Client.class);
+
+        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, clientProviderMock);
         processor = new LocalPluginProcessor(plugin);
+
+        Image image = new Image();
+        image.setName("amiName");
+        describeImagesResultMock = new DescribeImagesResult();
+        describeImagesResultMock.setImages(Lists.newArrayList(image));
+
+        when(
+                clientProviderMock.getClient(
+                        any(),
+                        any(String.class),
+                        any(Region.class))).thenReturn(amazonEC2ClientMock);
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock);
+        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock, clientProviderMock);
     }
 
     @Test
     public void testSupports() throws Exception {
-        event = buildEvent("run");
+        CloudTrailEvent event = buildEvent("run");
         assertThat(plugin.supports(event)).isTrue();
 
         event = buildEvent("start");
@@ -105,15 +130,51 @@ public class LifecyclePluginTest {
                         any(VersionEntity.class),
                         any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
 
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
+
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
         verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+
     }
 
     @Test
     public void testNullEvent() throws Exception {
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
         processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+
+    }
+
+    @Test
+    public void testAmiName() throws Exception {
+
+        HashMap<Object, Object> value = newHashMap();
+        value.put("application_id", "test");
+        value.put("application_version", "test");
+
+        when(
+                userDataProviderMock.getUserData(
+                        any(String.class),
+                        any(Region.class),
+                        any(String.class))).thenReturn(value);
+        when(
+                applicationLifecycleServiceMock.saveLifecycle(
+                        any(ApplicationEntity.class),
+                        any(VersionEntity.class),
+                        any(LifecycleEntity.class))).thenReturn(new LifecycleEntity());
+
+
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
+
+        processor.processEvents(getClass().getResourceAsStream("/record-run.json"));
+
+
+        verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
     }
 
     @Test
@@ -128,12 +189,15 @@ public class LifecyclePluginTest {
                         any(Region.class),
                         any(String.class))).thenReturn(value);
 
+        when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
+
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
+
         verify(userDataProviderMock, atLeast(2)).getUserData(
                 any(String.class),
                 any(Region.class),
                 any(String.class));
-
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
 }

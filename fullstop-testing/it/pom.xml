@@ -33,8 +33,8 @@
         <fullstop-plugin-api.version>1.1.0</fullstop-plugin-api.version>
         <fullstop-violation-api.version>1.1.0</fullstop-violation-api.version>
         <fullstop-timemachine.version>1.1.0</fullstop-timemachine.version>
-        <fullstop-violation.version>1.1.0</fullstop-violation.version>
-        <fullstop-plugin.version>1.1.0</fullstop-plugin.version>
+        <fullstop-violation.version>1.2.0-SNAPSHOT</fullstop-violation.version>
+        <fullstop-plugin.version>1.2.0-SNAPSHOT</fullstop-plugin.version>
     </properties>
 
     <modules>
