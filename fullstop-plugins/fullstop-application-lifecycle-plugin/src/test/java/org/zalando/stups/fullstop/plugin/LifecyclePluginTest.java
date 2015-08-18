@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.CachingClientProvider;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -57,11 +58,7 @@ public class LifecyclePluginTest {
 
     private LocalPluginProcessor processor;
 
-    private CloudTrailEvent event;
-
-    private CachingClientProvider cachingClientProviderMock;
-
-    private Image image;
+    private ClientProvider clientProviderMock;
 
     private DescribeImagesResult describeImagesResultMock;
 
@@ -78,19 +75,19 @@ public class LifecyclePluginTest {
 
         userDataProviderMock = mock(UserDataProvider.class);
         applicationLifecycleServiceMock = mock(ApplicationLifecycleServiceImpl.class);
-        cachingClientProviderMock = mock(CachingClientProvider.class);
+        clientProviderMock = mock(ClientProvider.class);
         amazonEC2ClientMock = mock(AmazonEC2Client.class);
 
-        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, cachingClientProviderMock);
+        plugin = new LifecyclePlugin(applicationLifecycleServiceMock, userDataProviderMock, clientProviderMock);
         processor = new LocalPluginProcessor(plugin);
 
-        image = new Image();
+        Image image = new Image();
         image.setName("amiName");
         describeImagesResultMock = new DescribeImagesResult();
         describeImagesResultMock.setImages(Lists.newArrayList(image));
 
         when(
-                cachingClientProviderMock.getClient(
+                clientProviderMock.getClient(
                         any(),
                         any(String.class),
                         any(Region.class))).thenReturn(amazonEC2ClientMock);
@@ -98,12 +95,12 @@ public class LifecyclePluginTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock, cachingClientProviderMock);
+        verifyNoMoreInteractions(userDataProviderMock, applicationLifecycleServiceMock, clientProviderMock);
     }
 
     @Test
     public void testSupports() throws Exception {
-        event = buildEvent("run");
+        CloudTrailEvent event = buildEvent("run");
         assertThat(plugin.supports(event)).isTrue();
 
         event = buildEvent("start");
@@ -139,7 +136,7 @@ public class LifecyclePluginTest {
 
         verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
-        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
 
@@ -147,7 +144,7 @@ public class LifecyclePluginTest {
     public void testNullEvent() throws Exception {
         when(amazonEC2ClientMock.describeImages(any(DescribeImagesRequest.class))).thenReturn(describeImagesResultMock);
         processor.processEvents(getClass().getResourceAsStream("/record-broken.json"));
-        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
 
@@ -176,7 +173,7 @@ public class LifecyclePluginTest {
 
 
         verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
-        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
     }
 
@@ -200,7 +197,7 @@ public class LifecyclePluginTest {
                 any(String.class),
                 any(Region.class),
                 any(String.class));
-        verify(cachingClientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
+        verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
 }

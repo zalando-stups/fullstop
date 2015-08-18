@@ -69,10 +69,10 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Autowired
     public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
-            final UserDataProvider userDataProvider, CachingClientProvider cachingClientProvider) {
+            final UserDataProvider userDataProvider, ClientProvider clientProvider) {
         this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
-        this.clientProvider = cachingClientProvider;
+        this.clientProvider = clientProvider;
     }
 
     @Override
