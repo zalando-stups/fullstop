@@ -59,7 +59,7 @@ public class InfrastructureAccount {
             return false;
         }
         final InfrastructureAccount that = (InfrastructureAccount) o;
-        return equal(id, that.id) && equal(type, that.type);
+        return Objects.equal(id, that.id) && Objects.equal(type, that.type);
     }
 
     @Override

@@ -61,6 +61,7 @@
         <module>fullstop-aws-support/fullstop-aws-s3-support</module>
         <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
          -->
+        <module>team-service-api</module>
 
         <module>fullstop-jobs</module>
 

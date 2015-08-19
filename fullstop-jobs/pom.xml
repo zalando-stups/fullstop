@@ -17,6 +17,7 @@
         <fullstop-plugin-api.version>1.2.0-SNAPSHOT</fullstop-plugin-api.version>
         <fullstop-violation-api.version>1.2.0-SNAPSHOT</fullstop-violation-api.version>
         <fullstop-aws-client-support.version>1.2.0-SNAPSHOT</fullstop-aws-client-support.version>
+        <team-service-api.version>1.2.0-SNAPSHOT</team-service-api.version>
     </properties>
 
     <dependencies>
@@ -39,10 +40,20 @@
             <artifactId>fullstop-plugin-api</artifactId>
             <version>${fullstop-plugin-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>team-service-api</artifactId>
+            <version>${team-service-api.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-iam</artifactId>
+            <version>${aws-java-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-elasticloadbalancing</artifactId>
             <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
