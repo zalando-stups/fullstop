@@ -20,10 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.KontrollettiResponseErrorHandler;
 import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
@@ -38,6 +37,7 @@ import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
@@ -99,9 +99,10 @@ public class ClientConfig {
     }
 
     private RestOperations buildOAuth2RestTemplate(final String tokenName, final ResponseErrorHandler errorHandler) {
-        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(new BaseOAuth2ProtectedResourceDetails());
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider(tokenName, accessTokens));
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        final RestTemplate restTemplate = new StupsOAuth2RestTemplate(
+                new StupsTokensAccessTokenProvider(tokenName, accessTokens),
+                new HttpComponentsClientHttpRequestFactory());
+
         if (errorHandler != null) {
             restTemplate.setErrorHandler(errorHandler);
         }

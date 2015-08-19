@@ -29,11 +29,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
 import org.zalando.stups.tokens.AccessToken;
 import org.zalando.stups.tokens.AccessTokens;
@@ -52,11 +50,8 @@ public class OAuth2RestTemplateIntegrationTest {
                         // second token is valid
                 .thenReturn(new AccessToken("token-4711", "bearer", 3600, now().plusHours(1).toDate()));
 
-        final BaseOAuth2ProtectedResourceDetails resourceDetails = new BaseOAuth2ProtectedResourceDetails();
-
-        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resourceDetails);
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("unit-test", mockAccessTokens));
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        final StupsOAuth2RestTemplate restTemplate = new StupsOAuth2RestTemplate(
+                new StupsTokensAccessTokenProvider("unit-test", mockAccessTokens));
         restTemplate.setErrorHandler(new PassThroughErrorHandler());
 
         final MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);

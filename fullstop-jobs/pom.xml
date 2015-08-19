@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>1</version>
+        <version>3-SNAPSHOT</version>
         <relativePath />
     </parent>
     <artifactId>fullstop-jobs</artifactId>
@@ -14,9 +14,9 @@
     <properties>
         <main.basedir>${basedir}/..</main.basedir>
 
-        <fullstop-plugin-api.version>1.1.0</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>1.1.0</fullstop-violation-api.version>
-        <fullstop-aws-client-support.version>1.1.0</fullstop-aws-client-support.version>
+        <fullstop-plugin-api.version>1.2.0-SNAPSHOT</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>1.2.0-SNAPSHOT</fullstop-violation-api.version>
+        <fullstop-aws-client-support.version>1.2.0-SNAPSHOT</fullstop-aws-client-support.version>
     </properties>
 
     <dependencies>

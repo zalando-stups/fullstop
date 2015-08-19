@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>2</version>
+        <version>3-SNAPSHOT</version>
         <relativePath />
     </parent>
 
@@ -31,10 +31,10 @@
     <packaging>pom</packaging>
 
     <properties>
-        <fullstop-plugin-api.version>1.1.0</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>1.1.0</fullstop-violation-api.version>
-        <fullstop-aws-support.version>1.1.0</fullstop-aws-support.version>
-        <fullstop-testing.version>1.1.0</fullstop-testing.version>
+        <fullstop-plugin-api.version>1.2.0-SNAPSHOT</fullstop-plugin-api.version>
+        <fullstop-violation-api.version>1.2.0-SNAPSHOT</fullstop-violation-api.version>
+        <fullstop-aws-support.version>1.2.0-SNAPSHOT</fullstop-aws-support.version>
+        <fullstop-testing.version>1.2.0-SNAPSHOT</fullstop-testing.version>
         <fullstop-violation-jpa.version>1.2.0-SNAPSHOT</fullstop-violation-jpa.version>
     </properties>
 
