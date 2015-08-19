@@ -16,9 +16,8 @@
 package org.zalando.stups.fullstop.teams;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
-import static com.google.common.base.MoreObjects.toStringHelper;
 
 public class Account {
 
