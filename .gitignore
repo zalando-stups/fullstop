@@ -21,4 +21,5 @@ violations.*.log
 **/src/generated
 
 pom.xml.releaseBackup
+pom.xml.versionsBackup
 release.properties
