@@ -33,6 +33,10 @@ public class RestTemplateTeamOperations implements TeamOperations {
             new ParameterizedTypeReference<List<Account>>() {
             };
 
+    private final ParameterizedTypeReference<List<Account>> accountType =
+            new ParameterizedTypeReference<List<Account>>() {
+            };
+
     private final RestOperations restOperations;
 
     private final String baseUrl;
@@ -51,5 +55,12 @@ public class RestTemplateTeamOperations implements TeamOperations {
                         URI.create(baseUrl + "/api/accounts/aws?member=" + userId)).build(), userTeamListType);
         checkState(response.getStatusCode().is2xxSuccessful(), "getTeamsByUser failed: %s", response);
         return response.getBody();
+    }
+
+    @Override public List<Account> getAccounts() {
+        final ResponseEntity<List<Account>> response = restOperations.exchange(
+                get(
+                        URI.create(baseUrl+ "api/accounts/aws")).build(), accountType);
+        return null;
     }
 }

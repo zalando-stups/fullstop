@@ -21,4 +21,5 @@ public interface TeamOperations {
 
     List<Account> getTeamsByUser(String userId);
 
+    List<Account> getAccounts();
 }

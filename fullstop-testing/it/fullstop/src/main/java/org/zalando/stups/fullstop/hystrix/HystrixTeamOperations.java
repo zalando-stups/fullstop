@@ -34,4 +34,9 @@ public class HystrixTeamOperations implements TeamOperations {
     public List<Account> getTeamsByUser(String userId) {
         return delegate.getTeamsByUser(userId);
     }
+
+    @Override public List<Account> getAccounts() {
+        return delegate.getAccounts();
+    }
+
 }
