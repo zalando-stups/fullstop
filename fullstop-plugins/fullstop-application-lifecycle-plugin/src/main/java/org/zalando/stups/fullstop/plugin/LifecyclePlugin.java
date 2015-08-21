@@ -27,6 +27,7 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRunIns
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.amazonaws.AmazonServiceException;
@@ -152,7 +153,10 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 return;
             }
 
-            final Optional<VersionEntity> versionEntity = getVersion(userData);
+            final Optional<VersionEntity> versionEntity = getEntity(
+                    userData,
+                    "application_version",
+                    VersionEntity::new);
             if (!versionEntity.isPresent()) {
                 LOG.warn(
                         "Missing 'application_version' in user data for instance {}. Skip processing the {} lifecycle event",
@@ -161,7 +165,10 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 return;
             }
 
-            final Optional<ApplicationEntity> applicationEntity = getApplication(userData);
+            final Optional<ApplicationEntity> applicationEntity = getEntity(
+                    userData,
+                    "application_id",
+                    ApplicationEntity::new);
             if (!applicationEntity.isPresent()) {
                 LOG.warn(
                         "Missing 'application_id' in user data for instance {}. Skip processing the {} lifecycle event",
@@ -180,23 +187,18 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         DescribeImagesResult describeImagesResult;
         try{
             describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
-        } catch (AmazonServiceException e){
+        }
+        catch (final AmazonServiceException e) {
             LOG.warn("Lifecycle plugin: cannot fetch ami name. Reason {}", e.toString());
             return null;
         }
         return describeImagesResult.getImages().get(0).getName();
     }
 
-    private Optional<ApplicationEntity> getApplication(Map userData) {
-        return Optional.ofNullable(userData.get("application_id"))
+    private <T> Optional<T> getEntity(Map userData, String attribute, Function<String, T> constructor) {
+        return Optional.ofNullable(userData.get(attribute))
                        .map(Object::toString)
-                       .map(ApplicationEntity::new);
-    }
-
-    private Optional<VersionEntity> getVersion(Map userData) {
-        return Optional.ofNullable(userData.get("application_version"))
-                       .map(Object::toString)
-                       .map(VersionEntity::new);
+                       .map(constructor);
     }
 
     private DateTime getLifecycleDate(final CloudTrailEvent event, final String instance) {
