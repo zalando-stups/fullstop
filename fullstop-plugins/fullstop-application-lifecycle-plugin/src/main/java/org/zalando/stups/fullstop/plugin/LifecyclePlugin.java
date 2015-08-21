@@ -15,7 +15,22 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static java.util.function.Predicate.isEqual;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmi;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventTime;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstances;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRunInstanceTime;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
@@ -28,17 +43,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * Created by gkneitschel.
@@ -74,74 +83,101 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
-        String eventName = cloudTrailEventData.getEventName();
+        final CloudTrailEventData cloudTrailEventData = event.getEventData();
+        final String eventSource = cloudTrailEventData.getEventSource();
+        final String eventName = cloudTrailEventData.getEventName();
 
-        return eventSource.equals(EC2_SOURCE_EVENTS)
-                && (eventName.equals(RUN_EVENT_NAME) || eventName.equals(START_EVENT_NAME)
-                || eventName.equals(STOP_EVENT_NAME) || eventName.equals(TERMINATE_EVENT_NAME));
+        return eventSource.equals(EC2_SOURCE_EVENTS) &&
+                Stream.of(RUN_EVENT_NAME, START_EVENT_NAME, STOP_EVENT_NAME, TERMINATE_EVENT_NAME)
+                      .anyMatch(isEqual(eventName));
     }
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        List<String> instances = CloudTrailEventSupport.getInstances(event);
-        String region = getRegionAsString(event);
-        AmazonEC2Client amazonEC2Client = clientProvider
-                .getClient(
-                        AmazonEC2Client.class, event.getEventData().getAccountId(),CloudTrailEventSupport.getRegion(event));
-        for (String instance : instances) {
-            String amiId = null;
+        final List<String> instances = getInstances(event);
+        final Region region = getRegion(event);
+        final String accountId = getAccountId(event);
+        final String eventName = event.getEventData().getEventName();
 
-            try {
-                 amiId = getAmi(instance);
-            } catch (PathNotFoundException e){
-                LOG.warn("no amiId found for instance {}", instance);
+        final AmazonEC2Client amazonEC2Client = clientProvider.getClient(
+                AmazonEC2Client.class, event.getEventData().getAccountId(), region);
+
+        for (final String instance : instances) {
+            final String instanceId = getInstanceId(instance);
+            final DateTime eventDate = getLifecycleDate(event, instance);
+            final LifecycleEntity lifecycleEntity = new LifecycleEntity();
+
+            if (eventName.equals(RUN_EVENT_NAME)) {
+                String amiId = null;
+
+                try {
+                     amiId = getAmi(instance);
+                } catch (PathNotFoundException e){
+                    LOG.warn("no amiId found for instance {}", instance);
+                }
+
+                if (amiId != null) {
+                    String amiName = getAmiName(amazonEC2Client, amiId);
+                    lifecycleEntity.setImageId(amiId);
+                    lifecycleEntity.setImageName(amiName);
+                }
             }
 
-            DateTime eventDate = getLifecycleDate(event, instance);
-            LifecycleEntity lifecycleEntity = new LifecycleEntity();
-
-            if (amiId != null) {
-                String amiName = getAmiName(amazonEC2Client, amiId);
-                lifecycleEntity.setImageId(amiId);
-                lifecycleEntity.setImageName(amiName);
-            }
-
-
-            lifecycleEntity.setEventType(event.getEventData().getEventName());
+            lifecycleEntity.setEventType(eventName);
             lifecycleEntity.setEventDate(eventDate);
-            lifecycleEntity.setAccountId(getAccountId(event));
-            lifecycleEntity.setRegion(region);
-            lifecycleEntity.setInstanceId(CloudTrailEventSupport.getInstanceId(instance));
+            lifecycleEntity.setAccountId(accountId);
+            lifecycleEntity.setRegion(region.getName());
+            lifecycleEntity.setInstanceId(instanceId);
 
-            ApplicationEntity applicationEntity;
-            VersionEntity versionEntity;
+            final Map userData;
             try {
-
-                String versionName = getVersionName(event, instance);
-                versionEntity = new VersionEntity(versionName);
-
-                String applicationName = getApplicationName(event, instance);
-                applicationEntity = new ApplicationEntity(applicationName);
+                userData = userDataProvider.getUserData(
+                        accountId,
+                        region,
+                        instanceId);
+                if (userData == null) {
+                    LOG.warn(
+                            "No userData found for instance {}. Skip processing the {} lifecycle event.",
+                            instance,
+                            eventName);
+                    return;
+                }
             }
-            catch (AmazonServiceException e) {
-                LOG.warn("Could not get version/application for lifecycle event.");
+            catch (final AmazonServiceException e) {
+                LOG.warn(
+                        "Could not fetch userData for instance {}. Reason: {}. Skip processing the {} lifecycle event",
+                        instance,
+                        e.toString(),
+                        eventName);
                 return;
             }
 
-            if (versionEntity.getName() == null || applicationEntity.getName() == null) {
-                LOG.warn("Lifecycle: UserData does not contain application name or version!");
+            final Optional<VersionEntity> versionEntity = getVersion(userData);
+            if (!versionEntity.isPresent()) {
+                LOG.warn(
+                        "Missing 'application_version' in user data for instance {}. Skip processing the {} lifecycle event",
+                        instance,
+                        eventName);
                 return;
             }
-            applicationLifecycleService.saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
+
+            final Optional<ApplicationEntity> applicationEntity = getApplication(userData);
+            if (!applicationEntity.isPresent()) {
+                LOG.warn(
+                        "Missing 'application_id' in user data for instance {}. Skip processing the {} lifecycle event",
+                        instance,
+                        eventName);
+                return;
+            }
+
+            applicationLifecycleService.saveLifecycle(applicationEntity.get(), versionEntity.get(), lifecycleEntity);
         }
 
     }
 
     private String getAmiName(AmazonEC2Client amazonEC2Client, String ami) {
         DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
-        DescribeImagesResult describeImagesResult = null;
+        DescribeImagesResult describeImagesResult;
         try{
             describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
         } catch (AmazonServiceException e){
@@ -151,24 +187,16 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         return describeImagesResult.getImages().get(0).getName();
     }
 
-    private String getApplicationName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getInstanceId(instance);
-        Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
-        if (userData == null || userData.get("application_id") == null) {
-            return null;
-        }
-        return userData.get("application_id").toString();
+    private Optional<ApplicationEntity> getApplication(Map userData) {
+        return Optional.ofNullable(userData.get("application_id"))
+                       .map(Object::toString)
+                       .map(ApplicationEntity::new);
     }
 
-    private String getVersionName(final CloudTrailEvent event, final String instance) {
-        String instanceId = getInstanceId(instance);
-
-        Map userData = userDataProvider.getUserData(getAccountId(event), getRegion(event), instanceId);
-        if (userData == null || userData.get("application_version") == null) {
-            return null;
-        }
-        return userData.get("application_version").toString();
-
+    private Optional<VersionEntity> getVersion(Map userData) {
+        return Optional.ofNullable(userData.get("application_version"))
+                       .map(Object::toString)
+                       .map(VersionEntity::new);
     }
 
     private DateTime getLifecycleDate(final CloudTrailEvent event, final String instance) {
