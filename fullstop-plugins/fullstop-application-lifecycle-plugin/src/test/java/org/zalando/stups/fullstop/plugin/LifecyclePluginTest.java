@@ -15,6 +15,19 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static com.google.common.collect.Maps.newHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
@@ -25,7 +38,6 @@ import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.zalando.stups.fullstop.aws.CachingClientProvider;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
@@ -34,15 +46,6 @@ import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * Created by gkneitschel.
@@ -134,7 +137,7 @@ public class LifecyclePluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
-        verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
+        verify(userDataProviderMock).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
         verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
@@ -171,8 +174,7 @@ public class LifecyclePluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/record-run.json"));
 
-
-        verify(userDataProviderMock, atLeast(2)).getUserData(any(String.class), any(Region.class), any(String.class));
+        verify(userDataProviderMock).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
         verify(applicationLifecycleServiceMock).saveLifecycle(any(), any(), any());
     }
@@ -193,10 +195,7 @@ public class LifecyclePluginTest {
 
         processor.processEvents(getClass().getResourceAsStream("/record-start.json"));
 
-        verify(userDataProviderMock, atLeast(2)).getUserData(
-                any(String.class),
-                any(Region.class),
-                any(String.class));
+        verify(userDataProviderMock).getUserData(any(String.class), any(Region.class), any(String.class));
         verify(clientProviderMock, atLeast(1)).getClient(any(), any(String.class), any(Region.class));
 
     }
