@@ -67,4 +67,6 @@ public class ViolationType {
     public static final String WRONG_USER_DATA = "WRONG_USER_DATA";
 
     public static final String WRONG_APPLICATION_MASTERDATA = "WRONG_APPLICATION_MASTERDATA";
+
+    public static final String WRONG_ELB_SETTINGS = "WRONG_ELB_SETTINGS";
 }
