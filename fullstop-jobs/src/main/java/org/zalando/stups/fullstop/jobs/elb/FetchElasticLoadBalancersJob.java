@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.elb;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.IpPermission;
-import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
@@ -33,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.config.JobsConfig;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -42,12 +37,14 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.*;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_ELB_SETTINGS;
+import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 /**
  * Created by gkneitschel.
@@ -63,19 +60,20 @@ public class FetchElasticLoadBalancersJob {
 
     private TeamOperations teamOperations;
 
-    private JobsConfig jobsConfig;
+    private JobsProperties jobsProperties;
 
-    private List<String> accountIds;
+    private SecurityGroupsChecker securityGroupsChecker;
 
     private Set<Integer> allowedPorts = newHashSet(443, 80);
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsConfig jobsConfig) {
+            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties, SecurityGroupsChecker securityGroupsChecker) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
-        this.jobsConfig = jobsConfig;
+        this.jobsProperties = jobsProperties;
+        this.securityGroupsChecker = securityGroupsChecker;
     }
 
     @PostConstruct
@@ -85,29 +83,34 @@ public class FetchElasticLoadBalancersJob {
 
     @Scheduled(fixedRate = 3_600_000)
     public void check() {
-        accountIds = fetchAccountIds();
+        List<String> accountIds = fetchAccountIds();
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : accountIds) {
-            for (String region : jobsConfig.getWhitelistedRegions()) {
+            for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeLoadBalancersResult describeLoadBalancersResult = getDescribeLoadBalancersResult(
                         account,
                         region);
 
                 for (LoadBalancerDescription loadBalancerDescription : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
-                    List<String> metaData = newArrayList();
+                    Map<String, Object> metaData = newHashMap();
+                    List<String> errorMessages = newArrayList();
                     if (!loadBalancerDescription.getScheme().equals("internet-facing")) {
                         continue;
                     }
                     final String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
 
-                    String checkPorts = checkPorts(account, region, loadBalancerDescription);
-                    if (checkPorts == null) {
-                        metaData.add(checkPorts);
+                    String checkPorts = checkPorts(loadBalancerDescription);
+                    if (checkPorts != null) {
+                        metaData.put("",checkPorts);
                     }
 
-                    String checkSecurityGroups = checkSecurityGroups(account, region, loadBalancerDescription);
-                    if (checkSecurityGroups == null) {
-                        metaData.add(checkSecurityGroups);
+                    Set<String> unsecureGroups = securityGroupsChecker.check(
+                            newHashSet(loadBalancerDescription.getSecurityGroups()),
+                            account,
+                            Region.getRegion(Regions.fromName(region)));
+                    if (!unsecureGroups.isEmpty()){
+                        metaData.put("unsecuredSecurityGroups", unsecureGroups);
+                        errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                     }
 
                     if (metaData.size() > 0) {
@@ -122,30 +125,9 @@ public class FetchElasticLoadBalancersJob {
 
     }
 
-    private String checkSecurityGroups(String account, String region, LoadBalancerDescription loadBalancerDescription) {
-        List<String> securityGroups = loadBalancerDescription.getSecurityGroups();
-        DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
-        describeSecurityGroupsRequest.setGroupIds(securityGroups);
-        AmazonEC2Client amazonEC2Client = clientProvider.getClient(
-                AmazonEC2Client.class,
-                account,
-                Region.getRegion(Regions.fromName(region)));
-        DescribeSecurityGroupsResult describeSecurityGroupsResult = amazonEC2Client.describeSecurityGroups(
-                describeSecurityGroupsRequest);
-        for (SecurityGroup securityGroup : describeSecurityGroupsResult.getSecurityGroups()) {
-            for (IpPermission ipPermission : securityGroup.getIpPermissions()) {
-                if (!ipPermission.getFromPort().equals(ipPermission.getToPort())
-                        && !allowedPorts.contains(ipPermission.getFromPort())
-                        && !allowedPorts.contains(ipPermission.getToPort())) {
-                    return "Illegal securityGroup configuration! Port ranges are not allowed and port must be either 80 or 443";
-                }
-            }
 
-        }
-        return null;
-    }
 
-    private String checkPorts(String account, String region, LoadBalancerDescription loadBalancerDescription) {
+    private String checkPorts(LoadBalancerDescription loadBalancerDescription) {
 
         for (ListenerDescription listenerDescription : loadBalancerDescription.getListenerDescriptions()) {
             final Integer loadBalancerPort = listenerDescription.getListener().getLoadBalancerPort();
@@ -162,7 +144,7 @@ public class FetchElasticLoadBalancersJob {
         Violation violation = violationBuilder.withAccountId(account)
                                               .withRegion(region)
                                               .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
-                                              .withType(WRONG_ELB_SETTINGS)
+                                              .withType(UNSECURED_ENDPOINT)
                                               .withMetaInfo(metaInfo)
                                               .withEventId(canonicalHostedZoneName).build();
         violationSink.put(violation);

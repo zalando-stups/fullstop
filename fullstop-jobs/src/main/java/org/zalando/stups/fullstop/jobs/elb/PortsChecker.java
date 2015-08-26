@@ -12,25 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.config;
+package org.zalando.stups.fullstop.jobs.elb;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.zalando.stups.fullstop.jobs.elb.SecurityGroupsChecker;
-import org.zalando.stups.fullstop.jobs.elb.impl.SecurityGroupsCheckerImpl;
-import org.zalando.stups.fullstop.jobs.utils.Predicates;
+import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+
+import java.util.List;
 
 /**
  * Created by gkneitschel.
  */
-@Configuration
-public class JobsConfig {
-
-    JobsProperties jobsProperties;
-
-    @Bean
-    public SecurityGroupsChecker securityGroupsChecker(){
-
-        return new SecurityGroupsCheckerImpl(Predicates.securityGroupsAllowedPorts(jobsProperties.getAllowedPorts()));
-    }
+public interface PortsChecker {
+    List<Integer> check (LoadBalancerDescription loadBalancerDescription);
 }

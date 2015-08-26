@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,23 +15,26 @@
  */
 package org.zalando.stups.fullstop.jobs.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.zalando.stups.fullstop.jobs.elb.SecurityGroupsChecker;
-import org.zalando.stups.fullstop.jobs.elb.impl.SecurityGroupsCheckerImpl;
-import org.zalando.stups.fullstop.jobs.utils.Predicates;
+import com.google.common.collect.Sets;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by gkneitschel.
  */
-@Configuration
-public class JobsConfig {
+@ConfigurationProperties(prefix = "org.stups.fullstop.jobs")
+public class JobsProperties {
+    private List<String> whitelistedRegions = new ArrayList<>();
+    private Set<Integer> allowedPorts = Sets.newHashSet(80, 443);
 
-    JobsProperties jobsProperties;
+    public List<String> getWhitelistedRegions() {
+        return whitelistedRegions;
+    }
 
-    @Bean
-    public SecurityGroupsChecker securityGroupsChecker(){
-
-        return new SecurityGroupsCheckerImpl(Predicates.securityGroupsAllowedPorts(jobsProperties.getAllowedPorts()));
+    public Set<Integer> getAllowedPorts(){
+        return allowedPorts;
     }
 }
