@@ -307,6 +307,43 @@ paths:
             type: array
             items:
               $ref: '#/definitions/InstanceCount'
+  /api/lifecycle/{application}/{version}:
+    get:
+      summary: list app lifecycle
+      description: |
+        Lists application lifecycle
+      tags:
+        - Lifecycle
+      parameters:
+        - name: application
+          in: path
+          description: "ID of application"
+          type: string
+          required: true
+        - name: version
+          in: path
+          description: "ID of version"
+          type: string
+          required: true
+        - name: from
+          in: query
+          type: string
+          format: date-time
+          required: true
+          description: "Lifecycle start date"
+        - name: to
+          in: query
+          type: string
+          format: date-time
+          required: false
+          description: "Lifecycle end date"
+      responses:
+        200:
+          description: Lists number of instances for this version
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InstanceCount'
 
 securityDefinitions:
   oauth2:
