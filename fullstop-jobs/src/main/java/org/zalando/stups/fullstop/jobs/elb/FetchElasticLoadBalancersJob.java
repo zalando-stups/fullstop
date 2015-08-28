@@ -20,7 +20,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
-import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
@@ -64,16 +63,20 @@ public class FetchElasticLoadBalancersJob {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
+    private PortsChecker portsChecker;
+
     private Set<Integer> allowedPorts = newHashSet(443, 80);
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties, SecurityGroupsChecker securityGroupsChecker) {
+            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
+            SecurityGroupsChecker securityGroupsChecker, PortsChecker portsChecker) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = securityGroupsChecker;
+        this.portsChecker = portsChecker;
     }
 
     @PostConstruct
@@ -94,26 +97,29 @@ public class FetchElasticLoadBalancersJob {
                 for (LoadBalancerDescription loadBalancerDescription : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
                     Map<String, Object> metaData = newHashMap();
                     List<String> errorMessages = newArrayList();
+                    final String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
+
                     if (!loadBalancerDescription.getScheme().equals("internet-facing")) {
                         continue;
                     }
-                    final String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
 
-                    String checkPorts = checkPorts(loadBalancerDescription);
-                    if (checkPorts != null) {
-                        metaData.put("",checkPorts);
+                    List<Integer> unsecuredPorts = portsChecker.check(loadBalancerDescription);
+                    if (!unsecuredPorts.isEmpty()) {
+                        metaData.put("unsecuredPorts", unsecuredPorts);
+                        errorMessages.add("Unsecure ports! Only ports 80 and 443 are allowed");
                     }
 
                     Set<String> unsecureGroups = securityGroupsChecker.check(
                             newHashSet(loadBalancerDescription.getSecurityGroups()),
                             account,
                             Region.getRegion(Regions.fromName(region)));
-                    if (!unsecureGroups.isEmpty()){
+                    if (!unsecureGroups.isEmpty()) {
                         metaData.put("unsecuredSecurityGroups", unsecureGroups);
                         errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                     }
 
                     if (metaData.size() > 0) {
+                        metaData.put("errorMessages", errorMessages);
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
                     }
 
@@ -123,20 +129,6 @@ public class FetchElasticLoadBalancersJob {
 
         }
 
-    }
-
-
-
-    private String checkPorts(LoadBalancerDescription loadBalancerDescription) {
-
-        for (ListenerDescription listenerDescription : loadBalancerDescription.getListenerDescriptions()) {
-            final Integer loadBalancerPort = listenerDescription.getListener().getLoadBalancerPort();
-
-            if (!allowedPorts.contains(loadBalancerPort)) {
-                return "Illegal port configuration! Only ports 80 and 443 are allowed";
-            }
-        }
-        return null;
     }
 
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {

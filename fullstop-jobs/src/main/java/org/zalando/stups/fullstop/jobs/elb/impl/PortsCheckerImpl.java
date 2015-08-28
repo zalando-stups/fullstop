@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,11 +15,13 @@
  */
 package org.zalando.stups.fullstop.jobs.elb.impl;
 
+import com.amazonaws.services.elasticloadbalancing.model.Listener;
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.jobs.config.JobsConfig;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.elb.PortsChecker;
+import org.zalando.stups.fullstop.jobs.utils.Predicates;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,16 +31,18 @@ import java.util.stream.Collectors;
  */
 @Component
 public class PortsCheckerImpl implements PortsChecker {
+    JobsProperties jobsProperties = new JobsProperties();
+
     @Override public List<Integer> check(LoadBalancerDescription loadBalancerDescription) {
-        List<ListenerDescription> unsecuredPorts = loadBalancerDescription.getListenerDescriptions()
-                                                                   .stream()
-                                                                   .filter(
-                                                                           listenerDescription ->
-                                                                                   listenerDescription.getListener()
-                                                                                                      .getLoadBalancerPort()
-                                                                                           != 443)
-                                                                   .collect(
-                                                                           Collectors.toList());
-        return
+
+        return loadBalancerDescription.getListenerDescriptions()
+                                      .stream()
+                                      .map(ListenerDescription::getListener)
+                                      .map(Listener::getLoadBalancerPort)
+                                      .filter(
+                                              Predicates.allowedPorts(
+                                                      jobsProperties.getAllowedPorts()))
+                                      .collect(Collectors.toList());
     }
+
 }

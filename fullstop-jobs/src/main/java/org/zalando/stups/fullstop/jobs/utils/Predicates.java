@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +28,7 @@ public final class Predicates {
     private Predicates() {
     }
 
-    public static Predicate<SecurityGroup> securityGroupsAllowedPorts( Set<Integer> allowedPorts) {
+    public static Predicate<SecurityGroup> securityGroupsAllowedPorts(Set<Integer> allowedPorts) {
 
         return securityGroup -> {
 
@@ -43,6 +44,8 @@ public final class Predicates {
         };
     }
 
-
+    public static Predicate<Integer> allowedPorts(Set<Integer> allowedPorts) {
+        return allowedPorts::contains;
+    }
 
 }
