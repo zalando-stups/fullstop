@@ -123,6 +123,27 @@ definitions:
       log_data:
         type: string
         example: ""
+  
+  InstanceCount:
+    type: object
+    properties:
+      version:
+        type: string
+        example: "1.0"
+        description: Version ID
+      date:
+        type: string
+        format: date-time
+        example: "2012-08-12T09:00:00.000Z"
+        description: When this instance count was noticed by fullstop
+      instances:
+        type: integer
+        example: 3
+        description: Number of instances
+    required:
+      - version
+      - date
+      - instances
 
 paths:
 
@@ -253,6 +274,76 @@ paths:
           schema:
             $ref: "#/definitions/LogObj"
             description: log metadata and object
+  
+  /api/lifecycle/{application}:
+    get:
+      summary: list app lifecycle
+      description: |
+        Lists application lifecycle
+      tags:
+        - Lifecycle
+      parameters:
+        - name: application
+          in: path
+          description: "ID of application"
+          type: string
+          required: true
+        - name: from
+          in: query
+          type: string
+          format: date-time
+          required: true
+          description: "Lifecycle start date"
+        - name: to
+          in: query
+          type: string
+          format: date-time
+          required: false
+          description: "Lifecycle end date"
+      responses:
+        200:
+          description: Lists number of instances per version
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InstanceCount'
+  /api/lifecycle/{application}/{version}:
+    get:
+      summary: list app lifecycle
+      description: |
+        Lists application lifecycle
+      tags:
+        - Lifecycle
+      parameters:
+        - name: application
+          in: path
+          description: "ID of application"
+          type: string
+          required: true
+        - name: version
+          in: path
+          description: "ID of version"
+          type: string
+          required: true
+        - name: from
+          in: query
+          type: string
+          format: date-time
+          required: true
+          description: "Lifecycle start date"
+        - name: to
+          in: query
+          type: string
+          format: date-time
+          required: false
+          description: "Lifecycle end date"
+      responses:
+        200:
+          description: Lists number of instances for this version
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InstanceCount'
 
 securityDefinitions:
   oauth2:
