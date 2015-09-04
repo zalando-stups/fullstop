@@ -24,7 +24,6 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-reactor</artifactId>
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -55,12 +54,6 @@
 
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support</module>
-        <!--
-        <module>fullstop-aws-support/fullstop-aws-client-support</module>
-        <module>fullstop-aws-support/fullstop-aws-cloudtrail-support</module>
-        <module>fullstop-aws-support/fullstop-aws-s3-support</module>
-        <module>fullstop-aws-support/fullstop-aws-userdata-support</module>
-         -->
         <module>team-service-api</module>
 
         <module>fullstop-jobs</module>
@@ -223,4 +216,11 @@
             <email>linda.jaeckel@zalando.de</email>
         </developer>
     </developers>
+
+    <scm>
+        <url>https://github.com/zalando-stups/fullstop.git</url>
+        <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

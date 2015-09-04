@@ -96,7 +96,7 @@ Example:
     $ export TOKEN_INFO_URI=tokenInfoUri
     $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME=fullstop-bucket-policy
     $ export FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX=folder_containing_templates_files
-    
+
 ### Disable CloudTrail Processing
 
 Set the parameter `fullstop.container.autoStart=false` either as program argument, or as system property to start
@@ -105,18 +105,18 @@ Fullstop without CloudTrail processing.
 ##Database setup
 Fullstop will store the violations in a RDBMS. Once you start Fullstop, it will create the necessary schema and tables
 for you. The database itself, however, has to be created by you.
-Your database password is encrypted with [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html). 
-We are using [Taupage](http://docs.stups.io/en/latest/components/taupage.html#environment) to decrypt the password on the fly. 
+Your database password is encrypted with [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html).
+We are using [Taupage](http://docs.stups.io/en/latest/components/taupage.html#environment) to decrypt the password on the fly.
 To use Amazons KMS for de/encryption, you need to to provide a region and the key id for your key. In Fullstop, both
 will be provided via environment variables.
 
-The password should be already encrypted, when you store it in the ```DATABASE_PASSWORD``` environment variable. An 
+The password should be already encrypted, when you store it in the ```DATABASE_PASSWORD``` environment variable. An
 encrypted password always starts with ```aws:kms:```. You can use our [CLI tool](https://github.com/zalando/spring-cloud-config-aws-kms/tree/master/encryption-cli)
-for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html#examples). 
+for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html#examples).
 
 ##Propose API changes
 
-**Important** all changes should be swagger 2.0 spec copliant. 
+**Important** all changes should be swagger 2.0 spec compliant.
 
 * Click here [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/) to edit the API definition.
 * Copy your changes and paste it in the [Github web editor: fullstop-api.yaml](https://github.com/zalando-stups/fullstop/edit/master/fullstop-api.yaml).
@@ -153,17 +153,17 @@ mvn license:format
     $ cd fullstop
 
     $ mvn spring-boot:run
-    
+
 ##How to build a docker image
 
 Build fullstop:
 
     $ mvn clean install -U
-    
+
 Build scm-source.json:
 
     $ ./scm-source.sh
-    
+
 Build docker image:
 
     $ docker build -t registry/fullstop:0.1 fullstop

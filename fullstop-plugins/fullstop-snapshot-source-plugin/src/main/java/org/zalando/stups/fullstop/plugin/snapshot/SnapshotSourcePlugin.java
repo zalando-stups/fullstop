@@ -79,6 +79,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             if (userData == null) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
+                return;
             }
 
             String source = (String) userData.get(SOURCE);
