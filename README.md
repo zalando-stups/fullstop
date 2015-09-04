@@ -150,8 +150,8 @@ mvn license:format
 
 ##How to run
 
-    $ cd fullstop
-
+    $ # set env variables first
+    $ cd fullstop-testing/it/fullstop
     $ mvn spring-boot:run
 
 ##How to build a docker image
