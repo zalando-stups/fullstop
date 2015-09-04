@@ -39,9 +39,7 @@ public class PortsCheckerImpl implements PortsChecker {
                                       .stream()
                                       .map(ListenerDescription::getListener)
                                       .map(Listener::getLoadBalancerPort)
-                                      .filter(
-                                              Predicates.allowedPorts(
-                                                      jobsProperties.getAllowedPorts()))
+                                      .filter(p -> !jobsProperties.getAllowedPorts().contains(p))
                                       .collect(Collectors.toList());
     }
 

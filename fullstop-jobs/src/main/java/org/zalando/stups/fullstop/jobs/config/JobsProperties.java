@@ -39,4 +39,12 @@ public class JobsProperties {
     public Set<Integer> getAllowedPorts(){
         return allowedPorts;
     }
+
+    public void setWhitelistedRegions(List<String> whitelistedRegions) {
+        this.whitelistedRegions = whitelistedRegions;
+    }
+
+    public void setAllowedPorts(Set<Integer> allowedPorts) {
+        this.allowedPorts = allowedPorts;
+    }
 }

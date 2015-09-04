@@ -87,7 +87,7 @@ public class FetchElasticLoadBalancersJob {
     @Scheduled(fixedRate = 300_000)
     public void check() {
         List<String> accountIds = fetchAccountIds();
-        log.info("Running job {}", getClass().getSimpleName());
+        log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
