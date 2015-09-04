@@ -66,6 +66,12 @@
             <version>${fullstop-violation.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fullstop-jobs</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
+
 
         <!-- START PLUGINS -->
         <dependency>

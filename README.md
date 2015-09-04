@@ -150,9 +150,11 @@ mvn license:format
 
 ##How to run
 
+You need a locally running PostgreSQL 9.4 server (database "fullstop", host "localhost", user "postgres", password "postgres").
+
     $ # set env variables first
     $ cd fullstop-testing/it/fullstop
-    $ mvn spring-boot:run
+    $ mvn spring-boot:run -Dfullstop.container.autoStart=false
 
 ##How to build a docker image
 

@@ -84,7 +84,7 @@ public class FetchElasticLoadBalancersJob {
         log.info("{} initalized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 3_600_000)
+    @Scheduled(fixedRate = 300_000)
     public void check() {
         List<String> accountIds = fetchAccountIds();
         log.info("Running job {}", getClass().getSimpleName());
