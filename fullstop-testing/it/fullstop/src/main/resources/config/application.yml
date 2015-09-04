@@ -86,6 +86,11 @@ fullstop:
       # Bucket, where USER_DATA and AUDIT_LOG will be stored
       bucketName: ${INSTANCE_LOGS_S3_BUCKET}
 
+    jobs:
+        whitelistedRegions:
+            - 'eu-west-1'
+            - 'eu-central-1'
+
     plugins:
         properties:
             # The bucket, where our enriched data will be stored

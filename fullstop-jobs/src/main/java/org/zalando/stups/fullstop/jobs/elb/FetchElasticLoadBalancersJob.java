@@ -69,13 +69,13 @@ public class FetchElasticLoadBalancersJob {
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
-            SecurityGroupsChecker securityGroupsChecker, PortsChecker portsChecker) {
+            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
+            SecurityGroupsChecker securityGroupsChecker*/, PortsChecker portsChecker) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
-        this.securityGroupsChecker = securityGroupsChecker;
+        this.securityGroupsChecker = null; //securityGroupsChecker;
         this.portsChecker = portsChecker;
     }
 
@@ -90,6 +90,7 @@ public class FetchElasticLoadBalancersJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
+                log.info("Scanning ELBs for {}/{}", account, region);
                 DescribeLoadBalancersResult describeLoadBalancersResult = getDescribeLoadBalancersResult(
                         account,
                         region);
@@ -109,6 +110,7 @@ public class FetchElasticLoadBalancersJob {
                         errorMessages.add("Unsecure ports! Only ports 80 and 443 are allowed");
                     }
 
+                    /*
                     Set<String> unsecureGroups = securityGroupsChecker.check(
                             newHashSet(loadBalancerDescription.getSecurityGroups()),
                             account,
@@ -117,6 +119,7 @@ public class FetchElasticLoadBalancersJob {
                         metaData.put("unsecuredSecurityGroups", unsecureGroups);
                         errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                     }
+                    */
 
                     if (metaData.size() > 0) {
                         metaData.put("errorMessages", errorMessages);

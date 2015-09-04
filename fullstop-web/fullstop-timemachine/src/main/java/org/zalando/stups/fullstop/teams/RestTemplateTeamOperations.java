@@ -60,7 +60,8 @@ public class RestTemplateTeamOperations implements TeamOperations {
     @Override public List<Account> getAccounts() {
         final ResponseEntity<List<Account>> response = restOperations.exchange(
                 get(
-                        URI.create(baseUrl+ "api/accounts/aws")).build(), accountType);
-        return null;
+                        URI.create(baseUrl + "/api/accounts/aws")).build(), accountType);
+        checkState(response.getStatusCode().is2xxSuccessful(), "getAccounts failed: %s", response);
+        return response.getBody();
     }
 }

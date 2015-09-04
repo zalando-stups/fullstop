@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.jobs.config;
 
 import com.google.common.collect.Sets;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,10 @@ import java.util.Set;
 /**
  * Created by gkneitschel.
  */
-@ConfigurationProperties(prefix = "org.stups.fullstop.jobs")
+@ConfigurationProperties(prefix = "fullstop.jobs")
+@Component
 public class JobsProperties {
-    private List<String> whitelistedRegions = new ArrayList<>();
+    private List<String> whitelistedRegions;
     private Set<Integer> allowedPorts = Sets.newHashSet(80, 443);
 
     public List<String> getWhitelistedRegions() {

@@ -115,14 +115,14 @@ public class FetchElasticLoadBalancersJobTest {
                 clientProviderMock,
                 teamOperationsMock,
                 jobsPropertiesMock,
-                securityGroupsChecker,
+                //securityGroupsChecker,
                 portsChecker);
 
         fetchElasticLoadBalancersJob.check();
 
         verify(teamOperationsMock,atLeast(1)).getAccounts();
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();
-        verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
+        //verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
         verify(portsChecker, atLeast(1)).check(any());
         verify(violationSinkMock).put(any(Violation.class));
         verify(amazonElasticLoadBalancingClientMock).describeLoadBalancers(any(DescribeLoadBalancersRequest.class));

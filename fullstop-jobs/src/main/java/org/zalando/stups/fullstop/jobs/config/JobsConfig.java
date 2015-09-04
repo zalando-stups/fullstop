@@ -24,12 +24,12 @@ import org.zalando.stups.fullstop.jobs.utils.Predicates;
 /**
  * Created by gkneitschel.
  */
-@Configuration
+//@Configuration
 public class JobsConfig {
 
     JobsProperties jobsProperties;
 
-    @Bean
+    //@Bean
     public SecurityGroupsChecker securityGroupsChecker(){
 
         return new SecurityGroupsCheckerImpl(Predicates.securityGroupsAllowedPorts(jobsProperties.getAllowedPorts()));

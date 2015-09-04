@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * Created by gkneitschel.
  */
-@Component
+//@Component
 public class SecurityGroupsCheckerImpl implements SecurityGroupsChecker {
 
     private ClientProvider clientProvider;
