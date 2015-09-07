@@ -42,7 +42,7 @@ public class SpecificationUrlValidator extends AbstractApplicationValidator {
                             "http",
                             "https"),
                     false)).validate(
-                    app.getScmUrl(),
+                    app.getSpecificationUrl(),
                     errors);
         }
         finally {
