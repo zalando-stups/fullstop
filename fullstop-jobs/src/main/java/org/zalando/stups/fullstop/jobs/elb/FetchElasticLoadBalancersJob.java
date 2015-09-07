@@ -20,6 +20,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
+import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +108,7 @@ public class FetchElasticLoadBalancersJob {
                     List<Integer> unsecuredPorts = portsChecker.check(loadBalancerDescription);
                     if (!unsecuredPorts.isEmpty()) {
                         metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add("Unsecure ports! Only ports 80 and 443 are allowed");
+                        errorMessages.add(String.format("ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed", loadBalancerDescription.getLoadBalancerName()));
                     }
 
                     /*
@@ -126,12 +127,23 @@ public class FetchElasticLoadBalancersJob {
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
                     }
 
+                    checkPublicEndpoint(loadBalancerDescription);
                 }
 
             }
 
         }
 
+    }
+
+    private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription) {
+        for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
+            if ("HTTPS".equals(listener.getListener().getProtocol())) {
+                int port = listener.getListener().getLoadBalancerPort();
+                // TODO: connect and check that "/" returns 401 or 403
+            }
+            // TODO: check that HTTP returns redirect to HTTPS
+        }
     }
 
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
