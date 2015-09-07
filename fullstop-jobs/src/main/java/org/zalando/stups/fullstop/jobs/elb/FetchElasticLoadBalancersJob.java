@@ -22,6 +22,11 @@ import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRe
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +41,8 @@ import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,6 +148,21 @@ public class FetchElasticLoadBalancersJob {
             if ("HTTPS".equals(listener.getListener().getProtocol())) {
                 int port = listener.getListener().getLoadBalancerPort();
                 // TODO: connect and check that "/" returns 401 or 403
+                CloseableHttpClient httpclient = HttpClients.createDefault();
+                // URI uri = new URIBuilder()
+                HttpGet httpget = new HttpGet("https://localhost/");
+                CloseableHttpResponse response = null;
+                try {
+                    response = httpclient.execute(httpget);
+                    try {
+
+                    } finally {
+                        response.close();
+                    }
+                } catch (IOException e) {
+                    log.info("Failed to execute HTTP request: {}", e);
+                }
+
             }
             // TODO: check that HTTP returns redirect to HTTPS
         }
