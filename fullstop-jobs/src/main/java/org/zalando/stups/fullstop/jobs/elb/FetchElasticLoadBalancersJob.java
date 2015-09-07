@@ -22,6 +22,7 @@ import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRe
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -43,6 +44,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +117,10 @@ public class FetchElasticLoadBalancersJob {
                     List<Integer> unsecuredPorts = portsChecker.check(loadBalancerDescription);
                     if (!unsecuredPorts.isEmpty()) {
                         metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add(String.format("ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed", loadBalancerDescription.getLoadBalancerName()));
+                        errorMessages.add(
+                                String.format(
+                                        "ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed",
+                                        loadBalancerDescription.getLoadBalancerName()));
                     }
 
                     /*
@@ -134,7 +139,10 @@ public class FetchElasticLoadBalancersJob {
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
                     }
 
-                    checkPublicEndpoint(loadBalancerDescription);
+                    for (Integer allowedPort : allowedPorts) {
+                        checkPublicEndpoint(loadBalancerDescription, allowedPort);
+                    }
+
                 }
 
             }
@@ -143,28 +151,45 @@ public class FetchElasticLoadBalancersJob {
 
     }
 
-    private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription) {
+    private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription, Integer allowedPort) {
         for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
-            if ("HTTPS".equals(listener.getListener().getProtocol())) {
-                int port = listener.getListener().getLoadBalancerPort();
-                // TODO: connect and check that "/" returns 401 or 403
-                CloseableHttpClient httpclient = HttpClients.createDefault();
-                // URI uri = new URIBuilder()
-                HttpGet httpget = new HttpGet("https://localhost/");
-                CloseableHttpResponse response = null;
-                try {
-                    response = httpclient.execute(httpget);
-                    try {
 
-                    } finally {
-                        response.close();
+            try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+                URI http = new URIBuilder().setScheme("http")
+                                           .setHost(loadBalancerDescription.getCanonicalHostedZoneName())
+                                           .setPort(allowedPort)
+                                           .build();
+                HttpGet httpget = new HttpGet(http);
+                try (CloseableHttpResponse response = httpclient.execute(httpget)) {
+                    if (response != null) {
+                        String location = "";
+                        for (Header header : response.getAllHeaders()) {
+                            if (header.getName().equals("Location")) {
+                                location = header.getValue();
+                            }
+                        }
+
+                        if (response.getStatusLine().getStatusCode() == 401
+                                || response.getStatusLine().getStatusCode() == 403) {
+                            log.info("thats ok");
+                        }
+                        else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
+                                && location.startsWith("https")) {
+                            log.info("thats ok");
+                        }
+                        else {
+                            log.info("thats NOT ok");
+                        }
+
                     }
-                } catch (IOException e) {
-                    log.info("Failed to execute HTTP request: {}", e);
                 }
-
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            // TODO: check that HTTP returns redirect to HTTPS
+            catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
     }
 
