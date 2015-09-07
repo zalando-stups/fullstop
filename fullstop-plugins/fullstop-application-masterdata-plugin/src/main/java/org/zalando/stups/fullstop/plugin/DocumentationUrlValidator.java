@@ -44,7 +44,7 @@ public class DocumentationUrlValidator extends AbstractApplicationValidator {
                             "http",
                             "https"),
                     false)).validate(
-                    app.getScmUrl(),
+                    app.getDocumentationUrl(),
                     errors);
         }
         finally {
