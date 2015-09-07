@@ -23,11 +23,14 @@ import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRe
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.apache.http.Header;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,9 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -151,11 +157,38 @@ public class FetchElasticLoadBalancersJob {
 
     }
 
+    /**
+     * Disable all the thing that we don't need for the client, set the timeout to 1 sec and allowed all Certificate.
+     * @param loadBalancerDescription
+     * @param allowedPort
+     */
     private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription, Integer allowedPort) {
+
+        String scheme = allowedPort == 443 ? "https" : "http";
+
         for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
 
-            try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-                URI http = new URIBuilder().setScheme("http")
+            RequestConfig config = RequestConfig.custom()
+                                                .setConnectionRequestTimeout(1000)
+                                                .setConnectTimeout(1000)
+                                                .setSocketTimeout(1000)
+                                                .build();
+
+            try (CloseableHttpClient httpclient = HttpClientBuilder.create()
+                                                                   .disableAuthCaching()
+                                                                   .disableAutomaticRetries()
+                                                                   .disableConnectionState()
+                                                                   .disableCookieManagement()
+                                                                   .disableRedirectHandling()
+                                                                   .setDefaultRequestConfig(config)
+                                                                   .setHostnameVerifier(new AllowAllHostnameVerifier())
+                                                                   .setSslcontext(
+                                                                           new SSLContextBuilder().loadTrustMaterial(
+                                                                                   null,
+                                                                                   (arrayX509Certificate, value) -> true)
+                                                                                                  .build())
+                                                                   .build()) {
+                URI http = new URIBuilder().setScheme(scheme)
                                            .setHost(loadBalancerDescription.getCanonicalHostedZoneName())
                                            .setPort(allowedPort)
                                            .build();
@@ -187,7 +220,7 @@ public class FetchElasticLoadBalancersJob {
                     e.printStackTrace();
                 }
             }
-            catch (IOException | URISyntaxException e) {
+            catch (IOException | URISyntaxException | NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
                 e.printStackTrace();
             }
         }
