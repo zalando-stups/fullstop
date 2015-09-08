@@ -54,6 +54,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -83,6 +85,16 @@ public class FetchElasticLoadBalancersJob {
 
     private Set<Integer> allowedPorts = newHashSet(443, 80);
 
+    private ForkJoinPool executor = ForkJoinPool.commonPool();
+
+    private RequestConfig config = RequestConfig.custom()
+                                                .setConnectionRequestTimeout(1000)
+                                                .setConnectTimeout(1000)
+                                                .setSocketTimeout(1000)
+                                                .build();
+
+    private CloseableHttpClient httpclient;
+
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
             ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
@@ -93,6 +105,28 @@ public class FetchElasticLoadBalancersJob {
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = null; //securityGroupsChecker;
         this.portsChecker = portsChecker;
+
+        try {
+            httpclient = HttpClientBuilder.create()
+                                                                      .disableAuthCaching()
+                                                                      .disableAutomaticRetries()
+                                                                      .disableConnectionState()
+                                                                      .disableCookieManagement()
+                                                                      .disableRedirectHandling()
+                                                                      .setDefaultRequestConfig(config)
+                                                                      .setHostnameVerifier(new AllowAllHostnameVerifier())
+                                                                      .setSslcontext(
+                                                                              new SSLContextBuilder()
+                                                                                      .loadTrustMaterial(
+                                                                                              null,
+                                                                                              (arrayX509Certificate, value) -> true)
+                                                                                      .build())
+                                                                      .build();
+        }
+        catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+            e.printStackTrace();
+            // TODO: handle this!!!
+        }
     }
 
     @PostConstruct
@@ -146,7 +180,10 @@ public class FetchElasticLoadBalancersJob {
                     }
 
                     for (Integer allowedPort : allowedPorts) {
-                        checkPublicEndpoint(loadBalancerDescription, allowedPort);
+
+                        final CompletableFuture<Void> future = CompletableFuture.runAsync(
+                                () -> checkPublicEndpoint(loadBalancerDescription, allowedPort), executor);
+
                     }
 
                 }
@@ -159,37 +196,18 @@ public class FetchElasticLoadBalancersJob {
 
     /**
      * Disable all the thing that we don't need for the client, set the timeout to 1 sec and allowed all Certificate.
-     * @param loadBalancerDescription
-     * @param allowedPort
      */
     private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription, Integer allowedPort) {
 
         String scheme = allowedPort == 443 ? "https" : "http";
 
+        //TODO: use listener to iterate to all configured port???
         for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
 
-            RequestConfig config = RequestConfig.custom()
-                                                .setConnectionRequestTimeout(1000)
-                                                .setConnectTimeout(1000)
-                                                .setSocketTimeout(1000)
-                                                .build();
-
-            try (CloseableHttpClient httpclient = HttpClientBuilder.create()
-                                                                   .disableAuthCaching()
-                                                                   .disableAutomaticRetries()
-                                                                   .disableConnectionState()
-                                                                   .disableCookieManagement()
-                                                                   .disableRedirectHandling()
-                                                                   .setDefaultRequestConfig(config)
-                                                                   .setHostnameVerifier(new AllowAllHostnameVerifier())
-                                                                   .setSslcontext(
-                                                                           new SSLContextBuilder().loadTrustMaterial(
-                                                                                   null,
-                                                                                   (arrayX509Certificate, value) -> true)
-                                                                                                  .build())
-                                                                   .build()) {
+            try {
+                String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
                 URI http = new URIBuilder().setScheme(scheme)
-                                           .setHost(loadBalancerDescription.getCanonicalHostedZoneName())
+                                           .setHost(canonicalHostedZoneName)
                                            .setPort(allowedPort)
                                            .build();
                 HttpGet httpget = new HttpGet(http);
@@ -204,27 +222,28 @@ public class FetchElasticLoadBalancersJob {
 
                         if (response.getStatusLine().getStatusCode() == 401
                                 || response.getStatusLine().getStatusCode() == 403) {
-                            log.info("thats ok");
+                            log.info("thats ok - {}",canonicalHostedZoneName);
                         }
                         else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
                                 && location.startsWith("https")) {
-                            log.info("thats ok");
+                            log.info("thats ok - {}",canonicalHostedZoneName);
                         }
                         else {
-                            log.info("thats NOT ok");
+                            log.info("thats NOT ok - {}",canonicalHostedZoneName);
                         }
 
                     }
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage());
                 }
             }
-            catch (IOException | URISyntaxException | NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-                e.printStackTrace();
+            catch (URISyntaxException e) {
+                log.error(e.getMessage());
             }
         }
-    }
+
+}
 
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
