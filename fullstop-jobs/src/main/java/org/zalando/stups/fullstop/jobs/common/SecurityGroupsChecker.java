@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.elb;
+package org.zalando.stups.fullstop.jobs.common;
 
-import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.amazonaws.regions.Region;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by gkneitschel.
  */
-public interface PortsChecker {
-    List<Integer> check (LoadBalancerDescription loadBalancerDescription);
+public interface SecurityGroupsChecker {
+
+    Set<String> check(Set<String> groupIds, String account, Region region);
+
 }

@@ -15,10 +15,8 @@
  */
 package org.zalando.stups.fullstop.jobs.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.zalando.stups.fullstop.jobs.elb.SecurityGroupsChecker;
-import org.zalando.stups.fullstop.jobs.elb.impl.SecurityGroupsCheckerImpl;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.common.impl.SecurityGroupsCheckerImpl;
 import org.zalando.stups.fullstop.jobs.utils.Predicates;
 
 /**

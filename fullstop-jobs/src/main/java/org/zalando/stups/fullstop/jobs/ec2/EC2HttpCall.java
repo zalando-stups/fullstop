@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.elb;
+package org.zalando.stups.fullstop.jobs.ec2;
 
-import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.amazonaws.services.ec2.model.Instance;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,20 +32,20 @@ import java.util.concurrent.Callable;
 /**
  * Created by mrandi.
  */
-public class HttpCall implements Callable<Boolean> {
+public class EC2HttpCall implements Callable<Boolean> {
 
-    private final Logger log = LoggerFactory.getLogger(HttpCall.class);
+    private final Logger log = LoggerFactory.getLogger(EC2HttpCall.class);
 
     private final CloseableHttpClient httpclient;
 
-    private final LoadBalancerDescription loadBalancerDescription;
+    private final Instance instance;
 
     private final Integer allowedPort;
 
-    public HttpCall(CloseableHttpClient httpclient, LoadBalancerDescription loadBalancerDescription,
+    public EC2HttpCall(CloseableHttpClient httpclient, Instance instance,
             Integer allowedPort) {
         this.httpclient = httpclient;
-        this.loadBalancerDescription = loadBalancerDescription;
+        this.instance = instance;
         this.allowedPort = allowedPort;
     }
 
@@ -58,11 +58,8 @@ public class HttpCall implements Callable<Boolean> {
 
         String scheme = allowedPort == 443 ? "https" : "http";
 
-        //TODO: use listener to iterate to all configured port???
-        //        for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
-
         try {
-            String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
+            String canonicalHostedZoneName = instance.getPublicIpAddress();
             URI http = new URIBuilder().setScheme(scheme)
                                        .setHost(canonicalHostedZoneName)
                                        .setPort(allowedPort)
@@ -101,7 +98,6 @@ public class HttpCall implements Callable<Boolean> {
         catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        //        }
 
         return result;
     }

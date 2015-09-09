@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.elb;
+package org.zalando.stups.fullstop.jobs.ec2;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
-import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
-import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
-import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -36,9 +34,9 @@ import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.SuccessCallback;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
-import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -61,12 +59,12 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 /**
- * Created by gkneitschel.
+ * Created by mrandi.
  */
 @Component
-public class FetchElasticLoadBalancersJob {
+public class FetchEC2Job {
 
-    private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
+    private final Logger log = LoggerFactory.getLogger(FetchEC2Job.class);
 
     private ViolationSink violationSink;
 
@@ -93,9 +91,9 @@ public class FetchElasticLoadBalancersJob {
     private CloseableHttpClient httpclient;
 
     @Autowired
-    public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
-            SecurityGroupsChecker securityGroupsChecker*/, PortsChecker portsChecker) {
+    public FetchEC2Job(ViolationSink violationSink,
+            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
+            PortsChecker portsChecker) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
@@ -108,8 +106,8 @@ public class FetchElasticLoadBalancersJob {
         threadPoolTaskExecutor.setQueueCapacity(100);
         threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
         threadPoolTaskExecutor.setKeepAliveSeconds(30);
-        threadPoolTaskExecutor.setThreadGroupName("elb-check-group");
-        threadPoolTaskExecutor.setThreadNamePrefix("elb-check-");
+        threadPoolTaskExecutor.setThreadGroupName("ec2-check-group");
+        threadPoolTaskExecutor.setThreadNamePrefix("ec2-check-");
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
         threadPoolTaskExecutor.setDaemon(true);
@@ -150,80 +148,74 @@ public class FetchElasticLoadBalancersJob {
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
-                DescribeLoadBalancersResult describeLoadBalancersResult = getDescribeLoadBalancersResult(
+                DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
                         account,
                         region);
 
-                for (LoadBalancerDescription loadBalancerDescription : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
-                    Map<String, Object> metaData = newHashMap();
-                    List<String> errorMessages = newArrayList();
-                    final String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
+                for (Reservation reservation : describeEC2Result.getReservations()) {
 
-                    if (!loadBalancerDescription.getScheme().equals("internet-facing")) {
-                        continue;
-                    }
+                    for (Instance instance : reservation.getInstances()) {
 
-                    List<Integer> unsecuredPorts = portsChecker.check(loadBalancerDescription);
-                    if (!unsecuredPorts.isEmpty()) {
-                        metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add(
-                                String.format(
-                                        "ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed",
-                                        loadBalancerDescription.getLoadBalancerName()));
-                    }
+                        Map<String, Object> metaData = newHashMap();
+                        List<String> errorMessages = newArrayList();
+                        final String instancePublicIpAddress = instance.getPublicIpAddress();
 
-                    /*
-                    Set<String> unsecureGroups = securityGroupsChecker.check(
-                            newHashSet(loadBalancerDescription.getSecurityGroups()),
-                            account,
-                            Region.getRegion(Regions.fromName(region)));
-                    if (!unsecureGroups.isEmpty()) {
-                        metaData.put("unsecuredSecurityGroups", unsecureGroups);
-                        errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
-                    }
-                    */
+                        if (instancePublicIpAddress == null || instancePublicIpAddress.isEmpty()) {
+                            continue;
+                        }
 
-                    if (metaData.size() > 0) {
-                        metaData.put("errorMessages", errorMessages);
-                        writeViolation(account, region, metaData, canonicalHostedZoneName);
-                    }
+//                        List<Integer> unsecuredPorts = portsChecker.check(instance);
+//                        if (!unsecuredPorts.isEmpty()) {
+//                            metaData.put("unsecuredPorts", unsecuredPorts);
+//                            errorMessages.add(
+//                                    String.format(
+//                                            "EC2 %s listens on unsecure ports! Only ports 80 and 443 are allowed",
+//                                            instance.getPublicIpAddress()));
+//                        }
 
-                    for (Integer allowedPort : allowedPorts) {
+                        if (metaData.size() > 0) {
+                            metaData.put("errorMessages", errorMessages);
+                            writeViolation(account, region, metaData, instancePublicIpAddress);
+                        }
 
-                        ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, loadBalancerDescription, allowedPort);
-                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(ELBHttpCall);
-                        listenableFuture.addCallback(
-                                new SuccessCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean result) {
-                                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                        if (!result) {
-                                            Map<String, Object> md = newHashMap();
-                                            md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                            md.put("allowedPort", allowedPort);
-                                            writeViolation(account, region, md, canonicalHostedZoneName);
+                        for (Integer allowedPort : allowedPorts) {
+
+                            EC2HttpCall httpCall = new EC2HttpCall(httpclient, instance, allowedPort);
+                            ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
+                                    httpCall);
+                            listenableFuture.addCallback(
+                                    new SuccessCallback<Boolean>() {
+                                        @Override
+                                        public void onSuccess(Boolean result) {
+                                            log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
+                                            if (!result) {
+                                                Map<String, Object> md = newHashMap();
+                                                md.put("instancePublicIpAddress", instancePublicIpAddress);
+                                                md.put("allowedPort", allowedPort);
+                                                writeViolation(account, region, md, instancePublicIpAddress);
+                                            }
                                         }
-                                    }
-                                }, new FailureCallback() {
-                                    @Override
-                                    public void onFailure(Throwable ex) {
-                                        log.warn(ex.getMessage(), ex);
-                                        Map<String, Object> md = newHashMap();
-                                        md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                        md.put("allowedPort", allowedPort);
-                                        writeViolation(account, region, md, canonicalHostedZoneName);
-                                    }
-                                });
+                                    }, new FailureCallback() {
+                                        @Override
+                                        public void onFailure(Throwable ex) {
+                                            log.warn(ex.getMessage(), ex);
+                                            Map<String, Object> md = newHashMap();
+                                            md.put("instancePublicIpAddress", instancePublicIpAddress);
+                                            md.put("allowedPort", allowedPort);
+                                            writeViolation(account, region, md, instancePublicIpAddress);
+                                        }
+                                    });
 
-                        log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
-                        log.debug("### - Thread: {}", Thread.currentThread().getId());
+                            log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
+                            log.debug("### - Thread: {}", Thread.currentThread().getId());
+
+                        }
 
                     }
 
                 }
 
             }
-
         }
 
     }
@@ -232,22 +224,22 @@ public class FetchElasticLoadBalancersJob {
         ViolationBuilder violationBuilder = new ViolationBuilder();
         Violation violation = violationBuilder.withAccountId(account)
                                               .withRegion(region)
-                                              .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
+                                              .withPluginFullyQualifiedClassName(FetchEC2Job.class)
                                               .withType(UNSECURED_ENDPOINT)
                                               .withMetaInfo(metaInfo)
                                               .withEventId(canonicalHostedZoneName).build();
         violationSink.put(violation);
     }
 
-    private DescribeLoadBalancersResult getDescribeLoadBalancersResult(String account, String region) {
-        AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
-                AmazonElasticLoadBalancingClient.class,
+    private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
+        AmazonEC2Client ec2Client = clientProvider.getClient(
+                AmazonEC2Client.class,
                 account,
                 Region.getRegion(
                         Regions.fromName(region)));
-        DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
-        return elbClient.describeLoadBalancers(
-                describeLoadBalancersRequest);
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
+        return ec2Client.describeInstances(describeInstancesRequest);
     }
 
     private List<String> fetchAccountIds() {
