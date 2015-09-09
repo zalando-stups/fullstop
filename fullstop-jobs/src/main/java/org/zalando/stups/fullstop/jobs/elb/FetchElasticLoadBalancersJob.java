@@ -20,6 +20,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
+import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -32,12 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.SuccessCallback;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
-import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
@@ -68,29 +66,23 @@ public class FetchElasticLoadBalancersJob {
 
     private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
 
-    private ViolationSink violationSink;
+    private final ViolationSink violationSink;
 
-    private ClientProvider clientProvider;
+    private final ClientProvider clientProvider;
 
-    private TeamOperations teamOperations;
+    private final TeamOperations teamOperations;
 
-    private JobsProperties jobsProperties;
+    private final JobsProperties jobsProperties;
 
-    private SecurityGroupsChecker securityGroupsChecker;
+    // private SecurityGroupsChecker securityGroupsChecker;
 
-    private PortsChecker portsChecker;
+    private final PortsChecker portsChecker;
 
-    private Set<Integer> allowedPorts = newHashSet(443, 80);
+    private final Set<Integer> allowedPorts = newHashSet(443, 80);
 
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
-    private RequestConfig config = RequestConfig.custom()
-                                                .setConnectionRequestTimeout(1000)
-                                                .setConnectTimeout(1000)
-                                                .setSocketTimeout(1000)
-                                                .build();
-
-    private CloseableHttpClient httpclient;
+    private final CloseableHttpClient httpclient;
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
@@ -100,7 +92,7 @@ public class FetchElasticLoadBalancersJob {
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
-        this.securityGroupsChecker = null; //securityGroupsChecker;
+        // this.securityGroupsChecker = securityGroupsChecker;
         this.portsChecker = portsChecker;
 
         threadPoolTaskExecutor.setCorePoolSize(8);
@@ -115,6 +107,11 @@ public class FetchElasticLoadBalancersJob {
         threadPoolTaskExecutor.setDaemon(true);
         threadPoolTaskExecutor.afterPropertiesSet();
 
+        final RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(1000)
+                .setConnectTimeout(1000)
+                .setSocketTimeout(1000)
+                .build();
         try {
             httpclient = HttpClientBuilder.create()
                                           .disableAuthCaching()
@@ -122,7 +119,7 @@ public class FetchElasticLoadBalancersJob {
                                           .disableConnectionState()
                                           .disableCookieManagement()
                                           .disableRedirectHandling()
-                                          .setDefaultRequestConfig(config)
+                                          .setDefaultRequestConfig(requestConfig)
                                           .setHostnameVerifier(new AllowAllHostnameVerifier())
                                           .setSslcontext(
                                                   new SSLContextBuilder()
@@ -132,9 +129,8 @@ public class FetchElasticLoadBalancersJob {
                                                           .build())
                                           .build();
         }
-        catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            e.printStackTrace();
-            // TODO: handle this!!!
+        catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+            throw new IllegalStateException("Could not initialize httpClient", e);
         }
     }
 
@@ -188,31 +184,27 @@ public class FetchElasticLoadBalancersJob {
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
                     }
 
+                    // skip check for publicly available apps
+
                     for (Integer allowedPort : allowedPorts) {
 
                         ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, loadBalancerDescription, allowedPort);
                         ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(ELBHttpCall);
                         listenableFuture.addCallback(
-                                new SuccessCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean result) {
-                                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                        if (!result) {
-                                            Map<String, Object> md = newHashMap();
-                                            md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                            md.put("allowedPort", allowedPort);
-                                            writeViolation(account, region, md, canonicalHostedZoneName);
-                                        }
-                                    }
-                                }, new FailureCallback() {
-                                    @Override
-                                    public void onFailure(Throwable ex) {
-                                        log.warn(ex.getMessage(), ex);
+                                result -> {
+                                    log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
+                                    if (!result) {
                                         Map<String, Object> md = newHashMap();
                                         md.put("canonicalHostedZoneName", canonicalHostedZoneName);
                                         md.put("allowedPort", allowedPort);
                                         writeViolation(account, region, md, canonicalHostedZoneName);
                                     }
+                                }, ex -> {
+                                    log.warn(ex.getMessage(), ex);
+                                    Map<String, Object> md = newHashMap();
+                                    md.put("canonicalHostedZoneName", canonicalHostedZoneName);
+                                    md.put("allowedPort", allowedPort);
+                                    writeViolation(account, region, md, canonicalHostedZoneName);
                                 });
 
                         log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());

@@ -15,15 +15,11 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
-import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
+import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 
-import java.util.List;
+import java.util.Collection;
 
-/**
- * Created by gkneitschel.
- */
-public interface LifecycleRepositoryCustom {
+public interface ApplicationRepositoryCustom {
 
-    List<LifecycleEntity> findByInstanceId(String instanceId);
-
+    ApplicationEntity findByInstanceIds(String accountId, String region, Collection<String> instanceIds);
 }

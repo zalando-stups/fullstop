@@ -23,6 +23,6 @@ import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
  * Created by gkneitschel.
  */
 @Repository
-public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
+public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long>, ApplicationRepositoryCustom {
     ApplicationEntity findByName(String name);
 }
