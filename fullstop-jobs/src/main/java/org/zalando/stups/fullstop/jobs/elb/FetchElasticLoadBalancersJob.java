@@ -196,30 +196,20 @@ public class FetchElasticLoadBalancersJob {
                                     public void onSuccess(Boolean result) {
                                         log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
                                         if (!result) {
-                                            violationSink.put(
-                                                    new ViolationBuilder().withType(UNSECURED_ENDPOINT)
-                                                                          .withPluginFullyQualifiedClassName(
-                                                                                  FetchElasticLoadBalancersJob.class)
-                                                                          .withMetaInfo(
-                                                                                  newArrayList(
-                                                                                          canonicalHostedZoneName,
-                                                                                          allowedPort))
-                                                                          .build());
+                                            Map<String, Object> md = newHashMap();
+                                            md.put("canonicalHostedZoneName", canonicalHostedZoneName);
+                                            md.put("allowedPort", allowedPort);
+                                            writeViolation(account, region, md, canonicalHostedZoneName);
                                         }
                                     }
                                 }, new FailureCallback() {
                                     @Override
                                     public void onFailure(Throwable ex) {
                                         log.warn(ex.getMessage(), ex);
-                                        violationSink.put(
-                                                new ViolationBuilder().withType(UNSECURED_ENDPOINT)
-                                                                      .withPluginFullyQualifiedClassName(
-                                                                              FetchElasticLoadBalancersJob.class)
-                                                                      .withMetaInfo(
-                                                                              newArrayList(
-                                                                                      canonicalHostedZoneName,
-                                                                                      allowedPort))
-                                                                      .build());
+                                        Map<String, Object> md = newHashMap();
+                                        md.put("canonicalHostedZoneName", canonicalHostedZoneName);
+                                        md.put("allowedPort", allowedPort);
+                                        writeViolation(account, region, md, canonicalHostedZoneName);
                                     }
                                 });
 
