@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.elb.impl;
+package org.zalando.stups.fullstop.jobs.common.impl;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.elb.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 
 import java.util.Set;
 import java.util.function.Predicate;
