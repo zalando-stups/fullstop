@@ -15,19 +15,12 @@
  */
 package org.zalando.stups.fullstop.hystrix;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.ApplicationBase;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.ApprovalBase;
-import org.zalando.stups.clients.kio.CreateOrUpdateApplicationRequest;
-import org.zalando.stups.clients.kio.CreateOrUpdateVersionRequest;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.clients.kio.VersionBase;
+import org.zalando.stups.clients.kio.*;
 
 public class HystrixKioOperations implements KioOperations {
 
@@ -44,6 +37,18 @@ public class HystrixKioOperations implements KioOperations {
     }
 
     @Override
+    @HystrixCommand
+    public List<ApplicationBase> listApplications(Optional<ZonedDateTime> modifiedBefore, Optional<ZonedDateTime> modifiedAfter) {
+        return delegate.listApplications(modifiedBefore, modifiedAfter);
+    }
+
+    @Override
+    @HystrixCommand
+    public List<ApplicationSearchResult> searchApplications(String query, Optional<ZonedDateTime> modifiedBefore, Optional<ZonedDateTime> modifiedAfter) {
+        return delegate.searchApplications(query, modifiedBefore, modifiedAfter);
+    }
+
+    @Override
     @HystrixCommand(ignoreExceptions = NotFoundException.class)
     public Application getApplicationById(final String applicationId) {
         return delegate.getApplicationById(applicationId);
@@ -57,8 +62,8 @@ public class HystrixKioOperations implements KioOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = NotFoundException.class)
-    public List<String> getApplicationApprovals(final String applicationId) {
-        return delegate.getApplicationApprovals(applicationId);
+    public List<String> getApplicationApprovalTypes(String applicationId) {
+        return delegate.getApplicationApprovalTypes(applicationId);
     }
 
     @Override
@@ -82,8 +87,8 @@ public class HystrixKioOperations implements KioOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = NotFoundException.class)
-    public List<Approval> getApplicationApprovals(final String applicationId, final String versionId) {
-        return delegate.getApplicationApprovals(applicationId, versionId);
+    public List<Approval> getApplicationVersionApprovals(String applicationId, String versionId) {
+        return delegate.getApplicationVersionApprovals(applicationId, versionId);
     }
 
     @Override

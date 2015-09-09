@@ -123,14 +123,14 @@ public class RegistryPluginApprovalsTest {
     @Test
     public void shouldComplainWithoutAnyApprovals() {
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
         registryPlugin.validateContainsMandatoryApprovals(
                 version,
                 event, INSTANCE_ID);
 
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         verify(violationSink).put(any(Violation.class));
@@ -151,7 +151,7 @@ public class RegistryPluginApprovalsTest {
                         null));
         // mock kio operations
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(approvals);
 
@@ -160,7 +160,7 @@ public class RegistryPluginApprovalsTest {
                 version,
                 event, INSTANCE_ID);
         // ensure kio operations was called
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         // ensure a violation was created
@@ -172,7 +172,7 @@ public class RegistryPluginApprovalsTest {
         List<Approval> approvals = buildMandatoryApprovals();
         // mock kio operations
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(approvals);
 
@@ -181,7 +181,7 @@ public class RegistryPluginApprovalsTest {
                 version,
                 event, INSTANCE_ID);
         // ensure kio operations was called
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         // ensure a violation was created
@@ -196,7 +196,7 @@ public class RegistryPluginApprovalsTest {
         List<Approval> approvals = buildMandatoryApprovals();
         // mock kio operations
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(approvals);
 
@@ -207,7 +207,7 @@ public class RegistryPluginApprovalsTest {
                 APPLICATION_VERSION,
                 2, INSTANCE_ID);
         // ensure kio operations was called
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         // ensure a violation was created
@@ -230,7 +230,7 @@ public class RegistryPluginApprovalsTest {
                         "mrandi"));
         // mock kio operations
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(approvals);
 
@@ -240,7 +240,7 @@ public class RegistryPluginApprovalsTest {
                 APPLICATION_ID,
                 APPLICATION_VERSION,
                 2, INSTANCE_ID);
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         // ensure a violation was created
@@ -263,7 +263,7 @@ public class RegistryPluginApprovalsTest {
                         "npiccolotto"));
         // mock kio operations
         when(
-                kioOperations.getApplicationApprovals(
+                kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
                         APPLICATION_VERSION)).thenReturn(approvals);
 
@@ -273,7 +273,7 @@ public class RegistryPluginApprovalsTest {
                 APPLICATION_ID,
                 APPLICATION_VERSION,
                 2, INSTANCE_ID);
-        verify(kioOperations).getApplicationApprovals(
+        verify(kioOperations).getApplicationVersionApprovals(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
         // ensure a violation was created

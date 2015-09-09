@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>3</version>
+        <version>4</version>
         <relativePath />
     </parent>
     <artifactId>fullstop-jobs</artifactId>
@@ -45,6 +45,10 @@
             <artifactId>team-service-api</artifactId>
             <version>${team-service-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>kio-client-java-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -64,7 +68,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
