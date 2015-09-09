@@ -90,6 +90,7 @@ public class FetchElasticLoadBalancersJobTest {
 
         loadBalancerDescription.setScheme("internet-facing");
         loadBalancerDescription.setListenerDescriptions(newArrayList(listenerDescription));
+        loadBalancerDescription.setCanonicalHostedZoneName("test.com");
 
         describeLoadBalancerAttributesResultMock.setLoadBalancerDescriptions(newArrayList(loadBalancerDescription));
 
@@ -124,7 +125,7 @@ public class FetchElasticLoadBalancersJobTest {
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();
         //verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
         verify(portsChecker, atLeast(1)).check(any());
-        verify(violationSinkMock).put(any(Violation.class));
+        verify(violationSinkMock, atLeast(1)).put(any(Violation.class));
         verify(amazonElasticLoadBalancingClientMock).describeLoadBalancers(any(DescribeLoadBalancersRequest.class));
         verify(clientProviderMock).getClient(any(), any(String.class), any(Region.class));
     }
