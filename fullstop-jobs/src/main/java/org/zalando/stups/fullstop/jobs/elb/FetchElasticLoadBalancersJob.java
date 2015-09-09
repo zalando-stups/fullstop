@@ -20,13 +20,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
-import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
-import org.apache.http.Header;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,7 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.SuccessCallback;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
@@ -45,17 +44,13 @@ import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -85,7 +80,7 @@ public class FetchElasticLoadBalancersJob {
 
     private Set<Integer> allowedPorts = newHashSet(443, 80);
 
-    private ForkJoinPool executor = ForkJoinPool.commonPool();
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
     private RequestConfig config = RequestConfig.custom()
                                                 .setConnectionRequestTimeout(1000)
@@ -106,22 +101,34 @@ public class FetchElasticLoadBalancersJob {
         this.securityGroupsChecker = null; //securityGroupsChecker;
         this.portsChecker = portsChecker;
 
+        threadPoolTaskExecutor.setCorePoolSize(8);
+        threadPoolTaskExecutor.setMaxPoolSize(10);
+        threadPoolTaskExecutor.setQueueCapacity(100);
+        threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
+        threadPoolTaskExecutor.setKeepAliveSeconds(30);
+        threadPoolTaskExecutor.setThreadGroupName("elb-check-group");
+        threadPoolTaskExecutor.setThreadNamePrefix("elb-check-");
+        threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
+        threadPoolTaskExecutor.setDaemon(true);
+        threadPoolTaskExecutor.afterPropertiesSet();
+
         try {
             httpclient = HttpClientBuilder.create()
-                                                                      .disableAuthCaching()
-                                                                      .disableAutomaticRetries()
-                                                                      .disableConnectionState()
-                                                                      .disableCookieManagement()
-                                                                      .disableRedirectHandling()
-                                                                      .setDefaultRequestConfig(config)
-                                                                      .setHostnameVerifier(new AllowAllHostnameVerifier())
-                                                                      .setSslcontext(
-                                                                              new SSLContextBuilder()
-                                                                                      .loadTrustMaterial(
-                                                                                              null,
-                                                                                              (arrayX509Certificate, value) -> true)
-                                                                                      .build())
-                                                                      .build();
+                                          .disableAuthCaching()
+                                          .disableAutomaticRetries()
+                                          .disableConnectionState()
+                                          .disableCookieManagement()
+                                          .disableRedirectHandling()
+                                          .setDefaultRequestConfig(config)
+                                          .setHostnameVerifier(new AllowAllHostnameVerifier())
+                                          .setSslcontext(
+                                                  new SSLContextBuilder()
+                                                          .loadTrustMaterial(
+                                                                  null,
+                                                                  (arrayX509Certificate, value) -> true)
+                                                          .build())
+                                          .build();
         }
         catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             e.printStackTrace();
@@ -181,8 +188,43 @@ public class FetchElasticLoadBalancersJob {
 
                     for (Integer allowedPort : allowedPorts) {
 
-                        final CompletableFuture<Void> future = CompletableFuture.runAsync(
-                                () -> checkPublicEndpoint(loadBalancerDescription, allowedPort), executor);
+                        HttpCall httpCall = new HttpCall(httpclient, loadBalancerDescription, allowedPort);
+                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(httpCall);
+                        listenableFuture.addCallback(
+                                new SuccessCallback<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean result) {
+                                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
+                                        if (!result) {
+                                            violationSink.put(
+                                                    new ViolationBuilder().withType(UNSECURED_ENDPOINT)
+                                                                          .withPluginFullyQualifiedClassName(
+                                                                                  FetchElasticLoadBalancersJob.class)
+                                                                          .withMetaInfo(
+                                                                                  newArrayList(
+                                                                                          canonicalHostedZoneName,
+                                                                                          allowedPort))
+                                                                          .build());
+                                        }
+                                    }
+                                }, new FailureCallback() {
+                                    @Override
+                                    public void onFailure(Throwable ex) {
+                                        log.warn(ex.getMessage(), ex);
+                                        violationSink.put(
+                                                new ViolationBuilder().withType(UNSECURED_ENDPOINT)
+                                                                      .withPluginFullyQualifiedClassName(
+                                                                              FetchElasticLoadBalancersJob.class)
+                                                                      .withMetaInfo(
+                                                                              newArrayList(
+                                                                                      canonicalHostedZoneName,
+                                                                                      allowedPort))
+                                                                      .build());
+                                    }
+                                });
+
+                        log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
+                        log.debug("### - Thread: {}", Thread.currentThread().getId());
 
                     }
 
@@ -193,57 +235,6 @@ public class FetchElasticLoadBalancersJob {
         }
 
     }
-
-    /**
-     * Disable all the thing that we don't need for the client, set the timeout to 1 sec and allowed all Certificate.
-     */
-    private void checkPublicEndpoint(LoadBalancerDescription loadBalancerDescription, Integer allowedPort) {
-
-        String scheme = allowedPort == 443 ? "https" : "http";
-
-        //TODO: use listener to iterate to all configured port???
-        for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
-
-            try {
-                String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
-                URI http = new URIBuilder().setScheme(scheme)
-                                           .setHost(canonicalHostedZoneName)
-                                           .setPort(allowedPort)
-                                           .build();
-                HttpGet httpget = new HttpGet(http);
-                try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-                    if (response != null) {
-                        String location = "";
-                        for (Header header : response.getAllHeaders()) {
-                            if (header.getName().equals("Location")) {
-                                location = header.getValue();
-                            }
-                        }
-
-                        if (response.getStatusLine().getStatusCode() == 401
-                                || response.getStatusLine().getStatusCode() == 403) {
-                            log.info("thats ok - {}",canonicalHostedZoneName);
-                        }
-                        else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
-                                && location.startsWith("https")) {
-                            log.info("thats ok - {}",canonicalHostedZoneName);
-                        }
-                        else {
-                            log.info("thats NOT ok - {}",canonicalHostedZoneName);
-                        }
-
-                    }
-                }
-                catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-            }
-            catch (URISyntaxException e) {
-                log.error(e.getMessage());
-            }
-        }
-
-}
 
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
