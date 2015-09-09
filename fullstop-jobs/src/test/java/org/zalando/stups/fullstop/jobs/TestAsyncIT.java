@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -157,7 +156,8 @@ public class TestAsyncIT {
             }
         }
 
-        TimeUnit.MINUTES.sleep(5);
+        //TODO: important use this to let the test run all thread!
+        //TimeUnit.MINUTES.sleep(5);
     }
 
     static class HttpCall implements Callable<Void> {
