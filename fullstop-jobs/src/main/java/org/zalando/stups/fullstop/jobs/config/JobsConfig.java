@@ -25,9 +25,6 @@ import org.zalando.stups.fullstop.jobs.utils.Predicates;
 
 import static org.zalando.stups.fullstop.jobs.utils.Predicates.securityGroupExposesNotAllowedPorts;
 
-/**
- * Created by gkneitschel.
- */
 @Configuration
 public class JobsConfig {
 

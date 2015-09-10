@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.fullstop.jobs.ec2;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import org.apache.http.client.config.RequestConfig;
@@ -30,13 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.SuccessCallback;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -51,16 +46,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
+import static com.amazonaws.regions.Region.getRegion;
+import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
-/**
- * Created by mrandi.
- */
 @Component
 public class FetchEC2Job {
 
@@ -76,30 +70,23 @@ public class FetchEC2Job {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
-    private PortsChecker portsChecker;
-
     private Set<Integer> allowedPorts = newHashSet(443, 80);
 
     private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-
-    private RequestConfig config = RequestConfig.custom()
-                                                .setConnectionRequestTimeout(1000)
-                                                .setConnectTimeout(1000)
-                                                .setSocketTimeout(1000)
-                                                .build();
 
     private CloseableHttpClient httpclient;
 
     @Autowired
     public FetchEC2Job(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
-            PortsChecker portsChecker) {
+                       ClientProvider clientProvider,
+                       TeamOperations teamOperations,
+                       JobsProperties jobsProperties,
+                       SecurityGroupsChecker securityGroupsChecker) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
-        this.securityGroupsChecker = null; //securityGroupsChecker;
-        this.portsChecker = portsChecker;
+        this.securityGroupsChecker = securityGroupsChecker;
 
         threadPoolTaskExecutor.setCorePoolSize(8);
         threadPoolTaskExecutor.setMaxPoolSize(10);
@@ -110,10 +97,14 @@ public class FetchEC2Job {
         threadPoolTaskExecutor.setThreadNamePrefix("ec2-check-");
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
-        threadPoolTaskExecutor.setDaemon(true);
         threadPoolTaskExecutor.afterPropertiesSet();
 
         try {
+            final RequestConfig config = RequestConfig.custom()
+                    .setConnectionRequestTimeout(1000)
+                    .setConnectTimeout(1000)
+                    .setSocketTimeout(1000)
+                    .build();
             httpclient = HttpClientBuilder.create()
                                           .disableAuthCaching()
                                           .disableAutomaticRetries()
@@ -148,30 +139,29 @@ public class FetchEC2Job {
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
-                DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
+                final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
                         account,
                         region);
 
-                for (Reservation reservation : describeEC2Result.getReservations()) {
+                for (final Reservation reservation : describeEC2Result.getReservations()) {
 
-                    for (Instance instance : reservation.getInstances()) {
-
-                        Map<String, Object> metaData = newHashMap();
-                        List<String> errorMessages = newArrayList();
+                    for (final Instance instance : reservation.getInstances()) {
+                        final Map<String, Object> metaData = newHashMap();
+                        final List<String> errorMessages = newArrayList();
                         final String instancePublicIpAddress = instance.getPublicIpAddress();
 
                         if (instancePublicIpAddress == null || instancePublicIpAddress.isEmpty()) {
                             continue;
                         }
 
-//                        List<Integer> unsecuredPorts = portsChecker.check(instance);
-//                        if (!unsecuredPorts.isEmpty()) {
-//                            metaData.put("unsecuredPorts", unsecuredPorts);
-//                            errorMessages.add(
-//                                    String.format(
-//                                            "EC2 %s listens on unsecure ports! Only ports 80 and 443 are allowed",
-//                                            instance.getPublicIpAddress()));
-//                        }
+                        final Set<String> unsecureGroups = securityGroupsChecker.check(
+                                instance.getSecurityGroups().stream().map(GroupIdentifier::getGroupId).collect(toList()),
+                                account,
+                                getRegion(fromName(region)));
+                        if (!unsecureGroups.isEmpty()) {
+                            metaData.put("unsecuredSecurityGroups", unsecureGroups);
+                            errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
+                        }
 
                         if (metaData.size() > 0) {
                             metaData.put("errorMessages", errorMessages);
@@ -184,26 +174,20 @@ public class FetchEC2Job {
                             ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                     httpCall);
                             listenableFuture.addCallback(
-                                    new SuccessCallback<Boolean>() {
-                                        @Override
-                                        public void onSuccess(Boolean result) {
-                                            log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
-                                            if (!result) {
-                                                Map<String, Object> md = newHashMap();
-                                                md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                                md.put("allowedPort", allowedPort);
-                                                writeViolation(account, region, md, instancePublicIpAddress);
-                                            }
-                                        }
-                                    }, new FailureCallback() {
-                                        @Override
-                                        public void onFailure(Throwable ex) {
-                                            log.warn(ex.getMessage(), ex);
+                                    result -> {
+                                        log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
+                                        if (!result) {
                                             Map<String, Object> md = newHashMap();
                                             md.put("instancePublicIpAddress", instancePublicIpAddress);
                                             md.put("allowedPort", allowedPort);
                                             writeViolation(account, region, md, instancePublicIpAddress);
                                         }
+                                    }, ex -> {
+                                        log.warn(ex.getMessage(), ex);
+                                        Map<String, Object> md = newHashMap();
+                                        md.put("instancePublicIpAddress", instancePublicIpAddress);
+                                        md.put("allowedPort", allowedPort);
+                                        writeViolation(account, region, md, instancePublicIpAddress);
                                     });
 
                             log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
@@ -235,8 +219,8 @@ public class FetchEC2Job {
         AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
-                Region.getRegion(
-                        Regions.fromName(region)));
+                getRegion(
+                        fromName(region)));
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
         return ec2Client.describeInstances(describeInstancesRequest);
@@ -245,7 +229,7 @@ public class FetchEC2Job {
     private List<String> fetchAccountIds() {
         List<String> accountIds = newArrayList();
         List<Account> accounts = teamOperations.getAccounts();
-        accountIds.addAll(accounts.stream().map(Account::getId).collect(Collectors.toList()));
+        accountIds.addAll(accounts.stream().map(Account::getId).collect(toList()));
         return accountIds;
 
     }

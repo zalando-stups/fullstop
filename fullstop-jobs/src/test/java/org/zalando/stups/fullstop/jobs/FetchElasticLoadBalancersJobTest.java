@@ -32,6 +32,7 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,23 +106,20 @@ public class FetchElasticLoadBalancersJobTest {
     }
     @Test
     public void testCheck() throws Exception {
-        List<Integer> wrongPorts = newArrayList(443, 23);
-        Set<String> wrongGroups = newHashSet("sg-1234", "sg-67890");
-
         when(teamOperationsMock.getAccounts()).thenReturn(accounts);
         when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(regions);
-        when(portsChecker.check(any(LoadBalancerDescription.class))).thenReturn(wrongPorts);
-        when(securityGroupsChecker.check(any(), any(), any())).thenReturn(wrongGroups);
+        when(portsChecker.check(any(LoadBalancerDescription.class))).thenReturn(Collections.<Integer>emptyList());
+        when(securityGroupsChecker.check(any(), any(), any())).thenReturn(Collections.<String>emptySet());
         when(mockAwsELBClient.describeLoadBalancers(any(DescribeLoadBalancersRequest.class))).thenReturn(mockDescribeELBResult);
         when(mockAwsApplications.isPubliclyAccessible(anyString(), anyString(), anyListOf(String.class)))
                 .thenReturn(Optional.of(false));
 
-        FetchElasticLoadBalancersJob fetchELBJob = new FetchElasticLoadBalancersJob(
+        final FetchElasticLoadBalancersJob fetchELBJob = new FetchElasticLoadBalancersJob(
                 violationSinkMock,
                 clientProviderMock,
                 teamOperationsMock,
                 jobsPropertiesMock,
-                //securityGroupsChecker,
+                securityGroupsChecker,
                 portsChecker,
                 mockAwsApplications);
 
@@ -129,9 +127,8 @@ public class FetchElasticLoadBalancersJobTest {
 
         verify(teamOperationsMock,atLeast(1)).getAccounts();
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();
-        //verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
+        verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
         verify(portsChecker, atLeast(1)).check(any());
-        verify(violationSinkMock, atLeast(1)).put(any(Violation.class));
         verify(mockAwsELBClient).describeLoadBalancers(any(DescribeLoadBalancersRequest.class));
         verify(clientProviderMock).getClient(any(), any(String.class), any(Region.class));
         verify(mockAwsApplications).isPubliclyAccessible(eq(ACCOUNT_ID), eq(REGION1), eq(asList("i1", "i2")));

@@ -15,11 +15,8 @@
  */
 package org.zalando.stups.fullstop.jobs.elb;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
-import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.apache.http.client.config.RequestConfig;
@@ -54,6 +51,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.amazonaws.regions.Region.getRegion;
+import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -152,11 +151,7 @@ public class FetchElasticLoadBalancersJob {
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
-                DescribeLoadBalancersResult describeLoadBalancersResult = getDescribeLoadBalancersResult(
-                        account,
-                        region);
-
-                for (LoadBalancerDescription elb : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
+                for (LoadBalancerDescription elb : getELBs(account, region)) {
                     Map<String, Object> metaData = newHashMap();
                     List<String> errorMessages = newArrayList();
                     final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
@@ -173,10 +168,10 @@ public class FetchElasticLoadBalancersJob {
                     }
 
 
-                    Set<String> unsecureGroups = securityGroupsChecker.check(
-                            newHashSet(elb.getSecurityGroups()),
+                    final Set<String> unsecureGroups = securityGroupsChecker.check(
+                            elb.getSecurityGroups(),
                             account,
-                            Region.getRegion(Regions.fromName(region)));
+                            getRegion(fromName(region)));
                     if (!unsecureGroups.isEmpty()) {
                         metaData.put("unsecuredSecurityGroups", unsecureGroups);
                         errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
@@ -244,15 +239,15 @@ public class FetchElasticLoadBalancersJob {
         violationSink.put(violation);
     }
 
-    private DescribeLoadBalancersResult getDescribeLoadBalancersResult(String account, String region) {
+    private List<LoadBalancerDescription> getELBs(String account, String region) {
         AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
                 AmazonElasticLoadBalancingClient.class,
                 account,
-                Region.getRegion(
-                        Regions.fromName(region)));
+                getRegion(
+                        fromName(region)));
         DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
         return elbClient.describeLoadBalancers(
-                describeLoadBalancersRequest);
+                describeLoadBalancersRequest).getLoadBalancerDescriptions();
     }
 
     private List<String> fetchAccountIds() {
