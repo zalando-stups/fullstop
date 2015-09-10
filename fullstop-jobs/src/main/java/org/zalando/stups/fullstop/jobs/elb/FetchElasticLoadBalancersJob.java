@@ -35,6 +35,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
@@ -51,11 +52,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 /**
@@ -84,16 +86,19 @@ public class FetchElasticLoadBalancersJob {
 
     private final CloseableHttpClient httpclient;
 
+    private final AwsApplications awsApplications;
+
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-            ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
-            SecurityGroupsChecker securityGroupsChecker*/, PortsChecker portsChecker) {
+                                        ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
+            SecurityGroupsChecker securityGroupsChecker*/, PortsChecker portsChecker, AwsApplications awsApplications) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
         // this.securityGroupsChecker = securityGroupsChecker;
         this.portsChecker = portsChecker;
+        this.awsApplications = awsApplications;
 
         threadPoolTaskExecutor.setCorePoolSize(8);
         threadPoolTaskExecutor.setMaxPoolSize(10);
@@ -136,7 +141,7 @@ public class FetchElasticLoadBalancersJob {
 
     @PostConstruct
     public void init() {
-        log.info("{} initalized", getClass().getSimpleName());
+        log.info("{} initialized", getClass().getSimpleName());
     }
 
     @Scheduled(fixedRate = 300_000)
@@ -150,22 +155,20 @@ public class FetchElasticLoadBalancersJob {
                         account,
                         region);
 
-                for (LoadBalancerDescription loadBalancerDescription : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
+                for (LoadBalancerDescription elb : describeLoadBalancersResult.getLoadBalancerDescriptions()) {
                     Map<String, Object> metaData = newHashMap();
                     List<String> errorMessages = newArrayList();
-                    final String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
+                    final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
 
-                    if (!loadBalancerDescription.getScheme().equals("internet-facing")) {
+                    if (!elb.getScheme().equals("internet-facing")) {
                         continue;
                     }
 
-                    List<Integer> unsecuredPorts = portsChecker.check(loadBalancerDescription);
+                    List<Integer> unsecuredPorts = portsChecker.check(elb);
                     if (!unsecuredPorts.isEmpty()) {
                         metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add(
-                                String.format(
-                                        "ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed",
-                                        loadBalancerDescription.getLoadBalancerName()));
+                        errorMessages.add(format("ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed",
+                                elb.getLoadBalancerName()));
                     }
 
                     /*
@@ -184,17 +187,23 @@ public class FetchElasticLoadBalancersJob {
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
                     }
 
+                    final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
+
                     // skip check for publicly available apps
+                    if (awsApplications.isPubliclyAccessible(account, region, instanceIds).orElse(false)) {
+                        continue;
+                    }
+
 
                     for (Integer allowedPort : allowedPorts) {
 
-                        ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, loadBalancerDescription, allowedPort);
+                        ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, elb, allowedPort);
                         ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(ELBHttpCall);
                         listenableFuture.addCallback(
                                 result -> {
                                     log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
                                     if (!result) {
-                                        Map<String, Object> md = newHashMap();
+                                        final Map<String, Object> md = newHashMap();
                                         md.put("canonicalHostedZoneName", canonicalHostedZoneName);
                                         md.put("allowedPort", allowedPort);
                                         writeViolation(account, region, md, canonicalHostedZoneName);
@@ -245,7 +254,7 @@ public class FetchElasticLoadBalancersJob {
     private List<String> fetchAccountIds() {
         List<String> accountIds = newArrayList();
         List<Account> accounts = teamOperations.getAccounts();
-        accountIds.addAll(accounts.stream().map(Account::getId).collect(Collectors.toList()));
+        accountIds.addAll(accounts.stream().map(Account::getId).collect(toList()));
         return accountIds;
 
     }
