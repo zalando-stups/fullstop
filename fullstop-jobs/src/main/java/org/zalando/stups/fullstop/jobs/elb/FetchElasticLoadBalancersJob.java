@@ -37,6 +37,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
@@ -76,7 +77,7 @@ public class FetchElasticLoadBalancersJob {
 
     private final JobsProperties jobsProperties;
 
-    // private SecurityGroupsChecker securityGroupsChecker;
+    private SecurityGroupsChecker securityGroupsChecker;
 
     private final PortsChecker portsChecker;
 
@@ -90,13 +91,13 @@ public class FetchElasticLoadBalancersJob {
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-                                        ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties /*,
-            SecurityGroupsChecker securityGroupsChecker*/, PortsChecker portsChecker, AwsApplications awsApplications) {
+                                        ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
+            SecurityGroupsChecker securityGroupsChecker, PortsChecker portsChecker, AwsApplications awsApplications) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
-        // this.securityGroupsChecker = securityGroupsChecker;
+        this.securityGroupsChecker = securityGroupsChecker;
         this.portsChecker = portsChecker;
         this.awsApplications = awsApplications;
 
@@ -171,20 +172,23 @@ public class FetchElasticLoadBalancersJob {
                                 elb.getLoadBalancerName()));
                     }
 
-                    /*
+
                     Set<String> unsecureGroups = securityGroupsChecker.check(
-                            newHashSet(loadBalancerDescription.getSecurityGroups()),
+                            newHashSet(elb.getSecurityGroups()),
                             account,
                             Region.getRegion(Regions.fromName(region)));
                     if (!unsecureGroups.isEmpty()) {
                         metaData.put("unsecuredSecurityGroups", unsecureGroups);
                         errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                     }
-                    */
+
 
                     if (metaData.size() > 0) {
                         metaData.put("errorMessages", errorMessages);
                         writeViolation(account, region, metaData, canonicalHostedZoneName);
+
+                        // skip http response check, as we are already having a violation here
+                        continue;
                     }
 
                     final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());

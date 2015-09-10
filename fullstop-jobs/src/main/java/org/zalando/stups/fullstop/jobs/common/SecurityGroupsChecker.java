@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.jobs.common;
 
 import com.amazonaws.regions.Region;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -24,6 +25,6 @@ import java.util.Set;
  */
 public interface SecurityGroupsChecker {
 
-    Set<String> check(Set<String> groupIds, String account, Region region);
+    Set<String> check(Collection<String> groupIds, String account, Region region);
 
 }

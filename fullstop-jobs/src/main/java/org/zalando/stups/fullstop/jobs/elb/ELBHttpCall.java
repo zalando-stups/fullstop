@@ -58,9 +58,6 @@ public class ELBHttpCall implements Callable<Boolean> {
 
         String scheme = allowedPort == 443 ? "https" : "http";
 
-        //TODO: use listener to iterate to all configured port???
-        //        for (ListenerDescription listener : loadBalancerDescription.getListenerDescriptions()) {
-
         try {
             String canonicalHostedZoneName = loadBalancerDescription.getCanonicalHostedZoneName();
             URI http = new URIBuilder().setScheme(scheme)
@@ -101,7 +98,6 @@ public class ELBHttpCall implements Callable<Boolean> {
         catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        //        }
 
         return result;
     }

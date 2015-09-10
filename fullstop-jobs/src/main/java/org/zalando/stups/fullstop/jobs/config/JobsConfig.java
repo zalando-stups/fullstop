@@ -15,21 +15,27 @@
  */
 package org.zalando.stups.fullstop.jobs.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.common.impl.SecurityGroupsCheckerImpl;
 import org.zalando.stups.fullstop.jobs.utils.Predicates;
 
+import static org.zalando.stups.fullstop.jobs.utils.Predicates.securityGroupExposesNotAllowedPorts;
+
 /**
  * Created by gkneitschel.
  */
-//@Configuration
+@Configuration
 public class JobsConfig {
 
-    JobsProperties jobsProperties;
+    @Autowired
+    private JobsProperties jobsProperties;
 
-    //@Bean
-    public SecurityGroupsChecker securityGroupsChecker(){
-
-        return new SecurityGroupsCheckerImpl(Predicates.securityGroupsAllowedPorts(jobsProperties.getAllowedPorts()));
+    @Bean
+    public SecurityGroupsChecker securityGroupsChecker(ClientProvider clientProvider) {
+        return new SecurityGroupsCheckerImpl(clientProvider, securityGroupExposesNotAllowedPorts(jobsProperties.getAllowedPorts()));
     }
 }

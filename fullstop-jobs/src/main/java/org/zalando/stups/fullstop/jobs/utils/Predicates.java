@@ -28,24 +28,21 @@ public final class Predicates {
     private Predicates() {
     }
 
-    public static Predicate<SecurityGroup> securityGroupsAllowedPorts(Set<Integer> allowedPorts) {
+    public static Predicate<SecurityGroup> securityGroupExposesNotAllowedPorts(Set<Integer> allowedPorts) {
 
         return securityGroup -> {
 
-            for (IpPermission ipPermission : securityGroup.getIpPermissions()) {
-                if (!ipPermission.getFromPort().equals(ipPermission.getToPort())
-                        && !allowedPorts.contains(ipPermission.getFromPort())
-                        && !allowedPorts.contains(ipPermission.getToPort())) {
+            for (IpPermission rule : securityGroup.getIpPermissions()) {
+                // port ranges are not allowed
+                if (!rule.getFromPort().equals(rule.getToPort())){
                     return true;
                 }
 
+                if (!allowedPorts.contains(rule.getFromPort())){
+                    return true;
+                }
             }
             return false;
         };
     }
-
-    public static Predicate<Integer> allowedPorts(Set<Integer> allowedPorts) {
-        return allowedPorts::contains;
-    }
-
 }

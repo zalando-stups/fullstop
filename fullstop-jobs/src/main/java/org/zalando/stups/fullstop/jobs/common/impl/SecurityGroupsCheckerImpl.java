@@ -23,26 +23,28 @@ import com.amazonaws.services.ec2.model.SecurityGroup;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by gkneitschel.
  */
-//@Component
 public class SecurityGroupsCheckerImpl implements SecurityGroupsChecker {
 
-    private ClientProvider clientProvider;
+    private final ClientProvider clientProvider;
     private final Predicate<? super SecurityGroup> predicate;
 
-    public SecurityGroupsCheckerImpl(Predicate<? super SecurityGroup> predicate) {
+    public SecurityGroupsCheckerImpl(ClientProvider clientProvider, Predicate<? super SecurityGroup> predicate) {
+        this.clientProvider = clientProvider;
         this.predicate = predicate;
     }
 
-    @Override public Set<String> check(Set<String> groupIds, String account, Region region) {
+    @Override
+    public Set<String> check(Collection<String> groupIds, String account, Region region) {
         DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
         describeSecurityGroupsRequest.setGroupIds(groupIds);
         AmazonEC2Client amazonEC2Client = clientProvider.getClient(
@@ -51,7 +53,7 @@ public class SecurityGroupsCheckerImpl implements SecurityGroupsChecker {
         DescribeSecurityGroupsResult describeSecurityGroupsResult = amazonEC2Client.describeSecurityGroups(
                 describeSecurityGroupsRequest);
 
-        Set<SecurityGroup> securityGroups = newHashSet();
+        List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
         return securityGroups.stream().filter(predicate).map(SecurityGroup::getGroupId).collect(toSet());
     }
 }
