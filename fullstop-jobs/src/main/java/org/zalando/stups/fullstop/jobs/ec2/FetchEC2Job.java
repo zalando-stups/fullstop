@@ -70,7 +70,7 @@ public class FetchEC2Job {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
-    private Set<Integer> allowedPorts = newHashSet(443, 80);
+    private Set<Integer> allowedPorts = newHashSet(443, 80, 22, 2222);
 
     private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
