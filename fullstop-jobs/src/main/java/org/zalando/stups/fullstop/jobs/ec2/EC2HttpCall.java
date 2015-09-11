@@ -29,9 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
-/**
- * Created by mrandi.
- */
 public class EC2HttpCall implements Callable<Boolean> {
 
     private final Logger log = LoggerFactory.getLogger(EC2HttpCall.class);
@@ -43,7 +40,7 @@ public class EC2HttpCall implements Callable<Boolean> {
     private final Integer allowedPort;
 
     public EC2HttpCall(CloseableHttpClient httpclient, Instance instance,
-            Integer allowedPort) {
+                       Integer allowedPort) {
         this.httpclient = httpclient;
         this.instance = instance;
         this.allowedPort = allowedPort;
@@ -58,12 +55,16 @@ public class EC2HttpCall implements Callable<Boolean> {
 
         String scheme = allowedPort == 443 ? "https" : "http";
 
+        if (allowedPort == 22 || allowedPort == 2222) {
+            return true;
+        }
+
         try {
             String canonicalHostedZoneName = instance.getPublicIpAddress();
             URI http = new URIBuilder().setScheme(scheme)
-                                       .setHost(canonicalHostedZoneName)
-                                       .setPort(allowedPort)
-                                       .build();
+                    .setHost(canonicalHostedZoneName)
+                    .setPort(allowedPort)
+                    .build();
             HttpGet httpget = new HttpGet(http);
             try (CloseableHttpResponse response = httpclient.execute(httpget)) {
                 if (response != null) {
@@ -78,24 +79,20 @@ public class EC2HttpCall implements Callable<Boolean> {
                             || response.getStatusLine().getStatusCode() == 403) {
                         log.debug("thats ok - {}", canonicalHostedZoneName);
                         result = true;
-                    }
-                    else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
+                    } else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
                             && location.startsWith("https")) {
                         log.debug("thats ok - {}", canonicalHostedZoneName);
                         result = true;
-                    }
-                    else {
+                    } else {
                         log.debug("thats NOT ok - {}", canonicalHostedZoneName);
                         result = false;
                     }
 
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
         }
 

@@ -19,7 +19,6 @@ import com.google.common.collect.Sets;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +30,8 @@ import java.util.Set;
 public class JobsProperties {
     private List<String> whitelistedRegions;
     private Set<Integer> allowedPorts = Sets.newHashSet(80, 443);
+    private Set<Integer> elbAllowedPorts = Sets.newHashSet(80, 443);
+    private Set<Integer> ec2AllowedPorts = Sets.newHashSet(80, 443, 22, 2222);
 
     public List<String> getWhitelistedRegions() {
         return whitelistedRegions;
@@ -46,5 +47,21 @@ public class JobsProperties {
 
     public void setAllowedPorts(Set<Integer> allowedPorts) {
         this.allowedPorts = allowedPorts;
+    }
+
+    public Set<Integer> getElbAllowedPorts() {
+        return elbAllowedPorts;
+    }
+
+    public void setElbAllowedPorts(Set<Integer> elbAllowedPorts) {
+        this.elbAllowedPorts = elbAllowedPorts;
+    }
+
+    public Set<Integer> getEc2AllowedPorts() {
+        return ec2AllowedPorts;
+    }
+
+    public void setEc2AllowedPorts(Set<Integer> ec2AllowedPorts) {
+        this.ec2AllowedPorts = ec2AllowedPorts;
     }
 }

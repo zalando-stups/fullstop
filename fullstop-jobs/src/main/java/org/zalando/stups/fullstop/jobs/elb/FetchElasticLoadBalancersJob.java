@@ -55,7 +55,6 @@ import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
@@ -79,8 +78,6 @@ public class FetchElasticLoadBalancersJob {
     private SecurityGroupsChecker securityGroupsChecker;
 
     private final PortsChecker portsChecker;
-
-    private final Set<Integer> allowedPorts = newHashSet(443, 80);
 
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
@@ -109,7 +106,6 @@ public class FetchElasticLoadBalancersJob {
         threadPoolTaskExecutor.setThreadNamePrefix("elb-check-");
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
-        threadPoolTaskExecutor.setDaemon(true);
         threadPoolTaskExecutor.afterPropertiesSet();
 
         final RequestConfig requestConfig = RequestConfig.custom()
@@ -194,7 +190,7 @@ public class FetchElasticLoadBalancersJob {
                     }
 
 
-                    for (Integer allowedPort : allowedPorts) {
+                    for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
 
                         ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, elb, allowedPort);
                         ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(ELBHttpCall);

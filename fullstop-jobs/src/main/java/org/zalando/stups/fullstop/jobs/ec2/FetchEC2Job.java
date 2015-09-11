@@ -51,7 +51,6 @@ import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
@@ -69,8 +68,6 @@ public class FetchEC2Job {
     private JobsProperties jobsProperties;
 
     private SecurityGroupsChecker securityGroupsChecker;
-
-    private Set<Integer> allowedPorts = newHashSet(443, 80, 22, 2222);
 
     private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
@@ -122,8 +119,7 @@ public class FetchEC2Job {
                                           .build();
         }
         catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            e.printStackTrace();
-            // TODO: handle this!!!
+            throw new IllegalStateException("Could not initialize httpClient", e);
         }
     }
 
@@ -168,7 +164,7 @@ public class FetchEC2Job {
                             writeViolation(account, region, metaData, instancePublicIpAddress);
                         }
 
-                        for (Integer allowedPort : allowedPorts) {
+                        for (Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
 
                             EC2HttpCall httpCall = new EC2HttpCall(httpclient, instance, allowedPort);
                             ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
