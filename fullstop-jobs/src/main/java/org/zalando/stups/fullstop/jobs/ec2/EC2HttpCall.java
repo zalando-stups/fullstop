@@ -86,10 +86,10 @@ public class EC2HttpCall implements Callable<Boolean> {
 
                 }
             } catch (IOException e) {
-                log.info(e.getMessage(), e);
+                log.info(e.toString());
             }
         } catch (URISyntaxException e) {
-            log.info(e.getMessage(), e);
+            log.info(e.toString());
         }
 
         return result;
