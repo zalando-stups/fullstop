@@ -1,0 +1,64 @@
+management:
+    # move all management endpoints to a different port
+    port: 7979
+    security:
+        enabled: false
+
+endpoints:
+    health:
+        sensitive: false
+
+spring:
+    # JACKSON (JacksonProperties)
+    jackson:
+        property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+        date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+        serialization:
+              write-dates-as-timestamps: false
+        deserialization:
+            fail-on-unknown-properties: false
+    datasource:
+        url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/fullstop}
+        username: ${DATABASE_USER:postgres}
+        password: ${DATABASE_PASSWORD:postgres}
+        driver-class-name: ${DATABASE_DRIVER:org.postgresql.Driver}
+        initialize: false
+    jpa:
+        properties:
+            hibernate:
+                default_schema: fullstop_data
+
+fullstop:
+
+    jobs:
+        whitelistedRegions:
+            - 'eu-west-1'
+            - 'eu-central-1'
+
+    clients:
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+        teamService:
+            url: ${FULLSTOP_TEAM_SERVICE_URL}
+
+#
+# OAuth2
+#
+tokens:
+    accessTokenUri: ${ACCESS_TOKEN_URI}
+    credentialsDirectory: ${CREDENTIALS_DIR}
+
+    token-configuration-list:
+        - tokenId: kio
+          scopes:
+              - uid
+
+javax:
+    persistence:
+        validation:
+            # force validation - fail fast if something goes wrong
+            mode: CALLBACK
+            group:
+                pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly

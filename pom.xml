@@ -56,7 +56,6 @@
         <module>fullstop-aws-support</module>
         <module>team-service-api</module>
 
-        <module>fullstop-jobs</module>
 
         <!-- all-plugins -->
         <module>fullstop-plugins</module>
@@ -69,6 +68,11 @@
 
         <!-- last -->
         <module>fullstop-testing/it</module>
+
+
+        <module>fullstop-jobs</module>
+        <module>fullstop-job-launcher</module>
+        <module>teams-service-client-spring</module>
     </modules>
 
     <build>
