@@ -236,7 +236,9 @@ public class FetchElasticLoadBalancersJob {
                                               .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
                                               .withType(UNSECURED_ENDPOINT)
                                               .withMetaInfo(metaInfo)
-                                              .withEventId(canonicalHostedZoneName).build();
+                                              .withEventId("checkElbJob")
+                                              .withInstanceId(canonicalHostedZoneName)
+                                              .build();
         violationSink.put(violation);
     }
 

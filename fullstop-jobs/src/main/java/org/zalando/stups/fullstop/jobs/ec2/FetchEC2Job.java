@@ -166,7 +166,7 @@ public class FetchEC2Job {
 
                         if (metaData.size() > 0) {
                             metaData.put("errorMessages", errorMessages);
-                            writeViolation(account, region, metaData, instancePublicIpAddress);
+                            writeViolation(account, region, metaData, instance.getInstanceId());
 
                             // skip http response check, as we are already having a violation here
                             continue;
@@ -193,14 +193,14 @@ public class FetchEC2Job {
                                             Map<String, Object> md = newHashMap();
                                             md.put("instancePublicIpAddress", instancePublicIpAddress);
                                             md.put("allowedPort", allowedPort);
-                                            writeViolation(account, region, md, instancePublicIpAddress);
+                                            writeViolation(account, region, md, instance.getInstanceId());
                                         }
                                     }, ex -> {
                                         log.warn(ex.getMessage(), ex);
                                         Map<String, Object> md = newHashMap();
                                         md.put("instancePublicIpAddress", instancePublicIpAddress);
                                         md.put("allowedPort", allowedPort);
-                                        writeViolation(account, region, md, instancePublicIpAddress);
+                                        writeViolation(account, region, md, instance.getInstanceId());
                                     });
 
                             log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
@@ -217,14 +217,15 @@ public class FetchEC2Job {
 
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
+    private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
         Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchEC2Job.class)
                 .withType(UNSECURED_ENDPOINT)
                 .withMetaInfo(metaInfo)
-                .withEventId(canonicalHostedZoneName).build();
+                .withInstanceId(instanceId)
+                .withEventId("checkPublicEC2InstanceJob").build();
         violationSink.put(violation);
     }
 

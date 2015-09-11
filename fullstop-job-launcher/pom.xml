@@ -36,12 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-violation-sink-reactor</artifactId>
-            <version>${fullstop-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-violation-jpa</artifactId>
+            <artifactId>fullstop-violation-persister-jpa</artifactId>
             <version>${fullstop-violation.version}</version>
         </dependency>
         <dependency>
