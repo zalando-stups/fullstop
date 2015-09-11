@@ -31,7 +31,7 @@ public class JobsProperties {
     private List<String> whitelistedRegions;
     private Set<Integer> allowedPorts = Sets.newHashSet(80, 443);
     private Set<Integer> elbAllowedPorts = Sets.newHashSet(80, 443);
-    private Set<Integer> ec2AllowedPorts = Sets.newHashSet(80, 443, 22, 2222);
+    private Set<Integer> ec2AllowedPorts = Sets.newHashSet(80, 443, 22);
 
     public List<String> getWhitelistedRegions() {
         return whitelistedRegions;

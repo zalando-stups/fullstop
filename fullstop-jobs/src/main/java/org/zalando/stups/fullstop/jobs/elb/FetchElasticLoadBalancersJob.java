@@ -27,6 +27,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -87,8 +88,12 @@ public class FetchElasticLoadBalancersJob {
 
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-                                        ClientProvider clientProvider, TeamOperations teamOperations, JobsProperties jobsProperties,
-            SecurityGroupsChecker securityGroupsChecker, PortsChecker portsChecker, AwsApplications awsApplications) {
+                                        ClientProvider clientProvider,
+                                        TeamOperations teamOperations,
+                                        JobsProperties jobsProperties,
+                                        @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
+                                        PortsChecker portsChecker,
+                                        AwsApplications awsApplications) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;

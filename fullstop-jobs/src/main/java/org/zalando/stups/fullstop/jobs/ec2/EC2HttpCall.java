@@ -55,10 +55,6 @@ public class EC2HttpCall implements Callable<Boolean> {
 
         String scheme = allowedPort == 443 ? "https" : "http";
 
-        if (allowedPort == 22 || allowedPort == 2222) {
-            return true;
-        }
-
         try {
             String canonicalHostedZoneName = instance.getPublicIpAddress();
             URI http = new URIBuilder().setScheme(scheme)

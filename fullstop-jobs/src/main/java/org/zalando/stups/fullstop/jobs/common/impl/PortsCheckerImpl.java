@@ -38,7 +38,7 @@ public class PortsCheckerImpl implements PortsChecker {
                                       .stream()
                                       .map(ListenerDescription::getListener)
                                       .map(Listener::getLoadBalancerPort)
-                                      .filter(p -> !jobsProperties.getAllowedPorts().contains(p))
+                                      .filter(p -> !jobsProperties.getElbAllowedPorts().contains(p))
                                       .collect(Collectors.toList());
     }
 

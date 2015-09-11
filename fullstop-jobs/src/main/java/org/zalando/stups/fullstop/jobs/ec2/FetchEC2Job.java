@@ -25,11 +25,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.teams.Account;
@@ -73,17 +75,21 @@ public class FetchEC2Job {
 
     private CloseableHttpClient httpclient;
 
+    private final AwsApplications awsApplications;
+
     @Autowired
     public FetchEC2Job(ViolationSink violationSink,
                        ClientProvider clientProvider,
                        TeamOperations teamOperations,
                        JobsProperties jobsProperties,
-                       SecurityGroupsChecker securityGroupsChecker) {
+                       @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
+                       AwsApplications awsApplications) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = securityGroupsChecker;
+        this.awsApplications = awsApplications;
 
         threadPoolTaskExecutor.setCorePoolSize(8);
         threadPoolTaskExecutor.setMaxPoolSize(10);
@@ -103,22 +109,21 @@ public class FetchEC2Job {
                     .setSocketTimeout(1000)
                     .build();
             httpclient = HttpClientBuilder.create()
-                                          .disableAuthCaching()
-                                          .disableAutomaticRetries()
-                                          .disableConnectionState()
-                                          .disableCookieManagement()
-                                          .disableRedirectHandling()
-                                          .setDefaultRequestConfig(config)
-                                          .setHostnameVerifier(new AllowAllHostnameVerifier())
-                                          .setSslcontext(
-                                                  new SSLContextBuilder()
-                                                          .loadTrustMaterial(
-                                                                  null,
-                                                                  (arrayX509Certificate, value) -> true)
-                                                          .build())
-                                          .build();
-        }
-        catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+                    .disableAuthCaching()
+                    .disableAutomaticRetries()
+                    .disableConnectionState()
+                    .disableCookieManagement()
+                    .disableRedirectHandling()
+                    .setDefaultRequestConfig(config)
+                    .setHostnameVerifier(new AllowAllHostnameVerifier())
+                    .setSslcontext(
+                            new SSLContextBuilder()
+                                    .loadTrustMaterial(
+                                            null,
+                                            (arrayX509Certificate, value) -> true)
+                                    .build())
+                    .build();
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             throw new IllegalStateException("Could not initialize httpClient", e);
         }
     }
@@ -162,9 +167,21 @@ public class FetchEC2Job {
                         if (metaData.size() > 0) {
                             metaData.put("errorMessages", errorMessages);
                             writeViolation(account, region, metaData, instancePublicIpAddress);
+
+                            // skip http response check, as we are already having a violation here
+                            continue;
+                        }
+
+                        // skip check for publicly available apps
+                        if (awsApplications.isPubliclyAccessible(account, region, newArrayList(instance.getInstanceId())).orElse(false)) {
+                            continue;
                         }
 
                         for (Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
+
+                            if (allowedPort == 22) {
+                                continue;
+                            }
 
                             EC2HttpCall httpCall = new EC2HttpCall(httpclient, instance, allowedPort);
                             ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
@@ -203,11 +220,11 @@ public class FetchEC2Job {
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
         Violation violation = violationBuilder.withAccountId(account)
-                                              .withRegion(region)
-                                              .withPluginFullyQualifiedClassName(FetchEC2Job.class)
-                                              .withType(UNSECURED_ENDPOINT)
-                                              .withMetaInfo(metaInfo)
-                                              .withEventId(canonicalHostedZoneName).build();
+                .withRegion(region)
+                .withPluginFullyQualifiedClassName(FetchEC2Job.class)
+                .withType(UNSECURED_ENDPOINT)
+                .withMetaInfo(metaInfo)
+                .withEventId(canonicalHostedZoneName).build();
         violationSink.put(violation);
     }
 
