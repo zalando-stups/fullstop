@@ -33,16 +33,43 @@ public final class Predicates {
         return securityGroup -> {
 
             for (IpPermission rule : securityGroup.getIpPermissions()) {
-                // port ranges are not allowed
-                if (!rule.getFromPort().equals(rule.getToPort())){
-                    return true;
-                }
-
-                if (!allowedPorts.contains(rule.getFromPort())){
+                if (opensUnallowedPorts(rule, allowedPorts) && hasExternalSource(rule)) {
                     return true;
                 }
             }
             return false;
         };
+    }
+
+    private static boolean hasExternalSource(IpPermission rule) {
+        for (final String ipRange : rule.getIpRanges()) {
+            if (!(ipRange.startsWith("sg-") || ipRange.startsWith("172.31"))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @SuppressWarnings("RedundantIfStatement")
+    private static boolean opensUnallowedPorts(IpPermission rule, Set<Integer> allowedPorts) {
+        final Integer fromPort = rule.getFromPort();
+        final Integer toPort = rule.getToPort();
+
+        // use explicit ports
+        if (fromPort == null || toPort == null) {
+            return true;
+        }
+
+        // port ranges are not allowed
+        if (!fromPort.equals(toPort)) {
+            return true;
+        }
+
+        if (!allowedPorts.contains(fromPort)) {
+            return true;
+        }
+
+        return false;
     }
 }
