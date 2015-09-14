@@ -52,6 +52,9 @@ tokens:
         - tokenId: kio
           scopes:
               - uid
+        - tokenId: teamService
+          scopes:
+              - uid
 
 javax:
     persistence:
