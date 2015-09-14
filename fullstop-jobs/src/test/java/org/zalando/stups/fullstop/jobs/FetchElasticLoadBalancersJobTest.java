@@ -130,6 +130,7 @@ public class FetchElasticLoadBalancersJobTest {
 
         verify(teamOperationsMock,atLeast(1)).getAccounts();
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();
+        verify(jobsPropertiesMock).getElbAllowedPorts();
         verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
         verify(portsChecker, atLeast(1)).check(any());
         verify(mockAwsELBClient).describeLoadBalancers(any(DescribeLoadBalancersRequest.class));
