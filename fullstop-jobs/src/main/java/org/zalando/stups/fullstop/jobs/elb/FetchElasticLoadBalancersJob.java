@@ -42,6 +42,7 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
 import java.security.KeyManagementException;
@@ -66,6 +67,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPO
 @Component
 public class FetchElasticLoadBalancersJob {
 
+    private static final String EVENT_ID = "checkElbJob";
+
     private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
 
     private final ViolationSink violationSink;
@@ -86,6 +89,8 @@ public class FetchElasticLoadBalancersJob {
 
     private final AwsApplications awsApplications;
 
+    private final ViolationService violationService;
+
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
                                         ClientProvider clientProvider,
@@ -93,7 +98,8 @@ public class FetchElasticLoadBalancersJob {
                                         JobsProperties jobsProperties,
                                         @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                                         PortsChecker portsChecker,
-                                        AwsApplications awsApplications) {
+                                        AwsApplications awsApplications,
+                                        ViolationService violationService) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
@@ -101,10 +107,11 @@ public class FetchElasticLoadBalancersJob {
         this.securityGroupsChecker = securityGroupsChecker;
         this.portsChecker = portsChecker;
         this.awsApplications = awsApplications;
+        this.violationService = violationService;
 
-        threadPoolTaskExecutor.setCorePoolSize(8);
-        threadPoolTaskExecutor.setMaxPoolSize(10);
-        threadPoolTaskExecutor.setQueueCapacity(100);
+        threadPoolTaskExecutor.setCorePoolSize(12);
+        threadPoolTaskExecutor.setMaxPoolSize(20);
+        threadPoolTaskExecutor.setQueueCapacity(75);
         threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
         threadPoolTaskExecutor.setKeepAliveSeconds(30);
         threadPoolTaskExecutor.setThreadGroupName("elb-check-group");
@@ -161,10 +168,14 @@ public class FetchElasticLoadBalancersJob {
                         continue;
                     }
 
+                    if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_ENDPOINT)) {
+                        continue;
+                    }
+
                     List<Integer> unsecuredPorts = portsChecker.check(elb);
                     if (!unsecuredPorts.isEmpty()) {
                         metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add(format("ELB %s listens on unsecure ports! Only ports 80 and 443 are allowed",
+                        errorMessages.add(format("ELB %s listens on insecure ports! Only ports 80 and 443 are allowed",
                                 elb.getLoadBalancerName()));
                     }
 
@@ -194,11 +205,9 @@ public class FetchElasticLoadBalancersJob {
                         continue;
                     }
 
-
                     for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
-
-                        ELBHttpCall ELBHttpCall = new ELBHttpCall(httpclient, elb, allowedPort);
-                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(ELBHttpCall);
+                        HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
+                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
                         listenableFuture.addCallback(
                                 result -> {
                                     log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
@@ -208,17 +217,9 @@ public class FetchElasticLoadBalancersJob {
                                         md.put("allowedPort", allowedPort);
                                         writeViolation(account, region, md, canonicalHostedZoneName);
                                     }
-                                }, ex -> {
-                                    log.warn(ex.getMessage(), ex);
-                                    Map<String, Object> md = newHashMap();
-                                    md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                    md.put("allowedPort", allowedPort);
-                                    writeViolation(account, region, md, canonicalHostedZoneName);
-                                });
+                                }, ex -> log.warn(ex.getMessage(), ex));
 
-                        log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
-                        log.debug("### - Thread: {}", Thread.currentThread().getId());
-
+                        log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
                     }
 
                 }
@@ -236,7 +237,7 @@ public class FetchElasticLoadBalancersJob {
                                               .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
                                               .withType(UNSECURED_ENDPOINT)
                                               .withMetaInfo(metaInfo)
-                                              .withEventId("checkElbJob")
+                .withEventId(EVENT_ID)
                                               .withInstanceId(canonicalHostedZoneName)
                                               .build();
         violationSink.put(violation);

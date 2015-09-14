@@ -61,4 +61,9 @@ public class ViolationServiceImpl implements ViolationService {
             Pageable pageable) {
         return violationRepository.queryViolations(accounts, since, lastViolation, checked, severity, auditRelevant, type, pageable);
     }
+
+    @Override
+    public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationTypeId) {
+        return violationRepository.violationExists(accountId, region, eventId, instanceId, violationTypeId);
+    }
 }

@@ -32,7 +32,7 @@ import static org.zalando.stups.fullstop.jobs.AccessKeyMetadataPredicates.isActi
 /**
  * @author jbellmann
  */
-@Component
+// @Component
 public class KeyRotationJob {
 
     private final Logger log = LoggerFactory.getLogger(KeyRotationJob.class);

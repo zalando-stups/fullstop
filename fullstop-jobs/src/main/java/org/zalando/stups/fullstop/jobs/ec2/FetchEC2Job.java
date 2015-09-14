@@ -34,11 +34,13 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.elb.HttpGetRootCall;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
 import java.security.KeyManagementException;
@@ -59,6 +61,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPO
 @Component
 public class FetchEC2Job {
 
+    private static final String EVENT_ID = "checkPublicEC2InstanceJob";
+
     private final Logger log = LoggerFactory.getLogger(FetchEC2Job.class);
 
     private ViolationSink violationSink;
@@ -77,23 +81,27 @@ public class FetchEC2Job {
 
     private final AwsApplications awsApplications;
 
+    private final ViolationService violationService;
+
     @Autowired
     public FetchEC2Job(ViolationSink violationSink,
                        ClientProvider clientProvider,
                        TeamOperations teamOperations,
                        JobsProperties jobsProperties,
                        @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
-                       AwsApplications awsApplications) {
+                       AwsApplications awsApplications,
+                       ViolationService violationService) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.teamOperations = teamOperations;
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = securityGroupsChecker;
         this.awsApplications = awsApplications;
+        this.violationService = violationService;
 
-        threadPoolTaskExecutor.setCorePoolSize(8);
-        threadPoolTaskExecutor.setMaxPoolSize(10);
-        threadPoolTaskExecutor.setQueueCapacity(100);
+        threadPoolTaskExecutor.setCorePoolSize(12);
+        threadPoolTaskExecutor.setMaxPoolSize(20);
+        threadPoolTaskExecutor.setQueueCapacity(75);
         threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
         threadPoolTaskExecutor.setKeepAliveSeconds(30);
         threadPoolTaskExecutor.setThreadGroupName("ec2-check-group");
@@ -133,13 +141,13 @@ public class FetchEC2Job {
         log.info("{} initalized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 300_000)
+    @Scheduled(fixedRate = 300_000, initialDelay = 150_000)
     public void check() {
         List<String> accountIds = fetchAccountIds();
         log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
         for (String account : accountIds) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
-                log.info("Scanning ELBs for {}/{}", account, region);
+                log.info("Scanning public EC2 instances for {}/{}", account, region);
                 final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
                         account,
                         region);
@@ -151,7 +159,7 @@ public class FetchEC2Job {
                         final List<String> errorMessages = newArrayList();
                         final String instancePublicIpAddress = instance.getPublicIpAddress();
 
-                        if (instancePublicIpAddress == null || instancePublicIpAddress.isEmpty()) {
+                        if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), UNSECURED_ENDPOINT)) {
                             continue;
                         }
 
@@ -183,7 +191,7 @@ public class FetchEC2Job {
                                 continue;
                             }
 
-                            EC2HttpCall httpCall = new EC2HttpCall(httpclient, instance, allowedPort);
+                            HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
                             ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                     httpCall);
                             listenableFuture.addCallback(
@@ -195,17 +203,9 @@ public class FetchEC2Job {
                                             md.put("allowedPort", allowedPort);
                                             writeViolation(account, region, md, instance.getInstanceId());
                                         }
-                                    }, ex -> {
-                                        log.warn(ex.getMessage(), ex);
-                                        Map<String, Object> md = newHashMap();
-                                        md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                        md.put("allowedPort", allowedPort);
-                                        writeViolation(account, region, md, instance.getInstanceId());
-                                    });
+                                    }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
 
-                            log.debug("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
-                            log.debug("### - Thread: {}", Thread.currentThread().getId());
-
+                            log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
                         }
 
                     }
@@ -225,7 +225,7 @@ public class FetchEC2Job {
                 .withType(UNSECURED_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withInstanceId(instanceId)
-                .withEventId("checkPublicEC2InstanceJob").build();
+                .withEventId(EVENT_ID).build();
         violationSink.put(violation);
     }
 

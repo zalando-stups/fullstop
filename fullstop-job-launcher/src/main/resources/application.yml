@@ -62,3 +62,8 @@ javax:
                 pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+
+logging:
+    level:
+        org.zalando.stups.fullstop: DEBUG
+        ROOT: INFO

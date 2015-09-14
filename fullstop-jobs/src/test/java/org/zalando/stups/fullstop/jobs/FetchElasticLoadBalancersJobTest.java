@@ -29,13 +29,12 @@ import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.elb.FetchElasticLoadBalancersJob;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -69,6 +68,8 @@ public class FetchElasticLoadBalancersJobTest {
 
     private AwsApplications mockAwsApplications;
 
+    private ViolationService mockViolationService;
+
     @Before
     public void setUp() throws Exception {
         this.violationSinkMock = mock(ViolationSink.class);
@@ -79,6 +80,7 @@ public class FetchElasticLoadBalancersJobTest {
         this.securityGroupsChecker = mock(SecurityGroupsChecker.class);
         this.mockAwsELBClient = mock(AmazonElasticLoadBalancingClient.class);
         mockAwsApplications = mock(AwsApplications.class);
+        mockViolationService = mock(ViolationService.class);
 
         final Listener listener = new Listener("HTTPS", 80, 80);
 
@@ -121,7 +123,8 @@ public class FetchElasticLoadBalancersJobTest {
                 jobsPropertiesMock,
                 securityGroupsChecker,
                 portsChecker,
-                mockAwsApplications);
+                mockAwsApplications,
+                mockViolationService);
 
         fetchELBJob.check();
 
