@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
@@ -41,8 +42,10 @@ public class ClientConfig {
 
     @Bean
     KioOperations kioOperations() {
+        final StupsOAuth2RestTemplate restTemplate = new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider("kio", accessTokens));
+        restTemplate.setErrorHandler(new KioClientResponseErrorHandler());
         return new RestTemplateKioOperations(
-                new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider("kio", accessTokens)),
+                restTemplate,
                 kioBaseUrl);
     }
 
