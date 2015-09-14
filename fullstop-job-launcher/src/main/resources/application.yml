@@ -66,4 +66,5 @@ javax:
 logging:
     level:
         org.zalando.stups.fullstop: DEBUG
+        org.hibernate.engine.jdbc.spi.SqlExceptionHelper: FATAL
         ROOT: INFO
