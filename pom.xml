@@ -54,7 +54,9 @@
 
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support</module>
+
         <module>team-service-api</module>
+        <module>teams-service-client-spring</module>
 
 
         <!-- all-plugins -->
@@ -66,13 +68,12 @@
         <!-- web-modules -->
         <module>fullstop-web/fullstop-timemachine</module>
 
-        <!-- last -->
+        <!-- fullstop container -->
         <module>fullstop-testing/it</module>
 
-
+        <!-- jobs -->
         <module>fullstop-jobs</module>
         <module>fullstop-job-launcher</module>
-        <module>teams-service-client-spring</module>
     </modules>
 
     <build>
