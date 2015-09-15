@@ -18,10 +18,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fullstop-parent</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>4-SNAPSHOT</version>
-        <relativePath>../fullstop-parent-poms/fullstop-parent/pom.xml</relativePath>
+        <artifactId>fullstop-parent</artifactId>
+        <version>4</version>
+        <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
