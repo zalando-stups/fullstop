@@ -76,7 +76,6 @@
         <dependency>
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
-            <version>0.4.0</version>
             <scope>test</scope>
         </dependency>
 
