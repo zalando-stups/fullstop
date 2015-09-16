@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import static com.google.common.base.Objects.equal;
-
 public class InfrastructureAccount {
 
     private final String id;
@@ -59,7 +57,7 @@ public class InfrastructureAccount {
             return false;
         }
         final InfrastructureAccount that = (InfrastructureAccount) o;
-        return equal(id, that.id) && equal(type, that.type);
+        return Objects.equal(id, that.id) && Objects.equal(type, that.type);
     }
 
     @Override

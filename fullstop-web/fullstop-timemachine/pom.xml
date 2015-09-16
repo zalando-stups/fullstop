@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>3</version>
+        <version>5</version>
         <relativePath />
     </parent>
 
@@ -16,6 +16,7 @@
         <fullstop-aws-support.version>1.2.0-SNAPSHOT</fullstop-aws-support.version>
         <fullstop-core.version>1.2.0-SNAPSHOT</fullstop-core.version>
         <fullstop-violation.version>1.2.0-SNAPSHOT</fullstop-violation.version>
+        <team-service-api.version>1.2.0-SNAPSHOT</team-service-api.version>
     </properties>
 
     <dependencies>
@@ -49,6 +50,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-s3-support</artifactId>
             <version>${fullstop-aws-support.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>team-service-api</artifactId>
+            <version>${team-service-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

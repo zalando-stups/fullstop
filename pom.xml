@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>3</version>
+        <version>5</version>
         <relativePath/>
     </parent>
 
@@ -55,7 +55,9 @@
         <!-- fullstop-aws-support -->
         <module>fullstop-aws-support</module>
 
-        <module>fullstop-jobs</module>
+        <module>team-service-api</module>
+        <module>teams-service-client-spring</module>
+
 
         <!-- all-plugins -->
         <module>fullstop-plugins</module>
@@ -66,8 +68,12 @@
         <!-- web-modules -->
         <module>fullstop-web/fullstop-timemachine</module>
 
-        <!-- last -->
+        <!-- fullstop container -->
         <module>fullstop-testing/it</module>
+
+        <!-- jobs -->
+        <module>fullstop-jobs</module>
+        <module>fullstop-job-launcher</module>
     </modules>
 
     <build>

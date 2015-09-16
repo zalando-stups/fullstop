@@ -20,10 +20,13 @@ import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
+import java.util.Collection;
+
 /**
  * Created by gkneitschel.
  */
 public interface ApplicationLifecycleService {
+
     LifecycleEntity saveLifecycle(ApplicationEntity applicationEntity, VersionEntity versionEntity,
             LifecycleEntity lifecycleEntity);
 
@@ -32,4 +35,5 @@ public interface ApplicationLifecycleService {
             String logData,
             String accountId);
 
+    ApplicationEntity findAppByInstanceIds(String accountId, String region, Collection<String> instanceIds);
 }

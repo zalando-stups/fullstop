@@ -31,6 +31,7 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
 import javax.transaction.Transactional;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -119,5 +120,10 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         LifecycleEntity savedLifecycleEntity = saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
 
         return savedLifecycleEntity;
+    }
+
+    @Override
+    public ApplicationEntity findAppByInstanceIds(String accountId, String region, Collection<String> instanceIds) {
+        return applicationRepository.findByInstanceIds(accountId, region, instanceIds);
     }
 }

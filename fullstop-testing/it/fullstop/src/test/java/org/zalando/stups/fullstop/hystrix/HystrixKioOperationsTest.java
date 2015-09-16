@@ -90,17 +90,17 @@ public class HystrixKioOperationsTest {
     }
 
     @Test
-    public void testGetApplicationApprovals() throws Exception {
-        when(mockDelegate.getApplicationApprovals(anyString())).thenReturn(APPROVALS);
-        assertThat(hystrixKioOperations.getApplicationApprovals(APP_ID)).isSameAs(APPROVALS);
-        verify(mockDelegate).getApplicationApprovals(same(APP_ID));
+    public void testGetApplicationApprovalType() throws Exception {
+        when(mockDelegate.getApplicationApprovalTypes(anyString())).thenReturn(APPROVALS);
+        assertThat(hystrixKioOperations.getApplicationApprovalTypes(APP_ID)).isSameAs(APPROVALS);
+        verify(mockDelegate).getApplicationApprovalTypes(same(APP_ID));
     }
 
     @Test
-    public void testGetApplicationApprovalsByVersion() throws Exception {
-        when(mockDelegate.getApplicationApprovals(anyString(), anyString())).thenReturn(APPROVALS_BY_VERSION);
-        assertThat(hystrixKioOperations.getApplicationApprovals(APP_ID, APP_VERSION)).isSameAs(APPROVALS_BY_VERSION);
-        verify(mockDelegate).getApplicationApprovals(same(APP_ID), same(APP_VERSION));
+    public void testGetApplicationVersionApprovals() throws Exception {
+        when(mockDelegate.getApplicationVersionApprovals(anyString(), anyString())).thenReturn(APPROVALS_BY_VERSION);
+        assertThat(hystrixKioOperations.getApplicationVersionApprovals(APP_ID, APP_VERSION)).isSameAs(APPROVALS_BY_VERSION);
+        verify(mockDelegate).getApplicationVersionApprovals(same(APP_ID), same(APP_VERSION));
     }
 
     @Test

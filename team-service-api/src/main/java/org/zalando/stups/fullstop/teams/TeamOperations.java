@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.violation.repository;
-
-import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
+package org.zalando.stups.fullstop.teams;
 
 import java.util.List;
 
-/**
- * Created by gkneitschel.
- */
-public interface LifecycleRepositoryCustom {
+public interface TeamOperations {
 
-    List<LifecycleEntity> findByInstanceId(String instanceId);
+    List<Account> getTeamsByUser(String userId);
 
+    List<Account> getAccounts();
 }

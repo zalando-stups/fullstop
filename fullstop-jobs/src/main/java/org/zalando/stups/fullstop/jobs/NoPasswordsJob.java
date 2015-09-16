@@ -32,7 +32,7 @@ import static org.zalando.stups.fullstop.jobs.UsersPredicates.PASSWORD_LAST_USED
 /**
  * @author jbellmann
  */
-@Component
+// @Component
 public class NoPasswordsJob {
 
     private final Logger log = LoggerFactory.getLogger(NoPasswordsJob.class);

@@ -207,7 +207,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected void validateMultipleEyesPrinciple(CloudTrailEvent event, String applicationId, String versionId,
             int minApprovals, String instanceId) {
-        List<Approval> approvals = kioOperations.getApplicationApprovals(
+        List<Approval> approvals = kioOperations.getApplicationVersionApprovals(
                 applicationId,
                 versionId);
         List<String> approvalsFromMany = registryPluginProperties.getApprovalsFromMany();
@@ -219,7 +219,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         int approverCount = approvals
                 .stream()
                 .filter(a -> approvalsFromMany.contains(a.getApprovalType()))
-                .map(a -> a.getUserId())
+                .map(Approval::getUserId)
                 .distinct()
                 .collect(Collectors.toList())
                 .size();
@@ -237,7 +237,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     }
 
     protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event, String instanceId) {
-        List<Approval> approvals = kioOperations.getApplicationApprovals(
+        List<Approval> approvals = kioOperations.getApplicationVersionApprovals(
                 version.getApplicationId(),
                 version.getId());
         List<String> defaultApprovals = registryPluginProperties.getMandatoryApprovals();
@@ -265,7 +265,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
             String applicationVersion, String instanceId) {
-        Map<String, String> scmSource = newHashMap();
+        Map<String, String> scmSource;
         try {
             scmSource = pieroneOperations.getScmSource(
                     teamId,

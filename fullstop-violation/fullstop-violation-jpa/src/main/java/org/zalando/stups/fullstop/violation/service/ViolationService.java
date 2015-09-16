@@ -38,4 +38,6 @@ public interface ViolationService {
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime since, Long lastViolation, Boolean checked,
             Integer severity, Boolean auditRelevant, String type,
             Pageable pageable);
+
+    boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationTypeId);
 }

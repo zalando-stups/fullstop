@@ -20,7 +20,9 @@ import com.mysema.query.types.Predicate;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
-import org.zalando.stups.fullstop.violation.entity.*;
+import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.QViolationTypeEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
 import java.util.List;
@@ -102,5 +104,19 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         list = total > 0 ? query.where(allOf(predicates)).list(qViolationEntity) : emptyList();
 
         return new PageImpl<>(list, fixedPage, total);
+    }
+
+    @Override
+    public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType) {
+        final QViolationEntity qViolation = new QViolationEntity("v");
+
+
+        return from(qViolation)
+                .where(qViolation.accountId.eq(accountId),
+                        qViolation.region.eq(region),
+                        qViolation.eventId.eq(eventId),
+                        instanceId == null ? qViolation.instanceId.isNull() : qViolation.instanceId.eq(instanceId),
+                        qViolation.violationTypeEntity.id.eq(violationType))
+                .exists();
     }
 }

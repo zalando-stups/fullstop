@@ -18,6 +18,7 @@ package org.zalando.fullstop.violation.persist.jpa;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
@@ -101,9 +102,15 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         try {
             this.violationRepository.save(entity);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getMessage().contains("unique_violation")) {
+                log.debug("Violation {} does already exist", entity);
+            } else {
+                log.warn("Could not save violation", e);
+            }
         }
         catch (Exception e) {
-            log.warn("Cannot write into DB: {}", e.getMessage());
+            log.warn("Could not save violation", e);
         }
 
         this.counterService.increment(VIOLATIONS_PERSISTED_JPA);

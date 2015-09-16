@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.teams;
+package org.zalando.stups.fullstop.jobs.common;
+
+import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 
 import java.util.List;
 
-public interface TeamOperations {
-
-    List<Account> getTeamsByUser(String userId);
-
+/**
+ * Created by gkneitschel.
+ */
+public interface PortsChecker {
+    List<Integer> check (LoadBalancerDescription loadBalancerDescription);
 }
