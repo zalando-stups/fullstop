@@ -209,6 +209,7 @@ public class FullstopApi {
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
     @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
+    @PreAuthorize("#oauth2.hasScope('uid')")
     public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
     @RequestBody final LogObj log) throws NotFoundException {
         saveLog(log);
