@@ -15,19 +15,20 @@
  */
 package org.zalando.stups.fullstop.config;
 
+import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
+
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
 
 /**
- * @author jbellmann
+ * @author  jbellmann
  */
 @Configuration
 @EnableResourceServer
@@ -42,27 +43,20 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(final HttpSecurity http) throws Exception {
 
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(NEVER)
+        http.sessionManagement().sessionCreationPolicy(NEVER)
 
-                        // configure form login
-                .and().formLogin().disable()
+            // configure form login
+            .and().formLogin().disable()
 
-                // configure logout
-                .logout().disable()
-
-                .authorizeRequests()
-
-                .antMatchers("/").permitAll()
-                .antMatchers("/webjars/**").permitAll()
-                .antMatchers("/swagger-resources").permitAll()
-                .antMatchers("/api-docs").permitAll();
+            // configure logout
+            .logout().disable().authorizeRequests().antMatchers("/").permitAll().antMatchers("/webjars/**").permitAll()
+            .antMatchers("/swagger-resources").permitAll().antMatchers("/api-docs").permitAll();
 
     }
 
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here");
+// return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here");
+        return new BearerNoneTokenInfoResourceServerTokenServices(tokenInfoUri);
     }
 }
