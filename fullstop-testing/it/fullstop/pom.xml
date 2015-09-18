@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
@@ -169,6 +168,7 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>spring-boot-zalando-stups-tokens</artifactId>
+            <version>0.9.1</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -190,7 +190,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-hystrix</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.zalando.zmon</groupId>
+            <artifactId>zmon-actuator</artifactId>
+            <version>0.9.1</version>
+        </dependency>
 
         <!-- TESTING -->
         <dependency>
