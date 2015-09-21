@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import static com.google.common.collect.Lists.*;
 import static java.util.function.Predicate.isEqual;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmi;
@@ -35,8 +36,8 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.*;
+import com.google.common.collect.Lists;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -112,7 +113,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                 String amiId = null;
 
                 try {
-                     amiId = getAmi(instance);
+                     amiId = getAmiId(amazonEC2Client, instanceId);
                 } catch (PathNotFoundException e){
                     LOG.warn("no amiId found for instance {}", instance);
                 }
@@ -179,6 +180,31 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
             applicationLifecycleService.saveLifecycle(applicationEntity.get(), versionEntity.get(), lifecycleEntity);
         }
+
+    }
+
+    private String getAmiId(AmazonEC2Client amazonEC2Client, String instance) {
+        List<String> instances = newArrayList();
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        DescribeInstancesResult describeInstancesResult;
+
+        try {
+            describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instance));
+        } catch (final AmazonServiceException e){
+            LOG.warn("Lifecycle plugin: cannot fetch ami id. Reason {}", e.toString());
+            return null;
+        }
+        for (Reservation reservation : describeInstancesResult.getReservations()) {
+            for (Instance reservationInstance : reservation.getInstances()) {
+                instances.add(reservationInstance.getInstanceId());
+            }
+
+        }
+        if (instances.size()>1){
+            LOG.warn("Lifecycle plugin: more than one instance returned for instanceId {}", instance);
+        }
+
+        return instances.get(0);
 
     }
 
