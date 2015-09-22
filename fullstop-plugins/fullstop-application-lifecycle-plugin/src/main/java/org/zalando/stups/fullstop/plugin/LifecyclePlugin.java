@@ -15,30 +15,15 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-import static com.google.common.collect.Lists.*;
-import static java.util.function.Predicate.isEqual;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAmi;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventTime;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstances;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRunInstanceTime;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.*;
-import com.google.common.collect.Lists;
-import com.jayway.jsonpath.PathNotFoundException;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +35,15 @@ import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.function.Predicate.isEqual;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
 /**
  * Created by gkneitschel.
@@ -77,7 +71,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     @Autowired
     public LifecyclePlugin(final ApplicationLifecycleServiceImpl applicationLifecycleService,
-            final UserDataProvider userDataProvider, ClientProvider clientProvider) {
+                           final UserDataProvider userDataProvider, ClientProvider clientProvider) {
         this.applicationLifecycleService = applicationLifecycleService;
         this.userDataProvider = userDataProvider;
         this.clientProvider = clientProvider;
@@ -91,7 +85,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
         return eventSource.equals(EC2_SOURCE_EVENTS) &&
                 Stream.of(RUN_EVENT_NAME, START_EVENT_NAME, STOP_EVENT_NAME, TERMINATE_EVENT_NAME)
-                      .anyMatch(isEqual(eventName));
+                        .anyMatch(isEqual(eventName));
     }
 
     @Override
@@ -110,13 +104,9 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
 
             if (eventName.equals(RUN_EVENT_NAME)) {
-                String amiId = null;
+                String amiId;
 
-                try {
-                     amiId = getAmiId(amazonEC2Client, instanceId);
-                } catch (PathNotFoundException e){
-                    LOG.warn("no amiId found for instance {}", instance);
-                }
+                amiId = getAmiId(amazonEC2Client, instanceId);
 
                 if (amiId != null) {
                     String amiName = getAmiName(amazonEC2Client, amiId);
@@ -144,8 +134,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                             eventName);
                     return;
                 }
-            }
-            catch (final AmazonServiceException e) {
+            } catch (final AmazonServiceException e) {
                 LOG.warn(
                         "Could not fetch userData for instance {}. Reason: {}. Skip processing the {} lifecycle event",
                         instance,
@@ -184,38 +173,38 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     }
 
     private String getAmiId(AmazonEC2Client amazonEC2Client, String instance) {
-        List<String> instances = newArrayList();
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         DescribeInstancesResult describeInstancesResult;
 
         try {
             describeInstancesResult = amazonEC2Client.describeInstances(describeInstancesRequest.withInstanceIds(instance));
-        } catch (final AmazonServiceException e){
-            LOG.warn("Lifecycle plugin: cannot fetch ami id. Reason {}", e.toString());
+        } catch (final AmazonServiceException e) {
+            LOG.warn("Lifecycle plugin: cannot fetch ami id from amazon. Reason: {}", e.toString());
             return null;
         }
-        for (Reservation reservation : describeInstancesResult.getReservations()) {
-            for (Instance reservationInstance : reservation.getInstances()) {
-                instances.add(reservationInstance.getInstanceId());
-            }
-
-        }
-        if (instances.size()>1){
-            LOG.warn("Lifecycle plugin: more than one instance returned for instanceId {}", instance);
+        //because there shouldn't be more than one...
+        if (describeInstancesResult.getReservations().size() == 0) {
+            LOG.warn("Lifecycle plugin: Cannot fetch information for instance {}. Amazon result was empty", instance);
+            return null;
         }
 
-        return instances.get(0);
+        String instanceId = describeInstancesResult.getReservations().get(0).getInstances().get(0).getInstanceId();
+
+        if (instanceId == null) {
+            LOG.warn("Lifecycle plugin: no ami id found for instance {} in amazon result", instance);
+        }
+        return instanceId;
+
 
     }
 
     private String getAmiName(AmazonEC2Client amazonEC2Client, String ami) {
         DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
         DescribeImagesResult describeImagesResult;
-        try{
+        try {
             describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
-        }
-        catch (final AmazonServiceException e) {
-            LOG.warn("Lifecycle plugin: cannot fetch ami name. Reason {}", e.toString());
+        } catch (final AmazonServiceException e) {
+            LOG.warn("Lifecycle plugin: cannot fetch ami name. Reason: {}", e.toString());
             return null;
         }
         return describeImagesResult.getImages().get(0).getName();
@@ -223,8 +212,8 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
     private <T> Optional<T> getEntity(Map userData, String attribute, Function<String, T> constructor) {
         return Optional.ofNullable(userData.get(attribute))
-                       .map(Object::toString)
-                       .map(constructor);
+                .map(Object::toString)
+                .map(constructor);
     }
 
     private DateTime getLifecycleDate(final CloudTrailEvent event, final String instance) {
@@ -233,8 +222,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
 
         if (eventName.equals(RUN_EVENT_NAME)) {
             return getRunInstanceTime(instance);
-        }
-        else {
+        } else {
             return getEventTime(event);
         }
     }
