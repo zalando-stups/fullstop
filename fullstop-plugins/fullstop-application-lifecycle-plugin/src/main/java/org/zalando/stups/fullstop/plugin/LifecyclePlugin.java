@@ -24,6 +24,7 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,9 +105,19 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
 
             if (eventName.equals(RUN_EVENT_NAME)) {
-                String amiId;
+                String amiId = null;
 
-                amiId = getAmiId(amazonEC2Client, instanceId);
+                //fetch from userData json
+                try {
+                    amiId = getAmi(instance);
+                } catch (PathNotFoundException e){
+                    LOG.warn("no amiId found for instance {} in json file", instanceId);
+                }
+
+                // if ami id wasn't found in json, look on amazon
+                if (amiId == null) {
+                    amiId = getAmiId(amazonEC2Client, instanceId);
+                }
 
                 if (amiId != null) {
                     String amiName = getAmiName(amazonEC2Client, amiId);
@@ -188,15 +199,15 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             return null;
         }
 
-        String instanceId = describeInstancesResult.getReservations().get(0).getInstances().get(0).getInstanceId();
+        String instanceId = describeInstancesResult.getReservations().get(0).getInstances().get(0).getImageId();
 
         if (instanceId == null) {
             LOG.warn("Lifecycle plugin: no ami id found for instance {} in amazon result", instance);
         }
         return instanceId;
-
-
     }
+
+
 
     private String getAmiName(AmazonEC2Client amazonEC2Client, String ami) {
         DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();

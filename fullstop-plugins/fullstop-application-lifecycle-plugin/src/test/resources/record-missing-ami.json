@@ -1,0 +1,169 @@
+{
+  "Records": [
+    {
+      "eventVersion": "1.02",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123456789111",
+        "arn": "arn:aws:iam::123456789111:root",
+        "accountId": "123456789111",
+        "userName": "zalando-stups",
+        "invokedBy": "autoscaling.amazonaws.com"
+      },
+      "eventTime": "2015-06-18T08:31:45Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "RunInstances",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "autoscaling.amazonaws.com",
+      "userAgent": "autoscaling.amazonaws.com",
+      "requestParameters": {
+        "instancesSet": {
+          "items": [
+            {
+              "imageId": "ami-amishppl",
+              "minCount": 1,
+              "maxCount": 1
+            }
+          ]
+        },
+        "userData": "<sensitiveDataRemoved>",
+        "instanceType": "t2.micro",
+        "blockDeviceMapping": {},
+        "availabilityZone": "eu-west-1a",
+        "monitoring": {
+          "enabled": true
+        },
+        "disableApiTermination": false,
+        "clientToken": "c02c9327-4231-1234-876f-8f7f4d57911b_subnet-3699144f_1",
+        "networkInterfaceSet": {
+          "items": [
+            {
+              "deviceIndex": 0,
+              "subnetId": "subnet-3699144f",
+              "associatePublicIpAddress": false,
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-24051988"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "iamInstanceProfile": {
+          "name": "youburn-b71-AppServerInstanceProfile-LOLCATZ"
+        }
+      },
+      "responseElements": {
+        "reservationId": "r-f976181d",
+        "ownerId": "123456789111",
+        "groupSet": {},
+        "instancesSet": {
+          "items": [
+            {
+              "instanceId": "i-affenbanane",
+              "instanceState": {
+                "code": 0,
+                "name": "pending"
+              },
+              "privateDnsName": "ip-172-31-133-250.eu-west-1.compute.internal",
+              "amiLaunchIndex": 0,
+              "productCodes": {},
+              "instanceType": "t2.micro",
+              "launchTime": 1434616306000,
+              "placement": {
+                "availabilityZone": "eu-west-1a",
+                "tenancy": "default"
+              },
+              "monitoring": {
+                "state": "pending"
+              },
+              "subnetId": "subnet-3699144f",
+              "vpcId": "vpc-asdfasdf",
+              "privateIpAddress": "172.31.133.250",
+              "stateReason": {
+                "code": "pending",
+                "message": "pending"
+              },
+              "architecture": "x86_64",
+              "rootDeviceType": "ebs",
+              "rootDeviceName": "/dev/sda1",
+              "blockDeviceMapping": {},
+              "virtualizationType": "hvm",
+              "hypervisor": "xen",
+              "clientToken": "c02c9327-6d73-4fbf-876f-8f7f4d57911b_subnet-3699144f_1",
+              "interfaceId": "interface-bd2724d9",
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-24051988",
+                    "groupName": "app-youburn"
+                  }
+                ]
+              },
+              "sourceDestCheck": true,
+              "networkInterfaceSet": {
+                "items": [
+                  {
+                    "networkInterfaceId": "eni-bd2724d9",
+                    "internalInterfaceId": "interface-bd2724d9",
+                    "subnetId": "subnet-3699144f",
+                    "vpcId": "vpc-asdfasdf",
+                    "availabilityZone": "eu-west-1a",
+                    "ownerId": "123456789111",
+                    "requesterManaged": false,
+                    "status": "in-use",
+                    "macAddress": "02:17:80:f7:5b:6b",
+                    "privateIpAddress": "172.31.133.250",
+                    "privateDnsName": "ip-172-31-133-250.eu-west-1.compute.internal",
+                    "sourceDestCheck": true,
+                    "groupSet": {
+                      "items": [
+                        {
+                          "groupId": "sg-24051988",
+                          "groupName": "app-youburn"
+                        }
+                      ]
+                    },
+                    "attachment": {
+                      "attachmentId": "eni-attach-1ef4bf5d",
+                      "instanceId": "3277255446",
+                      "instanceOwnerId": "123456789111",
+                      "deviceIndex": 0,
+                      "status": "attaching",
+                      "attachTime": 1434616306000,
+                      "deleteOnTermination": true
+                    },
+                    "attachableToInstanceBySet": {},
+                    "associableWithElasticIpBySet": {},
+                    "privateIpAddressesSet": {
+                      "item": [
+                        {
+                          "privateIpAddress": "172.31.133.250",
+                          "privateDnsName": "ip-172-31-133-250.eu-west-1.compute.internal",
+                          "primary": true
+                        }
+                      ]
+                    },
+                    "tagSet": {}
+                  }
+                ]
+              },
+              "iamInstanceProfile": {
+                "arn": "arn:aws:iam::123456789111:instance-profile/youburn-b71-AppServerInstanceProfile-LOLCATZ",
+                "id": "AIPAIZTXE2CGNOQTZI36A"
+              },
+              "ebsOptimized": false
+            }
+          ]
+        },
+        "requesterId": "226008221399"
+      },
+      "requestID": "fc75d086-7088-42ef-8ac4-527279ed0bc4",
+      "eventID": "21cad05b-d412-4ef5-b238-1b01a08a595c",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "123456789111"
+    }
+  ]
+}

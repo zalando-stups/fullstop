@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation.entity;
 
+import com.google.common.base.Objects;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
 
@@ -129,6 +130,45 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         this.instanceId = instanceId;
     }
 
+    public String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LifecycleEntity that = (LifecycleEntity) o;
+        return Objects.equal(eventDate, that.eventDate) &&
+                Objects.equal(region, that.region) &&
+                Objects.equal(accountId, that.accountId) &&
+                Objects.equal(imageId, that.imageId) &&
+                Objects.equal(imageName, that.imageName) &&
+                Objects.equal(applicationEntity, that.applicationEntity) &&
+                Objects.equal(versionEntity, that.versionEntity) &&
+                Objects.equal(eventType, that.eventType) &&
+                Objects.equal(userdataPath, that.userdataPath) &&
+                Objects.equal(instanceBootTime, that.instanceBootTime) &&
+                Objects.equal(instanceId, that.instanceId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(eventDate, region, accountId, imageId, imageName, applicationEntity, versionEntity, eventType, userdataPath, instanceBootTime, instanceId);
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this)
@@ -144,21 +184,5 @@ public class LifecycleEntity extends AbstractModifiableEntity {
                 .add("instanceBootTime", instanceBootTime)
                 .add("instanceId", instanceId)
                 .toString();
-    }
-
-    public String getImageId() {
-        return imageId;
-    }
-
-    public void setImageId(String imageId) {
-        this.imageId = imageId;
-    }
-
-    public String getImageName() {
-        return imageName;
-    }
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
     }
 }
