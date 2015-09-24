@@ -24,8 +24,8 @@ echo '##### Build scm-source.json #####'
 echo '##### Start docker on macOS #####'
 if [ $(docker-machine status default) = "Stopped" ]; then
    docker-machine start default
-   eval "$(docker-machine env default)"
 fi
+   eval "$(docker-machine env default)"
 
 echo '##### Docker build #####'
 docker build -t $FULL_IMAGE fullstop-testing/it/fullstop
