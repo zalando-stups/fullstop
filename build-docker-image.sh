@@ -21,8 +21,11 @@ mvn clean install -U
 echo '##### Build scm-source.json #####'
 ./scm-source.sh
 
-echo '##### Start docker #####'
-boot2docker start
+echo '##### Start docker on macOS #####'
+if [ $(docker-machine status default) = "Stopped" ]; then
+   docker-machine start default
+   eval "$(docker-machine env default)"
+fi
 
 echo '##### Docker build #####'
 docker build -t $FULL_IMAGE fullstop-testing/it/fullstop
