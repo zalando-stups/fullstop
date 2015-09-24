@@ -78,6 +78,8 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         if (lifecycleByInstanceId != null) {
             lifecycleByInstanceId.setEventDate(lifecycleEntity.getEventDate());
             lifecycleByInstanceId.setEventType(lifecycleEntity.getEventType());
+            lifecycleByInstanceId.setImageId(lifecycleEntity.getImageId());
+            lifecycleByInstanceId.setImageName(lifecycleEntity.getImageName());
             lifecycleByInstanceId = lifecycleRepository.save(lifecycleByInstanceId);
             return lifecycleByInstanceId;
         }
