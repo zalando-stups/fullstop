@@ -104,7 +104,6 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             final DateTime eventDate = getLifecycleDate(event, instance);
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
 
-            if (eventName.equals(RUN_EVENT_NAME)) {
                 String amiId = null;
 
                 //fetch from userData json
@@ -124,7 +123,6 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
                     lifecycleEntity.setImageId(amiId);
                     lifecycleEntity.setImageName(amiName);
                 }
-            }
 
             lifecycleEntity.setEventType(eventName);
             lifecycleEntity.setEventDate(eventDate);
