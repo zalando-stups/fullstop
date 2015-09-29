@@ -33,12 +33,13 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
@@ -54,15 +55,13 @@ public class FetchRdsJob {
     private TeamOperations teamOperations;
     private ClientProvider clientProvider;
     private JobsProperties jobsProperties;
-    private ViolationService  violationService;
     private ViolationSink violationSink;
 
     @Autowired
-    public FetchRdsJob(TeamOperations teamOperations, ClientProvider clientProvider, JobsProperties jobsProperties, ViolationService violationService, ViolationSink violationSink) {
+    public FetchRdsJob(TeamOperations teamOperations, ClientProvider clientProvider, JobsProperties jobsProperties, ViolationSink violationSink) {
         this.teamOperations = teamOperations;
         this.clientProvider = clientProvider;
         this.jobsProperties = jobsProperties;
-        this.violationService = violationService;
         this.violationSink = violationSink;
     }
 
@@ -74,21 +73,19 @@ public class FetchRdsJob {
     @Scheduled(fixedRate = 300_000)
     public void check() {
         for (String accountId : fetchAccountIds()) {
+            Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
                 describeDBInstancesResult.getDBInstances().stream().filter(DBInstance::getPubliclyAccessible).forEach(dbInstance -> {
-//                    dbInstan
-                    writeViolation(accountId, region, "", dbInstance.getEndpoint().getAddress());
+                    metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                    metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                    writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
                 });
-
             }
-
-
         }
-
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
+    private void writeViolation(String account, String region, Object metaInfo, String rdsEndpoint) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
         Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
@@ -96,17 +93,18 @@ public class FetchRdsJob {
                 .withType(UNSECURED_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
-                .withInstanceId(canonicalHostedZoneName)
+                .withInstanceId(rdsEndpoint)
                 .build();
         violationSink.put(violation);
     }
+
     private DescribeDBInstancesResult getRds(String accountId, String region) {
         DescribeDBInstancesRequest describeDBInstancesRequest = new DescribeDBInstancesRequest();
         DescribeDBInstancesResult describeDBInstancesResult;
 
-            AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
-                    Region.getRegion(Regions.fromName(region)));
-            describeDBInstancesResult = amazonRDSClient.describeDBInstances(describeDBInstancesRequest);
+        AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
+                Region.getRegion(Regions.fromName(region)));
+        describeDBInstancesResult = amazonRDSClient.describeDBInstances(describeDBInstancesRequest);
 
 
         return describeDBInstancesResult;
