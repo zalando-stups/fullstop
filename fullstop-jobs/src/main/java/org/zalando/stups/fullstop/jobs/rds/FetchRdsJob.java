@@ -76,11 +76,15 @@ public class FetchRdsJob {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
-                describeDBInstancesResult.getDBInstances().stream().filter(DBInstance::getPubliclyAccessible).forEach(dbInstance -> {
-                    metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
-                    metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
-                    writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
-                });
+                for (DBInstance dbInstance : describeDBInstancesResult.getDBInstances()) {
+                    if (dbInstance.getPubliclyAccessible()){
+                        metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                        metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                        writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+
+                    }
+                }
+
             }
         }
     }
