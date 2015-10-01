@@ -141,7 +141,7 @@ public class FetchEC2Job {
         log.info("{} initalized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 300_000, initialDelay = 150_000)
+    @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
     public void check() {
         List<String> accountIds = fetchAccountIds();
         log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
