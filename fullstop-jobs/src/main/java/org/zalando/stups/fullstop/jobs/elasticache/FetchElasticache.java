@@ -15,16 +15,7 @@
  */
 package org.zalando.stups.fullstop.jobs.elasticache;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-/**
- * Created by gkneitschel on 25/09/15.
- */
-@Component
 public class FetchElasticache {
 
-    private final Logger log = LoggerFactory.getLogger(FetchElasticache.class);
 
 }

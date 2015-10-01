@@ -43,22 +43,27 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
-/**
- * Created by gkneitschel on 25/09/15.
- */
 @Component
 public class FetchRdsJob {
 
 
     private static final String EVENT_ID = "checkRdsJob";
+
     private final Logger log = LoggerFactory.getLogger(FetchRdsJob.class);
+
     private TeamOperations teamOperations;
+
     private ClientProvider clientProvider;
+
     private JobsProperties jobsProperties;
+
     private ViolationSink violationSink;
 
     @Autowired
-    public FetchRdsJob(TeamOperations teamOperations, ClientProvider clientProvider, JobsProperties jobsProperties, ViolationSink violationSink) {
+    public FetchRdsJob(TeamOperations teamOperations,
+                       ClientProvider clientProvider,
+                       JobsProperties jobsProperties,
+                       ViolationSink violationSink) {
         this.teamOperations = teamOperations;
         this.clientProvider = clientProvider;
         this.jobsProperties = jobsProperties;
@@ -76,14 +81,12 @@ public class FetchRdsJob {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
-                for (DBInstance dbInstance : describeDBInstancesResult.getDBInstances()) {
-                    if (dbInstance.getPubliclyAccessible()){
-                        metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
-                        metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
-                        writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+                describeDBInstancesResult.getDBInstances().stream().filter(DBInstance::getPubliclyAccessible).forEach(dbInstance -> {
+                    metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                    metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                    writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
 
-                    }
-                }
+                });
 
             }
         }

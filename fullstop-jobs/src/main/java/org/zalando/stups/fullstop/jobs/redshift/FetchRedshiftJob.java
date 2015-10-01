@@ -15,8 +15,5 @@
  */
 package org.zalando.stups.fullstop.jobs.redshift;
 
-/**
- * Created by gkneitschel on 28/09/15.
- */
 public class FetchRedshiftJob {
 }

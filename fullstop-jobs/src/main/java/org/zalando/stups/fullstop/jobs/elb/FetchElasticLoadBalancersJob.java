@@ -152,7 +152,7 @@ public class FetchElasticLoadBalancersJob {
         log.info("{} initialized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 300_000)
+    @Scheduled(fixedRate = 300_000, initialDelay = 120_000) // 5 min rate, 2 min delay
     public void check() {
         List<String> accountIds = fetchAccountIds();
         log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
