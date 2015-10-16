@@ -8,13 +8,11 @@
         <relativePath />
     </parent>
 
-    <artifactId>fullstop-timemachine</artifactId>
-    <name>Fullstop -- Time-Machine</name>
+    <artifactId>fullstop-violations-rest</artifactId>
+    <name>Fullstop -- Violations REST API</name>
     <version>1.2.0-SNAPSHOT</version>
 
     <properties>
-        <fullstop-aws-support.version>1.2.0-SNAPSHOT</fullstop-aws-support.version>
-        <fullstop-core.version>1.2.0-SNAPSHOT</fullstop-core.version>
         <fullstop-violation.version>1.2.0-SNAPSHOT</fullstop-violation.version>
         <team-service-api.version>1.2.0-SNAPSHOT</team-service-api.version>
     </properties>
@@ -31,30 +29,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-processing</artifactId>
-            <version>${fullstop-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>stups-spring-oauth2-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-s3-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -29,8 +29,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {
 
-    @Bean ApiInfo apiInfo() {
-        ApiInfo apiInfo = new ApiInfo(
+    @Bean
+    ApiInfo apiInfo() {
+        return new ApiInfo(
                 "Fullstop API",
                 "Audit reporting",
                 "",
@@ -38,7 +39,6 @@ public class SwaggerConfig {
                 "",
                 "Apache 2.0",
                 "http://www.apache.org/licenses/LICENSE-2.0.html");
-        return apiInfo;
     }
 
     @Bean
