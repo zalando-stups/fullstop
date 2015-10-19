@@ -29,13 +29,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor;
 
 public abstract class RestControllerTestSupport {
 
     protected final ObjectMapper objectMapper = new ObjectMapper();
-
-    protected final TestDataInitializer testDataInitializer = new TestDataInitializer();
 
     protected MockMvc mockMvc;
 

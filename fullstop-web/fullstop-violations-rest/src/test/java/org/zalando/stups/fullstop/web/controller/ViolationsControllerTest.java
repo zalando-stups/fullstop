@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -25,25 +26,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
-import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.zalando.fullstop.web.controller.ApiExceptionHandler;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.model.Violation;
-import org.zalando.stups.fullstop.web.test.RestControllerTestSupport;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,19 +65,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.zalando.stups.fullstop.web.test.MatcherHelper.hasSize;
+import static org.zalando.stups.fullstop.web.test.TestDataInitializer.INITIALIZER;
 import static org.zalando.stups.fullstop.web.test.builder.domain.ViolationEntityBuilder.violation;
 
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ViolationsControllerTest extends RestControllerTestSupport {
+@WebAppConfiguration
+public class ViolationsControllerTest {
 
     public static final String ACCOUNT_ID = "123";
 
     public static final String REGION = "eu-west-1";
 
     @Autowired
-    private ViolationsController violationsController;
+    private WebApplicationContext wac;
 
     @Autowired
     private ViolationService violationServiceMock;
@@ -86,10 +91,8 @@ public class ViolationsControllerTest extends RestControllerTestSupport {
 
     private ViolationEntity violationResult;
 
-    @Override
-    protected Object[] mockMvcControllers() {
-        return new Object[]{violationsController};
-    }
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @Before
     public void setUp() throws Exception {
@@ -100,27 +103,12 @@ public class ViolationsControllerTest extends RestControllerTestSupport {
         violationRequest.setRegion(REGION);
         violationRequest.setEventId(UUID.randomUUID().toString());
 
-        violationResult = testDataInitializer.create(violation().id(0L).version(0L));
+        violationResult = INITIALIZER.create(violation().id(0L).version(0L));
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test-user", null));
-    }
 
-    @Override
-    protected void configure(StandaloneMockMvcBuilder mockMvcBuilder) {
-        super.configure(mockMvcBuilder);
-        mockMvcBuilder.setHandlerExceptionResolvers(createExceptionResolver());
-        mockMvcBuilder.alwaysDo(print());
-    }
-
-    private ExceptionHandlerExceptionResolver createExceptionResolver() {
-        ExceptionHandlerExceptionResolver exceptionResolver = new ExceptionHandlerExceptionResolver() {
-            protected ServletInvocableHandlerMethod getExceptionHandlerMethod(HandlerMethod handlerMethod, Exception exception) {
-                Method method = new ExceptionHandlerMethodResolver(ApiExceptionHandler.class).resolveMethod(exception);
-                return new ServletInvocableHandlerMethod(new ApiExceptionHandler(), method);
-            }
-        };
-        exceptionResolver.afterPropertiesSet();
-        return exceptionResolver;
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
+        objectMapper = new ObjectMapper();
     }
 
     @After
@@ -267,7 +255,8 @@ public class ViolationsControllerTest extends RestControllerTestSupport {
     }
 
     @Configuration
-    static class TestConfig {
+    @EnableWebMvc
+    static class TestConfig extends WebMvcConfigurerAdapter {
 
         @Bean
         public ViolationsController violationsController() {
@@ -287,6 +276,12 @@ public class ViolationsControllerTest extends RestControllerTestSupport {
         @Bean
         public TeamOperations teamOperations() {
             return mock(TeamOperations.class);
+        }
+
+        @Override
+        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+            argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+            argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
         }
     }
 }

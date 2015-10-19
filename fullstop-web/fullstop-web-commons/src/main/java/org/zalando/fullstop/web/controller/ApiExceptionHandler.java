@@ -15,15 +15,11 @@
  */
 package org.zalando.fullstop.web.controller;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.zalando.fullstop.web.api.ApiException;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ControllerAdvice
 public class ApiExceptionHandler {
