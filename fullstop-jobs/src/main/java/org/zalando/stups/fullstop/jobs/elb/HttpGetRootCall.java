@@ -22,6 +22,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,7 +32,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by mrandi.
  */
-public class HttpGetRootCall implements Callable<Boolean> {
+public class HttpGetRootCall implements Callable<HttpCallResult> {
 
     public static final String EMPTY_STRING = "";
     private final Logger log = LoggerFactory.getLogger(HttpGetRootCall.class);
@@ -50,7 +51,8 @@ public class HttpGetRootCall implements Callable<Boolean> {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public HttpCallResult call() throws Exception {
+        HttpCallResult callResult = new HttpCallResult(false, "");
         final String scheme = allowedPort == 443 ? "https" : "http";
         final URI uri = new URIBuilder()
                 .setScheme(scheme)
@@ -68,17 +70,27 @@ public class HttpGetRootCall implements Callable<Boolean> {
             final int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == 401 || statusCode == 403) {
                 log.debug("URI {} is secured GET / returned {}", uri, statusCode);
-                return true;
-            } else if (String.valueOf(statusCode).startsWith("3") && location.startsWith("https")) {
-                log.debug("URI {} redirects to an https location: {}", uri, location);
-                return true;
+                callResult.setSecured(true);
+            } else if (String.valueOf(statusCode).startsWith("3")) {
+                if (location.startsWith("https")) {
+                    log.debug("URI {} redirects to an https location: {}", uri, location);
+                    callResult.setSecured(true);
+                } else {
+                    log.debug("Call to {} redirects (status {}) to location with unsafe protocol ({})", uri, statusCode, location);
+                    callResult.setMessage(String.format("Call to %s redirects (status %d) to location with unsafe protocol (%s)", uri, statusCode, location));
+                }
+
+            } else if (String.valueOf(statusCode).startsWith("5")) {
+                log.info("URI {} is SECURE. GET / returned {}", uri, response);
+                callResult.setSecured(true);
             } else {
-                log.info("URI {} is INSECURE. GET / returned {}", uri, response);
-                return false;
+                callResult.setMessage(String.format("%s returned status code %d, which means it is unsecured", uri, statusCode));
             }
+
         } catch (final IOException e) {
             log.debug("URI {} threw exception {}", uri, e.toString());
-            return true;
+            callResult.setSecured(true);
         }
+        return callResult;
     }
 }
