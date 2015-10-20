@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs.elb;
+package org.zalando.stups.fullstop.jobs.common;
 
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,7 +22,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 
 import java.io.IOException;
 import java.net.URI;

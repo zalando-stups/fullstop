@@ -35,6 +35,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
