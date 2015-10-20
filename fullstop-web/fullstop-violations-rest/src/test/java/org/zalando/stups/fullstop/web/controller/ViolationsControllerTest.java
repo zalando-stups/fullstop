@@ -21,9 +21,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -36,6 +39,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -87,6 +91,9 @@ public class ViolationsControllerTest {
     @Autowired
     private TeamOperations mockTeamOperations;
 
+    @Autowired
+    private Converter<ViolationEntity, Violation> mockViolationConverter;
+
     private Violation violationRequest;
 
     private ViolationEntity violationResult;
@@ -96,7 +103,7 @@ public class ViolationsControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        reset(violationServiceMock, mockTeamOperations);
+        reset(violationServiceMock, mockTeamOperations, mockViolationConverter);
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
@@ -109,12 +116,19 @@ public class ViolationsControllerTest {
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
         objectMapper = new ObjectMapper();
+
+        when(mockViolationConverter.convert(any(ViolationEntity.class))).thenAnswer(invocationOnMock -> {
+            final ViolationEntity entity = (ViolationEntity) invocationOnMock.getArguments()[0];
+            final Violation dto = new Violation();
+            dto.setId(entity.getId());
+            return dto;
+        });
     }
 
     @After
     public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
-        verifyNoMoreInteractions(violationServiceMock, mockTeamOperations);
+        verifyNoMoreInteractions(violationServiceMock, mockTeamOperations, mockViolationConverter);
     }
 
     @Test
@@ -125,6 +139,7 @@ public class ViolationsControllerTest {
         final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/1")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.id").value(1));
         verify(violationServiceMock).findOne(1L);
+        verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
     @Test
@@ -156,6 +171,7 @@ public class ViolationsControllerTest {
                 isNull(Boolean.class),
                 isNull(String.class),
                 any());
+        verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
     @Test
@@ -185,6 +201,7 @@ public class ViolationsControllerTest {
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), eq(lastViolation), eq(
                         true), any(), any(), any(), any());
+        verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
     @Test
@@ -212,6 +229,7 @@ public class ViolationsControllerTest {
         verify(violationServiceMock).findOne(eq(156L));
         verify(violationServiceMock).save(eq(violationResult));
         verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+        verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
     @Test
@@ -276,6 +294,12 @@ public class ViolationsControllerTest {
         @Bean
         public TeamOperations teamOperations() {
             return mock(TeamOperations.class);
+        }
+
+        @Bean
+        @SuppressWarnings("unchecked")
+        public Converter<ViolationEntity, Violation> violationConverter(){
+            return mock(Converter.class, "violationConverter");
         }
 
         @Override

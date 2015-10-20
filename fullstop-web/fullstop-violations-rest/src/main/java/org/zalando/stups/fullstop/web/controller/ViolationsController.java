@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.web.controller;
 import io.swagger.annotations.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,12 +33,11 @@ import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.model.Violation;
-import org.zalando.stups.fullstop.web.model.ViolationType;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -56,6 +56,9 @@ public class ViolationsController {
     @Autowired
     private TeamOperations teamOperations;
 
+    @Autowired
+    private Converter<ViolationEntity, Violation> entityToDto;
+
     @ApiOperation(
             value = "violations", notes = "Get one violation", response = Violation.class
     )
@@ -66,11 +69,9 @@ public class ViolationsController {
             @ApiParam(value = "Violation id")
             @PathVariable(value = "id")
             final Long id) throws NotFoundException {
-        Violation violation = mapToDto(violationService.findOne(id));
-        if (violation == null) {
-            throw new NotFoundException("Violation with id: " + id + " not found!");
-        }
-        return violation;
+        return Optional.ofNullable(violationService.findOne(id))
+                .map(entityToDto::convert)
+                .orElseThrow(() -> new NotFoundException("Violation with id: " + id + " not found!"));
     }
 
     @ApiOperation(
@@ -138,54 +139,9 @@ public class ViolationsController {
 
         violation.setComment(comment);
         final ViolationEntity dbViolationEntity = violationService.save(violation);
-        return mapToDto(dbViolationEntity);
+        return entityToDto.convert(dbViolationEntity);
     }
 
-    private static Violation mapToDto(ViolationEntity entity) {
-
-        if (entity == null) {
-            return null;
-        }
-
-        Violation violation = new Violation();
-
-        violation.setId(entity.getId());
-        violation.setVersion(entity.getVersion());
-
-        violation.setCreated(entity.getCreated());
-        violation.setCreatedBy(entity.getCreatedBy());
-        violation.setLastModified(entity.getLastModified());
-        violation.setLastModifiedBy(entity.getLastModifiedBy());
-
-        violation.setAccountId(entity.getAccountId());
-        violation.setEventId(entity.getEventId());
-
-        violation.setPluginFullyQualifiedClassName(entity.getPluginFullyQualifiedClassName());
-
-        ViolationTypeEntity violationTypeEntity = entity.getViolationTypeEntity();
-
-        if (entity.getViolationTypeEntity() != null) {
-            ViolationType violationType = new ViolationType();
-
-            violationType.setId(violationTypeEntity.getId());
-            violationType.setHelpText(violationTypeEntity.getHelpText());
-            violationType.setIsAuditRelevant(violationTypeEntity.isAuditRelevant());
-            violationType.setViolationSeverity(violationTypeEntity.getViolationSeverity());
-            violationType.setCreated(violationTypeEntity.getCreated());
-            violationType.setCreatedBy(violationTypeEntity.getCreatedBy());
-            violationType.setLastModified(violationTypeEntity.getLastModified());
-            violationType.setLastModifiedBy(violationTypeEntity.getLastModifiedBy());
-            violationType.setVersion(violationTypeEntity.getVersion());
-
-            violation.setViolationType(violationType);
-        }
-
-        violation.setRegion(entity.getRegion());
-        violation.setInstanceId(entity.getInstanceId());
-        violation.setComment(entity.getComment());
-        violation.setMetaInfo(entity.getMetaInfo());
-        return violation;
-    }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
         final List<Account> teams = teamOperations.getTeamsByUser(userId);
@@ -204,7 +160,7 @@ public class ViolationsController {
                 backendViolations.getSize(),
                 backendViolations.getSort());
         return new PageImpl<>(
-                backendViolations.getContent().stream().map(ViolationsController::mapToDto).collect(toList()),
+                backendViolations.getContent().stream().map(entityToDto::convert).collect(toList()),
                 currentPageRequest,
                 backendViolations.getTotalElements());
     }
