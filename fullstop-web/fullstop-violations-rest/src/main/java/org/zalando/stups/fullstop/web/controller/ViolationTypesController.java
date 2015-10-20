@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.web.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -42,6 +43,7 @@ class ViolationTypesController {
 
     private final Converter<ViolationTypeEntity, ViolationType> entityToDto;
 
+    @Autowired
     public ViolationTypesController(ViolationTypeRepository violationTypeRepository, Converter<ViolationTypeEntity, ViolationType> entityToDto) {
         Assert.notNull(violationTypeRepository, "violationTypeRepository must not be null");
         Assert.notNull(entityToDto, "entityToDto converter must not be null");
