@@ -20,16 +20,18 @@ import com.mysema.query.types.Predicate;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
+import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.QViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.mysema.query.types.ExpressionUtils.allOf;
+import static com.mysema.query.types.Projections.constructor;
 import static java.util.Collections.emptyList;
 
 /**
@@ -118,5 +120,30 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                         instanceId == null ? qViolation.instanceId.isNull() : qViolation.instanceId.eq(instanceId),
                         qViolation.violationTypeEntity.id.eq(violationType))
                 .exists();
+    }
+
+    @Override
+    public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate, Optional<DateTime> toDate) {
+        final QViolationEntity qViolation = new QViolationEntity("v");
+        final QViolationTypeEntity qType = new QViolationTypeEntity("t");
+
+        final JPQLQuery query = from(qViolation);
+        query.join(qViolation.violationTypeEntity, qType);
+
+        final Collection<Predicate> whereClause = newArrayList();
+        whereClause.add(qViolation.comment.isNull());
+
+        if (!accountIds.isEmpty()) {
+            whereClause.add(qViolation.accountId.in(accountIds));
+        }
+
+        fromDate.map(qViolation.created::after).ifPresent(whereClause::add);
+        toDate.map(qViolation.created::before).ifPresent(whereClause::add);
+
+        query.where(allOf(whereClause));
+        query.groupBy(qViolation.accountId, qType.id);
+        query.orderBy(qViolation.accountId.asc(), qType.id.asc());
+
+        return query.list(constructor(CountByAccountAndType.class, qViolation.accountId, qType.id, qViolation.id.count()));
     }
 }

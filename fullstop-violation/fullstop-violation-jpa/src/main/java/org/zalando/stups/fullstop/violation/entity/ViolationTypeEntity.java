@@ -72,6 +72,13 @@ public class ViolationTypeEntity {
     @Version
     private Long version;
 
+    public ViolationTypeEntity() {
+    }
+
+    public ViolationTypeEntity(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

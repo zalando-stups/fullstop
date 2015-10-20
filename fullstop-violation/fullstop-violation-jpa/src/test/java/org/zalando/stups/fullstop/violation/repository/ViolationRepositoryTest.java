@@ -15,7 +15,10 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
+import com.mysema.query.Tuple;
+import com.mysema.query.types.Expression;
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,13 +34,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +56,8 @@ public class ViolationRepositoryTest {
 
     @Autowired
     private ViolationRepository violationRepository;
+    @Autowired
+    private ViolationTypeRepository violationTypeRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -62,20 +70,28 @@ public class ViolationRepositoryTest {
 
     private ViolationEntity vio4;
 
+    private ViolationEntity vio5;
+
     @Before
     public void setUp() throws Exception {
-        vio1 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1","i-1234", null, "a comment"));
-        vio2 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc1", "germany-east-1","i-1234", null, null));
-        vio3 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc2", "germany-east-1","i-1234", null, "no comment ;-)"));
-        vio4 = violationRepository
-                .save(new ViolationEntity("runThatThing", "acc3", "germany-east-1","i-1234", null, null));
+        final ViolationTypeEntity type1 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("SOMETHING_WENT_WRONG"));
+        final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
+
+        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", null, "a comment"), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1","i-5678", null, null), type1);
+        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)"), type2);
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null), type2);
+        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1","i-5678", null, null), type2);
 
         em.flush();
         em.clear();
     }
+
+    private ViolationEntity save(ViolationEntity entity, ViolationTypeEntity type) {
+        entity.setViolationTypeEntity(type);
+        return violationRepository.save(entity);
+    }
+
 
     @Test
     public void testGetAllPage1() throws Exception {
@@ -83,7 +99,7 @@ public class ViolationRepositoryTest {
                 .queryViolations(null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(4);
+        assertThat(result.getTotalElements()).isEqualTo(5);
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
@@ -96,10 +112,10 @@ public class ViolationRepositoryTest {
                 .queryViolations(null, null, null, null, null, null, null, new PageRequest(1, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(4);
+        assertThat(result.getTotalElements()).isEqualTo(5);
         assertThat(result.getTotalPages()).isEqualTo(2);
-        assertThat(result.getNumberOfElements()).isEqualTo(1);
-        assertThat(result.getContent()).extracting("id", Long.class).isEqualTo(newArrayList(vio4.getId()));
+        assertThat(result.getNumberOfElements()).isEqualTo(2);
+        assertThat(result.getContent()).extracting("id", Long.class).isEqualTo(newArrayList(vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -108,11 +124,11 @@ public class ViolationRepositoryTest {
                 .queryViolations(newArrayList("acc2", "acc3"), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getNumberOfElements()).isEqualTo(2);
+        assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
 
     }
 
@@ -134,11 +150,11 @@ public class ViolationRepositoryTest {
                 .queryViolations(null, vio2.getCreated(), null, null,null, null, null,  new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getNumberOfElements()).isEqualTo(2);
+        assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -147,11 +163,11 @@ public class ViolationRepositoryTest {
                 .queryViolations(null, null, vio3.getId(), null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getNumberOfElements()).isEqualTo(2);
+        assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -173,11 +189,17 @@ public class ViolationRepositoryTest {
                 .queryViolations(null, null, null, false, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getNumberOfElements()).isEqualTo(2);
+        assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio2.getId(), vio4.getId()));
+                                       .isEqualTo(newArrayList(vio2.getId(), vio4.getId(), vio5.getId()));
+    }
+
+    @Test
+    public void testCountViolationsByAccountAndType() throws Exception {
+        final List<CountByAccountAndType> results = violationRepository.countByAccountAndType(Collections.<String>emptySet(), Optional.<DateTime>empty(), Optional.<DateTime>empty());
+        System.out.println(results);
     }
 
     @Configuration
@@ -187,15 +209,18 @@ public class ViolationRepositoryTest {
     @EnableJpaAuditing
     static class TestConfig {
 
-        @Bean DataSource dataSource() throws IOException {
+        @Bean
+        DataSource dataSource() throws IOException {
             return embeddedPostgres().getPostgresDatabase();
         }
 
-        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
+        @Bean
+        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
             return EmbeddedPostgreSQL.start();
         }
 
-        @Bean AuditorAware<String> auditorAware() {
+        @Bean
+        AuditorAware<String> auditorAware() {
             return () -> "unit-test";
         }
     }
