@@ -37,7 +37,6 @@ public interface ViolationRepositoryCustom {
 
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);
 
-    List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds,
-                                                      Optional<DateTime> from,
-                                                      Optional<DateTime> to);
+    List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> from,
+                                                      Optional<DateTime> to, Optional<Boolean> resolved);
 }

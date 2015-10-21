@@ -26,7 +26,10 @@ import org.zalando.stups.fullstop.violation.entity.QViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
@@ -112,7 +115,6 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType) {
         final QViolationEntity qViolation = new QViolationEntity("v");
 
-
         return from(qViolation)
                 .where(qViolation.accountId.eq(accountId),
                         qViolation.region.eq(region),
@@ -123,7 +125,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate, Optional<DateTime> toDate) {
+    public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate,
+                                                             Optional<DateTime> toDate, Optional<Boolean> resolved) {
         final QViolationEntity qViolation = new QViolationEntity("v");
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
 
@@ -131,7 +134,6 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         query.join(qViolation.violationTypeEntity, qType);
 
         final Collection<Predicate> whereClause = newArrayList();
-        whereClause.add(qViolation.comment.isNull());
 
         if (!accountIds.isEmpty()) {
             whereClause.add(qViolation.accountId.in(accountIds));
@@ -139,8 +141,11 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         fromDate.map(qViolation.created::after).ifPresent(whereClause::add);
         toDate.map(qViolation.created::before).ifPresent(whereClause::add);
+        resolved.map((isResolved)-> isResolved ? qViolation.comment.isNotNull() : qViolation.comment.isNull()).ifPresent(whereClause::add);
 
-        query.where(allOf(whereClause));
+        if (!whereClause.isEmpty()) {
+            query.where(allOf(whereClause));
+        }
         query.groupBy(qViolation.accountId, qType.id);
         query.orderBy(qViolation.accountId.asc(), qType.id.asc());
 

@@ -15,10 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
-import com.mysema.query.Tuple;
-import com.mysema.query.types.Expression;
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,9 +40,11 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptySet;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
@@ -80,7 +79,7 @@ public class ViolationRepositoryTest {
         vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", null, "a comment"), type1);
         vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1","i-5678", null, null), type1);
         vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)"), type2);
-        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null), type2);
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null), type1);
         vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1","i-5678", null, null), type2);
 
         em.flush();
@@ -198,8 +197,9 @@ public class ViolationRepositoryTest {
 
     @Test
     public void testCountViolationsByAccountAndType() throws Exception {
-        final List<CountByAccountAndType> results = violationRepository.countByAccountAndType(Collections.<String>emptySet(), Optional.<DateTime>empty(), Optional.<DateTime>empty());
-        System.out.println(results);
+        final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty());
+        assertThat(result).hasSize(4);
+
     }
 
     @Configuration
