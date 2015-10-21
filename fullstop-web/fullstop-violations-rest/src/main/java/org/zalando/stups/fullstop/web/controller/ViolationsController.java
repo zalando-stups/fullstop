@@ -44,6 +44,8 @@ import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
 @RequestMapping(value = "/api/violations", produces = APPLICATION_JSON_VALUE)
@@ -64,7 +66,7 @@ public class ViolationsController {
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation")})
     @PreAuthorize("#oauth2.hasScope('uid')")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = GET)
     public Violation getViolation(
             @ApiParam(value = "Violation id")
             @PathVariable(value = "id")
@@ -79,7 +81,7 @@ public class ViolationsController {
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
     @PreAuthorize("#oauth2.hasScope('uid')")
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = GET)
     public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
             @RequestParam(value = "accounts", required = false)
@@ -114,7 +116,7 @@ public class ViolationsController {
             value = "Resolve and explain this violation", notes = "Resolve and explain violation", response = Void.class
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation resolved successfully")})
-    @RequestMapping(value = "/{id}/resolution", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/resolution", method = POST)
     @PreAuthorize("#oauth2.hasScope('uid')")
     public Violation resolveViolations(
             @ApiParam(value = "", required = true)
@@ -141,7 +143,6 @@ public class ViolationsController {
         final ViolationEntity dbViolationEntity = violationService.save(violation);
         return entityToDto.convert(dbViolationEntity);
     }
-
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
         final List<Account> teams = teamOperations.getTeamsByUser(userId);
