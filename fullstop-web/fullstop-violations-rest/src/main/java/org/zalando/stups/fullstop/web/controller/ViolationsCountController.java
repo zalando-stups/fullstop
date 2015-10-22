@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -55,16 +57,18 @@ public class ViolationsCountController {
     public List<CountByAccountAndType> countByAccountAndTypes(
             @ApiParam("a list of account ids for filtering, leave blank to request all accounts")
             @RequestParam
-            Optional<Set<String>> accountIds,
+            Optional<Set<String>> accounts,
             @ApiParam("include only violations, that have been created after this timestamp")
             @RequestParam
+            @DateTimeFormat(iso = DATE_TIME)
             Optional<DateTime> from,
             @ApiParam("include only violations, that have been created before this timestamp")
             @RequestParam
+            @DateTimeFormat(iso = DATE_TIME)
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
             @RequestParam
             Optional<Boolean> resolved) {
-        return violationRepository.countByAccountAndType(accountIds.orElseGet(Collections::emptySet), from, to, resolved);
+        return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved);
     }
 }

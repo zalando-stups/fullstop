@@ -21,29 +21,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.zalando.fullstop.web.controller.ApiExceptionHandler;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
@@ -273,8 +266,8 @@ public class ViolationsControllerTest {
     }
 
     @Configuration
-    @EnableWebMvc
-    static class TestConfig extends WebMvcConfigurerAdapter {
+    @Import(ControllerTestConfig.class)
+    static class TestConfig {
 
         @Bean
         public ViolationsController violationsController() {
@@ -300,12 +293,6 @@ public class ViolationsControllerTest {
         @SuppressWarnings("unchecked")
         public Converter<ViolationEntity, Violation> violationConverter(){
             return mock(Converter.class, "violationConverter");
-        }
-
-        @Override
-        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
-            argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
         }
     }
 }
