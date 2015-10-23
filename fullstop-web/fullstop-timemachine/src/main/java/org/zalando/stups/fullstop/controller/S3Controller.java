@@ -35,6 +35,7 @@ import org.zalando.stups.fullstop.filereader.FileEventReader;
 import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -57,9 +58,6 @@ public class S3Controller {
 
     @Value("${fullstop.logging.dir}")
     private String fullstopLoggingDir;
-
-    @Autowired
-    private S3Service s3Writer;
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,

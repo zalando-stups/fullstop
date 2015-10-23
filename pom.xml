@@ -66,6 +66,9 @@
         <module>fullstop-violation</module>
 
         <!-- web-modules -->
+        <module>fullstop-web/fullstop-web-test-support</module>
+        <module>fullstop-web/fullstop-web-commons</module>
+        <module>fullstop-web/fullstop-violations-rest</module>
         <module>fullstop-web/fullstop-timemachine</module>
 
         <!-- fullstop container -->
@@ -126,7 +129,9 @@
                         <jacocoReport>fullstop-processing/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-aws-s3-support/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-test-support/target/site/jacoco-it/jacoco.xml</jacocoReport>
-                        <jacocoReport>fullstop-timemachine/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-web/fullstop-web-commons/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-web/fullstop-violations-rest/target/site/jacoco-it/jacoco.xml</jacocoReport>
+                        <jacocoReport>fullstop-web/fullstop-timemachine/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-persister-jpa/target/site/jacoco-it/jacoco.xml</jacocoReport>
                         <jacocoReport>fullstop-violation-api/target/site/jacoco-it/jacoco.xml</jacocoReport>
