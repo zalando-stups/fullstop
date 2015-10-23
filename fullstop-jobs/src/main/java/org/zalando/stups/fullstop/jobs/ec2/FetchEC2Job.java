@@ -198,9 +198,10 @@ public class FetchEC2Job {
                             listenableFuture.addCallback(
                                     httpCallResult -> {
                                         log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
-                                        if (!httpCallResult.isSecured()) {
+                                        if (httpCallResult.isOpen()) {
                                             Map<String, Object> md = newHashMap();
                                             md.put("instancePublicIpAddress", instancePublicIpAddress);
+                                            md.put("Port", allowedPort);
                                             md.put("Error", httpCallResult.getMessage());
                                             writeViolation(account, region, md, instance.getInstanceId());
                                         }

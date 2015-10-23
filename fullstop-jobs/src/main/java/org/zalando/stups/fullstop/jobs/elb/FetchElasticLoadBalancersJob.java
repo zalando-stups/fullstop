@@ -213,9 +213,10 @@ public class FetchElasticLoadBalancersJob {
                         listenableFuture.addCallback(
                                 httpCallResult -> {
                                     log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                    if (!httpCallResult.isSecured()) {
+                                    if (httpCallResult.isOpen()) {
                                         final Map<String, Object> md = newHashMap();
                                         md.put("canonicalHostedZoneName", canonicalHostedZoneName);
+                                        md.put("port", allowedPort);
                                         md.put("Error", httpCallResult.getMessage());
                                         writeViolation(account, region, md, canonicalHostedZoneName);
                                     }

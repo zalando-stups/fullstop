@@ -69,26 +69,27 @@ public class HttpGetRootCall implements Callable<HttpCallResult> {
             final int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == 401 || statusCode == 403) {
                 log.debug("URI {} is secured GET / returned {}", uri, statusCode);
-                callResult.setSecured(true);
             } else if (String.valueOf(statusCode).startsWith("3")) {
                 if (location.startsWith("https")) {
                     log.debug("URI {} redirects to an https location: {}", uri, location);
-                    callResult.setSecured(true);
                 } else {
                     log.debug("Call to {} redirects (status {}) to location with unsafe protocol ({})", uri, statusCode, location);
+                    callResult.setOpen(true);
                     callResult.setMessage(String.format("Call to %s redirects (status %d) to location with unsafe protocol (%s)", uri, statusCode, location));
                 }
 
             } else if (String.valueOf(statusCode).startsWith("5")) {
                 log.info("URI {} is SECURE. GET / returned {}", uri, response);
-                callResult.setSecured(true);
+
             } else {
+                log.info("URI {} is reachable. GET / returned {}", uri, response);
+                callResult.setOpen(true);
                 callResult.setMessage(String.format("%s returned status code %d, which means it is unsecured", uri, statusCode));
             }
 
+
         } catch (final IOException e) {
             log.debug("URI {} threw exception {}", uri, e.toString());
-            callResult.setSecured(true);
         }
         return callResult;
     }

@@ -16,21 +16,21 @@
 package org.zalando.stups.fullstop.jobs.common;
 
 public class HttpCallResult {
-    private  boolean isSecured;
+    private  boolean open;
     private String message;
 
 
-    public HttpCallResult(boolean isSecured, String message) {
-        this.isSecured = isSecured;
+    public HttpCallResult(boolean isOpen, String message) {
+        this.open = isOpen;
         this.message = message;
     }
 
-    public void setSecured(boolean secured) {
-        this.isSecured = secured;
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 
-    public boolean isSecured() {
-        return isSecured;
+    public boolean isOpen() {
+        return open;
     }
 
 
