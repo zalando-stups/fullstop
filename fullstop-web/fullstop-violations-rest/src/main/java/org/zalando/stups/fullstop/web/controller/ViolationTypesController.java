@@ -37,7 +37,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping(value = "/api/violation-types", produces = APPLICATION_JSON_VALUE)
 @Api(value = "/api/violation-types", description = "Manage violation types")
-class ViolationTypesController {
+public class ViolationTypesController {
 
     private final ViolationTypeRepository violationTypeRepository;
 
@@ -56,7 +56,7 @@ class ViolationTypesController {
     @ApiResponses(@ApiResponse(code = 200, message = "The list of all available violation types",
             response = ViolationType.class, responseContainer = "List"))
     @PreAuthorize("#oauth2.hasScope('uid')")
-    List<ViolationType> getAll() {
+    public List<ViolationType> getAll() {
         return violationTypeRepository.findAll()
                 .stream()
                 .map(entityToDto::convert)
