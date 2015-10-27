@@ -41,7 +41,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class ApplicationMasterdataPluginTest {
-    //J-
+
     private static final String URL = "https://github.com/zalando-stups/fullstop";
 
     private static final String APP = "test";
@@ -256,5 +256,4 @@ public class ApplicationMasterdataPluginTest {
                 violationSink,
                 never()).put(any(Violation.class));
     }
-    //J+
 }
