@@ -53,6 +53,7 @@
         <module>fullstop-subnet-plugin</module>
         <module>fullstop-unapproved-services-and-role-plugin</module>
         <module>fullstop-scm-repository-plugin</module>
+        <module>fullstop-kontrolletti-plugin</module>
     </modules>
 
     <scm>
