@@ -20,12 +20,12 @@ import com.mysema.query.types.Predicate;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
-import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
-import org.zalando.stups.fullstop.violation.entity.QViolationEntity;
-import org.zalando.stups.fullstop.violation.entity.QViolationTypeEntity;
-import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
+import org.springframework.util.Assert;
+import org.zalando.stups.fullstop.violation.entity.*;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
+import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.mysema.query.types.ExpressionUtils.allOf;
 import static com.mysema.query.types.Projections.constructor;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 /**
  * Created by mrandi.
@@ -150,5 +152,35 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         query.orderBy(qViolation.accountId.asc(), qType.id.asc());
 
         return query.list(constructor(CountByAccountAndType.class, qViolation.accountId, qType.id, qViolation.id.count()));
+    }
+
+    @Override
+    public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate, Optional<DateTime> toDate, Optional<Boolean> resolved) {
+        Assert.hasText(account, "account must not be blank");
+
+        fromDate.map((d) -> "vio.created >= :from_date");
+
+        final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
+                "FROM fullstop_data.violation vio " +
+                "LEFT JOIN fullstop_data.lifecycle l ON l.account_id = vio.account_id AND l.region = vio.region AND l.instance_id = vio.instance_id " +
+                "LEFT JOIN fullstop_data.application app ON app.id = l.application " +
+                "LEFT JOIN fullstop_data.app_version ver ON ver.id = l.application_version " +
+                "WHERE vio.account_id = :account " +
+                fromDate.map((d) -> "AND vio.created >= :from_date ").orElse("") +
+                toDate.map((d) -> "AND vio.created <= :to_date ").orElse("") +
+                resolved.map((b) -> "AND vio.comment IS " + (b ? "NOT NULL " : "NULL ")).orElse("") +
+                "GROUP BY app.id, ver.id, vio.violation_type_entity_id " +
+                "ORDER BY app.name ASC NULLS LAST, ver.created DESC NULLS LAST, vio.violation_type_entity_id ASC ";
+
+        final Query query = getEntityManager().createNativeQuery(sql);
+        query.setParameter("account", account);
+        fromDate.ifPresent((d) ->query.setParameter("from_date",d.toDate(), TIMESTAMP));
+        toDate.ifPresent((d) ->query.setParameter("to_date",d.toDate(), TIMESTAMP));
+
+        final List<?> results = query.getResultList();
+        return results.stream()
+                .map((o) -> (Object[]) o)
+                .map(row -> new CountByAppVersionAndType((String) row[0], (String) row[1], (String) row[2], ((BigInteger) row[3]).longValue()))
+                .collect(toList());
     }
 }
