@@ -158,17 +158,15 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate, Optional<DateTime> toDate, Optional<Boolean> resolved) {
         Assert.hasText(account, "account must not be blank");
 
-        fromDate.map((d) -> "vio.created >= :from_date");
-
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
                 "FROM fullstop_data.violation vio " +
                 "LEFT JOIN fullstop_data.lifecycle l ON l.account_id = vio.account_id AND l.region = vio.region AND l.instance_id = vio.instance_id " +
                 "LEFT JOIN fullstop_data.application app ON app.id = l.application " +
                 "LEFT JOIN fullstop_data.app_version ver ON ver.id = l.application_version " +
                 "WHERE vio.account_id = :account " +
-                fromDate.map((d) -> "AND vio.created >= :from_date ").orElse("") +
-                toDate.map((d) -> "AND vio.created <= :to_date ").orElse("") +
-                resolved.map((b) -> "AND vio.comment IS " + (b ? "NOT NULL " : "NULL ")).orElse("") +
+                (fromDate.isPresent() ? "AND vio.created >= :from_date " : "") +
+                (toDate.isPresent() ? "AND vio.created <= :to_date " : "") +
+                resolved.map((resolvedViolations) -> "AND vio.comment IS " + (resolvedViolations ? "NOT NULL " : "NULL ")).orElse("") +
                 "GROUP BY app.id, ver.id, vio.violation_type_entity_id " +
                 "ORDER BY app.name ASC NULLS LAST, ver.created DESC NULLS LAST, vio.violation_type_entity_id ASC ";
 
