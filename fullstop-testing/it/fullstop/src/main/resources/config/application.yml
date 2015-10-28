@@ -114,17 +114,8 @@ fullstop:
             url: ${FULLSTOP_PIERONE_URL}
 
         registry:
-            defaultMandatoryApprovals:
-              - SPECIFICATION
-              - CODE_CHANGE
-              - TEST
-              - DEPLOY
-            mandatoryApprovals: ${FULLSTOP_MANDATORY_APPROVALS}
-            defaultApprovalsFromMany:
-              - CODE_CHANGE
-              - TEST
-              - DEPLOY
-            approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY}
+            mandatoryApprovals: ${FULLSTOP_MANDATORY_APPROVALS:SPECIFICATION,CODE_CHANGE,TEST,DEPLOY}
+            approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY:CODE_CHANGE,TEST,DEPLOY}
 
         unapprovedServicesAndRole:
             bucketName: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}
