@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
+import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 import java.util.List;
@@ -38,5 +39,8 @@ public interface ViolationRepositoryCustom {
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);
 
     List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> from,
+                                                      Optional<DateTime> to, Optional<Boolean> resolved);
+
+    List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> from,
                                                       Optional<DateTime> to, Optional<Boolean> resolved);
 }

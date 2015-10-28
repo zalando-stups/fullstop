@@ -23,10 +23,12 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
+import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 import java.util.Collections;
@@ -70,5 +72,27 @@ public class ViolationsCountController {
             @RequestParam
             Optional<Boolean> resolved) {
         return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved);
+    }
+
+    @RequestMapping(value = "/{account}", method = GET)
+    @PreAuthorize("#oauth2.hasScope('uid')")
+    @ApiResponses(@ApiResponse(code = 200, message = "Violation count of one account by app version and type",
+            response = CountByAppVersionAndType.class, responseContainer = "List"))
+    public List<CountByAppVersionAndType> countByAppVersionAndType(
+            @ApiParam("an account id")
+            @PathVariable
+            String account,
+            @ApiParam("include only violations, that have been created after this timestamp")
+            @RequestParam
+            @DateTimeFormat(iso = DATE_TIME)
+            Optional<DateTime> from,
+            @ApiParam("include only violations, that have been created before this timestamp")
+            @RequestParam
+            @DateTimeFormat(iso = DATE_TIME)
+            Optional<DateTime> to,
+            @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
+            @RequestParam
+            Optional<Boolean> resolved) {
+        return violationRepository.countByAppVersionAndType(account, from, to, resolved);
     }
 }

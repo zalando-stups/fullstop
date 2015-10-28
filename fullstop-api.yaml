@@ -261,6 +261,111 @@ paths:
           schema:
             type: string
 
+  /api/violation-types:
+    get:
+      tags:
+        - Fullstop API
+      summary: Get all violation types
+      responses:
+        200:
+          description: The list of all available violation types
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ViolationType"
+
+  /api/violations-count:
+    get:
+      summary: Count violations by accounts and types
+      tags:
+        - Fullstop API
+      parameters:
+        - name: accounts
+          in: query
+          description: a list of account ids for filtering, leave blank to request all accounts
+          type: array
+          items:
+            type: string
+          required: false
+        - name: from
+          in: query
+          description: include only violations, that have been created after this timestamp
+          type: string
+          format: date-time
+          required: false
+        - name: to
+          in: query
+          description: include only violations, that have been created before this timestamp
+          type: string
+          format: date-time
+          required: false
+        - name: resolved
+          in: query
+          description: count only violations that have been resolved (true), or that are still open (false)
+          type: boolean
+          required: false
+      responses:
+        200:
+          description: violation count by account and type
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                account:
+                  type: string
+                type:
+                  type: string
+                quantity:
+                  type: integer
+                  format: int64
+
+  /api/violations-count/{account}:
+    get:
+      summary: Count violations by accounts and types
+      tags:
+        - Fullstop API
+      parameters:
+        - name: account
+          in: path
+          description: an account id
+          type: string
+          required: true
+        - name: from
+          in: query
+          description: include only violations, that have been created after this timestamp
+          type: string
+          format: date-time
+          required: false
+        - name: to
+          in: query
+          description: include only violations, that have been created before this timestamp
+          type: string
+          format: date-time
+          required: false
+        - name: resolved
+          in: query
+          description: count only violations that have been resolved (true), or that are still open (false)
+          type: boolean
+          required: false
+      responses:
+        200:
+          description: violation count by account and type
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                application:
+                  type: string
+                version:
+                  type: string
+                type:
+                  type: string
+                quantity:
+                  type: integer
+                  format: int64                  
+
   /api/instance-logs:
     post:
       summary: Put instance log in S3
