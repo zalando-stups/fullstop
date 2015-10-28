@@ -32,9 +32,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.jobs.elb.HttpGetRootCall;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -192,15 +193,16 @@ public class FetchEC2Job {
                             }
 
                             HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
-                            ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(
+                            ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                     httpCall);
                             listenableFuture.addCallback(
-                                    result -> {
+                                    httpCallResult -> {
                                         log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
-                                        if (!result) {
+                                        if (httpCallResult.isOpen()) {
                                             Map<String, Object> md = newHashMap();
                                             md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                            md.put("allowedPort", allowedPort);
+                                            md.put("Port", allowedPort);
+                                            md.put("Error", httpCallResult.getMessage());
                                             writeViolation(account, region, md, instance.getInstanceId());
                                         }
                                     }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
