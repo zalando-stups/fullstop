@@ -52,7 +52,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime since,
+    public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime from, final DateTime to,
             final Long lastViolation, final Boolean checked, final Integer severity, Boolean auditRelevant,
             String type, final Pageable pageable) {
 
@@ -67,8 +67,12 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationEntity.accountId.in(accounts));
         }
 
-        if (since != null) {
-            predicates.add(qViolationEntity.created.after(since));
+        if (from != null) {
+            predicates.add(qViolationEntity.created.after(from));
+        }
+
+        if (to != null) {
+            predicates.add(qViolationEntity.created.before(to));
         }
 
         if (lastViolation != null) {
