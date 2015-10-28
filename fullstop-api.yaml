@@ -187,12 +187,18 @@ paths:
           type: array
           items:
             type: string
-        - name: since
+        - name: from
           in: query
           required: false
           type: string
           format: date-time
           description: Include only violations that happened after this point in time
+        - name: to
+          in: query
+          required: false
+          type: string
+          format: date-time
+          description: Include only violations that happened to this point in time
         - name: last-violation
           in: query
           required: false
