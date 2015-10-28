@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.web.controller;
 
 import io.swagger.annotations.*;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -87,9 +88,13 @@ public class ViolationsController {
             @RequestParam(value = "accounts", required = false)
             final List<String> accounts,
             @ApiParam(value = "Include only violations that happened after this point in time")
-            @RequestParam(value = "since", required = false)
+            @RequestParam(value = "from", required = false)
             @DateTimeFormat(iso = DATE_TIME)
-            final DateTime since,
+            DateTime from,
+            @ApiParam(value = "Include only violations that happened up to this point in time")
+            @RequestParam(value = "to", required = false)
+            @DateTimeFormat(iso = DATE_TIME)
+            DateTime to,
             @ApiParam(value = "Include only violations after the one with this id")
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,
@@ -106,9 +111,15 @@ public class ViolationsController {
             @RequestParam(value = "type", required = false)
             final String type,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
+        if (from == null) {
+            from = DateTime.now().minusWeeks(1);
+        }
+        if (to == null) {
+            to = DateTime.now();
+        }
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
-                        accounts, since, lastViolation,
+                        accounts, from, to, lastViolation,
                         checked, severity, auditRelevant, type, pageable));
     }
 
