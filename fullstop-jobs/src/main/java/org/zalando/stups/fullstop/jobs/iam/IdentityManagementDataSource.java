@@ -18,47 +18,34 @@ package org.zalando.stups.fullstop.jobs.iam;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysRequest;
 import com.amazonaws.services.identitymanagement.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.amazonaws.regions.Regions.EU_WEST_1;
-import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
 @Component
 class IdentityManagementDataSource {
 
     private final ClientProvider clientProvider;
-    private final AccountIdSupplier allAccountIds;
 
     @Autowired
-    IdentityManagementDataSource(final ClientProvider clientProvider, AccountIdSupplier allAccountIds) {
+    IdentityManagementDataSource(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
-        this.allAccountIds = allAccountIds;
-    }
-
-    Map<String, List<User>> getUsersByAccount(){
-        final Set<String> accounts = allAccountIds.get();
-        final Map<String, List<User>> results = newHashMapWithExpectedSize(accounts.size());
-        accounts.forEach(accountId -> results.put(accountId, getIAMClient(accountId).listUsers().getUsers()));
-        return results;
     }
 
     List<User> getUsers(String accountId) {
         return getIAMClient(accountId).listUsers().getUsers();
     }
 
-    Map<String, List<AccessKeyMetadata>> getAccessKeysByAccount() {
-        final Set<String> accounts = allAccountIds.get();
-        final Map<String, List<AccessKeyMetadata>> results = newHashMapWithExpectedSize(accounts.size());
-        accounts.forEach(accountId -> results.put(accountId, getIAMClient(accountId).listAccessKeys().getAccessKeyMetadata()));
-        return results;
+    List<AccessKeyMetadata> getAccessKeys(String accountId, String userName) {
+        final ListAccessKeysRequest request = new ListAccessKeysRequest();
+        request.setUserName(userName);
+        return getIAMClient(accountId).listAccessKeys(request).getAccessKeyMetadata();
     }
 
     private AmazonIdentityManagementClient getIAMClient(String accountId) {

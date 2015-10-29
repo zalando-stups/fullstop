@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -24,6 +25,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_OLD;
 
 /**
@@ -31,6 +33,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_O
  */
 @Component
 public class KeyRotationViolationWriter {
+
+    private final Logger log = getLogger(getClass());
 
     private final ViolationSink violationSink;
 
@@ -40,6 +44,7 @@ public class KeyRotationViolationWriter {
     }
 
     void writeViolation(String accountId, AccessKeyMetadata accessKey) {
+        log.info("Found user {} with expired access key {} in account {}", accessKey.getUserName(), accessKey.getAccessKeyId(), accountId);
         violationSink.put(
                 new ViolationBuilder()
                         .withAccountId(accountId)
