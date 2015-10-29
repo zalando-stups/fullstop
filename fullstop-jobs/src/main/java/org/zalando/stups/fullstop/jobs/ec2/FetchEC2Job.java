@@ -31,13 +31,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.common.AwsApplications;
-import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
-import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.common.*;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -66,19 +61,19 @@ public class FetchEC2Job {
 
     private final Logger log = LoggerFactory.getLogger(FetchEC2Job.class);
 
-    private ViolationSink violationSink;
+    private final ViolationSink violationSink;
 
-    private ClientProvider clientProvider;
+    private final ClientProvider clientProvider;
 
-    private TeamOperations teamOperations;
+    private final AccountIdSupplier allAccountIds;
 
-    private JobsProperties jobsProperties;
+    private final JobsProperties jobsProperties;
 
-    private SecurityGroupsChecker securityGroupsChecker;
+    private final SecurityGroupsChecker securityGroupsChecker;
 
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
-    private CloseableHttpClient httpclient;
+    private final CloseableHttpClient httpclient;
 
     private final AwsApplications awsApplications;
 
@@ -87,14 +82,13 @@ public class FetchEC2Job {
     @Autowired
     public FetchEC2Job(ViolationSink violationSink,
                        ClientProvider clientProvider,
-                       TeamOperations teamOperations,
-                       JobsProperties jobsProperties,
+                       AccountIdSupplier allAccountIds, final JobsProperties jobsProperties,
                        @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                        AwsApplications awsApplications,
                        ViolationService violationService) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
-        this.teamOperations = teamOperations;
+        this.allAccountIds = allAccountIds;
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = securityGroupsChecker;
         this.awsApplications = awsApplications;
@@ -144,9 +138,8 @@ public class FetchEC2Job {
 
     @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
     public void check() {
-        List<String> accountIds = fetchAccountIds();
-        log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
-        for (String account : accountIds) {
+        log.info("Running job {}", getClass().getSimpleName());
+        for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning public EC2 instances for {}/{}", account, region);
                 final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
@@ -240,13 +233,5 @@ public class FetchEC2Job {
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
         return ec2Client.describeInstances(describeInstancesRequest);
-    }
-
-    private List<String> fetchAccountIds() {
-        List<String> accountIds = newArrayList();
-        List<Account> accounts = teamOperations.getAccounts();
-        accountIds.addAll(accounts.stream().map(Account::getId).collect(toList()));
-        return accountIds;
-
     }
 }
