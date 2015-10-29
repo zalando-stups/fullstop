@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
+import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 
 import java.util.Optional;
@@ -38,6 +39,7 @@ import java.util.Optional;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 import static org.mockito.Mockito.*;
@@ -105,6 +107,27 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)));
 
         verify(mockViolationRepository).countByAccountAndType(eq(newHashSet("acc01", "acc02")), eq(Optional.of(from)), eq(Optional.of(to)), eq(Optional.of(FALSE)));
+    }
+
+    @Test
+    public void testCountByAppVersionAndType() throws Exception {
+        final DateTime from = DateTime.now();
+        final DateTime to = DateTime.now();
+
+        when(mockViolationRepository.countByAppVersionAndType(anyString(), any(), any(), any()))
+                .thenReturn(newArrayList(
+                        new CountByAppVersionAndType("app1", "1.0", "OOPS", 40),
+                        new CountByAppVersionAndType("app1", "2.0", "OOPS", 10),
+                        new CountByAppVersionAndType(null, null, "OOPS", 15)));
+
+        mockMvc.perform(get("/api/violation-count/{account}", "account001")
+                .param("resolved", "true").param("from", from.toString()).param("to", to.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(3)));
+
+        verify(mockViolationRepository).countByAppVersionAndType(eq("account001"), eq(Optional.of(from)), eq(Optional.of(to)), eq(Optional.of(TRUE)));
+
     }
 
     @Configuration

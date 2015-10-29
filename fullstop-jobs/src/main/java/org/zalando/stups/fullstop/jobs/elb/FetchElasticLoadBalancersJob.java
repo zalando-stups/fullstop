@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
@@ -207,14 +209,15 @@ public class FetchElasticLoadBalancersJob {
 
                     for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
                         HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
-                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
+                        ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
                         listenableFuture.addCallback(
-                                result -> {
+                                httpCallResult -> {
                                     log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                    if (!result) {
+                                    if (httpCallResult.isOpen()) {
                                         final Map<String, Object> md = newHashMap();
                                         md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                        md.put("allowedPort", allowedPort);
+                                        md.put("port", allowedPort);
+                                        md.put("Error", httpCallResult.getMessage());
                                         writeViolation(account, region, md, canonicalHostedZoneName);
                                     }
                                 }, ex -> log.warn(ex.getMessage(), ex));
