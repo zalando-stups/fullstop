@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
 import org.joda.time.LocalDate;

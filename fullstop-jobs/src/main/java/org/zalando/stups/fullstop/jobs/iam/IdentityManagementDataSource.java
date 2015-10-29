@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
 import com.amazonaws.services.identitymanagement.model.ListUsersResult;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.amazonaws.services.identitymanagement.model.User;
+import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +29,25 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import static com.amazonaws.regions.Regions.EU_WEST_1;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
+import static com.google.common.collect.Maps.newTreeMap;
 
-/**
- * @author jbellmann
- */
-@Component class IdentityManagementDataSource {
+@Component
+class IdentityManagementDataSource {
 
     private final Logger logger = LoggerFactory.getLogger(IdentityManagementDataSource.class);
 
     private final ClientProvider clientProvider;
 
-    @Autowired IdentityManagementDataSource(final ClientProvider clientProvider) {
+    @Autowired
+    IdentityManagementDataSource(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
@@ -52,7 +57,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
         for (String accountId : getAccountIds()) {
             AmazonIdentityManagementClient identityClient = clientProvider.getClient(
-                    AmazonIdentityManagementClient.class, accountId, Region.getRegion(Regions.EU_WEST_1));
+                    AmazonIdentityManagementClient.class, accountId, Region.getRegion(EU_WEST_1));
             if (identityClient != null) {
 
                 result.add(new Tuple<>(accountId, identityClient.listAccessKeys()));
@@ -71,7 +76,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
         for (String accountId : getAccountIds()) {
             AmazonIdentityManagementClient identityClient = clientProvider.getClient(
-                    AmazonIdentityManagementClient.class, accountId, Region.getRegion(Regions.EU_WEST_1));
+                    AmazonIdentityManagementClient.class, accountId, Region.getRegion(EU_WEST_1));
             if (identityClient != null) {
 
                 result.add(new Tuple<>(accountId, identityClient.listUsers()));
@@ -83,6 +88,18 @@ import static com.google.common.collect.Lists.newArrayList;
         }
 
         return result;
+    }
+
+    Map<String, List<User>> getUsersByAccount(){
+        final Set<String> accounts = getAccountIds();
+        final Map<String, List<User>> results = newHashMapWithExpectedSize(accounts.size());
+        accounts.forEach(
+                (accountId) -> {
+                    final AmazonIdentityManagementClient client = clientProvider.getClient(AmazonIdentityManagementClient.class, accountId, Region.getRegion(EU_WEST_1));
+                    results.put(accountId, client.listUsers().getUsers());
+                }
+        );
+        return results;
     }
 
     protected Set<String> getAccountIds() {
