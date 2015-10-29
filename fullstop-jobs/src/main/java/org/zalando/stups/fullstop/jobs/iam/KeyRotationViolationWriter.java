@@ -26,6 +26,9 @@ import java.util.Map;
 
 import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_OLD;
 
+/**
+ * Access Keys have to be rotated regularly
+ */
 @Component
 public class KeyRotationViolationWriter {
 
