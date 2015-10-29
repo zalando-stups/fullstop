@@ -15,38 +15,33 @@
  */
 package org.zalando.stups.fullstop.jobs.iam;
 
-import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.function.Predicate;
 
-import static org.zalando.stups.fullstop.jobs.iam.AccessKeyMetadataPredicates.isActiveAndWithDaysOlderThan;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.zalando.stups.fullstop.jobs.iam.AccessKeyMetadataPredicates.isActiveAndOlderThanDays;
 
-/**
- * @author jbellmann
- */
-// @Component
+@Component
 public class KeyRotationJob {
 
-    private final Logger log = LoggerFactory.getLogger(KeyRotationJob.class);
+    private final Logger log = getLogger(KeyRotationJob.class);
 
-    private final IdentityManagementDataSource dataSource;
+    private final IdentityManagementDataSource iamDataSource;
 
-    private final AccessKeyMetadataConsumer accessKeyMetadataConsumer;
+    private final KeyRotationViolationWriter violationWriter;
 
-    private final Predicate<AccessKeyMetadata> check = isActiveAndWithDaysOlderThan(7);
+    private final JobsProperties properties;
 
     @Autowired
-    public KeyRotationJob(final IdentityManagementDataSource dataSource,
-            final AccessKeyMetadataConsumer accessKeyMeatadataConsumer) {
-        this.accessKeyMetadataConsumer = accessKeyMeatadataConsumer;
-        this.dataSource = dataSource;
+    public KeyRotationJob(final IdentityManagementDataSource iamDataSource, KeyRotationViolationWriter violationWriter, JobsProperties properties) {
+        this.violationWriter = violationWriter;
+        this.iamDataSource = iamDataSource;
+        this.properties = properties;
     }
 
     @PostConstruct
@@ -54,22 +49,15 @@ public class KeyRotationJob {
         log.info("{} initialized", getClass().getSimpleName());
     }
 
-    /**
-     * Runs periodically.
-     */
     @EveryDayAtElevenPM
     public void check() {
         log.info("Running Job {}", getClass().getSimpleName());
-        for (Tuple<String, ListAccessKeysResult> tuple : getListAccessKeyResultPerAccount()) {
-            filter(tuple._2.getAccessKeyMetadata());
-        }
+        iamDataSource.getAccessKeysByAccount().forEach(
+                (accountId, accessKeys) -> accessKeys.stream()
+                        .filter(isActiveAndOlderThanDays(properties.getAccessKeysExpireAfterDays()))
+                        .forEach(accessKey -> violationWriter.writeViolation(accountId, accessKey))
+        );
     }
 
-    protected void filter(final List<AccessKeyMetadata> accessKeyMeatadataList) {
-        accessKeyMeatadataList.stream().filter(check).forEach(accessKeyMetadataConsumer);
-    }
 
-    protected List<Tuple<String, ListAccessKeysResult>> getListAccessKeyResultPerAccount() {
-        return dataSource.getListAccessKeysResultPerAccountWithTuple();
-    }
 }

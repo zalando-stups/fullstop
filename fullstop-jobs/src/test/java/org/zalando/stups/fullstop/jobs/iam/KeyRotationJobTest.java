@@ -16,77 +16,66 @@
 package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
-import org.assertj.core.util.Lists;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.util.Maps.newHashMap;
+import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.*;
 
-/**
- * @author jbellmann
- */
 public class KeyRotationJobTest {
 
-    private IdentityManagementDataSource identityManagementDataSource;
-
-    private AccessKeyMetadataConsumer accessKeyMetadataConsumer;
-
-    private ViolationSink violationSink;
+    private IdentityManagementDataSource mockIAMDataSource;
+    private KeyRotationViolationWriter mockViolationWriter;
+    private Map<String, List<AccessKeyMetadata>> accessKeys;
 
     @Before
     public void setUp() {
-        this.violationSink = Mockito.mock(ViolationSink.class);
-        this.accessKeyMetadataConsumer = new AccessKeyMetadataConsumer(this.violationSink);
-        this.identityManagementDataSource = Mockito.mock(IdentityManagementDataSource.class);
+        mockIAMDataSource = mock(IdentityManagementDataSource.class);
+        mockViolationWriter = mock(KeyRotationViolationWriter.class);
+        accessKeys = newHashMap();
+        accessKeys.put("account01", asList(
+                upToDate(active(new AccessKeyMetadata())),
+                expired(active(new AccessKeyMetadata())),
+                expired(inactive(new AccessKeyMetadata()))));
+        accessKeys.put("account02", singletonList(upToDate(inactive(new AccessKeyMetadata()))));
     }
+
+    private AccessKeyMetadata expired(AccessKeyMetadata accessKeyMetadata) {
+        accessKeyMetadata.setCreateDate(now().minusDays(10).toDate());
+        return accessKeyMetadata;
+    }
+
+    private AccessKeyMetadata upToDate(AccessKeyMetadata accessKeyMetadata) {
+        accessKeyMetadata.setCreateDate(new Date());
+        return accessKeyMetadata;
+    }
+
+    private AccessKeyMetadata inactive(AccessKeyMetadata accessKeyMetadata) {
+        accessKeyMetadata.setStatus("Inactive");
+        return accessKeyMetadata;
+    }
+
+    private AccessKeyMetadata active(AccessKeyMetadata accessKeyMetadata) {
+        accessKeyMetadata.setStatus("Active");
+        return accessKeyMetadata;
+    }
+
 
     @Test
     public void testSimple() {
-        when(identityManagementDataSource.getListAccessKeysResultPerAccountWithTuple()).thenReturn(getList());
+        when(mockIAMDataSource.getAccessKeysByAccount()).thenReturn(accessKeys);
 
-        KeyRotationJob job = new KeyRotationJob(identityManagementDataSource, accessKeyMetadataConsumer);
+        new KeyRotationJob(mockIAMDataSource, mockViolationWriter, new JobsProperties()).check();
 
-        job.check();
-
-        verify(identityManagementDataSource, atLeastOnce()).getListAccessKeysResultPerAccountWithTuple();
-        verify(violationSink, atLeastOnce()).put(Mockito.anyObject());
+        verify(mockIAMDataSource).getAccessKeysByAccount();
+        verify(mockViolationWriter).writeViolation(eq("account01"), any());
     }
-
-    protected List<Tuple<String, ListAccessKeysResult>> getList() {
-        List<Tuple<String, ListAccessKeysResult>> result = Lists.newArrayList();
-        for (int i = 0; i < 3; i++) {
-
-            ListAccessKeysResult listAccessKeysResult = buildAccessKeysResult();
-            // ListAccessKeyResultPerAccount la = new ListAccessKeyResultPerAccount("123456" + i, listAccessKeysResult);
-            result.add(new Tuple<String, ListAccessKeysResult>("123456" + i, listAccessKeysResult));
-
-        }
-
-        return result;
-    }
-
-    protected ListAccessKeysResult buildAccessKeysResult() {
-        ListAccessKeysResult result = new ListAccessKeysResult();
-        List<AccessKeyMetadata> accessKeyMetadata = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
-            AccessKeyMetadata metadata = new AccessKeyMetadata();
-            metadata.setAccessKeyId("1234" + i);
-            metadata.setCreateDate(new Date(LocalDate.now().minusDays(5 + i).toDate().getTime()));
-            metadata.setUserName("tester-" + i);
-            metadata.setStatus(i % 2 == 0 ? "Active" : "Inactive");
-            accessKeyMetadata.add(metadata);
-        }
-
-        result.setAccessKeyMetadata(accessKeyMetadata);
-
-        return result;
-    }
-
 }

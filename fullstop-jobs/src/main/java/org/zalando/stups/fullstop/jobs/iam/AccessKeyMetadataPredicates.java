@@ -27,8 +27,6 @@ import java.util.function.Predicate;
  */
 abstract class AccessKeyMetadataPredicates {
 
-    static final Predicate<AccessKeyMetadata> SEVEN_DAYS = withDaysOlderThan(7);
-
     private static final String ACTIVE = "Active";
 
     static final Predicate<AccessKeyMetadata> IS_ACTIVE = activity(ACTIVE);
@@ -41,7 +39,7 @@ abstract class AccessKeyMetadataPredicates {
         return t -> (t.getCreateDate().getTime() < LocalDate.now().minusDays(days).toDate().getTime());
     }
 
-    static Predicate<AccessKeyMetadata> isActiveAndWithDaysOlderThan(final int days) {
+    static Predicate<AccessKeyMetadata> isActiveAndOlderThanDays(final int days) {
         return IS_ACTIVE.and(withDaysOlderThan(days));
     }
 }

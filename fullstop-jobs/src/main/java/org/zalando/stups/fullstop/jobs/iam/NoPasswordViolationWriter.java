@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.violation.ViolationType.PASSWORD_USED;
 
 @Component
@@ -42,9 +43,9 @@ public class NoPasswordViolationWriter {
                         .withEventId(IAM_USER_EXISTS)
                         .withAccountId(accountId)
                         .withRegion(NO_REGION)
-                        .withPluginFullyQualifiedClassName(NoPasswordViolationWriter.class)
+                        .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
                         .withType(PASSWORD_USED)
-                        .withMetaInfo(user.getUserName())
+                        .withMetaInfo(singletonMap("user_name", user.getUserName()))
                         .build());
     }
 }
