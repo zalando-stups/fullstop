@@ -50,6 +50,10 @@ class IdentityManagementDataSource {
         return results;
     }
 
+    List<User> getUsers(String accountId) {
+        return getIAMClient(accountId).listUsers().getUsers();
+    }
+
     Map<String, List<AccessKeyMetadata>> getAccessKeysByAccount() {
         final Set<String> accounts = allAccountIds.get();
         final Map<String, List<AccessKeyMetadata>> results = newHashMapWithExpectedSize(accounts.size());

@@ -16,18 +16,21 @@
 package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.services.identitymanagement.model.User;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static java.util.Collections.singletonMap;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.violation.ViolationType.PASSWORD_USED;
 
 @Component
 public class NoPasswordViolationWriter {
 
-    public static final String IAM_USER_EXISTS = "iam-user-exists";
+    private final Logger log = getLogger(getClass());
+
     public static final String NO_REGION = "no-region";
 
     private final ViolationSink violationSink;
@@ -38,9 +41,10 @@ public class NoPasswordViolationWriter {
     }
 
     public void writeViolation(String accountId, User user) {
+        log.info("Found IAM user {} that has a password in account {}", user.getUserName(), accountId);
         violationSink.put(
                 new ViolationBuilder()
-                        .withEventId(IAM_USER_EXISTS)
+                        .withEventId("check-iam-user_" + user.getUserId())
                         .withAccountId(accountId)
                         .withRegion(NO_REGION)
                         .withPluginFullyQualifiedClassName(NoPasswordsJob.class)

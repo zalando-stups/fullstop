@@ -18,12 +18,11 @@ package org.zalando.stups.fullstop.jobs.iam;
 import com.amazonaws.services.identitymanagement.model.User;
 import org.junit.Before;
 import org.junit.Test;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
 
@@ -31,15 +30,16 @@ public class NoPasswordJobTest {
 
     private IdentityManagementDataSource iamDataSource;
     private NoPasswordViolationWriter violationWriter;
-    private Map<String, List<User>> usersByAccount;
+    private AccountIdSupplier mockAccountIdSupplier;
 
     @Before
     public void setUp() {
         iamDataSource = mock(IdentityManagementDataSource.class);
         violationWriter = mock(NoPasswordViolationWriter.class);
-        usersByAccount = newHashMap();
-        usersByAccount.put("account01", asList(new User(), userWithPw(), userWithPw()));
-        usersByAccount.put("account02", asList(userWithPw(), new User()));
+        mockAccountIdSupplier = mock(AccountIdSupplier.class);
+        when(mockAccountIdSupplier.get()).thenReturn(newHashSet("account01", "account02"));
+        when(iamDataSource.getUsers(eq("account01"))).thenReturn(asList(new User(), userWithPw(), userWithPw()));
+        when(iamDataSource.getUsers(eq("account02"))).thenReturn(asList(userWithPw(), new User()));
     }
 
     private User userWithPw() {
@@ -50,11 +50,10 @@ public class NoPasswordJobTest {
 
     @Test
     public void testNoPasswordJob() {
-        when(iamDataSource.getUsersByAccount()).thenReturn(usersByAccount);
+        new NoPasswordsJob(iamDataSource, violationWriter, mockAccountIdSupplier).check();
 
-        new NoPasswordsJob(iamDataSource, violationWriter).check();
-
-        verify(iamDataSource).getUsersByAccount();
+        verify(mockAccountIdSupplier).get();
+        verify(iamDataSource, times(2)).getUsers(anyString());
         verify(violationWriter, times(2)).writeViolation(eq("account01"), any());
         verify(violationWriter).writeViolation(eq("account02"), any());
     }

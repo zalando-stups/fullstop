@@ -32,7 +32,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_O
 @Component
 public class KeyRotationViolationWriter {
 
-    public static final String ACCESS_KEYS_EXIST = "access-keys-exist";
     private final ViolationSink violationSink;
 
     @Autowired
@@ -45,7 +44,7 @@ public class KeyRotationViolationWriter {
                 new ViolationBuilder()
                         .withAccountId(accountId)
                         .withRegion(NoPasswordViolationWriter.NO_REGION)
-                        .withEventId(ACCESS_KEYS_EXIST)
+                        .withEventId("check-access-key_" + accessKey.getAccessKeyId())
                         .withType(ACTIVE_KEY_TO_OLD)
                         .withPluginFullyQualifiedClassName(KeyRotationJob.class)
                         .withMetaInfo(metaMap(accessKey))

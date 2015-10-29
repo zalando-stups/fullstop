@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 
 import javax.annotation.PostConstruct;
 
@@ -36,11 +37,14 @@ public class NoPasswordsJob {
 
     private final NoPasswordViolationWriter violationWriter;
 
+    private final AccountIdSupplier allAccountIds;
+
     @Autowired
     public NoPasswordsJob(final IdentityManagementDataSource iamDataSource,
-                          final NoPasswordViolationWriter violationWriter) {
+                          final NoPasswordViolationWriter violationWriter, AccountIdSupplier allAccountIds) {
         this.iamDataSource = iamDataSource;
         this.violationWriter = violationWriter;
+        this.allAccountIds = allAccountIds;
     }
 
     @PostConstruct
@@ -50,11 +54,15 @@ public class NoPasswordsJob {
 
     @EveryDayAtElevenPM
     public void check() {
-        log.info("Running Job {}", getClass().getSimpleName());
-        iamDataSource.getUsersByAccount().forEach(
-                (accountId, users) -> users.stream()
-                        .filter(user -> user.getPasswordLastUsed() != null)
-                        .forEach(user -> violationWriter.writeViolation(accountId, user))
-        );
+        log.info("Running {}", getClass().getSimpleName());
+
+        allAccountIds.get().forEach(accountId -> {
+            log.info("Checking account {} for IAM users with passwords", accountId);
+            iamDataSource.getUsers(accountId).stream()
+                    .filter(user -> user.getPasswordLastUsed() != null)
+                    .forEach(user -> violationWriter.writeViolation(accountId, user));
+        });
+
+        log.info("Finished {}", getClass().getSimpleName());
     }
 }
