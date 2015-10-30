@@ -20,8 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
+import org.zalando.stups.fullstop.jobs.iam.csv.User;
 
 import javax.annotation.PostConstruct;
+import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -39,12 +42,15 @@ public class NoPasswordsJob {
 
     private final AccountIdSupplier allAccountIds;
 
+    private final CredentialReportCSVParser csvParser;
+
     @Autowired
     public NoPasswordsJob(final IdentityManagementDataSource iamDataSource,
-                          final NoPasswordViolationWriter violationWriter, AccountIdSupplier allAccountIds) {
+                          final NoPasswordViolationWriter violationWriter, AccountIdSupplier allAccountIds, CredentialReportCSVParser csvParser) {
         this.iamDataSource = iamDataSource;
         this.violationWriter = violationWriter;
         this.allAccountIds = allAccountIds;
+        this.csvParser = csvParser;
     }
 
     @PostConstruct
@@ -58,8 +64,10 @@ public class NoPasswordsJob {
 
         allAccountIds.get().forEach(accountId -> {
             log.info("Checking account {} for IAM users with passwords", accountId);
-            iamDataSource.getUsers(accountId).stream()
-                    .filter(user -> user.getPasswordLastUsed() != null)
+            Stream.of(accountId)
+                    .map(iamDataSource::getCredentialReportCSV)
+                    .flatMap(csvParser)
+                    .filter(User::isPasswordEnabled)
                     .forEach(user -> violationWriter.writeViolation(accountId, user));
         });
 

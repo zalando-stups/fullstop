@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.jobs.iam;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult;
 import com.amazonaws.services.identitymanagement.model.ListAccessKeysRequest;
 import com.amazonaws.services.identitymanagement.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,10 @@ class IdentityManagementDataSource {
         final ListAccessKeysRequest request = new ListAccessKeysRequest();
         request.setUserName(userName);
         return getIAMClient(accountId).listAccessKeys(request).getAccessKeyMetadata();
+    }
+
+    GetCredentialReportResult getCredentialReportCSV(String accountId) {
+        return getIAMClient(accountId).getCredentialReport();
     }
 
     private AmazonIdentityManagementClient getIAMClient(String accountId) {
