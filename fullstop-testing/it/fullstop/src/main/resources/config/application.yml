@@ -90,7 +90,7 @@ fullstop:
         whitelistedRegions:
             - 'eu-west-1'
             - 'eu-central-1'
-        accessKeysExpireAfterDays: ${FULLSTOP_ACCESS_KEYS_EXPIRE_AFTER_DAYS:7}
+        accessKeysExpireAfterDays: ${FULLSTOP_ACCESS_KEYS_EXPIRE_AFTER_DAYS:30}
 
     plugins:
         properties:

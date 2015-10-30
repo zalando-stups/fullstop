@@ -32,7 +32,7 @@ public class JobsProperties {
     private Set<Integer> allowedPorts = Sets.newHashSet(80, 443);
     private Set<Integer> elbAllowedPorts = Sets.newHashSet(80, 443);
     private Set<Integer> ec2AllowedPorts = Sets.newHashSet(80, 443, 22);
-    private int accessKeysExpireAfterDays = 7;
+    private int accessKeysExpireAfterDays = 30;
 
     public List<String> getWhitelistedRegions() {
         return whitelistedRegions;
