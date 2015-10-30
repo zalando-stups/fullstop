@@ -1,7 +1,4 @@
 package org.zalando.stups.fullstop.jobs;
 
-public interface FullstopJob {
-
-    void run();
-
+public interface FullstopJob extends Runnable {
 }

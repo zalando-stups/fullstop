@@ -18,12 +18,14 @@ package org.zalando.stups.fullstop.jobs.iam;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
 import org.zalando.stups.fullstop.jobs.iam.csv.User;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -32,7 +34,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * IAM Users must not use passwords, but access keys.
  */
 @Component
-public class NoPasswordsJob {
+public class NoPasswordsJob implements FullstopJob {
 
     private final Logger log = getLogger(NoPasswordsJob.class);
 
@@ -66,7 +68,8 @@ public class NoPasswordsJob {
             log.info("Checking account {} for IAM users with passwords", accountId);
             Stream.of(accountId)
                     .map(iamDataSource::getCredentialReportCSV)
-                    .flatMap(csvParser)
+                    .map(csvParser::apply)
+                    .flatMap(Collection::stream)
                     .filter(User::isPasswordEnabled)
                     .forEach(user -> violationWriter.writeViolation(accountId, user));
         });

@@ -22,9 +22,8 @@ import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
 import org.zalando.stups.fullstop.jobs.iam.csv.User;
 
-import java.util.stream.Stream;
-
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
 
 public class NoPasswordJobTest {
@@ -46,8 +45,8 @@ public class NoPasswordJobTest {
         when(mockAccountIdSupplier.get()).thenReturn(newHashSet("account01", "account02"));
         when(iamDataSource.getCredentialReportCSV(eq("account01"))).thenReturn(report1);
         when(iamDataSource.getCredentialReportCSV(eq("account02"))).thenReturn(report2);
-        when(mockCsvParser.apply(same(report1))).thenReturn(Stream.of(new User("1", false), new User("2", true), new User("3", true)));
-        when(mockCsvParser.apply(same(report2))).thenReturn(Stream.of(new User("4", true), new User("5", false)));
+        when(mockCsvParser.apply(same(report1))).thenReturn(asList(new User("1", false), new User("2", true), new User("3", true)));
+        when(mockCsvParser.apply(same(report2))).thenReturn(asList(new User("4", true), new User("5", false)));
     }
 
     @Test
