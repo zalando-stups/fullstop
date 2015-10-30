@@ -31,6 +31,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.*;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -55,7 +56,7 @@ import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 @Component
-public class FetchEC2Job {
+public class FetchEC2Job implements FullstopJob {
 
     private static final String EVENT_ID = "checkPublicEC2InstanceJob";
 
@@ -137,7 +138,7 @@ public class FetchEC2Job {
     }
 
     @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
-    public void check() {
+    public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {

@@ -52,7 +52,7 @@ public class KeyRotationJobTest {
     }
 
     private AccessKeyMetadata expired(AccessKeyMetadata accessKeyMetadata) {
-        accessKeyMetadata.setCreateDate(now().minusDays(10).toDate());
+        accessKeyMetadata.setCreateDate(now().minusDays(31).toDate());
         return accessKeyMetadata;
     }
 
@@ -75,7 +75,7 @@ public class KeyRotationJobTest {
     @Test
     public void testSimple() {
 
-        new KeyRotationJob(mockIAMDataSource, mockViolationWriter, new JobsProperties(), mockAccountIdSupplier).check();
+        new KeyRotationJob(mockIAMDataSource, mockViolationWriter, new JobsProperties(), mockAccountIdSupplier).run();
 
         verify(mockIAMDataSource, times(2)).getUsers(anyString());
         verify(mockIAMDataSource, times(3)).getAccessKeys(anyString(), anyString());

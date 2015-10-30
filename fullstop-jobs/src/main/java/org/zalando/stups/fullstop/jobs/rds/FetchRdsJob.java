@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -40,7 +41,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 @Component
-public class FetchRdsJob {
+public class FetchRdsJob implements FullstopJob {
 
 
     private static final String EVENT_ID = "checkRdsJob";
@@ -71,7 +72,7 @@ public class FetchRdsJob {
     }
 
     @Scheduled(fixedRate = 300_000)
-    public void check() {
+    public void run() {
         for (final String accountId : allAccountIds.get()) {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {

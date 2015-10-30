@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.jobs.iam;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtTenPM;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
@@ -29,7 +30,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.jobs.iam.AccessKeyMetadataPredicates.isActiveAndOlderThanDays;
 
 @Component
-public class KeyRotationJob {
+public class KeyRotationJob implements FullstopJob {
 
     private final Logger log = getLogger(KeyRotationJob.class);
 
@@ -55,7 +56,7 @@ public class KeyRotationJob {
     }
 
     @EveryDayAtTenPM
-    public void check() {
+    public void run() {
         log.info("Running {}", getClass().getSimpleName());
 
         allAccountIds.get().forEach(accountId -> {

@@ -120,7 +120,7 @@ public class FetchElasticLoadBalancersJobTest {
                 mockAwsApplications,
                 mockViolationService);
 
-        fetchELBJob.check();
+        fetchELBJob.run();
 
         verify(accountIdSupplierMock).get();
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();

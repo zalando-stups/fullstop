@@ -52,7 +52,7 @@ public class NoPasswordJobTest {
 
     @Test
     public void testNoPasswordJob() {
-        new NoPasswordsJob(iamDataSource, violationWriter, mockAccountIdSupplier, mockCsvParser).check();
+        new NoPasswordsJob(iamDataSource, violationWriter, mockAccountIdSupplier, mockCsvParser).run();
 
         verify(mockAccountIdSupplier).get();
         verify(iamDataSource, times(2)).getCredentialReportCSV(anyString());

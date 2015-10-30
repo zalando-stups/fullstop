@@ -87,7 +87,7 @@ public class FetchRdsJobTest {
     public void testCheck() throws Exception {
         FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
         when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
-        fetchRdsJob.check();
+        fetchRdsJob.run();
 
         verify(violationSinkMock, times(1)).put(any(Violation.class));
         verify(accountIdSupplierMock, times(1)).get();

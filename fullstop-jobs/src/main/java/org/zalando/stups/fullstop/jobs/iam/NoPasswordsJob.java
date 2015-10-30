@@ -59,7 +59,7 @@ public class NoPasswordsJob {
     }
 
     @EveryDayAtElevenPM
-    public void check() {
+    public void run() {
         log.info("Running {}", getClass().getSimpleName());
 
         allAccountIds.get().forEach(accountId -> {
