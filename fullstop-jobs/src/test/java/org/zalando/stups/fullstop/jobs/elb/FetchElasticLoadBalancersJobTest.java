@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.elb;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
@@ -22,13 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.jobs.elb.FetchElasticLoadBalancersJob;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -50,7 +48,7 @@ public class FetchElasticLoadBalancersJobTest {
 
     private ClientProvider clientProviderMock;
 
-    private TeamOperations teamOperationsMock;
+    private AccountIdSupplier accountIdSupplierMock;
 
     private JobsProperties jobsPropertiesMock;
 
@@ -62,8 +60,6 @@ public class FetchElasticLoadBalancersJobTest {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
-    private List<Account> accounts = newArrayList();
-
     private List<String> regions = newArrayList();
 
     private AwsApplications mockAwsApplications;
@@ -74,7 +70,7 @@ public class FetchElasticLoadBalancersJobTest {
     public void setUp() throws Exception {
         this.violationSinkMock = mock(ViolationSink.class);
         this.clientProviderMock = mock(ClientProvider.class);
-        this.teamOperationsMock = mock(TeamOperations.class);
+        this.accountIdSupplierMock = mock(AccountIdSupplier.class);
         this.jobsPropertiesMock = mock(JobsProperties.class);
         this.portsChecker = mock(PortsChecker.class);
         this.securityGroupsChecker = mock(SecurityGroupsChecker.class);
@@ -100,15 +96,13 @@ public class FetchElasticLoadBalancersJobTest {
         mockDescribeELBResult = new DescribeLoadBalancersResult();
         mockDescribeELBResult.setLoadBalancerDescriptions(newArrayList(publicELB, privateELB));
 
-        final Account account = new Account(ACCOUNT_ID, "testaccount", "test", "awesome");
-        accounts.add(account);
         regions.add(REGION1);
 
         when(clientProviderMock.getClient(any(), any(String.class), any(Region.class))).thenReturn(mockAwsELBClient);
     }
     @Test
     public void testCheck() throws Exception {
-        when(teamOperationsMock.getAccounts()).thenReturn(accounts);
+        when(accountIdSupplierMock.get()).thenReturn(newHashSet(ACCOUNT_ID));
         when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(regions);
         when(portsChecker.check(any(LoadBalancerDescription.class))).thenReturn(Collections.<Integer>emptyList());
         when(securityGroupsChecker.check(any(), any(), any())).thenReturn(Collections.<String>emptySet());
@@ -119,16 +113,16 @@ public class FetchElasticLoadBalancersJobTest {
         final FetchElasticLoadBalancersJob fetchELBJob = new FetchElasticLoadBalancersJob(
                 violationSinkMock,
                 clientProviderMock,
-                teamOperationsMock,
+                accountIdSupplierMock,
                 jobsPropertiesMock,
                 securityGroupsChecker,
                 portsChecker,
                 mockAwsApplications,
                 mockViolationService);
 
-        fetchELBJob.check();
+        fetchELBJob.run();
 
-        verify(teamOperationsMock,atLeast(1)).getAccounts();
+        verify(accountIdSupplierMock).get();
         verify(jobsPropertiesMock, atLeast(1)).getWhitelistedRegions();
         verify(jobsPropertiesMock).getElbAllowedPorts();
         verify(securityGroupsChecker, atLeast(1)).check(any(), any(), any());
@@ -142,7 +136,7 @@ public class FetchElasticLoadBalancersJobTest {
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(violationSinkMock,
                 clientProviderMock,
-                teamOperationsMock,
+                accountIdSupplierMock,
                 jobsPropertiesMock,
                 securityGroupsChecker,
                 portsChecker,

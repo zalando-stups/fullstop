@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,19 +42,16 @@ public class CachingClientProvider implements ClientProvider {
 
     private static final String ROLE_ARN_LAST = ":role/fullstop";
 
-    private LoadingCache<Key<?>, Object> cache = null;
+    private LoadingCache<Key<?>, ? extends AmazonWebServiceClient> cache = null;
 
     public CachingClientProvider() {
     }
 
     @Override
-    public <T> T getClient(final Class<T> type, final String accountId, final Region region) {
-        try {
-            return type.cast(cache.get(new Key(type, accountId, region)));
-        }
-        catch (ExecutionException e) {
-            throw new RuntimeException("Unable to create client.", e);
-        }
+    public <T extends AmazonWebServiceClient> T getClient(final Class<T> type, final String accountId, final Region region) {
+        @SuppressWarnings("unchecked")
+        final Key k = new Key(type, accountId, region);
+        return type.cast(cache.getUnchecked(k));
     }
 
     @PostConstruct
@@ -63,19 +60,17 @@ public class CachingClientProvider implements ClientProvider {
         // TODO
         // this parameters have to be configurable
         cache = CacheBuilder.newBuilder().maximumSize(500).expireAfterWrite(50, TimeUnit.MINUTES).build(
-                new CacheLoader<Key<?>, Object>() {
+                new CacheLoader<Key<?>, AmazonWebServiceClient>() {
                     private final Logger logger = LoggerFactory.getLogger(CacheLoader.class);
 
                     @Override
-                    public Object load(final Key<?> key) throws Exception {
+                    public AmazonWebServiceClient load(@Nonnull final Key<?> key) throws Exception {
                         logger.debug("CacheLoader active for Key : {}", key);
-
-                        Object client = key.region.createClient(
+                        return key.region.createClient(
                                 key.type,
                                 new STSAssumeRoleSessionCredentialsProvider(
                                         buildRoleArn(key.accountId),
                                         ROLE_SESSION_NAME), null);
-                        return client;
                     }
                 });
     }
@@ -115,9 +110,8 @@ public class CachingClientProvider implements ClientProvider {
                 return false;
             }
 
-            final Key<K> other = (Key<K>) obj;
-            return this.type.equals(other.type) && this.accountId.equals(other.accountId)
-                    && this.region.equals(other.region);
+            final Key other = (Key) obj;
+            return this.type.equals(other.type) && this.accountId.equals(other.accountId) && this.region.equals(other.region);
         }
 
         @Override

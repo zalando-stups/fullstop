@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.iam.csv;
 
-import java.util.Objects;
+import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult;
 
-/**
- * Try out 'functional' style. ;-)
- *
- * @author jbellmann
- */
-class Tuple<U, B> {
+import java.util.List;
+import java.util.function.Function;
 
-    final U _1;
-
-    final B _2;
-
-    Tuple(final U u, final B b) {
-        _1 = Objects.requireNonNull(u, "First Argument should never be null");
-        _2 = Objects.requireNonNull(b, "Second Argument should never be null");
-    }
+public interface CredentialReportCSVParser extends Function<GetCredentialReportResult, List<User>> {
 }

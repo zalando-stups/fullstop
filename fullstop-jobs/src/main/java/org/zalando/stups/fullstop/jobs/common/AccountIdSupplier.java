@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.common;
 
-import com.amazonaws.services.identitymanagement.model.User;
-
-import java.util.function.Predicate;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
- * @author jbellmann
+ * Provides all account ids
  */
-abstract class UsersPredicates {
-
-    static final Predicate<User> PASSWORD_LAST_USED_HAS_NON_NULL_DATE = t -> t.getPasswordLastUsed() != null;
-
+public interface AccountIdSupplier extends Supplier<Set<String>> {
 }
