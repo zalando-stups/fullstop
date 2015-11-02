@@ -51,7 +51,7 @@
         <archaius.version>0.7.1</archaius.version>
 
         <aws-java-sdk.version>1.10.10</aws-java-sdk.version>
-        <aws-cloudtrail-processing-library.version>1.0.0</aws-cloudtrail-processing-library.version>
+        <aws-cloudtrail-processing-library.version>1.0.2</aws-cloudtrail-processing-library.version>
 
         <joda-time.version>2.8.2</joda-time.version>
         <commons-lang3.version>3.4</commons-lang3.version>
