@@ -70,8 +70,6 @@ public abstract class CloudTrailEventSupport {
 
     public static final String ROLE_NAME_JSON_PATH = "$.instancesSet.items[*].roleName";
 
-    private static final String USERNAME = "$.userIdentity.arn";
-
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
@@ -251,7 +249,7 @@ public abstract class CloudTrailEventSupport {
             return null;
         }
 
-        return JsonPath.read(cloudTrailEvent, CloudTrailEventSupport.USERNAME);
+        return cloudTrailEvent.getEventData().getUserIdentity().getARN();
     }
 
     public static List<String> getInstances(CloudTrailEvent event) {
