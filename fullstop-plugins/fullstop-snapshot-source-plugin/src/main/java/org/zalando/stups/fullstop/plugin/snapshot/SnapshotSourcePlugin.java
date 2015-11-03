@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,9 @@ import java.util.Map;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-import static org.zalando.stups.fullstop.violation.ViolationType.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_A_SNAPSHOT_IMAGE;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
 /**
  * @author npiccolotto
@@ -63,15 +65,14 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
-        Map <String, String> metaData = newHashMap();
+        Map<String, String> metaData = newHashMap();
         for (String id : instanceIds) {
             Map userData;
             final String accountId = event.getEventData().getUserIdentity().getAccountId();
             final String region = event.getEventData().getAwsRegion();
             try {
                 userData = userDataProvider.getUserData(accountId, region, id);
-            }
-            catch (AmazonServiceException e) {
+            } catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
@@ -80,17 +81,16 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
 
             if (userData == null) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
+                        SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
                 return;
             }
 
             String source = (String) userData.get(SOURCE);
             if (source == null) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
-            }
-            else if (source.matches(SNAPSHOT_REGEX)) {
-                metaData.put("errorMessage","EC2 should be deployed within docker and an immutable tag.");
+                        SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
+            } else if (source.matches(SNAPSHOT_REGEX)) {
+                metaData.put("errorMessage", "EC2 should be deployed within docker and an immutable tag.");
                 metaData.put("application", source);
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                         SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(metaData).build());
