@@ -29,6 +29,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
@@ -62,6 +63,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
+        Map <String, String> metaData = newHashMap();
         for (String id : instanceIds) {
             Map userData;
             final String accountId = event.getEventData().getUserIdentity().getAccountId();
@@ -88,8 +90,10 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                                           SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
             }
             else if (source.matches(SNAPSHOT_REGEX)) {
+                metaData.put("errorMessage","EC2 should be deployed within docker and an immutable tag.");
+                metaData.put("application", source);
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).build());
+                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(metaData).build());
             }
         }
     }
