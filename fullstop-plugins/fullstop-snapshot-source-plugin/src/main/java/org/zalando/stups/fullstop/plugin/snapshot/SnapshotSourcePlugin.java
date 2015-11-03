@@ -90,7 +90,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                         SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
             } else if (source.matches(SNAPSHOT_REGEX)) {
-                metaData.put("errorMessage", "EC2 should be deployed within docker and an immutable tag.");
+                metaData.put("errorMessage", "EC2 instances should be deployed with immutable Docker images only.");
                 metaData.put("application", source);
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                         SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(metaData).build());
