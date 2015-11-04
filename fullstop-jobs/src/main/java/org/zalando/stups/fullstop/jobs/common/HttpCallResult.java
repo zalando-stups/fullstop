@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.common;
 
-import java.util.Objects;
+public class HttpCallResult {
+    private  boolean open;
+    private String message;
 
-/**
- * Try out 'functional' style. ;-)
- *
- * @author jbellmann
- */
-class Tuple<U, B> {
 
-    final U _1;
+    public HttpCallResult(boolean isOpen, String message) {
+        this.open = isOpen;
+        this.message = message;
+    }
 
-    final B _2;
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
 
-    Tuple(final U u, final B b) {
-        _1 = Objects.requireNonNull(u, "First Argument should never be null");
-        _2 = Objects.requireNonNull(b, "Second Argument should never be null");
+    public boolean isOpen() {
+        return open;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

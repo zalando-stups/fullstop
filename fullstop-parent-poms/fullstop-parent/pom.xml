@@ -24,7 +24,7 @@
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
-    <version>6-SNAPSHOT</version>
+    <version>7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
@@ -45,33 +45,37 @@
         <main.basedir>${basedir}</main.basedir>
         <argLine />
 
-        <spring-boot.version>1.2.5.RELEASE</spring-boot.version>
-        <spring-security-oauth2.version>2.0.7.RELEASE</spring-security-oauth2.version>
+        <spring-boot.version>1.2.7.RELEASE</spring-boot.version>
+        <spring-security-oauth2.version>2.0.8.RELEASE</spring-security-oauth2.version>
         <spring-cloud-starter-hystrix.version>1.0.3.RELEASE</spring-cloud-starter-hystrix.version>
         <archaius.version>0.7.1</archaius.version>
 
-        <aws-java-sdk.version>1.10.10</aws-java-sdk.version>
-        <aws-cloudtrail-processing-library.version>1.0.0</aws-cloudtrail-processing-library.version>
+        <aws-java-sdk.version>1.10.31</aws-java-sdk.version>
+        <aws-cloudtrail-processing-library.version>1.0.2</aws-cloudtrail-processing-library.version>
 
-        <joda-time.version>2.8.2</joda-time.version>
+        <joda-time.version>2.9</joda-time.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <guava.version>18.0</guava.version>
         <json-path.version>2.0.0</json-path.version>
-        <javax.el-api.version>2.2.4</javax.el-api.version>
+        <javax.el-api.version>2.2.5</javax.el-api.version>
 
-        <maven-clean-plugin.version>2.6.1</maven-clean-plugin.version>
-        <querydsl.version>3.6.7</querydsl.version>
+        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+        <maven-scm-plugin.version>1.9.4</maven-scm-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+
+        <querydsl.version>3.6.9</querydsl.version>
         <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
         <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
 
-        <stups-spring-oauth2.version>1.0.2</stups-spring-oauth2.version>
-        <spring-boot-zalando-stups-tokens.version>0.9.0</spring-boot-zalando-stups-tokens.version>
-        <tokens.version>0.9.0</tokens.version>
-        <kio-client.version>0.10.0</kio-client.version>
-        <pierone-client.version>0.5.1</pierone-client.version>
+        <stups-spring-oauth2.version>1.0.5</stups-spring-oauth2.version>
+        <spring-boot-zalando-stups-tokens.version>0.9.3</spring-boot-zalando-stups-tokens.version>
+        <tokens.version>0.9.2</tokens.version>
+        <kio-client.version>0.11.0</kio-client.version>
+        <pierone-client.version>0.6.0</pierone-client.version>
         <kontrolletti-client-java.version>0.1.0-RC-1</kontrolletti-client-java.version>
 
-        <assertj-core.version>3.1.0</assertj-core.version>
+        <assertj-core.version>3.2.0</assertj-core.version>
         <mockito.version>1.10.19</mockito.version>
         <otj-pg-embedded.version>0.4.0</otj-pg-embedded.version>
     </properties>
@@ -274,7 +278,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>${maven-resources-plugin.version}</version>
                     <configuration>
                         <delimiters>
                             <delimiter>@</delimiter>
@@ -287,7 +291,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>
-                <version>1.9.2</version>
+                <version>${maven-scm-plugin.version}</version>
                 <configuration>
                     <connectionType>connection</connectionType>
                     <!-- <tag>${project.artifactId}-${project.version}</tag> -->
@@ -296,7 +300,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.2</version>
+                <version>${maven-release-plugin.version}</version>
                 <configuration>
                     <tagNameFormat>@{artifactId}-@{project.version}</tagNameFormat>
                     <mavenExecutorId>forked-path</mavenExecutorId>

@@ -15,5 +15,12 @@
  */
 package org.zalando.stups.fullstop.jobs.redshift;
 
-public class FetchRedshiftJob {
+import org.zalando.stups.fullstop.jobs.FullstopJob;
+
+public class FetchRedshiftJob implements FullstopJob {
+
+    @Override
+    public void run() {
+
+    }
 }

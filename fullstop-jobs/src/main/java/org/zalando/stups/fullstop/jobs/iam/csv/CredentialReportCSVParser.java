@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.iam.csv;
 
-import com.amazonaws.services.identitymanagement.model.User;
+import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult;
 
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.function.Function;
 
-/**
- * @author jbellmann
- */
-abstract class UsersPredicates {
-
-    static final Predicate<User> PASSWORD_LAST_USED_HAS_NON_NULL_DATE = t -> t.getPasswordLastUsed() != null;
-
+public interface CredentialReportCSVParser extends Function<GetCredentialReportResult, List<User>> {
 }

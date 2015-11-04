@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.aws;
+package org.zalando.stups.fullstop.jobs.annotation;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.regions.Region;
+import org.springframework.scheduling.annotation.Scheduled;
 
-public interface ClientProvider {
+import java.lang.annotation.*;
 
-    <T extends AmazonWebServiceClient> T getClient(Class<T> type, String accountId, Region region);
+/**
+ * @author jbellmann
+ */
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Scheduled(cron = "0 22 * * * *")
+public @interface EveryDayAtTenPM {
 }

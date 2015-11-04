@@ -13,12 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.aws;
+package org.zalando.stups.fullstop.jobs;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.regions.Region;
-
-public interface ClientProvider {
-
-    <T extends AmazonWebServiceClient> T getClient(Class<T> type, String accountId, Region region);
+public interface FullstopJob extends Runnable {
 }

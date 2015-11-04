@@ -33,12 +33,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.common.AwsApplications;
-import org.zalando.stups.fullstop.jobs.common.PortsChecker;
-import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
+import org.zalando.stups.fullstop.jobs.common.*;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -65,7 +62,7 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPO
  * Created by gkneitschel.
  */
 @Component
-public class FetchElasticLoadBalancersJob {
+public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkElbJob";
 
@@ -75,7 +72,7 @@ public class FetchElasticLoadBalancersJob {
 
     private final ClientProvider clientProvider;
 
-    private final TeamOperations teamOperations;
+    private final AccountIdSupplier allAccountIds;
 
     private final JobsProperties jobsProperties;
 
@@ -94,15 +91,14 @@ public class FetchElasticLoadBalancersJob {
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
                                         ClientProvider clientProvider,
-                                        TeamOperations teamOperations,
-                                        JobsProperties jobsProperties,
+                                        AccountIdSupplier allAccountIds, JobsProperties jobsProperties,
                                         @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                                         PortsChecker portsChecker,
                                         AwsApplications awsApplications,
                                         ViolationService violationService) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
-        this.teamOperations = teamOperations;
+        this.allAccountIds = allAccountIds;
         this.jobsProperties = jobsProperties;
         this.securityGroupsChecker = securityGroupsChecker;
         this.portsChecker = portsChecker;
@@ -153,10 +149,9 @@ public class FetchElasticLoadBalancersJob {
     }
 
     @Scheduled(fixedRate = 300_000, initialDelay = 120_000) // 5 min rate, 2 min delay
-    public void check() {
-        List<String> accountIds = fetchAccountIds();
-        log.info("Running job {} (found {} accounts)", getClass().getSimpleName(), accountIds.size());
-        for (String account : accountIds) {
+    public void run() {
+        log.info("Running job {}", getClass().getSimpleName());
+        for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
                 for (LoadBalancerDescription elb : getELBs(account, region)) {
@@ -207,14 +202,15 @@ public class FetchElasticLoadBalancersJob {
 
                     for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
                         HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
-                        ListenableFuture<Boolean> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
+                        ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
                         listenableFuture.addCallback(
-                                result -> {
+                                httpCallResult -> {
                                     log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                    if (!result) {
+                                    if (httpCallResult.isOpen()) {
                                         final Map<String, Object> md = newHashMap();
                                         md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                        md.put("allowedPort", allowedPort);
+                                        md.put("port", allowedPort);
+                                        md.put("Error", httpCallResult.getMessage());
                                         writeViolation(account, region, md, canonicalHostedZoneName);
                                     }
                                 }, ex -> log.warn(ex.getMessage(), ex));
@@ -252,13 +248,5 @@ public class FetchElasticLoadBalancersJob {
         DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
         return elbClient.describeLoadBalancers(
                 describeLoadBalancersRequest).getLoadBalancerDescriptions();
-    }
-
-    private List<String> fetchAccountIds() {
-        List<String> accountIds = newArrayList();
-        List<Account> accounts = teamOperations.getAccounts();
-        accountIds.addAll(accounts.stream().map(Account::getId).collect(toList()));
-        return accountIds;
-
     }
 }

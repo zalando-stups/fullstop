@@ -30,6 +30,9 @@
     <!-- this package logs mostly spam on INFO level (like cache key generated, etc) -->
     <logger name="springfox.documentation" level="WARN"/>
 
+    <!-- we have hundreds of audit events ("AUTHENTICATION_FAILURE") every minute and they are logged on INFO level in this location-->
+    <logger name="org.springframework.boot.actuate.audit.listener.AuditListener" level="WARN"/>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>

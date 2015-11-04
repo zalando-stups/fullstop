@@ -26,26 +26,20 @@ import java.util.List;
 @ConfigurationProperties(prefix = "fullstop.plugins.registry")
 public class RegistryPluginProperties {
 
-    private List<String> defaultMandatoryApprovals = Lists.newArrayList(
+
+    private List<String> mandatoryApprovals = Lists.newArrayList(
             "CODE_CHANGE",
             "TEST",
             "SPECIFICATION",
             "DEPLOY");
 
-    private List<String> mandatoryApprovals = Lists.newArrayList();
 
-    private List<String> defaultApprovalsFromMany = Lists.newArrayList(
+    private List<String> approvalsFromMany = Lists.newArrayList(
             "TEST",
             "CODE_CHANGE",
             "DEPLOY");
 
-    private List<String> approvalsFromMany = Lists.newArrayList();
-
     public List<String> getMandatoryApprovals() {
-        if (mandatoryApprovals.isEmpty()) {
-            return defaultMandatoryApprovals;
-        }
-
         return mandatoryApprovals;
     }
 
@@ -53,26 +47,9 @@ public class RegistryPluginProperties {
         this.mandatoryApprovals = defaultApprovals;
     }
 
-    public List<String> getDefaultMandatoryApprovals() {
-        return defaultMandatoryApprovals;
-    }
-
-    public void setDefaultMandatoryApprovals(List<String> defaultMandatoryApprovals) {
-        this.defaultMandatoryApprovals = defaultMandatoryApprovals;
-    }
-
-    public List<String> getDefaultApprovalsFromMany() {
-        return defaultApprovalsFromMany;
-    }
-
-    public void setDefaultApprovalsFromMany(List<String> defaultApprovalsFromMany) {
-        this.defaultApprovalsFromMany = defaultApprovalsFromMany;
-    }
 
     public List<String> getApprovalsFromMany() {
-        if (approvalsFromMany.isEmpty()) {
-            return defaultApprovalsFromMany;
-        }
+
         return approvalsFromMany;
     }
 

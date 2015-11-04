@@ -32,6 +32,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
+import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
@@ -41,11 +42,14 @@ import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Boolean.FALSE;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.joda.time.DateTime.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -95,7 +99,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetAllPage1() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(5);
@@ -108,7 +112,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetAllPage2() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, null, null, null, new PageRequest(1, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, null, null, null, null, new PageRequest(1, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(5);
@@ -120,7 +124,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetByAccounts() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(newArrayList("acc2", "acc3"), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(newArrayList("acc2", "acc3"), null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -134,7 +138,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsSince1() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, vio4.getCreated().plusSeconds(1), null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, vio4.getCreated().plusSeconds(1), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(0);
@@ -146,7 +150,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsSince2() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, vio2.getCreated(), null, null,null, null, null,  new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, vio2.getCreated(), null, null, null,null, null, null,  new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -159,7 +163,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsBeginningFrom() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, vio3.getId(), null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, vio3.getId(), null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -172,7 +176,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetCheckedViolations() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, true, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, true, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(2);
@@ -185,7 +189,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetUncheckedViolations() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, false, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, false, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -199,7 +203,16 @@ public class ViolationRepositoryTest {
     public void testCountViolationsByAccountAndType() throws Exception {
         final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty());
         assertThat(result).hasSize(4);
+    }
 
+    @Test
+    public void testCountViolationsByAppVersionAndType() throws Exception {
+        final List<CountByAppVersionAndType> result = violationRepository.countByAppVersionAndType(
+                "acc1",
+                Optional.of(now().minusDays(1)),
+                Optional.of(now().plusDays(1)),
+                Optional.of(FALSE));
+        assertThat(result).hasSize(1);
     }
 
     @Configuration

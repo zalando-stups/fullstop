@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.clients.pierone.TagSummary;
 import org.zalando.stups.fullstop.events.Records;
 import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -34,6 +35,8 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.*;
 
 public class RegistryPluginPieroneTest {
@@ -60,23 +63,21 @@ public class RegistryPluginPieroneTest {
 
     private RegistryPlugin registryPlugin;
 
-    private RegistryPluginProperties pluginConfiguration;
-
     protected CloudTrailEvent buildEvent() {
         List<Map<String, Object>> records = Records.fromClasspath("/record.json");
 
-        CloudTrailEvent event = TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-        return event;
+        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
     }
 
     @Before
     public void setUp() {
+        final RegistryPluginProperties pluginConfiguration = new RegistryPluginProperties();
+
         event = buildEvent();
         userDataProvider = mock(UserDataProvider.class);
         kioOperations = mock(KioOperations.class);
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
-        pluginConfiguration = new RegistryPluginProperties();
         registryPlugin = new RegistryPlugin(
                 userDataProvider,
                 violationSink,
@@ -96,14 +97,7 @@ public class RegistryPluginPieroneTest {
 
     @Test
     public void shouldComplainIfArtifactDoesNotContainSource() {
-        Map<String, String> tags = Maps.newHashMap();
-        tags.put(
-                VERSION,
-                ARTIFACT);
-        when(
-                pieroneOperations.listTags(
-                        TEAM,
-                        APP)).thenReturn(tags);
+        when(pieroneOperations.listTags(TEAM, APP)).thenReturn(singletonMap(VERSION, mock(TagSummary.class)));
         registryPlugin.validateSourceWithPierone(
                 event,
                 APP,
@@ -120,11 +114,7 @@ public class RegistryPluginPieroneTest {
 
     @Test
     public void shouldComplainPieroneTagsAreEmpty() {
-        Map<String, String> tags = Maps.newHashMap();
-        when(
-                pieroneOperations.listTags(
-                        TEAM,
-                        APP)).thenReturn(tags);
+        when(pieroneOperations.listTags(TEAM, APP)).thenReturn(emptyMap());
         registryPlugin.validateSourceWithPierone(
                 event,
                 APP,
@@ -133,22 +123,14 @@ public class RegistryPluginPieroneTest {
                 ARTIFACT,
                 ARTIFACT,
                 INSTANCE_ID);
-        verify(pieroneOperations).listTags(
-                TEAM,
-                APP);
+        verify(pieroneOperations).listTags(TEAM, APP);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainIfTagIsMissingInPierone() {
-        Map<String, String> tags = Maps.newHashMap();
-        tags.put(
-                "2.0",
-                "abcd");
-        when(
-                pieroneOperations.listTags(
-                        TEAM,
-                        APP)).thenReturn(tags);
+        when(pieroneOperations.listTags(TEAM, APP)).thenReturn(singletonMap("2.0", mock(TagSummary.class)));
+
         registryPlugin.validateSourceWithPierone(
                 event,
                 APP,
@@ -165,14 +147,7 @@ public class RegistryPluginPieroneTest {
 
     @Test
     public void shouldNotComplainIfArtifactContainsSourceAndTagIsInPierone() {
-        Map<String, String> tags = Maps.newHashMap();
-        tags.put(
-                VERSION,
-                "abcd");
-        when(
-                pieroneOperations.listTags(
-                        TEAM,
-                        APP)).thenReturn(tags);
+        when(pieroneOperations.listTags(TEAM, APP)).thenReturn(singletonMap(VERSION, mock(TagSummary.class)));
         registryPlugin.validateSourceWithPierone(
                 event,
                 APP,

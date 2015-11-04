@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.jobs;
+package org.zalando.stups.fullstop.jobs.common;
 
-public class JobConfiguration {
+import java.util.Set;
+import java.util.function.Supplier;
+
+/**
+ * Provides all account ids
+ */
+public interface AccountIdSupplier extends Supplier<Set<String>> {
 }
