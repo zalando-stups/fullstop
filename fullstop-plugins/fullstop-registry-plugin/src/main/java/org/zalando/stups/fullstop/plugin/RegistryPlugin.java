@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.*;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.clients.pierone.TagSummary;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -306,7 +307,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     protected void validateSourceWithPierone(final CloudTrailEvent event, final String applicationId,
             final String applicationVersion, final String team, final String source, final String artifact,
             String instanceId) {
-        List<String> instanceIds = getInstanceIds(event);
         if (!artifact.contains(source)) {
             violationSink.put(
                     violationFor(event).withInstanceId(instanceId)
@@ -321,7 +321,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         }
 
-        Map<String, String> tags = newHashMap();
+        Map<String, TagSummary> tags = newHashMap();
         try {
             tags = this.pieroneOperations.listTags(
                     team,
@@ -346,8 +346,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         }
         else {
-            String value = tags.get(applicationVersion);
-            if (value == null) {
+            if (!tags.containsKey(applicationVersion)) {
                 violationSink.put(
                         violationFor(event).withInstanceId(instanceId)
                                            .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
