@@ -1,166 +1,170 @@
 {
-  "eventVersion": "1.02",
-  "userIdentity": {
-    "type": "Root",
-    "principalId": "123123123",
-    "arn": "arn:aws:iam::123123123:root",
-    "accountId": "123123123",
-    "userName": "username",
-    "invokedBy": "autoscaling.amazonaws.com"
-  },
-  "eventTime": "2015-10-29T12:51:47Z",
-  "eventSource": "ec2.amazonaws.com",
-  "eventName": "RunInstances",
-  "awsRegion": "eu-west-1",
-  "sourceIPAddress": "autoscaling.amazonaws.com",
-  "userAgent": "autoscaling.amazonaws.com",
-  "requestParameters": {
-    "instancesSet": {
-      "items": [
-        {
-          "imageId": "ami-f4zz5287",
-          "minCount": 1,
-          "maxCount": 1
-        }
-      ]
-    },
-    "userData": "<sensitiveDataRemoved>",
-    "instanceType": "t2.micro",
-    "blockDeviceMapping": {},
-    "availabilityZone": "us-west-1b",
-    "monitoring": {
-      "enabled": true
-    },
-    "disableApiTermination": false,
-    "clientToken": "3205ba26-rrc8-4d00-a360-df79430f592d_subnet-57893220_1",
-    "networkInterfaceSet": {
-      "items": [
-        {
-          "deviceIndex": 0,
-          "subnetId": "subnet-57245220",
-          "associatePublicIpAddress": false,
-          "groupSet": {
-            "items": [
-              {
-                "groupId": "sg-33616a66"
+  "Records": [
+    {
+      "eventVersion": "1.02",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123123123",
+        "arn": "arn:aws:iam::123123123:root",
+        "accountId": "123123123",
+        "userName": "username",
+        "invokedBy": "autoscaling.amazonaws.com"
+      },
+      "eventTime": "2015-10-29T12:51:47Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "RunInstances",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "autoscaling.amazonaws.com",
+      "userAgent": "autoscaling.amazonaws.com",
+      "requestParameters": {
+        "instancesSet": {
+          "items": [
+            {
+              "imageId": "ami-f4zz5287",
+              "minCount": 1,
+              "maxCount": 1
+            }
+          ]
+        },
+        "userData": "<sensitiveDataRemoved>",
+        "instanceType": "t2.micro",
+        "blockDeviceMapping": {},
+        "availabilityZone": "us-west-1b",
+        "monitoring": {
+          "enabled": true
+        },
+        "disableApiTermination": false,
+        "clientToken": "3205ba26-rrc8-4d00-a360-df79430f592d_subnet-57893220_1",
+        "networkInterfaceSet": {
+          "items": [
+            {
+              "deviceIndex": 0,
+              "subnetId": "subnet-57245220",
+              "associatePublicIpAddress": false,
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-33616a66"
+                  }
+                ]
               }
-            ]
-          }
+            }
+          ]
+        },
+        "iamInstanceProfile": {
+          "name": "hello-world-4-AppServerInstanceProfile-1AZUGGOKBGZRU"
         }
-      ]
-    },
-    "iamInstanceProfile": {
-      "name": "hello-world-4-AppServerInstanceProfile-1AZUGGOKBGZRU"
-    }
-  },
-  "responseElements": {
-    "reservationId": "r-d6459d77",
-    "ownerId": "123123123",
-    "groupSet": {},
-    "instancesSet": {
-      "items": [
-        {
-          "instanceId": "i-2563d092",
-          "imageId": "ami-f4898287",
-          "instanceState": {
-            "code": 0,
-            "name": "pending"
-          },
-          "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
-          "amiLaunchIndex": 0,
-          "productCodes": {},
-          "instanceType": "t2.micro",
-          "launchTime": 1446553107000,
-          "placement": {
-            "availabilityZone": "us-west-1b",
-            "tenancy": "default"
-          },
-          "monitoring": {
-            "state": "pending"
-          },
-          "subnetId": "subnet-57834220",
-          "vpcId": "vpc-db983fbe",
-          "privateIpAddress": "172.31.222.81",
-          "stateReason": {
-            "code": "pending",
-            "message": "pending"
-          },
-          "architecture": "x86_64",
-          "rootDeviceType": "ebs",
-          "rootDeviceName": "/dev/sda1",
-          "blockDeviceMapping": {},
-          "virtualizationType": "hvm",
-          "hypervisor": "xen",
-          "clientToken": "3205ba26-7fc8-4d00-a360-d234430f592d_subnet-57893220_1",
-          "interfaceId": "interface-b23442ff",
-          "groupSet": {
-            "items": [
-              {
-                "groupId": "sg-32346a56",
-                "groupName": "app-hello-world"
-              }
-            ]
-          },
-          "sourceDestCheck": true,
-          "networkInterfaceSet": {
-            "items": [
-              {
-                "networkInterfaceId": "eni-b23442ff",
-                "internalInterfaceId": "interface-b72342ff",
-                "subnetId": "subnet-57823420",
-                "vpcId": "vpc-db234fbe",
+      },
+      "responseElements": {
+        "reservationId": "r-d6459d77",
+        "ownerId": "123123123",
+        "groupSet": {},
+        "instancesSet": {
+          "items": [
+            {
+              "instanceId": "i-2563d092",
+              "imageId": "ami-f4898287",
+              "instanceState": {
+                "code": 0,
+                "name": "pending"
+              },
+              "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
+              "amiLaunchIndex": 0,
+              "productCodes": {},
+              "instanceType": "t2.micro",
+              "launchTime": 1446553107000,
+              "placement": {
                 "availabilityZone": "us-west-1b",
-                "ownerId": "123123123",
-                "requesterManaged": false,
-                "status": "in-use",
-                "macAddress": "06:43:b9:ac:f2:7b",
-                "privateIpAddress": "172.31.222.81",
-                "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
-                "sourceDestCheck": true,
-                "groupSet": {
-                  "items": [
-                    {
-                      "groupId": "sg-33234a56",
-                      "groupName": "app-hello-world"
-                    }
-                  ]
-                },
-                "attachment": {
-                  "attachmentId": "eni-attach-a23458e",
-                  "instanceId": "9876543325",
-                  "instanceOwnerId": "123123123",
-                  "deviceIndex": 0,
-                  "status": "attaching",
-                  "attachTime": 1446123107000,
-                  "deleteOnTermination": true
-                },
-                "attachableToInstanceBySet": {},
-                "associableWithElasticIpBySet": {},
-                "privateIpAddressesSet": {
-                  "item": [
-                    {
-                      "privateIpAddress": "172.31.222.81",
-                      "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
-                      "primary": true
-                    }
-                  ]
-                },
-                "tagSet": {}
-              }
-            ]
-          },
-          "iamInstanceProfile": {
-            "arn": "arn:aws:iam::123123123:instance-profile/hello-world-4-AppServerInstanceProfile-12345TOKBGZRU",
-            "id": "AIPAJAYOWSQC3456SYFLK"
-          },
-          "ebsOptimized": false
-        }
-      ]
-    },
-    "requesterId": "226008221399"
-  },
-  "requestID": "68a18248-4272-4d83-ab0b-234159ea4e29",
-  "eventID": "0d7db51c-3f5b-46b9-b338-f823447cffe6",
-  "eventType": "AwsApiCall",
-  "recipientAccountId": "123123123"
+                "tenancy": "default"
+              },
+              "monitoring": {
+                "state": "pending"
+              },
+              "subnetId": "subnet-57834220",
+              "vpcId": "vpc-db983fbe",
+              "privateIpAddress": "172.31.222.81",
+              "stateReason": {
+                "code": "pending",
+                "message": "pending"
+              },
+              "architecture": "x86_64",
+              "rootDeviceType": "ebs",
+              "rootDeviceName": "/dev/sda1",
+              "blockDeviceMapping": {},
+              "virtualizationType": "hvm",
+              "hypervisor": "xen",
+              "clientToken": "3205ba26-7fc8-4d00-a360-d234430f592d_subnet-57893220_1",
+              "interfaceId": "interface-b23442ff",
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-32346a56",
+                    "groupName": "app-hello-world"
+                  }
+                ]
+              },
+              "sourceDestCheck": true,
+              "networkInterfaceSet": {
+                "items": [
+                  {
+                    "networkInterfaceId": "eni-b23442ff",
+                    "internalInterfaceId": "interface-b72342ff",
+                    "subnetId": "subnet-57823420",
+                    "vpcId": "vpc-db234fbe",
+                    "availabilityZone": "us-west-1b",
+                    "ownerId": "123123123",
+                    "requesterManaged": false,
+                    "status": "in-use",
+                    "macAddress": "06:43:b9:ac:f2:7b",
+                    "privateIpAddress": "172.31.222.81",
+                    "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
+                    "sourceDestCheck": true,
+                    "groupSet": {
+                      "items": [
+                        {
+                          "groupId": "sg-33234a56",
+                          "groupName": "app-hello-world"
+                        }
+                      ]
+                    },
+                    "attachment": {
+                      "attachmentId": "eni-attach-a23458e",
+                      "instanceId": "9876543325",
+                      "instanceOwnerId": "123123123",
+                      "deviceIndex": 0,
+                      "status": "attaching",
+                      "attachTime": 1446123107000,
+                      "deleteOnTermination": true
+                    },
+                    "attachableToInstanceBySet": {},
+                    "associableWithElasticIpBySet": {},
+                    "privateIpAddressesSet": {
+                      "item": [
+                        {
+                          "privateIpAddress": "172.31.222.81",
+                          "privateDnsName": "ip-172-31-222-81.us-west-1.compute.internal",
+                          "primary": true
+                        }
+                      ]
+                    },
+                    "tagSet": {}
+                  }
+                ]
+              },
+              "iamInstanceProfile": {
+                "arn": "arn:aws:iam::123123123:instance-profile/hello-world-4-AppServerInstanceProfile-12345TOKBGZRU",
+                "id": "AIPAJAYOWSQC3456SYFLK"
+              },
+              "ebsOptimized": false
+            }
+          ]
+        },
+        "requesterId": "226008221399"
+      },
+      "requestID": "68a18248-4272-4d83-ab0b-234159ea4e29",
+      "eventID": "0d7db51c-3f5b-46b9-b338-f823447cffe6",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "123123123"
+    }
+  ]
 }

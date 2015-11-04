@@ -245,7 +245,7 @@ public abstract class CloudTrailEventSupport {
 
     public static String getUsernameAsString(CloudTrailEvent cloudTrailEvent) {
 
-        if (cloudTrailEvent == null) {
+        if (cloudTrailEvent == null || cloudTrailEvent.getEventData() == null) {
             return null;
         }
 
