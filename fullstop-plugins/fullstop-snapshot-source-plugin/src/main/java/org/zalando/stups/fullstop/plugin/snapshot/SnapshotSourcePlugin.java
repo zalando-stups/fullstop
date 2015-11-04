@@ -65,7 +65,6 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(CloudTrailEvent event) {
         List<String> instanceIds = getInstanceIds(event);
-        Map<String, String> metaData = newHashMap();
         for (String id : instanceIds) {
             Map userData;
             final String accountId = event.getEventData().getUserIdentity().getAccountId();
@@ -90,10 +89,8 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                         SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
             } else if (source.matches(SNAPSHOT_REGEX)) {
-                metaData.put("errorMessage", "EC2 instances should be deployed with immutable Docker images only.");
-                metaData.put("application", source);
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(metaData).build());
+                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(newHashMap().put("application",source)).build());
             }
         }
     }
