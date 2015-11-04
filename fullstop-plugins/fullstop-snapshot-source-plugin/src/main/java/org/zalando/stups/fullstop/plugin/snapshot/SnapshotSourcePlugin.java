@@ -29,7 +29,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_A_SNAPSHOT_IMAGE;
@@ -90,7 +90,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                         SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
             } else if (source.matches(SNAPSHOT_REGEX)) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(newHashMap().put("application",source)).build());
+                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(singletonMap("application", source)).build());
             }
         }
     }
