@@ -24,7 +24,6 @@ import org.springframework.util.Assert;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.events.FileEventReader;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -35,8 +34,6 @@ import java.util.List;
  */
 public class LocalPluginProcessor {
 
-    private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
-
     private PluginEventsProcessor pluginEventProcessor;
 
     public LocalPluginProcessor(final FullstopPlugin fullstopPlugin) {
@@ -44,13 +41,8 @@ public class LocalPluginProcessor {
 
         List<FullstopPlugin> plugins = Lists.newArrayList();
         plugins.add(fullstopPlugin);
-        pluginRegistry = SimplePluginRegistry.create(plugins);
+        PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry = SimplePluginRegistry.create(plugins);
         pluginEventProcessor = new PluginEventsProcessor(pluginRegistry);
-    }
-
-    public void processEvents(final File file) throws CallbackException {
-        FileEventReader fer = new FileEventReader(pluginEventProcessor);
-        fer.readEvents(file, new TestCloudTrailLog());
     }
 
     public void processEvents(final InputStream is) throws CallbackException {

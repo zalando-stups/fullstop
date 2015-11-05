@@ -25,8 +25,6 @@ import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -35,10 +33,10 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 public class RegistryPluginApprovalsTest {
 
@@ -63,13 +61,6 @@ public class RegistryPluginApprovalsTest {
 
     private Version version;
 
-    protected CloudTrailEvent buildEvent() {
-        List<Map<String, Object>> records = Records.fromClasspath("/record.json");
-
-        CloudTrailEvent event = TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-        return event;
-    }
-
     protected Approval buildApproval(String type, String user) {
         Approval approval = new Approval();
         approval.setApprovalType(type);
@@ -93,7 +84,7 @@ public class RegistryPluginApprovalsTest {
 
     @Before
     public void setUp() {
-        event = buildEvent();
+        event = createCloudTrailEvent("/record.json");
         userDataProvider = mock(UserDataProvider.class);
         kioOperations = mock(KioOperations.class);
         pieroneOperations = mock(PieroneOperations.class);
@@ -125,7 +116,7 @@ public class RegistryPluginApprovalsTest {
         when(
                 kioOperations.getApplicationVersionApprovals(
                         APPLICATION_ID,
-                        APPLICATION_VERSION)).thenReturn(new LinkedList<Approval>());
+                        APPLICATION_VERSION)).thenReturn(new LinkedList<>());
         registryPlugin.validateContainsMandatoryApprovals(
                 version,
                 event, INSTANCE_ID);
@@ -140,7 +131,7 @@ public class RegistryPluginApprovalsTest {
     public void shouldComplainAboutMissingDefaultApprovals() {
         // build test approvals
         List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getMandatoryApprovals());
-        List<Approval> approvals = new LinkedList<Approval>();
+        List<Approval> approvals = new LinkedList<>();
         approvals.add(
                 buildApproval(
                         approvalTypes.get(0),
@@ -218,7 +209,7 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldNotComplainWithExactlyAsMuchApproversAsRequired() {
-        List<Approval> approvals = new LinkedList<Approval>();
+        List<Approval> approvals = new LinkedList<>();
         List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getApprovalsFromMany());
         approvals.add(
                 buildApproval(
@@ -251,7 +242,7 @@ public class RegistryPluginApprovalsTest {
 
     @Test
     public void shouldComplainWithLessApproversThanRequired() {
-        List<Approval> approvals = new LinkedList<Approval>();
+        List<Approval> approvals = new LinkedList<>();
         List<String> approvalTypes = Lists.newArrayList(pluginConfiguration.getApprovalsFromMany());
         approvals.add(
                 buildApproval(

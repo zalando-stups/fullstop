@@ -1,0 +1,65 @@
+{
+  "Records": [
+    {
+      "eventVersion": "1.02",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123123123",
+        "arn": "arn:aws:iam::123123123:root",
+        "accountId": "123123123",
+        "userName": "username",
+        "invokedBy": "autoscaling.amazonaws.com"
+      },
+      "eventTime": "2015-10-29T12:51:47Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "RunInstances",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "autoscaling.amazonaws.com",
+      "userAgent": "autoscaling.amazonaws.com",
+      "requestParameters": {
+        "instancesSet": {
+          "items": [
+            {
+              "imageId": "ami-f4zz5287",
+              "minCount": 1,
+              "maxCount": 1
+            }
+          ]
+        },
+        "userData": "<sensitiveDataRemoved>",
+        "instanceType": "t2.micro",
+        "blockDeviceMapping": {},
+        "availabilityZone": "us-west-1b",
+        "monitoring": {
+          "enabled": true
+        },
+        "disableApiTermination": false,
+        "clientToken": "3205ba26-rrc8-4d00-a360-df79430f592d_subnet-57893220_1",
+        "networkInterfaceSet": {
+          "items": [
+            {
+              "deviceIndex": 0,
+              "subnetId": "subnet-57245220",
+              "associatePublicIpAddress": false,
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-33616a66"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "iamInstanceProfile": {
+          "name": "hello-world-4-AppServerInstanceProfile-1AZUGGOKBGZRU"
+        }
+      },
+      "responseElements": null,
+      "requestID": "68a18248-4272-4d83-ab0b-234159ea4e29",
+      "eventID": "0d7db51c-3f5b-46b9-b338-f823447cffe6",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "123123123"
+    }
+  ]
+}

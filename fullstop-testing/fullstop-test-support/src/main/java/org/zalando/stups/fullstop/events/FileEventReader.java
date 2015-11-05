@@ -28,9 +28,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.progress.ProgressStat
 import com.amazonaws.services.cloudtrail.processinglibrary.progress.ProgressStatus;
 import com.amazonaws.services.cloudtrail.processinglibrary.serializer.DefaultEventSerializer;
 import com.amazonaws.services.cloudtrail.processinglibrary.serializer.EventSerializer;
-import com.amazonaws.services.cloudtrail.processinglibrary.serializer.RawLogDeliveryEventSerializer;
 import com.amazonaws.services.cloudtrail.processinglibrary.utils.EventBuffer;
-import com.amazonaws.services.cloudtrail.processinglibrary.utils.LibraryUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -40,7 +38,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -61,8 +58,6 @@ public class FileEventReader {
 
     private ObjectMapper mapper;
 
-    private boolean isEnableRawEventInfo = false;
-
     public FileEventReader(final EventsProcessor eventsProcessor, final EventFilter eventFilter) {
         this.eventsProcessor = eventsProcessor;
         this.eventFilter = eventFilter;
@@ -71,29 +66,6 @@ public class FileEventReader {
 
     public FileEventReader(final EventsProcessor eventsProcessor) {
         this(eventsProcessor, new DefaultEventFilter());
-    }
-
-    public void readEvents(final File file, final CloudTrailLog ctLog) throws CallbackException {
-        try {
-            InputStream is = null;
-            if (file.getAbsolutePath().endsWith(".json.gz")) {
-                is = new GZIPInputStream(new FileInputStream(file));
-            }
-
-            if (file.getAbsolutePath().endsWith(".json")) {
-                is = new FileInputStream(file);
-            }
-
-            readEvents(is, ctLog);
-            // final EventSerializer serializer = this.getEventSerializer(is, ctLog);
-            // this.emitEvents(serializer);
-        }
-        catch (IOException e) {
-            this.exceptionHandler.handleException(
-                    new ProcessingLibraryException(
-                            e.getMessage(),
-                            new ProgressStatus(ProgressState.parseMessage, new FakeProgressInfo())));
-        }
     }
 
     public void readEvents(final InputStream is, final CloudTrailLog ctLog) throws CallbackException {
@@ -121,15 +93,8 @@ public class FileEventReader {
             throws IOException {
         EventSerializer serializer;
 
-        if (isEnableRawEventInfo) {
-            String logFileContent = new String(LibraryUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
-            JsonParser jsonParser = this.mapper.getFactory().createParser(logFileContent);
-            serializer = new RawLogDeliveryEventSerializer(logFileContent, ctLog, jsonParser);
-        }
-        else {
-            JsonParser jsonParser = this.mapper.getFactory().createParser(inputStream);
-            serializer = new DefaultEventSerializer(ctLog, jsonParser);
-        }
+        JsonParser jsonParser = this.mapper.getFactory().createParser(inputStream);
+        serializer = new DefaultEventSerializer(ctLog, jsonParser);
 
         return serializer;
     }
