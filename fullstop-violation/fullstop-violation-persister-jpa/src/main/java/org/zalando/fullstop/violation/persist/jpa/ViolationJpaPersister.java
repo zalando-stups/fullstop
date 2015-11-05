@@ -69,6 +69,8 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setPluginFullyQualifiedClassName(violation.getPluginFullyQualifiedClassName());
 
+        entity.setUsername(violation.getUsername());
+
         ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationTypeId);
 
         if (violationTypeEntity != null) {
