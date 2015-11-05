@@ -23,6 +23,7 @@ import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import java.util.List;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 /**
  * @author jbellmann
@@ -31,7 +32,7 @@ public class SecurityGroupTest {
 
     @Test
     public void testReadingPrivateIpAddress() {
-        CloudTrailEvent event = new CloudTrailEvent(new TestCloudTrailEventData("/responseElements.json"), null);
+        CloudTrailEvent event = createCloudTrailEvent("/responseElements.json");
 
         List<String> result = read(event, PRIVATE_IP_JSON_PATH, true);
 
@@ -41,7 +42,7 @@ public class SecurityGroupTest {
 
     @Test
     public void testReadingPublicIpAddress() {
-        CloudTrailEvent event = new CloudTrailEvent(new TestCloudTrailEventData("/responseElements.json"), null);
+        CloudTrailEvent event = createCloudTrailEvent("/responseElements.json");
 
         List<String> result = read(event, PUBLIC_IP_JSON_PATH, true);
 

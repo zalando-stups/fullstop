@@ -1,4 +1,6 @@
 {
+  "Records": [
+    {
   "eventVersion": "1.02",
   "userIdentity": {
     "type": "Root",
@@ -163,4 +165,6 @@
   "eventID": "0d7db51c-3f5b-46b9-b338-f823447cffe6",
   "eventType": "AwsApiCall",
   "recipientAccountId": "123123123"
+    }
+  ]
 }

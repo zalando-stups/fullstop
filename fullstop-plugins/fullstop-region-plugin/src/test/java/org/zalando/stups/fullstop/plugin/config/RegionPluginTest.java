@@ -16,25 +16,18 @@
 package org.zalando.stups.fullstop.plugin.config;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-import java.util.Map;
-
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 /**
  * @author jbellmann
@@ -42,6 +35,7 @@ import static org.mockito.Mockito.*;
 public class RegionPluginTest {
 
     private ViolationSink violationSink = new SystemOutViolationSink();
+    private RegionPlugin plugin;
 
     ;
 
@@ -51,34 +45,21 @@ public class RegionPluginTest {
     public void setUp() {
         violationSink = Mockito.spy(violationSink);
         regionPluginProperties = new RegionPluginProperties();
+        plugin = new RegionPlugin(violationSink, regionPluginProperties);
     }
 
     @Test
     public void testWhitelistedRegion() {
-        CloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", "eu-west-1");
-        UserIdentity userIdentity = new UserIdentity();
-        userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
-        data.add(CloudTrailEventField.userIdentity.name(), userIdentity);
+        plugin.processEvent(createCloudTrailEvent("/responseElements.json"));
 
-        CloudTrailEvent event = new CloudTrailEvent(data, null);
-
-        //
-        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
-        plugin.processEvent(event);
-
-        verify(violationSink, never()).put(Mockito.any(Violation.class));
+        verify(violationSink, never()).put(any(Violation.class));
     }
 
     @Test
     public void testNonWhitelistedRegion() {
+        plugin.processEvent(createCloudTrailEvent("/run-instance-us-west.json"));
 
-        CloudTrailEvent event = buildEvent("withResp");
-
-        //
-        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
-        plugin.processEvent(event);
-
-        verify(violationSink, atLeastOnce()).put(Mockito.any(Violation.class));
+        verify(violationSink, atLeastOnce()).put(any(Violation.class));
     }
 
     @Test
@@ -87,13 +68,4 @@ public class RegionPluginTest {
         LocalPluginProcessor lpp = new LocalPluginProcessor(plugin);
         lpp.processEvents(getClass().getResourceAsStream("/record-run.json"));
     }
-
-    protected CloudTrailEvent buildEvent(final String type) {
-        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
-
-        return new CloudTrailEvent(new TestCloudTrailEventData(records.get(0), "/responseElements.json"), null);
-
-        // return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-    }
-
 }

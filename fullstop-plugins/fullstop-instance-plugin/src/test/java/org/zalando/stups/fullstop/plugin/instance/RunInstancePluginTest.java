@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 /**
  * @author jbellmann
@@ -93,7 +94,7 @@ public class RunInstancePluginTest {
 
     @Test
     public void hasOnlyPrivateIp() {
-        CloudTrailEvent event = new CloudTrailEvent(new TestCloudTrailEventData("/responseElements.json"), null);
+        CloudTrailEvent event = createCloudTrailEvent("/responseElements.json");
 
         RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
 

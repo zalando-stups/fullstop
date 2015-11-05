@@ -28,15 +28,21 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 public class TestCloudTrailEventSerializer extends AbstractEventSerializer {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public TestCloudTrailEventSerializer(JsonParser parser) throws IOException {
         super(parser);
+
+        // this initializes the AbstractEventSerializer
+        readArrayHeader();
     }
 
     public static TestCloudTrailEventSerializer serializerFor(String resource) {
         try {
-            ObjectMapper om = new ObjectMapper();
-            return new TestCloudTrailEventSerializer(om.getFactory()
-                    .createParser(readAllBytes(get(TestCloudTrailEventSerializer.class.getResource(resource).toURI()))));
+            return new TestCloudTrailEventSerializer(
+                    OBJECT_MAPPER.getFactory().createParser(
+                            readAllBytes(get(TestCloudTrailEventSerializer.class.getResource(resource).toURI()))));
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }

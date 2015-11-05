@@ -19,7 +19,9 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
+import com.amazonaws.services.cloudtrail.processinglibrary.serializer.EventSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -28,6 +30,9 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.google.common.base.Preconditions.checkState;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.serializerFor;
 
 /**
  * Creates {@link CloudTrailEvent}s with data from classpath-resources.
@@ -57,9 +62,11 @@ public class TestCloudTrailEventData extends CloudTrailEventData {
         return new CloudTrailEvent(new TestCloudTrailEventData(content), null);
     }
 
-    public static CloudTrailEvent createCloudTrailEvent(final String string) {
-        try {
-            return TestCloudTrailEventSerializer.serializerFor(string).getNextEvent();
+    public static CloudTrailEvent createCloudTrailEvent(final String resource) {
+        try (final EventSerializer serializer = serializerFor(resource)){
+            // calling hasNextEvent() is essential before getNextEvent()
+            checkState(serializer.hasNextEvent(), "Resource %s does not contain cloud trail events");
+            return serializer.getNextEvent();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

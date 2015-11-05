@@ -16,9 +16,6 @@
 package org.zalando.stups.differentnamespace;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +24,15 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.plugin.config.RegionPluginTestCloudTrailEventData;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FullstopApplication.class)
@@ -57,47 +55,36 @@ public class FullstopApplicationSingleIT {
     @Test
     public void testRegionPlugin() {
 
-        Assertions.assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
+        assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
 
         List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
-        Assertions.assertThat(plugins).isNotEmpty();
-        Assertions.assertThat(plugins).contains(regionPlugin);
+        assertThat(plugins).isNotEmpty();
+        assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = buildEventForRegion("us-west-1");
+        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
 
         for (FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
 
-        Assertions.assertThat(((CountingViolationSink) violationSink).getInvocationCount()).isEqualTo(0);
+        assertThat(((CountingViolationSink) violationSink).getInvocationCount()).isEqualTo(0);
     }
 
     @Test
     public void testRegionPluginThatShouldReportViolations() {
 
-        Assertions.assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
+        assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
 
         List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
-        Assertions.assertThat(plugins).isNotEmpty();
-        Assertions.assertThat(plugins).contains(regionPlugin);
+        assertThat(plugins).isNotEmpty();
+        assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = buildEventForRegion("eu-central-1");
+        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-eu-central.json");
 
         for (FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
 
-        Assertions.assertThat(((CountingViolationSink) violationSink).getInvocationCount()).isGreaterThan(0);
-    }
-
-    private CloudTrailEvent buildEventForRegion(final String region) {
-        TestCloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", region);
-        UserIdentity userIdentity = new UserIdentity();
-        userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
-        data.add(CloudTrailEventField.userIdentity.name(), userIdentity);
-
-        CloudTrailEvent event = new CloudTrailEvent(data, null);
-
-        return event;
+        assertThat(((CountingViolationSink) violationSink).getInvocationCount()).isGreaterThan(0);
     }
 }
