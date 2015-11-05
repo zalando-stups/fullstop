@@ -31,7 +31,7 @@ import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 
 import java.util.List;
 
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FullstopApplication.class)

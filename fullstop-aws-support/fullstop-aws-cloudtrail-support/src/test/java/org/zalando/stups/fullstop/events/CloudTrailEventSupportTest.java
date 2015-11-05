@@ -27,7 +27,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * @author jbellmann
@@ -83,20 +83,8 @@ public class CloudTrailEventSupportTest {
 
     @Test
     public void testNullResponseElementsAmis() {
-        List<String> instanceIds = getInstanceIds(new CloudTrailEvent(new NullTestCloudTrailEventData(), null));
+        List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/empty-responseElements.json"));
         Assertions.assertThat(instanceIds).isEmpty();
-    }
-
-    @Test
-    public void testNullResponseElementsInstanceIds() {
-        List<String> instances = CloudTrailEventSupport.getInstances(
-                new CloudTrailEvent(
-                        new NullTestCloudTrailEventData(),
-                        null));
-        for (String instance : instances) {
-            String instanceId = getAmi(instance);
-            Assertions.assertThat(instanceId).isEmpty();
-        }
     }
 
     @Test

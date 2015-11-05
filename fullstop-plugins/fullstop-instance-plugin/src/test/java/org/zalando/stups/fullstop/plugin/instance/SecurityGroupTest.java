@@ -18,12 +18,11 @@ package org.zalando.stups.fullstop.plugin.instance;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 
 import java.util.List;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * @author jbellmann

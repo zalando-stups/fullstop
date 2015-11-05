@@ -27,7 +27,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * @author jbellmann

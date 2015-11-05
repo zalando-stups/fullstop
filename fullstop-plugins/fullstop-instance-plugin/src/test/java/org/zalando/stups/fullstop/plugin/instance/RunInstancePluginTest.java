@@ -25,13 +25,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,7 +37,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventData.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * @author jbellmann
@@ -52,19 +49,11 @@ public class RunInstancePluginTest {
     private ViolationSink violationSink;
 
     public static Function<IpPermission, String> toPortToString() {
-        return new Function<IpPermission, String>() {
-
-            @Override
-            public String apply(final IpPermission t) {
-                return t.getToPort().toString();
-            }
-        };
+        return t -> t.getToPort().toString();
     }
 
     /**
      * Prepare some {@link SecurityGroup}s.
-     *
-     * @return
      */
     protected static Optional<List<SecurityGroup>> getSecurityGroupsForTesting() {
         List<SecurityGroup> result = Lists.newArrayList();
@@ -156,25 +145,13 @@ public class RunInstancePluginTest {
         // prepare
         RunInstancePlugin plugin = new TestRunInstancePlugin(clientProvider, violationSink);
 
-        // TestCloudTrailEventData eventData = new TestCloudTrailEventData("/responseElements.json");
-        CloudTrailEvent event = buildEvent("run");
-
         // test
-        plugin.processEvent(event);
+        plugin.processEvent(createCloudTrailEvent("/record-run.json"));
 
         // verify
         // verify(violationSink, atLeastOnce()).save(Mockito.any());
     }
 
-    protected CloudTrailEvent buildEvent(final String type) {
-        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
-
-        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-    }
-
-    /**
-     * @author jbellmann
-     */
     static class TestRunInstancePlugin extends RunInstancePlugin {
 
         public TestRunInstancePlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
