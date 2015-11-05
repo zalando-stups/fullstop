@@ -47,7 +47,7 @@ public class LocalPluginProcessor {
 
     public void processEvents(final InputStream is) throws CallbackException {
         FileEventReader fer = new FileEventReader(pluginEventProcessor);
-        fer.readEvents(is, new TestCloudTrailLog());
+        fer.readEvents(is);
     }
 
 }
