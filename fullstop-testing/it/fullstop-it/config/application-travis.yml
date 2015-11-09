@@ -6,10 +6,3 @@ spring:
         driver-class-name: org.postgresql.Driver
     jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-flyway:
-    init-sqls: "SET SEARCH_PATH TO fullstop_data;"
-    baseline-on-migrate: true
-    baseline-version-as-string: 0
-    schemas:
-     - "fullstop_data"
