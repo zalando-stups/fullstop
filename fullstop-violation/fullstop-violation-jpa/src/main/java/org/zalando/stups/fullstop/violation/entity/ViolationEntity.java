@@ -52,13 +52,14 @@ public class ViolationEntity extends AbstractModifiableEntity {
     private ViolationTypeEntity violationTypeEntity;
 
     public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
-            String comment) {
+            String comment, String username) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
         this.instanceId = instanceId;
         this.metaInfo = metaInfo;
         this.comment = comment;
+        this.username = username;
     }
 
     public ViolationEntity() {

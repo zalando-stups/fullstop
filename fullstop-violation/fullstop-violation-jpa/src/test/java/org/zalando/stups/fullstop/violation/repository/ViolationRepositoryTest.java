@@ -80,11 +80,11 @@ public class ViolationRepositoryTest {
         final ViolationTypeEntity type1 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("SOMETHING_WENT_WRONG"));
         final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
 
-        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", null, "a comment"), type1);
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1","i-5678", null, null), type1);
-        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)"), type2);
-        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null), type1);
-        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1","i-5678", null, null), type2);
+        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", null, "a comment","username"), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1","i-5678", null, null,"username"), type1);
+        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)","username"), type2);
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null,"username"), type1);
+        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1","i-5678", null, null,"username"), type2);
 
         em.flush();
         em.clear();
@@ -107,6 +107,8 @@ public class ViolationRepositoryTest {
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
                                        .isEqualTo(newArrayList(vio1.getId(), vio2.getId(), vio3.getId()));
+        assertThat(result.getContent()).extracting("username", String.class)
+                .isEqualTo(newArrayList(vio1.getUsername(), vio2.getUsername(), vio3.getUsername()));
     }
 
     @Test
