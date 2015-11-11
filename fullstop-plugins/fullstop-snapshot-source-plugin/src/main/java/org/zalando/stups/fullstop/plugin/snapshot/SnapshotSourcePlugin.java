@@ -90,7 +90,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                         SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
             } else if (source.matches(SNAPSHOT_REGEX)) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(singletonMap("application", source)).build());
+                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(singletonMap("deploymen_artifact", source)).build());
             }
         }
     }
