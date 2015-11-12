@@ -176,3 +176,7 @@ javax:
 
 flyway:
     init-sqls: "SET SEARCH_PATH TO fullstop_data;"
+    baseline-on-migrate: true
+    baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
+    schemas:
+     - "fullstop_data"

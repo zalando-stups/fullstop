@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.violation.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +43,13 @@ import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Boolean.FALSE;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.time.DateTime.now;
@@ -75,16 +78,21 @@ public class ViolationRepositoryTest {
 
     private ViolationEntity vio5;
 
+    private Map<String, String> metaInfoMap = singletonMap("test", "jsonSerialization");
+    private List<String> metaInfoList = newArrayList("test", "jsonSerialization");
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Before
     public void setUp() throws Exception {
         final ViolationTypeEntity type1 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("SOMETHING_WENT_WRONG"));
         final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
 
-        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", null, "a comment"), type1);
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1","i-5678", null, null), type1);
-        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)"), type2);
-        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1","i-1234", null, null), type1);
-        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1","i-5678", null, null), type2);
+        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username"), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoList, null, "username"), type1);
+        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username"), type2);
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username"), type1);
+        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username"), type2);
 
         em.flush();
         em.clear();
@@ -106,7 +114,9 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio1.getId(), vio2.getId(), vio3.getId()));
+                .isEqualTo(newArrayList(vio1.getId(), vio2.getId(), vio3.getId()));
+        assertThat(result.getContent()).extracting("username", String.class)
+                .isEqualTo(newArrayList(vio1.getUsername(), vio2.getUsername(), vio3.getUsername()));
     }
 
     @Test
@@ -131,7 +141,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
+                .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
 
     }
 
@@ -150,14 +160,14 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsSince2() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, vio2.getCreated(), null, null, null,null, null, null,  new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, vio2.getCreated(), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
+                .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -170,7 +180,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
+                .isEqualTo(newArrayList(vio3.getId(), vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -183,7 +193,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(2);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio1.getId(), vio3.getId()));
+                .isEqualTo(newArrayList(vio1.getId(), vio3.getId()));
     }
 
     @Test
@@ -196,7 +206,7 @@ public class ViolationRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getNumberOfElements()).isEqualTo(3);
         assertThat(result.getContent()).extracting("id", Long.class)
-                                       .isEqualTo(newArrayList(vio2.getId(), vio4.getId(), vio5.getId()));
+                .isEqualTo(newArrayList(vio2.getId(), vio4.getId(), vio5.getId()));
     }
 
     @Test
@@ -213,6 +223,18 @@ public class ViolationRepositoryTest {
                 Optional.of(now().plusDays(1)),
                 Optional.of(FALSE));
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    public void testMetadataObjectJsonMap() throws Exception {
+        ViolationEntity one = violationRepository.getOne(vio1.getId());
+        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoMap));
+    }
+
+    @Test
+    public void testMetadataObjectJsonList() throws Exception {
+        ViolationEntity one = violationRepository.getOne(vio2.getId());
+        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoList));
     }
 
     @Configuration
