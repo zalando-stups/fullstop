@@ -33,7 +33,7 @@ spring:
         resource:
             tokenInfoUri: https://example.com/oauth/tokeninfo
     datasource:
-        url: jdbc:postgresql://localhost:5435/fullstop
+        url: jdbc:postgresql://localhost:5432/fullstop_test
         username: postgres
         password: postgres
         driver-class-name: org.postgresql.Driver
@@ -173,8 +173,5 @@ javax:
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
 
 flyway:
-    init-sqls: "SET SEARCH_PATH TO fullstop_data;"
-    baseline-on-migrate: true
-    baseline-version-as-string: 0
     schemas:
      - "fullstop_data"
