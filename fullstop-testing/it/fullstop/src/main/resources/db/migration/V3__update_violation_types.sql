@@ -13,11 +13,12 @@ WITH row_update AS (
     violation_severity = $3,
     title              = $4,
     last_modified      = now(),
-    last_modified_by   = 'migration_script'
+    last_modified_by   = 'migration_script',
+    version            = 1
   WHERE id = $1
   RETURNING *)
 
-INSERT INTO fullstop_data.violation_type (id, help_text, violation_severity, title, last_modified_by, last_modified, created, created_by)
+INSERT INTO fullstop_data.violation_type (id, help_text, violation_severity, title, last_modified_by, last_modified, created, created_by, version)
   SELECT
     $1,
     $2,
@@ -26,7 +27,8 @@ INSERT INTO fullstop_data.violation_type (id, help_text, violation_severity, tit
     'migration_script',
     now(),
     now(),
-    'migration_script'
+    'migration_script',
+    1
   WHERE NOT EXISTS(SELECT *
                    FROM row_update)
 
@@ -39,7 +41,7 @@ SELECT fullstop_data.create_or_update_violation_type('ACTIVE_KEY_TOO_OLD',
                                                      'IAM Access Key too old');
 
 SELECT fullstop_data.create_or_update_violation_type('APPLICATION_NOT_PRESENT_IN_KIO',
-                                                     'This active IAM access key is too old and should be refreshed. IAM access keys must be rotated regularly.',
+                                                     'An application with this ID could not be found in Kio application registry. Please make sure that every application is registered there, i.e. with YOUR TURN.',
                                                      1,
                                                      'Unknown application ID');
 
@@ -95,7 +97,7 @@ SELECT fullstop_data.create_or_update_violation_type('PASSWORD_USED',
                                                      'IAM User has password set');
 
 SELECT fullstop_data.create_or_update_violation_type('SCM_SOURCE_JSON_MISSING',
-                                                     '"The deployment artifact (Docker image) for this application version is missing the scm-source.json. See http://docs.stups.io/en/latest/user-guide/application-development.html?highlight=scm-source.json#docker for more information."',
+                                                     'The deployment artifact (Docker image) for this application version is missing the scm-source.json. See http://docs.stups.io/en/latest/user-guide/application-development.html?highlight=scm-source.json#docker for more information.',
                                                      1,
                                                      'Missing scm-source.json');
 
