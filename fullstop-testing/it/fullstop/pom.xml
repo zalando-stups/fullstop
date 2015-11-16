@@ -39,6 +39,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-logging</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-timemachine</artifactId>
             <version>${fullstop-web.version}</version>
