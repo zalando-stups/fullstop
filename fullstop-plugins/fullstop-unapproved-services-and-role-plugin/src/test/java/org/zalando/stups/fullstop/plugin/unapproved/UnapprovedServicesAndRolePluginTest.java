@@ -20,18 +20,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAndRoleProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * Created by mrandi.
@@ -54,7 +50,7 @@ public class UnapprovedServicesAndRolePluginTest {
         violationSinkMock = mock(ViolationSink.class);
         policyTemplatesProviderMock = mock(PolicyTemplatesProvider.class);
 
-        event = buildEvent();
+        event = createCloudTrailEvent("/record.json");
 
         plugin = new UnapprovedServicesAndRolePlugin(
                 policyProviderMock,
@@ -67,19 +63,6 @@ public class UnapprovedServicesAndRolePluginTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(policyProviderMock, violationSinkMock, policyTemplatesProviderMock);
-    }
-
-    protected CloudTrailEvent buildEvent() {
-        List<Map<String, Object>> records = Records.fromClasspath("/record.json");
-
-        Map<String, Object> record = records.get(0);
-        System.out.println(record.toString());
-
-        TestCloudTrailEventData eventData = new TestCloudTrailEventData(record);
-
-        System.out.println(eventData.toString());
-
-        return new CloudTrailEvent(eventData, null);
     }
 
     @Test

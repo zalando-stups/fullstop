@@ -35,10 +35,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by gkneitschel on 30/09/15.
- */
-
 public class FetchRdsJobTest {
 
     private ClientProvider clientProviderMock;

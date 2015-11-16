@@ -173,3 +173,10 @@ javax:
                 pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+
+flyway:
+    init-sqls: "SET SEARCH_PATH TO fullstop_data;"
+    baseline-on-migrate: true
+    baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
+    schemas:
+     - "fullstop_data"

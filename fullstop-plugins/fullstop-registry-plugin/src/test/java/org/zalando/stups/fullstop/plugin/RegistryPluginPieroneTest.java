@@ -25,19 +25,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.clients.pierone.TagSummary;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 public class RegistryPluginPieroneTest {
 
@@ -63,17 +61,11 @@ public class RegistryPluginPieroneTest {
 
     private RegistryPlugin registryPlugin;
 
-    protected CloudTrailEvent buildEvent() {
-        List<Map<String, Object>> records = Records.fromClasspath("/record.json");
-
-        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-    }
-
     @Before
     public void setUp() {
         final RegistryPluginProperties pluginConfiguration = new RegistryPluginProperties();
 
-        event = buildEvent();
+        event = createCloudTrailEvent("/record.json");
         userDataProvider = mock(UserDataProvider.class);
         kioOperations = mock(KioOperations.class);
         pieroneOperations = mock(PieroneOperations.class);

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -146,7 +147,7 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
             if (errors.hasErrors()) {
                 String message = errors.getAllErrors()
                                        .stream()
-                                       .map(e -> e.getDefaultMessage())
+                                       .map(DefaultMessageSourceResolvable::getDefaultMessage)
                                        .reduce(
                                                "",
                                                (s, m) -> s.concat(m + "\n"));
