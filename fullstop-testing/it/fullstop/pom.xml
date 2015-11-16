@@ -98,11 +98,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-instance-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-keypair-plugin</artifactId>
             <version>${fullstop-plugin.version}</version>
         </dependency>

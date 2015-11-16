@@ -43,7 +43,6 @@
         <module>fullstop-application-masterdata-plugin</module>
         <module>fullstop-count-events-plugin</module>
         <module>fullstop-hello-event-plugin</module>
-        <module>fullstop-instance-plugin</module>
         <module>fullstop-keypair-plugin</module>
         <module>fullstop-region-plugin</module>
         <module>fullstop-registry-plugin</module>
