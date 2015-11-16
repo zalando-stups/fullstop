@@ -104,8 +104,6 @@
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco-it/jacoco.xml
                         </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco-it/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-region-plugin/target/site/jacoco-it/jacoco.xml
@@ -150,8 +148,6 @@
                         <jacocoReport>fullstop-plugins/fullstop-count-events-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>

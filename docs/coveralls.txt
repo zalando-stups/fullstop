@@ -97,8 +97,6 @@
                                                 <fileset dir="${main.basedir}/fullstop-plugin-api/target" includes="jacoco-it.exec" />
                                                 <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/target" includes="jacoco.exec" />
                                                 <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/target" includes="jacoco-it.exec" />
-                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" includes="jacoco.exec" />
-                                                <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" includes="jacoco-it.exec" />
                                                 <fileset dir="${main.basedir}/fullstop-processing/target" includes="jacoco.exec" />
                                                 <fileset dir="${main.basedir}/fullstop-processing/target" includes="jacoco-it.exec" />
                                                 <fileset dir="${main.basedir}/fullstop-test-support/target" includes="jacoco.exec" />
@@ -127,14 +125,6 @@
                                                     </classfiles>
                                                     <sourcefiles>
                                                         <fileset dir="${main.basedir}/fullstop-plugins/fullstop-ami-plugin/src/main/java" />
-                                                    </sourcefiles>
-                                                </group>
-                                                <group name="fullstop-instance-plugin">
-                                                    <classfiles>
-                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/target" />
-                                                    </classfiles>
-                                                    <sourcefiles>
-                                                        <fileset dir="${main.basedir}/fullstop-plugins/fullstop-instance-plugin/src/main/java" />
                                                     </sourcefiles>
                                                 </group>
                                                 <group name="fullstop-processing">
