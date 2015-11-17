@@ -129,9 +129,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 if (applicationFromKio != null) {
 
                     Version applicationVersionFromKio = getAndValidateApplicationVersionFromKio(
-                            event,
                             applicationId,
-                            applicationVersion, instanceId);
+                            applicationVersion);
 
                     if (applicationVersionFromKio != null) {
 
@@ -386,8 +385,8 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     }
 
-    protected Version getAndValidateApplicationVersionFromKio(final CloudTrailEvent event, final String applicationId,
-            final String applicationVersion, String instanceId) {
+    protected Version getAndValidateApplicationVersionFromKio(final String applicationId,
+            final String applicationVersion) {
 
         try {
             return kioOperations.getApplicationVersion(
@@ -395,16 +394,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                     applicationVersion);
         }
         catch (NotFoundException e) {
-            violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
-                                       .withPluginFullyQualifiedClassName(
-                                               RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(
-                                                       applicationId,
-                                                       applicationVersion))
-                                       .build());
+            LOG.info("Application {} with Version {} not found: {}", applicationId, applicationVersion, e.getMessage());
 
             return null;
         }

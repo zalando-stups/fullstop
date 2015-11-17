@@ -124,7 +124,6 @@ public class ApplicationMasterdataPluginTest {
         verify(userDataProvider).getUserData(
                 any(), any(String.class),
                 any());
-        verify(violationSink).put(any(Violation.class));
     }
 
     @Test

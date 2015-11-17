@@ -103,10 +103,8 @@ public class ApplicationMasterdataPlugin extends AbstractFullstopPlugin {
                         accountId, region,
                         instanceId);
             }
-            catch (AmazonServiceException ex) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId).withType(MISSING_USER_DATA).withPluginFullyQualifiedClassName(
-                                ApplicationMasterdataPlugin.class).build());
+            catch (AmazonServiceException ex) {//TODO: maybe info is enough
+                LOG.warn("Could not fetch userdata for {}: {}", instanceId, ex.getMessage());
                 return;
             }
 
