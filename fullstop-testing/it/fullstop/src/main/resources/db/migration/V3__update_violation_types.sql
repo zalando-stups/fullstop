@@ -88,7 +88,7 @@ SELECT fullstop_data.create_or_update_violation_type('MISSING_VERSION_APPROVAL',
 
 SELECT fullstop_data.create_or_update_violation_type('MODIFIED_ROLE_OR_SERVICE',
                                                      'The IAM policies must not be changed.',
-                                                     0,
+                                                     1,
                                                      'Possible privilege escalation');
 
 SELECT fullstop_data.create_or_update_violation_type('PASSWORD_USED',
@@ -138,16 +138,16 @@ SELECT fullstop_data.create_or_update_violation_type('SPEC_TYPE_IS_MISSING_IN_KI
 
 SELECT fullstop_data.create_or_update_violation_type('WRONG_REGION',
                                                      'EC2 instance must run in allowed regions only.',
-                                                     0,
+                                                     1,
                                                      'EC2 instance in illegal region');
 
 SELECT fullstop_data.create_or_update_violation_type('MISSING_APPLICATION_ID_IN_USER_DATA',
                                                      'The "application_id" property in this EC2s user data (TaupageConfig in Senza YAML) could not be found. Please make sure to add the tag of your deployment artifact (Docker image) there.',
-                                                     0,
+                                                     1,
                                                      'Missing application id');
 
 SELECT fullstop_data.create_or_update_violation_type('MISSING_APPLICATION_VERSION_IN_USER_DATA',
                                                      'The "application_version" property in this EC2s user data (TaupageConfig in Senza YAML) could not be found. Please make sure that the version matches the one registered in Kio application registry.',
-                                                     0,
+                                                     1,
                                                      'Missing application version');
 
