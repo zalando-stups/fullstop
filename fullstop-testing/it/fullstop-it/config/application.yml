@@ -37,11 +37,6 @@ spring:
         username: postgres
         password: postgres
         driver-class-name: org.postgresql.Driver
-#    jpa:
-#        hibernate:
-#            ddl-auto: create-drop
-#        show-sql: true
-# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
 
 fullstop:
 

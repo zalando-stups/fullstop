@@ -43,10 +43,6 @@ spring:
         properties:
             hibernate:
                 default_schema: fullstop_data
-#        hibernate:
-#            ddl-auto: create-drop
-#        show-sql: true
-# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
 
 fullstop:
 
