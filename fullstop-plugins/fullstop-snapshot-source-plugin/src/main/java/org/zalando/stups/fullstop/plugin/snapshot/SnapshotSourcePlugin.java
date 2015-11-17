@@ -29,9 +29,12 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-import static org.zalando.stups.fullstop.violation.ViolationType.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_A_SNAPSHOT_IMAGE;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
 /**
  * @author npiccolotto
@@ -68,8 +71,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
             final String region = event.getEventData().getAwsRegion();
             try {
                 userData = userDataProvider.getUserData(accountId, region, id);
-            }
-            catch (AmazonServiceException e) {
+            } catch (AmazonServiceException e) {
                 LOG.error(e.getMessage());
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                                           SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
@@ -78,18 +80,17 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
 
             if (userData == null) {//TODO: taupage only!
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
+                        SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
                 return;
             }
 
             String source = (String) userData.get(SOURCE);
             if (source == null) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
-            }
-            else if (source.matches(SNAPSHOT_REGEX)) {
+                        SnapshotSourcePlugin.class).withType(MISSING_SOURCE_IN_USER_DATA).build());
+            } else if (source.matches(SNAPSHOT_REGEX)) {
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
-                                          SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).build());
+                        SnapshotSourcePlugin.class).withType(EC2_WITH_A_SNAPSHOT_IMAGE).withMetaInfo(singletonMap("deployment_artifact", source)).build());
             }
         }
     }

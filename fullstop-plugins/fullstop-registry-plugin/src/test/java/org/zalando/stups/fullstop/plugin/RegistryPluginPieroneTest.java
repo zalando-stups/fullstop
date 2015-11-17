@@ -157,6 +157,25 @@ public class RegistryPluginPieroneTest {
     }
 
     @Test
+    public void shouldNotComplainOnMissingDockerPrefixIfArtifactContainsSourceAndTagIsInPierone() {
+        when(pieroneOperations.listTags(TEAM, APP)).thenReturn(singletonMap(VERSION, mock(TagSummary.class)));
+        registryPlugin.validateSourceWithPierone(
+                event,
+                APP,
+                VERSION,
+                TEAM,
+                "stups/yourturn",
+                "stups/yourturn:1.0",
+                INSTANCE_ID);
+        verify(pieroneOperations).listTags(
+                TEAM,
+                APP);
+        verify(
+                violationSink,
+                never()).put(any(Violation.class));
+    }
+
+    @Test
     public void shouldComplainIfThereIsNoScmSource() {
 
         when(

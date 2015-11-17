@@ -11,6 +11,11 @@
 
         <dependency>
             <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-logging</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
         </dependency>
