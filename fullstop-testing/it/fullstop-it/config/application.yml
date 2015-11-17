@@ -40,9 +40,6 @@ spring:
 
 fullstop:
 
-    logging:
-        dir: ${java.io.tmpdir}/fullstop_logs
-
     container:
         autoStart: false
 
