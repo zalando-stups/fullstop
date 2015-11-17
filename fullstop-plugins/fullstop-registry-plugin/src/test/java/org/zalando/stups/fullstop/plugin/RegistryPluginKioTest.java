@@ -132,14 +132,12 @@ public class RegistryPluginKioTest {
                         APPLICATION_VERSION)).thenThrow(new NotFoundException());
 
         registryPlugin.getAndValidateApplicationVersionFromKio(
-                event,
                 APPLICATION_ID,
-                APPLICATION_VERSION, INSTANCE_ID);
+                APPLICATION_VERSION);
 
         verify(kioOperations).getApplicationVersion(
                 APPLICATION_ID,
                 APPLICATION_VERSION);
-        verify(violationSink).put(any(Violation.class));
     }
 
     @Test
@@ -150,9 +148,9 @@ public class RegistryPluginKioTest {
                         APPLICATION_VERSION)).thenReturn(version);
 
         registryPlugin.getAndValidateApplicationVersionFromKio(
-                event,
+
                 APPLICATION_ID,
-                APPLICATION_VERSION, INSTANCE_ID);
+                APPLICATION_VERSION);
 
         verify(kioOperations).getApplicationVersion(
                 APPLICATION_ID,
