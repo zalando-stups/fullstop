@@ -37,6 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author jbellmann
@@ -245,11 +246,11 @@ public abstract class CloudTrailEventSupport {
 
     public static String getUsernameAsString(CloudTrailEvent cloudTrailEvent) {
 
-        if (cloudTrailEvent == null || cloudTrailEvent.getEventData() == null) {
-            return null;
-        }
-
-        return cloudTrailEvent.getEventData().getUserIdentity().getARN();
+        return ofNullable(cloudTrailEvent)
+                .map(CloudTrailEvent::getEventData)
+                .map(CloudTrailEventData::getUserIdentity)
+                .map(UserIdentity::getARN)
+                .orElse(null);
     }
 
     public static List<String> getInstances(CloudTrailEvent event) {
