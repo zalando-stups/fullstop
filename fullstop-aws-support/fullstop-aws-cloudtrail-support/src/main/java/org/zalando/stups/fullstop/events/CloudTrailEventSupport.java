@@ -37,6 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author jbellmann
@@ -161,7 +162,7 @@ public abstract class CloudTrailEventSupport {
      * list.
      */
     public static List<String> read(final String responseElements, final String pattern,
-            final boolean emptyListOnNullOrEmptyResponse) {
+                                    final boolean emptyListOnNullOrEmptyResponse) {
         if (Strings.isNullOrEmpty(responseElements) && emptyListOnNullOrEmptyResponse) {
             return Lists.newArrayList();
         }
@@ -182,7 +183,7 @@ public abstract class CloudTrailEventSupport {
     }
 
     public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern,
-            final boolean emptyListOnNullOrEmptyResponse) {
+                                    final boolean emptyListOnNullOrEmptyResponse) {
         return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, emptyListOnNullOrEmptyResponse);
     }
 
@@ -239,7 +240,17 @@ public abstract class CloudTrailEventSupport {
         return new ViolationBuilder()
                 .withEventId(getEventId(cloudTrailEvent))
                 .withAccountId(getAccountId(cloudTrailEvent))
-                .withRegion(getRegionAsString(cloudTrailEvent));
+                .withRegion(getRegionAsString(cloudTrailEvent))
+                .withUsername(getUsernameAsString(cloudTrailEvent));
+    }
+
+    public static String getUsernameAsString(CloudTrailEvent cloudTrailEvent) {
+
+        return ofNullable(cloudTrailEvent)
+                .map(CloudTrailEvent::getEventData)
+                .map(CloudTrailEventData::getUserIdentity)
+                .map(UserIdentity::getARN)
+                .orElse(null);
     }
 
     public static List<String> getInstances(CloudTrailEvent event) {
@@ -255,8 +266,7 @@ public abstract class CloudTrailEventSupport {
         for (Object item : items) {
             try {
                 instances.add(mapper.writeValueAsString(item));
-            }
-            catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }

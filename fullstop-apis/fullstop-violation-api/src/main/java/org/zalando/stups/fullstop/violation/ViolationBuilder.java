@@ -31,6 +31,8 @@ public class ViolationBuilder {
 
     private String type;
 
+    private String username;
+
     private String pluginFullyQualifiedClassName;
 
     public ViolationBuilder() {
@@ -45,6 +47,7 @@ public class ViolationBuilder {
         violation.setInstanceId(instanceId);
         violation.setMetaInfo(metaInfo);
         violation.setViolationType(type);
+        violation.setUsername(username);
         violation.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
 
         return violation;
@@ -82,6 +85,11 @@ public class ViolationBuilder {
 
     public ViolationBuilder withPluginFullyQualifiedClassName(Class pluginFullyQualifiedClassName) {
         this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName.getName();
+        return this;
+    }
+
+    public ViolationBuilder withUsername(final String username) {
+        this.username = username;
         return this;
     }
 }

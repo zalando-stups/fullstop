@@ -35,5 +35,9 @@ public interface Violation {
 
     String getViolationType();
 
+    String getUsername();
+
+    Boolean getChecked();
+
     String getInstanceId();
 }

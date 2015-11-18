@@ -78,7 +78,7 @@ public class SnapshotSourcePlugin extends AbstractFullstopPlugin {
                 return;
             }
 
-            if (userData == null) {
+            if (userData == null) {//TODO: taupage only!
                 violationSink.put(violationFor(event).withInstanceId(id).withPluginFullyQualifiedClassName(
                         SnapshotSourcePlugin.class).withType(MISSING_USER_DATA).build());
                 return;

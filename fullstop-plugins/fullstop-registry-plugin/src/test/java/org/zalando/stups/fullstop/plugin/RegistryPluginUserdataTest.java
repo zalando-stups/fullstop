@@ -22,18 +22,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 //J-
 public class RegistryPluginUserdataTest {
@@ -50,23 +48,14 @@ public class RegistryPluginUserdataTest {
 
     private RegistryPlugin registryPlugin;
 
-    private RegistryPluginProperties pluginConfiguration;
-
-    protected CloudTrailEvent buildEvent() {
-        List<Map<String, Object>> records = Records.fromClasspath("/record.json");
-
-        CloudTrailEvent event = TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-        return event;
-    }
-
     @Before
     public void setUp() {
-        event = buildEvent();
+        event = createCloudTrailEvent("/record.json");
         userDataProvider = mock(UserDataProvider.class);
         kioOperations = mock(KioOperations.class);
         pieroneOperations = mock(PieroneOperations.class);
         violationSink = mock(ViolationSink.class);
-        pluginConfiguration = new RegistryPluginProperties();
+        RegistryPluginProperties pluginConfiguration = new RegistryPluginProperties();
         registryPlugin = new RegistryPlugin(
                 userDataProvider,
                 violationSink,

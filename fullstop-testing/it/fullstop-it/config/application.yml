@@ -33,20 +33,12 @@ spring:
         resource:
             tokenInfoUri: https://example.com/oauth/tokeninfo
     datasource:
-        url: jdbc:postgresql://localhost:5435/fullstop
+        url: jdbc:postgresql://localhost:5432/fullstop_test
         username: postgres
         password: postgres
         driver-class-name: org.postgresql.Driver
-#    jpa:
-#        hibernate:
-#            ddl-auto: create-drop
-#        show-sql: true
-# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
 
 fullstop:
-
-    logging:
-        dir: ${java.io.tmpdir}/fullstop_logs
 
     container:
         autoStart: false
@@ -171,3 +163,7 @@ javax:
                 pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+
+flyway:
+    schemas:
+     - "fullstop_data"

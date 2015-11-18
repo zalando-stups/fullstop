@@ -183,7 +183,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
             return null;
         }
 
-        if (userData == null) {
+        if (userData == null) { //TODO: for taupage images only!
             violationSink.put(
                     violationFor(event).withInstanceId(instanceId)
                                        .withType(MISSING_USER_DATA)
