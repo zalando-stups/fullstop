@@ -83,6 +83,8 @@ definitions:
       comment:
         type: string
         example: "Was a patch on Friday and I was alone in the office"
+      username:
+        type: string
       created:
         type: string
         format: date-time
