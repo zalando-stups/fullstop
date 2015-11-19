@@ -17,6 +17,7 @@ package org.zalando.stups.fullstop.hystrix;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.clients.pierone.TagSummary;
 
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class HystrixPieroneOperations implements PieroneOperations {
 
     @Override
     @HystrixCommand
-    public Map<String, String> listTags(String team, String artifact) {
+    public Map<String, TagSummary> listTags(String team, String artifact) {
         return delegate.listTags(team, artifact);
     }
 

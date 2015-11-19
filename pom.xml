@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>5</version>
+        <version>8</version>
         <relativePath/>
     </parent>
 
@@ -44,6 +44,9 @@
 
     <modules>
         <module>fullstop-parent-poms/fullstop-parent</module>
+
+        <module>fullstop-logging</module>
+
         <module>fullstop-apis/fullstop-plugin-api</module>
         <module>fullstop-apis/fullstop-violation-api</module>
 
@@ -104,8 +107,6 @@
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco-it/jacoco.xml
                         </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco-it/jacoco.xml
-                        </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco-it/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-region-plugin/target/site/jacoco-it/jacoco.xml
@@ -150,8 +151,6 @@
                         <jacocoReport>fullstop-plugins/fullstop-count-events-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-hello-event-plugin/target/site/jacoco/jacoco.xml
-                        </jacocoReport>
-                        <jacocoReport>fullstop-plugins/fullstop-instance-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>
                         <jacocoReport>fullstop-plugins/fullstop-keypair-plugin/target/site/jacoco/jacoco.xml
                         </jacocoReport>

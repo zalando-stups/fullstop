@@ -26,8 +26,6 @@ import org.mockito.Mockito;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.ApplicationMasterdataPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -39,9 +37,10 @@ import java.util.Map;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 public class ApplicationMasterdataPluginTest {
-    //J-
+
     private static final String URL = "https://github.com/zalando-stups/fullstop";
 
     private static final String APP = "test";
@@ -52,20 +51,9 @@ public class ApplicationMasterdataPluginTest {
 
     private UserDataProvider userDataProvider;
 
-    private ApplicationMasterdataPluginProperties pluginProperties;
-
-    private List<NamedValidator> validators;
-
     private ViolationSink violationSink;
 
     private CloudTrailEvent event;
-
-    private CloudTrailEvent buildEvent() {
-        List<Map<String, Object>> records = Records.fromClasspath("/record.json");
-
-        CloudTrailEvent event = TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-        return event;
-    }
 
     private void mockUserData(boolean empty) {
         Map<String, String> userData = Maps.newHashMap();
@@ -82,11 +70,11 @@ public class ApplicationMasterdataPluginTest {
 
     @Before
     public void setUp() {
-        event = buildEvent();
+        event = createCloudTrailEvent("/record.json");
         kioOperations = mock(KioOperations.class);
         userDataProvider = mock(UserDataProvider.class);
-        pluginProperties = new ApplicationMasterdataPluginProperties();
-        validators = Lists.newArrayList(
+        ApplicationMasterdataPluginProperties pluginProperties = new ApplicationMasterdataPluginProperties();
+        List<NamedValidator> validators = Lists.newArrayList(
                 new DocumentationUrlValidator(),
                 new ScmUrlValidator(),
                 new SpecificationUrlValidator());
@@ -256,5 +244,4 @@ public class ApplicationMasterdataPluginTest {
                 violationSink,
                 never()).put(any(Violation.class));
     }
-    //J+
 }

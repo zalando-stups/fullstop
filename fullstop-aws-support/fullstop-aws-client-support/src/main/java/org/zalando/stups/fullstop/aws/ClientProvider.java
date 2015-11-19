@@ -15,14 +15,10 @@
  */
 package org.zalando.stups.fullstop.aws;
 
+import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 
-/**
- * Just for testing at the moment.
- *
- * @author jbellmann
- */
 public interface ClientProvider {
 
-    <T> T getClient(Class<T> type, String accountId, Region region);
+    <T extends AmazonWebServiceClient> T getClient(Class<T> type, String accountId, Region region);
 }

@@ -34,6 +34,7 @@ fullstop:
         whitelistedRegions:
             - 'eu-west-1'
             - 'eu-central-1'
+        accessKeysExpireAfterDays: ${FULLSTOP_ACCESS_KEYS_EXPIRE_AFTER_DAYS:30}
 
     clients:
         kio:
@@ -66,8 +67,8 @@ javax:
                 pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
 
-logging:
-    level:
-        org.zalando.stups.fullstop: DEBUG
-        org.hibernate.engine.jdbc.spi.SqlExceptionHelper: FATAL
-        ROOT: INFO
+flyway:
+    baseline-on-migrate: ${FLYWAY_BASELINE:false}
+    baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
+    schemas:
+     - "fullstop_data"

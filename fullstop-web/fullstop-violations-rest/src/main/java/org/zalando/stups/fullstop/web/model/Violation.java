@@ -52,6 +52,8 @@ public class Violation {
 
     private String lastModifiedBy = null;
 
+    private String username = null;
+
     @ApiModelProperty(value = "")
     public Long getId() {
         return id;
@@ -178,6 +180,15 @@ public class Violation {
         this.instanceId = instanceId;
     }
 
+    @ApiModelProperty(value = "")
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this)
@@ -191,6 +202,7 @@ public class Violation {
                 .add("instanceId", instanceId)
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationType", violationType)
+                .add("username", username)
                 .add("created", created)
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)

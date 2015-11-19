@@ -2,7 +2,7 @@
 
 ###Aim of plugin
 Find out if someone uses an unapproved service
-and if someone changes roles that must not be changed.
+and if someone changes roles that must not be changed. The plugin will compare the roles defined in IAM with a json file in `${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}`.
 
 ###Reacts on
 
@@ -36,3 +36,6 @@ If the list is empty, default will be used:
 * 'AttachRolePolicy'
 * 'UpdateAssumeRolePolicy'
 * 'PutRolePolicy'
+
+###Editing roles
+If you want to add or remove a role without creating a violation, you have to add/remove the role in the template as well. The template a be found in the S3 bucket `${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}`

@@ -27,44 +27,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
 
 @Component
-public class FetchRdsJob {
+public class FetchRdsJob implements FullstopJob {
 
 
     private static final String EVENT_ID = "checkRdsJob";
 
     private final Logger log = LoggerFactory.getLogger(FetchRdsJob.class);
 
-    private TeamOperations teamOperations;
+    private final AccountIdSupplier allAccountIds;
 
-    private ClientProvider clientProvider;
+    private final ClientProvider clientProvider;
 
-    private JobsProperties jobsProperties;
+    private final JobsProperties jobsProperties;
 
-    private ViolationSink violationSink;
+    private final ViolationSink violationSink;
 
     @Autowired
-    public FetchRdsJob(TeamOperations teamOperations,
-                       ClientProvider clientProvider,
+    public FetchRdsJob(AccountIdSupplier allAccountIds, ClientProvider clientProvider,
                        JobsProperties jobsProperties,
                        ViolationSink violationSink) {
-        this.teamOperations = teamOperations;
+        this.allAccountIds = allAccountIds;
         this.clientProvider = clientProvider;
         this.jobsProperties = jobsProperties;
         this.violationSink = violationSink;
@@ -76,8 +72,8 @@ public class FetchRdsJob {
     }
 
     @Scheduled(fixedRate = 300_000)
-    public void check() {
-        for (String accountId : fetchAccountIds()) {
+    public void run() {
+        for (final String accountId : allAccountIds.get()) {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
@@ -115,13 +111,5 @@ public class FetchRdsJob {
 
 
         return describeDBInstancesResult;
-    }
-
-    private List<String> fetchAccountIds() {
-        List<String> accountIds = newArrayList();
-        List<Account> accounts = teamOperations.getAccounts();
-        accountIds.addAll(accounts.stream().map(Account::getId).collect(toList()));
-        return accountIds;
-
     }
 }

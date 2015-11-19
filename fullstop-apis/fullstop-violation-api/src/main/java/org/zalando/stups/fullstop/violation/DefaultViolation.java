@@ -40,8 +40,10 @@ class DefaultViolation implements Violation {
 
     private String violationType;
 
+    private String username;
+
     DefaultViolation(final String eventId, final String accountId, final String region, final String instanceId, final String message,
-            final Object metaInfo, final String comment, final Boolean checked) {
+            final Object metaInfo, final String comment, final Boolean checked, final String username) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
@@ -49,11 +51,13 @@ class DefaultViolation implements Violation {
         this.metaInfo = metaInfo;
         this.comment = comment;
         this.checked = checked;
+        this.username = username;
     }
 
     DefaultViolation() {
     }
 
+    @Override
     public String getEventId() {
         return eventId;
     }
@@ -62,6 +66,7 @@ class DefaultViolation implements Violation {
         this.eventId = eventId;
     }
 
+    @Override
     public String getAccountId() {
         return accountId;
     }
@@ -70,6 +75,7 @@ class DefaultViolation implements Violation {
         this.accountId = accountId;
     }
 
+    @Override
     public String getRegion() {
         return region;
     }
@@ -78,6 +84,7 @@ class DefaultViolation implements Violation {
         this.region = region;
     }
 
+    @Override
     public String getInstanceId() {
         return instanceId;
     }
@@ -86,6 +93,7 @@ class DefaultViolation implements Violation {
         this.instanceId = instanceId;
     }
 
+    @Override
     public Object getMetaInfo() {
         return metaInfo;
     }
@@ -94,6 +102,7 @@ class DefaultViolation implements Violation {
         this.metaInfo = metaInfo;
     }
 
+    @Override
     public String getComment() {
         return comment;
     }
@@ -102,6 +111,7 @@ class DefaultViolation implements Violation {
         this.comment = comment;
     }
 
+    @Override
     public Boolean getChecked() {
         return checked;
     }
@@ -129,6 +139,15 @@ class DefaultViolation implements Violation {
     }
 
     @Override
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
     public String toString() {
         return toStringHelper(this)
                 .add("eventId", eventId)
@@ -139,6 +158,7 @@ class DefaultViolation implements Violation {
                 .add("checked", checked)
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationType", violationType)
+                .add("username", username)
                 .toString();
     }
 }

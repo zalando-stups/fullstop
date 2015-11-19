@@ -56,6 +56,8 @@ public class ViolationEntityToDtoConverter implements Converter<ViolationEntity,
         violation.setComment(source.getComment());
         violation.setMetaInfo(source.getMetaInfo());
 
+        violation.setUsername(source.getUsername());
+
         Optional.ofNullable(source.getViolationTypeEntity())
                 .map(violationTypeConverter::convert)
                 .ifPresent(violation::setViolationType);

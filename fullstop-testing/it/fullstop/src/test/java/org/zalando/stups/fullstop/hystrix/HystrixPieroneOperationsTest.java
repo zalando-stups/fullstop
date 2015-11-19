@@ -19,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.fullstop.clients.pierone.TagSummary;
 
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class HystrixPieroneOperationsTest {
 
     private static final String VERSION_ID = "hello";
 
-    private static final Map<String, String> TAGS = newHashMap();
+    private static final Map<String, TagSummary> TAGS = newHashMap();
 
     private static final Map<String, String> SCM_SOURCE = newHashMap();
 

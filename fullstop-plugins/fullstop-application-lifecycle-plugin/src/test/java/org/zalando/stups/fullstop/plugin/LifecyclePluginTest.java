@@ -16,7 +16,6 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.regions.Region;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import org.joda.time.DateTime;
@@ -24,8 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -33,14 +30,13 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * Created by gkneitschel.
@@ -58,18 +54,9 @@ public class LifecyclePluginTest {
 
     private ClientProvider clientProviderMock;
 
-    private DescribeImagesResult describeImagesResult;
-
     private AmazonEC2Client amazonEC2ClientMock;
 
     private LifecycleEntity lifecycleEntity;
-
-
-    protected CloudTrailEvent buildEvent(String type) {
-        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
-
-        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -92,7 +79,7 @@ public class LifecyclePluginTest {
         //Create an Image
         Image image = new Image();
         image.setName("Wooza");
-        describeImagesResult = new DescribeImagesResult();
+        DescribeImagesResult describeImagesResult = new DescribeImagesResult();
         describeImagesResult.setImages(newArrayList(image));
 
         //create an instance
@@ -136,17 +123,13 @@ public class LifecyclePluginTest {
 
     @Test
     public void testSupports() throws Exception {
-        CloudTrailEvent event = buildEvent("run");
-        assertThat(plugin.supports(event)).isTrue();
+        assertThat(plugin.supports(createCloudTrailEvent("/record-run.json"))).isTrue();
 
-        event = buildEvent("start");
-        assertThat(plugin.supports(event)).isTrue();
+        assertThat(plugin.supports(createCloudTrailEvent("/record-start.json"))).isTrue();
 
-        event = buildEvent("stop");
-        assertThat(plugin.supports(event)).isTrue();
+        assertThat(plugin.supports(createCloudTrailEvent("/record-stop.json"))).isTrue();
 
-        event = buildEvent("termination");
-        assertThat(plugin.supports(event)).isTrue();
+        assertThat(plugin.supports(createCloudTrailEvent("/record-termination.json"))).isTrue();
     }
 
     @Test

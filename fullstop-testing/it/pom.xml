@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>5</version>
+        <version>8</version>
         <relativePath/>
     </parent>
     <artifactId>fullstop-testing-it</artifactId>

@@ -43,15 +43,8 @@ spring:
         properties:
             hibernate:
                 default_schema: fullstop_data
-#        hibernate:
-#            ddl-auto: create-drop
-#        show-sql: true
-# Uncomment the above statements for debugging. This will drop and recreate a schema everytime you restart Fullstop.
 
 fullstop:
-
-    logging:
-        dir: ${java.io.tmpdir}/fullstop_logs
 
     container:
         autoStart: true
@@ -90,6 +83,7 @@ fullstop:
         whitelistedRegions:
             - 'eu-west-1'
             - 'eu-central-1'
+        accessKeysExpireAfterDays: ${FULLSTOP_ACCESS_KEYS_EXPIRE_AFTER_DAYS:30}
 
     plugins:
         properties:
@@ -172,3 +166,9 @@ javax:
                 pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
                 pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+
+flyway:
+    baseline-on-migrate: ${FLYWAY_BASELINE:false}
+    baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
+    schemas:
+     - "fullstop_data"

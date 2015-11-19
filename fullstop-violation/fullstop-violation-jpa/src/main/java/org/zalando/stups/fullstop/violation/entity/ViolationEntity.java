@@ -46,17 +46,20 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     private String pluginFullyQualifiedClassName;
 
+    private String username;
+
     @ManyToOne
     private ViolationTypeEntity violationTypeEntity;
 
     public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
-            String comment) {
+            String comment, String username) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
         this.instanceId = instanceId;
         this.metaInfo = metaInfo;
         this.comment = comment;
+        this.username = username;
     }
 
     public ViolationEntity() {
@@ -127,6 +130,14 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.violationTypeEntity = violationTypeEntity;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this)
@@ -137,6 +148,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
                 .add("metaInfo", metaInfo)
                 .add("comment", comment)
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
+                .add("username", username)
                 .add("violationTypeEntity", violationTypeEntity)
                 .toString();
     }

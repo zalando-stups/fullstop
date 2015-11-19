@@ -16,9 +16,6 @@
 package org.zalando.stups.differentnamespace;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.CloudTrailEventField;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +28,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
-import org.zalando.stups.fullstop.plugin.config.RegionPluginTestCloudTrailEventData;
 
 import java.util.List;
+
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FullstopApplication.class)
@@ -61,21 +59,10 @@ public class FullstopApplicationTripleIT {
         Assertions.assertThat(plugins).isNotEmpty();
         Assertions.assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = buildEvent();
+        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
 
         for (FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
-    }
-
-    private CloudTrailEvent buildEvent() {
-        CloudTrailEventData data = new RegionPluginTestCloudTrailEventData("/responseElements.json", "us-west-1");
-        UserIdentity userIdentity = new UserIdentity();
-        userIdentity.add(CloudTrailEventField.accountId.name(), "0234527346");
-        data.add(CloudTrailEventField.userIdentity.name(), userIdentity);
-
-        CloudTrailEvent event = new CloudTrailEvent(data, null);
-
-        return event;
     }
 }

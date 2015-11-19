@@ -25,43 +25,34 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by gkneitschel on 30/09/15.
- */
-
 public class FetchRdsJobTest {
 
-    private TeamOperations teamOperationsMock;
     private ClientProvider clientProviderMock;
     private JobsProperties jobsPropertiesMock;
     private ViolationSink violationSinkMock;
     private AmazonRDSClient amazonRDSClientMock;
     private DescribeDBInstancesResult describeDBInstancesResultMock;
+    private AccountIdSupplier accountIdSupplierMock;
 
     @Before
     public void setUp() throws Exception {
-        this.teamOperationsMock = mock(TeamOperations.class);
         this.clientProviderMock = mock(ClientProvider.class);
         this.jobsPropertiesMock = mock(JobsProperties.class);
         this.violationSinkMock = mock(ViolationSink.class);
         this.amazonRDSClientMock = mock(AmazonRDSClient.class);
+        this.accountIdSupplierMock = mock(AccountIdSupplier.class);
 
-        // Accounts for teamoperations
-        Account account = new Account("54321", "testsccount2", "testType", "dumdidei");
-        List<Account> accounts = newArrayList(account);
-        when(teamOperationsMock.getAccounts()).thenReturn(accounts);
+        when(accountIdSupplierMock.get()).thenReturn(newHashSet("54321"));
 
         // Jobsproperties
         when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(newArrayList("eu-west-1"));
@@ -85,17 +76,17 @@ public class FetchRdsJobTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(teamOperationsMock, clientProviderMock, jobsPropertiesMock, violationSinkMock, amazonRDSClientMock);
+        verifyNoMoreInteractions(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock, amazonRDSClientMock);
     }
 
     @Test
     public void testCheck() throws Exception {
-        FetchRdsJob fetchRdsJob = new FetchRdsJob(teamOperationsMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
+        FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
         when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
-        fetchRdsJob.check();
+        fetchRdsJob.run();
 
         verify(violationSinkMock, times(1)).put(any(Violation.class));
-        verify(teamOperationsMock, times(1)).getAccounts();
+        verify(accountIdSupplierMock, times(1)).get();
         verify(amazonRDSClientMock, times(1)).describeDBInstances(any(DescribeDBInstancesRequest.class));
         verify(jobsPropertiesMock, times(1)).getWhitelistedRegions();
         verify(clientProviderMock, times(1)).getClient(any(), any(String.class), any(Region.class));

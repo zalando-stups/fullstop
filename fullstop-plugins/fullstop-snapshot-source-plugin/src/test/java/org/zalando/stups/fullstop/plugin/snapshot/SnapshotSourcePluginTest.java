@@ -20,18 +20,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.zalando.stups.fullstop.events.Records;
-import org.zalando.stups.fullstop.events.TestCloudTrailEventData;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 public class SnapshotSourcePluginTest {
 
@@ -43,16 +41,10 @@ public class SnapshotSourcePluginTest {
 
     private SnapshotSourcePlugin plugin;
 
-    protected CloudTrailEvent buildEvent(final String type) {
-        List<Map<String, Object>> records = Records.fromClasspath("/record-" + type + ".json");
-
-        return TestCloudTrailEventData.createCloudTrailEventFromMap(records.get(0));
-    }
-
     @Before
     public void setUp() {
-        provider = Mockito.mock(UserDataProvider.class);
-        sink = Mockito.mock(ViolationSink.class);
+        provider = mock(UserDataProvider.class);
+        sink = mock(ViolationSink.class);
         plugin = new SnapshotSourcePlugin(provider, sink);
     }
 
@@ -63,19 +55,19 @@ public class SnapshotSourcePluginTest {
 
     @Test
     public void shouldNotSupportTerminateEvent() {
-        event = buildEvent("termination");
+        event = createCloudTrailEvent("/record-termination.json");
         assertThat(plugin.supports(event)).isFalse();
     }
 
     @Test
     public void shouldSupportRunEvent() {
-        event = buildEvent("run");
+        event = createCloudTrailEvent("/record-run.json");
         assertThat(plugin.supports(event)).isTrue();
     }
 
     @Test
     public void shouldComplainWithoutSource() {
-        event = buildEvent("run");
+        event = createCloudTrailEvent("/record-run.json");
         when(provider.getUserData(any(), any(String.class), any())).thenReturn(new HashMap<String, String>());
         plugin.processEvent(event);
 
@@ -85,9 +77,9 @@ public class SnapshotSourcePluginTest {
 
     @Test
     public void shouldComplainWithSnapshotSource() {
-        event = buildEvent("run");
+        event = createCloudTrailEvent("/record-run.json");
 
-        Map<String, String> userData = new HashMap<String, String>();
+        Map<String, String> userData = new HashMap<>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
         when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
@@ -98,9 +90,9 @@ public class SnapshotSourcePluginTest {
 
     @Test
     public void shouldNotComplainWithSnapshotInName() {
-        event = buildEvent("run");
+        event = createCloudTrailEvent("/record-run.json");
 
-        Map<String, String> userData = new HashMap<String, String>();
+        Map<String, String> userData = new HashMap<>();
         userData.put("source", "docker://registry.zalando.com/stups/SNAPSHOT:1.0");
         when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
@@ -111,9 +103,9 @@ public class SnapshotSourcePluginTest {
 
     @Test
     public void shouldNotComplainWithoutSnapshotSource() {
-        event = buildEvent("run");
+        event = createCloudTrailEvent("/record-run.json");
 
-        Map<String, String> userData = new HashMap<String, String>();
+        Map<String, String> userData = new HashMap<>();
         userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0");
         when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
         plugin.processEvent(event);
