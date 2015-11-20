@@ -69,4 +69,6 @@ public class ViolationType {
     public static final String WRONG_APPLICATION_MASTERDATA = "WRONG_APPLICATION_MASTERDATA";
 
     public static final String UNSECURED_ENDPOINT = "UNSECURED_ENDPOINT";
+
+    public static final String ILLEGAL_SCM_REPOSITORY = "ILLEGAL_SCM_REPOSITORY";
 }

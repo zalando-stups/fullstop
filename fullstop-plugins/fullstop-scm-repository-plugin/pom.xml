@@ -48,6 +48,8 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-api</artifactId>
+            <!-- TODO move this to parent -->
+            <version>0.1.0-RC-2</version>
         </dependency>
 
         <dependency>
