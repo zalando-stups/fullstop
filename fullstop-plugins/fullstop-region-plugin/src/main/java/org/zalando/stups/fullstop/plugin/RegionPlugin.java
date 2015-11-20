@@ -71,7 +71,7 @@ public class RegionPlugin extends AbstractFullstopPlugin {
         List<String> instances = getInstanceIds(event);
 
         if (instances.isEmpty()) {
-            LOG.error("No instanceIds found, maybe autoscaling?");
+            LOG.info("No instanceIds found in event");
         }
 
         for (String instance : instances) {
