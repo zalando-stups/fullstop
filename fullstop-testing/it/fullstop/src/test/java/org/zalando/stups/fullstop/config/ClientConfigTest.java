@@ -27,7 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.pierone.client.PieroneOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.tokens.AccessTokens;
 

@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.pierone.client.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
