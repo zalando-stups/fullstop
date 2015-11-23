@@ -23,7 +23,7 @@ import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
+import org.zalando.stups.pierone.client.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;

@@ -36,8 +36,6 @@ public class ViolationType {
 
     public static final String MISSING_USER_DATA = "MISSING_USER_DATA";
 
-    public static final String SECURITY_GROUPS_PORT_NOT_ALLOWED = "SECURITY_GROUPS_PORT_NOT_ALLOWED";
-
     public static final String MISSING_SOURCE_IN_USER_DATA = "MISSING_SOURCE_IN_USER_DATA";
 
     public static final String EC2_WITH_A_SNAPSHOT_IMAGE = "EC2_WITH_A_SNAPSHOT_IMAGE";
@@ -54,11 +52,9 @@ public class ViolationType {
 
     public static final String IMAGE_IN_PIERONE_NOT_FOUND = "IMAGE_IN_PIERONE_NOT_FOUND";
 
-    public static final String SCM_SOURCE_JSON_MISSING_FOR_IMAGE = "SCM_SOURCE_JSON_MISSING_FOR_IMAGE";
+    public static final String SCM_SOURCE_JSON_MISSING = "SCM_SOURCE_JSON_MISSING";
 
     public static final String APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT = "APPLICATION_VERSION_DOES_NOT_HAVE_A_VALID_ARTIFACT";
-
-    public static final String SOURCE_NOT_PRESENT_IN_PIERONE = "SOURCE_NOT_PRESENT_IN_PIERONE";
 
     public static final String APPLICATION_NOT_PRESENT_IN_KIO = "APPLICATION_NOT_PRESENT_IN_KIO";
 

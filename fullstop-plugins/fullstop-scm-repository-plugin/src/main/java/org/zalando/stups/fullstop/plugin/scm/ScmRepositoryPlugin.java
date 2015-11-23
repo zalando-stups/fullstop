@@ -15,21 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.scm;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_KIO;
-import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON;
-import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_NOT_MATCH_WITH_KIO;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.ImmutableMap;
@@ -40,10 +25,20 @@ import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.pierone.client.PieroneOperations;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 @Component
 public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
@@ -159,8 +154,17 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
 
             final String scmSourceUrl = scmSource.get(URL);
             if (isBlank(scmSourceUrl)) {
-                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
-                                          ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON).build());
+                violationSink.put(
+                        violationFor(event)
+                                .withInstanceId(instanceId)
+                                .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                                .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
+                                .withMetaInfo(ImmutableMap.of(
+                                        "team", team,
+                                        "artifact", artifact,
+                                        "version", tag,
+                                        "scm_source", scmSource))
+                                .build());
                 return;
             }
 

@@ -29,16 +29,16 @@ import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixKioOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixKontrollettiOperations;
-import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.pierone.client.HystrixSpringPieroneOperations;
+import org.zalando.stups.pierone.client.PieroneOperations;
+import org.zalando.stups.pierone.client.RestTemplatePieroneOperations;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -72,7 +72,7 @@ public class ClientConfig {
 
     @Bean
     public PieroneOperations pieroneOperations() {
-        return new HystrixPieroneOperations(
+        return new HystrixSpringPieroneOperations(
                 new RestTemplatePieroneOperations(
                         buildOAuth2RestTemplate("pierone"),
                         pieroneBaseUrl));
