@@ -16,22 +16,20 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.pierone.client.PieroneOperations;
-import org.zalando.stups.pierone.client.TagSummary;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.pierone.client.PieroneOperations;
+import org.zalando.stups.pierone.client.TagSummary;
 
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.*;
@@ -177,69 +175,28 @@ public class RegistryPluginPieroneTest {
 
     @Test
     public void shouldComplainIfThereIsNoScmSource() {
-
-        when(
-                pieroneOperations.getScmSource(
-                        TEAM,
-                        APP,
-                        VERSION)).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        registryPlugin.validateScmSource(
-                event,
-                TEAM,
-                APP,
-                VERSION,
-                INSTANCE_ID);
-        verify(pieroneOperations).getScmSource(
-                TEAM,
-                APP,
-                VERSION);
+        when(pieroneOperations.getScmSource(TEAM, APP, VERSION)).thenReturn(null);
+        registryPlugin.validateScmSource(event, TEAM, APP, VERSION, INSTANCE_ID);
+        verify(pieroneOperations).getScmSource(TEAM, APP, VERSION);
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldComplainIfScmSourceIsEmpty() {
-        Map<String, String> scmSource = Maps.newHashMap();
-        when(
-                pieroneOperations.getScmSource(
-                        TEAM,
-                        APP,
-                        VERSION)).thenReturn(scmSource);
-        registryPlugin.validateScmSource(
-                event,
-                TEAM,
-                APP,
-                VERSION,
-                INSTANCE_ID);
-        verify(pieroneOperations).getScmSource(
-                TEAM,
-                APP,
-                VERSION);
+        when(pieroneOperations.getScmSource(eq(TEAM), eq(APP), eq(VERSION))).thenReturn(emptyMap());
+        registryPlugin.validateScmSource(event, TEAM, APP, VERSION, INSTANCE_ID);
+        verify(pieroneOperations).getScmSource(eq(TEAM), eq(APP), eq(VERSION));
         verify(violationSink).put(any(Violation.class));
     }
 
     @Test
     public void shouldNotComplainIfScmSourceIsNotEmpty() {
-        Map<String, String> scmSource = Maps.newHashMap();
-        scmSource.put(
-                "revision",
-                "abcdef");
-        when(
-                pieroneOperations.getScmSource(
-                        TEAM,
-                        APP,
-                        VERSION)).thenReturn(scmSource);
-        registryPlugin.validateScmSource(
-                event,
-                TEAM,
-                APP,
-                VERSION,
-                INSTANCE_ID);
-        verify(pieroneOperations).getScmSource(
-                TEAM,
-                APP,
-                VERSION);
-        verify(
-                violationSink,
-                never()).put(any(Violation.class));
+        Map<String, String> scmSource = newHashMap();
+        scmSource.put("revision", "abcdef");
+        scmSource.put("url", "https://github.com/zalando-stups/fullstop.git");
+        when(pieroneOperations.getScmSource(TEAM, APP, VERSION)).thenReturn(scmSource);
+        registryPlugin.validateScmSource(event, TEAM, APP, VERSION, INSTANCE_ID);
+        verify(pieroneOperations).getScmSource(TEAM, APP, VERSION);
+        verify(violationSink, never()).put(any(Violation.class));
     }
 }

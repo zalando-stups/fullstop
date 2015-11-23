@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.hystrix;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.kontrolletti.KontrollettiOperations;
 
 public class HystrixKontrollettiOperations implements KontrollettiOperations {
@@ -27,7 +28,7 @@ public class HystrixKontrollettiOperations implements KontrollettiOperations {
     }
 
     @Override
-    @HystrixCommand
+    @HystrixCommand(ignoreExceptions = HttpClientErrorException.class)
     public String normalizeRepositoryUrl(String repositoryUrl) {
         return delegate.normalizeRepositoryUrl(repositoryUrl);
     }

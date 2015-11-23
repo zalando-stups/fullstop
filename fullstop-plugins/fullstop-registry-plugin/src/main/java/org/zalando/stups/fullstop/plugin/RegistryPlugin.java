@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.plugin;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.*;
-import org.zalando.stups.pierone.client.PieroneOperations;
-import org.zalando.stups.pierone.client.TagSummary;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.config.RegistryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.pierone.client.PieroneOperations;
+import org.zalando.stups.pierone.client.TagSummary;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
@@ -54,6 +55,7 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
 
     private static final String EVENT_NAME = "RunInstances";
+    private static final String URL = "url";
 
     protected static String APPLICATION_ID = "application_id";
 
@@ -266,41 +268,30 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     protected void validateScmSource(CloudTrailEvent event, String teamId, String applicationId,
             String applicationVersion, String instanceId) {
-        Map<String, String> scmSource;
-        try {
-            scmSource = pieroneOperations.getScmSource(
-                    teamId,
-                    applicationId,
-                    applicationVersion);
-        }
-        catch (HttpClientErrorException e) {
+        final Map<String, String> scmSource = pieroneOperations.getScmSource(teamId, applicationId, applicationVersion);
+        if (scmSource == null) {
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(IMAGE_IN_PIERONE_NOT_FOUND)
-                                       .withPluginFullyQualifiedClassName(
-                                               RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(
-                                                       teamId,
-                                                       applicationId,
-                                                       applicationVersion))
-                                       .build());
-
-            return;
-        }
-        if (scmSource.isEmpty()) {
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(SCM_SOURCE_JSON_MISSING)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "team", teamId,
+                                    "artifact", applicationId,
+                                    "version", applicationVersion))
+                            .build());
+        } else if (!scmSource.containsKey(URL)) {
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(SCM_SOURCE_JSON_MISSING_FOR_IMAGE)
-                                       .withPluginFullyQualifiedClassName(
-                                               RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(
-                                                       teamId,
-                                                       applicationId,
-                                                       applicationVersion))
-                                       .build());
-
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "team", teamId,
+                                    "artifact", applicationId,
+                                    "version", applicationVersion,
+                                    "scm_source", scmSource))
+                            .build());
         }
     }
 
@@ -321,41 +312,15 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
         }
 
-        Map<String, TagSummary> tags = newHashMap();
-        try {
-            tags = this.pieroneOperations.listTags(
-                    team,
-                    applicationId);
-        }
-        catch (HttpClientErrorException e) {
-            LOG.warn(
-                    "Could not get the tags for team {} and applicationId {}",
-                    team,
-                    applicationId,
-                    e);
-        }
-
-        if (tags.isEmpty()) {
+        final Map<String, TagSummary> tags = this.pieroneOperations.listTags(team, applicationId);
+        if (!tags.containsKey(applicationVersion)) {
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
-                                       .withPluginFullyQualifiedClassName(
-                                               RegistryPlugin.class)
-                                       .withMetaInfo(source)
-                                       .build());
-
-        }
-        else {
-            if (!tags.containsKey(applicationVersion)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(SOURCE_NOT_PRESENT_IN_PIERONE)
-                                           .withPluginFullyQualifiedClassName(
-                                                   RegistryPlugin.class)
-                                           .withMetaInfo(source)
-                                           .build());
-            }
-
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(IMAGE_IN_PIERONE_NOT_FOUND)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(singletonMap("source", source))
+                            .build());
         }
     }
 
