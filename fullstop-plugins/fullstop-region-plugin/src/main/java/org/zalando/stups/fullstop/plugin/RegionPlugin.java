@@ -16,8 +16,6 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
@@ -26,7 +24,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
@@ -38,13 +36,10 @@ import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_REGION;
 @Component
 public class RegionPlugin extends AbstractFullstopPlugin {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RegionPlugin.class);
-
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
 
     private static final String EVENT_NAME = "RunInstances";
 
-    // s
     private final ViolationSink violationSink;
 
     private final RegionPluginProperties regionPluginProperties;
@@ -67,23 +62,18 @@ public class RegionPlugin extends AbstractFullstopPlugin {
 
         // Check Auto-Scaling, seems to be null on Auto-Scaling-Event
 
-        String region = getRegionAsString(event);
-        List<String> instances = getInstanceIds(event);
-
-        if (instances.isEmpty()) {
-            LOG.info("No instanceIds found in event");
-        }
-
-        for (String instance : instances) {
-            if (!regionPluginProperties.getWhitelistedRegions().contains(region)) {
+        final String region = getRegionAsString(event);
+        final List<String> allowedRegions = regionPluginProperties.getWhitelistedRegions();
+        if (!allowedRegions.contains(region)) {
+            for (String instance : getInstanceIds(event)) {
                 violationSink.put(
-                        violationFor(event).withInstanceId(instance)
-                                           .withType(WRONG_REGION)
-                                           .withPluginFullyQualifiedClassName(RegionPlugin.class)
-                                           .withMetaInfo(newArrayList(instances.toString(), region))
-                                           .build());
+                        violationFor(event)
+                                .withInstanceId(instance)
+                                .withType(WRONG_REGION)
+                                .withPluginFullyQualifiedClassName(RegionPlugin.class)
+                                .withMetaInfo(singletonMap("allowed_regions", allowedRegions))
+                                .build());
             }
         }
-
     }
 }
