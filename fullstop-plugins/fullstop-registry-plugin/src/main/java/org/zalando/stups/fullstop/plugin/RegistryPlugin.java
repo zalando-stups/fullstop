@@ -19,11 +19,8 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.stups.clients.kio.*;
 import org.zalando.stups.fullstop.events.UserDataProvider;
@@ -38,16 +35,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toSet;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
-/**
- * @author mrandi
- */
-
-@Component
 public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistryPlugin.class);
@@ -73,7 +67,6 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
 
     private final UserDataProvider userDataProvider;
 
-    @Autowired
     public RegistryPlugin(
             final UserDataProvider userDataProvider,
             final ViolationSink violationSink, final PieroneOperations pieroneOperations,
@@ -228,40 +221,42 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
                 .size();
         if (approverCount < minApprovals) {
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(VERSION_APPROVAL_NOT_ENOUGH).withPluginFullyQualifiedClassName(
-                            RegistryPlugin.class).withMetaInfo(
-                            newArrayList(
-                                    versionId,
-                                    applicationId,
-                                    approverCount,
-                                    minApprovals)).build());
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(MISSING_VERSION_APPROVAL)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", applicationId,
+                                    "version_id", versionId,
+                                    "number_of_approvers", approverCount,
+                                    "required_approvers", minApprovals))
+                            .build());
         }
     }
 
     protected void validateContainsMandatoryApprovals(Version version, CloudTrailEvent event, String instanceId) {
-        List<Approval> approvals = kioOperations.getApplicationVersionApprovals(
-                version.getApplicationId(),
-                version.getId());
-        List<String> defaultApprovals = registryPluginProperties.getMandatoryApprovals();
+        final String applicationId = version.getApplicationId();
+        final String versionId = version.getId();
+        final List<Approval> approvals = kioOperations.getApplicationVersionApprovals(applicationId, versionId);
+        final List<String> defaultApprovals = registryPluginProperties.getMandatoryApprovals();
 
         // #139
         // https://github.com/zalando-stups/fullstop/issues/139
         // does not have all default approval types
-        Set<String> approvalTypes = approvals.stream()
-                                             .collect(Collectors.groupingBy(Approval::getApprovalType))
-                                             .keySet();
+        final Set<String> approvalTypes = approvals.stream().map(Approval::getApprovalType).collect(toSet());
         if (!approvalTypes.containsAll(defaultApprovals)) {
-            Set<String> diff = Sets.newHashSet(defaultApprovals);
+            final Set<String> diff = newHashSet(defaultApprovals);
             diff.removeAll(approvalTypes);
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(MISSING_VERSION_APPROVAL).withPluginFullyQualifiedClassName(
-                            RegistryPlugin.class).withMetaInfo(
-                            newArrayList(
-                                    version.getId(),
-                                    diff.toString(),
-                                    version.getApplicationId())).build());
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(MISSING_VERSION_APPROVAL)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", applicationId,
+                                    "version_id", versionId,
+                                    "missing_approval_types", diff))
+                            .build());
         }
 
     }
@@ -361,15 +356,14 @@ public class RegistryPlugin extends AbstractFullstopPlugin {
         }
         catch (NotFoundException e) {
             violationSink.put(
-                    violationFor(event).withInstanceId(instanceId)
-                                       .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
-                                       .withPluginFullyQualifiedClassName(
-                                               RegistryPlugin.class)
-                                       .withMetaInfo(
-                                               newArrayList(
-                                                       applicationId,
-                                                       applicationVersion))
-                                       .build());
+                    violationFor(event)
+                            .withInstanceId(instanceId)
+                            .withType(APPLICATION_VERSION_NOT_PRESENT_IN_KIO)
+                            .withPluginFullyQualifiedClassName(RegistryPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", applicationId,
+                                    "version_id", applicationVersion))
+                            .build());
 
             return null;
         }

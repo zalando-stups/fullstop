@@ -21,15 +21,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.UserDataProvider;
 import org.zalando.stups.fullstop.plugin.RegistryPlugin;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.pierone.client.PieroneOperations;
 
-/**
- * @author npiccolotto
- */
 @Configuration
-@ComponentScan(basePackageClasses = { RegistryPlugin.class })
 @EnableConfigurationProperties({ RegistryPluginProperties.class })
 public class RegistryPluginAutoConfiguration {
     @Autowired
@@ -39,5 +38,12 @@ public class RegistryPluginAutoConfiguration {
     @Bean
     public UserDataProvider userDataProvider() {
         return new UserDataProvider(clientProvider);
+    }
+
+    @Bean
+    RegistryPlugin registryPlugin(UserDataProvider userDataProvider, ViolationSink violationSink,
+                                  PieroneOperations pieroneOperations, KioOperations kioOperations,
+                                  RegistryPluginProperties registryPluginProperties) {
+        return new RegistryPlugin(userDataProvider, violationSink, pieroneOperations, kioOperations, registryPluginProperties);
     }
 }

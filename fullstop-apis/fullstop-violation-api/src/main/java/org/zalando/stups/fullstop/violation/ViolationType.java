@@ -46,8 +46,6 @@ public class ViolationType {
 
     public static final String SCM_URL_NOT_MATCH_WITH_KIO = "SCM_URL_NOT_MATCH_WITH_KIO";
 
-    public static final String VERSION_APPROVAL_NOT_ENOUGH = "VERSION_APPROVAL_NOT_ENOUGH";
-
     public static final String MISSING_VERSION_APPROVAL = "MISSING_VERSION_APPROVAL";
 
     public static final String IMAGE_IN_PIERONE_NOT_FOUND = "IMAGE_IN_PIERONE_NOT_FOUND";

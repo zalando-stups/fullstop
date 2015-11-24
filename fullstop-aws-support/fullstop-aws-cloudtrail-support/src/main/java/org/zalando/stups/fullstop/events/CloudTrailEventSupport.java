@@ -22,21 +22,23 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -90,12 +92,15 @@ public abstract class CloudTrailEventSupport {
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
      */
-    public static String getAmi(final String instanceJson) {
-
-        if (instanceJson == null) {
-            return null;
+    public static Optional<String> getAmi(final String instanceJson) {
+        if (isNullOrEmpty(instanceJson)) {
+            return empty();
         }
-        return JsonPath.read(instanceJson, IMAGE_ID_JSON_PATH);
+        try {
+            return Optional.ofNullable(JsonPath.read(instanceJson, IMAGE_ID_JSON_PATH));
+        } catch (JsonPathException ignored) {
+            return empty();
+        }
     }
 
     /**
@@ -163,7 +168,7 @@ public abstract class CloudTrailEventSupport {
      */
     public static List<String> read(final String responseElements, final String pattern,
                                     final boolean emptyListOnNullOrEmptyResponse) {
-        if (Strings.isNullOrEmpty(responseElements) && emptyListOnNullOrEmptyResponse) {
+        if (isNullOrEmpty(responseElements) && emptyListOnNullOrEmptyResponse) {
             return Lists.newArrayList();
         }
 

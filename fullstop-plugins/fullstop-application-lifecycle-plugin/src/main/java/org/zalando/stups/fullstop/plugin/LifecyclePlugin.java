@@ -21,7 +21,6 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
-import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,35 +93,21 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
         final String eventName = event.getEventData().getEventName();
 
         final AmazonEC2Client amazonEC2Client = clientProvider.getClient(
-                AmazonEC2Client.class, event.getEventData().getAccountId(), region);
+                AmazonEC2Client.class, accountId, region);
 
         for (final String instance : instances) {
             final String instanceId = getInstanceId(instance);
             final DateTime eventDate = getLifecycleDate(event, instance);
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
-
-            String amiId = null;
-
-            //fetch from userData json
-            try {
-                amiId = getAmi(instance);
-            } catch (PathNotFoundException e) {
-                LOG.warn("no amiId found for instance {} in json file", instanceId);
-            }
-
-            // if ami id wasn't found in json, look on amazon
-            if (amiId == null) {
-                amiId = getAmiId(amazonEC2Client, instanceId);
-            }
-
+            final Optional<String> cloudTrailAmiId = getAmi(instance);
+            final String amiId = cloudTrailAmiId.orElseGet(() -> getAmiId(amazonEC2Client, instanceId));
             if (amiId != null) {
                 lifecycleEntity.setImageId(amiId);
 
-                String amiName = getAmiName(amazonEC2Client, amiId);
+                final String amiName = getAmiName(amazonEC2Client, amiId);
                 if (amiName == null) {
                     LOG.warn("Could not find ami name for ami id: {}, account: {}, region: {} for event: {}.", amiId, accountId, region, eventName);
                 }
-
                 lifecycleEntity.setImageName(amiName);
             }
 

@@ -23,8 +23,6 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,6 +32,7 @@ import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
@@ -47,8 +46,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 @Component
 public class AmiPlugin extends AbstractFullstopPlugin {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
 
     private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
 
@@ -85,8 +82,8 @@ public class AmiPlugin extends AbstractFullstopPlugin {
         whitelistedAmis = getWhitelistedAmis(event, whitelistedAmis);
 
         for (String jsonInstance : jsonInstances) {
-            String ami = getAmi(jsonInstance);
-            if (ami == null) {
+            final Optional<String> ami = getAmi(jsonInstance);
+            if (!ami.isPresent()) {
                 break;
             }
             String instanceId = getInstanceId(jsonInstance);
@@ -98,7 +95,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
             for (String whitelistedAmi : whitelistedAmis) {
 
-                if (ami.equals(whitelistedAmi)) {
+                if (ami.get().equals(whitelistedAmi)) {
                     valid = true;
                 }
             }
