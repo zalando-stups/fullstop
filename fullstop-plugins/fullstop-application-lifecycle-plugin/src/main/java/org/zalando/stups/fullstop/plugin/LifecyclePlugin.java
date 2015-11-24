@@ -20,10 +20,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.DescribeImagesResult;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.*;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -93,7 +90,7 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
         final List<String> instances = getInstances(event);
         final Region region = getRegion(event);
-        final String accountId = getAccountId(event);
+        final String accountId = event.getEventData().getAccountId();
         final String eventName = event.getEventData().getEventName();
 
         final AmazonEC2Client amazonEC2Client = clientProvider.getClient(
@@ -104,25 +101,30 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             final DateTime eventDate = getLifecycleDate(event, instance);
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
 
-                String amiId = null;
+            String amiId = null;
 
-                //fetch from userData json
-                try {
-                    amiId = getAmi(instance);
-                } catch (PathNotFoundException e){
-                    LOG.warn("no amiId found for instance {} in json file", instanceId);
+            //fetch from userData json
+            try {
+                amiId = getAmi(instance);
+            } catch (PathNotFoundException e) {
+                LOG.warn("no amiId found for instance {} in json file", instanceId);
+            }
+
+            // if ami id wasn't found in json, look on amazon
+            if (amiId == null) {
+                amiId = getAmiId(amazonEC2Client, instanceId);
+            }
+
+            if (amiId != null) {
+                lifecycleEntity.setImageId(amiId);
+
+                String amiName = getAmiName(amazonEC2Client, amiId);
+                if (amiName == null) {
+                    LOG.warn("Could not find ami name for ami id: {}, account: {}, region: {} for event: {}.", amiId, accountId, region, eventName);
                 }
 
-                // if ami id wasn't found in json, look on amazon
-                if (amiId == null) {
-                    amiId = getAmiId(amazonEC2Client, instanceId);
-                }
-
-                if (amiId != null) {
-                    String amiName = getAmiName(amazonEC2Client, amiId);
-                    lifecycleEntity.setImageId(amiId);
-                    lifecycleEntity.setImageName(amiName);
-                }
+                lifecycleEntity.setImageName(amiName);
+            }
 
             lifecycleEntity.setEventType(eventName);
             lifecycleEntity.setEventDate(eventDate);
@@ -206,17 +208,22 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
     }
 
 
-
     private String getAmiName(AmazonEC2Client amazonEC2Client, String ami) {
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
         DescribeImagesResult describeImagesResult;
         try {
-            describeImagesResult = amazonEC2Client.describeImages(describeImagesRequest.withImageIds(ami));
+            describeImagesResult = amazonEC2Client.describeImages(new DescribeImagesRequest().withImageIds(ami));
         } catch (final AmazonServiceException e) {
             LOG.warn("Lifecycle plugin: cannot fetch ami name. Reason: {}", e.toString());
             return null;
         }
-        return describeImagesResult.getImages().get(0).getName();
+
+        List<Image> images = describeImagesResult.getImages();
+
+        if (images.isEmpty()) {
+            return null;
+        } else {
+            return images.get(0).getName();
+        }
     }
 
     private <T> Optional<T> getEntity(Map userData, String attribute, Function<String, T> constructor) {
