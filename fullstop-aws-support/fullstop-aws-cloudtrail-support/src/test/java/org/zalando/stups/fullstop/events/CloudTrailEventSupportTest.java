@@ -17,12 +17,12 @@ package org.zalando.stups.fullstop.events;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -50,41 +50,41 @@ public class CloudTrailEventSupportTest {
     public void getAmisTest() {
         List<String> instances = CloudTrailEventSupport.getInstances(createCloudTrailEvent("/responseElements.json"));
         for (String instance : instances) {
-            String ami = getAmi(instance);
-            Assertions.assertThat(ami).isNotEmpty();
+            Optional<String> ami = getAmi(instance);
+            assertThat(ami).isPresent();
+            assertThat(ami.get()).isNotEmpty();
         }
-
     }
 
     @Test
     public void getInstanceIdsTest() {
         List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/responseElements.json"));
-        Assertions.assertThat(instanceIds).isNotEmpty();
+        assertThat(instanceIds).isNotEmpty();
     }
 
     @Test
     public void getInstancesTest() {
         CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/responseElements.json");
         List<String> instances = getInstances(cloudTrailEvent);
-        Assertions.assertThat(instances).isNotEmpty();
+        assertThat(instances).isNotEmpty();
     }
 
     @Test(expected = NullPointerException.class)
     public void getInstanceIdsNullEvent() {
         List<String> instanceIds = getInstanceIds(null);
-        Assertions.assertThat(instanceIds).isNotEmpty();
+        assertThat(instanceIds).isNotEmpty();
     }
 
     @Test(expected = NullPointerException.class)
     public void getInstanceIdsNullEventData() {
         List<String> instanceIds = getInstanceIds(new CloudTrailEvent(null, null));
-        Assertions.assertThat(instanceIds).isNotEmpty();
+        assertThat(instanceIds).isNotEmpty();
     }
 
     @Test
     public void testNullResponseElementsAmis() {
         List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/empty-responseElements.json"));
-        Assertions.assertThat(instanceIds).isEmpty();
+        assertThat(instanceIds).isEmpty();
     }
 
     @Test

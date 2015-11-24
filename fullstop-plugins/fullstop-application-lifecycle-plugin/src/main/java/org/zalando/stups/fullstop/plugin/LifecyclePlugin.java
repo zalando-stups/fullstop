@@ -24,7 +24,6 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.jayway.jsonpath.PathNotFoundException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,26 +102,13 @@ public class LifecyclePlugin extends AbstractFullstopPlugin {
             final String instanceId = getInstanceId(instance);
             final DateTime eventDate = getLifecycleDate(event, instance);
             final LifecycleEntity lifecycleEntity = new LifecycleEntity();
-
-                String amiId = null;
-
-                //fetch from userData json
-                try {
-                    amiId = getAmi(instance);
-                } catch (PathNotFoundException e){
-                    LOG.warn("no amiId found for instance {} in json file", instanceId);
-                }
-
-                // if ami id wasn't found in json, look on amazon
-                if (amiId == null) {
-                    amiId = getAmiId(amazonEC2Client, instanceId);
-                }
-
-                if (amiId != null) {
-                    String amiName = getAmiName(amazonEC2Client, amiId);
-                    lifecycleEntity.setImageId(amiId);
-                    lifecycleEntity.setImageName(amiName);
-                }
+            final Optional<String> cloudTrailAmiId = getAmi(instance);
+            final String amiId = cloudTrailAmiId.orElseGet(() -> getAmiId(amazonEC2Client, instanceId));
+            if (amiId != null) {
+                String amiName = getAmiName(amazonEC2Client, amiId);
+                lifecycleEntity.setImageId(amiId);
+                lifecycleEntity.setImageName(amiName);
+            }
 
             lifecycleEntity.setEventType(eventName);
             lifecycleEntity.setEventDate(eventDate);
