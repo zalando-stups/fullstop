@@ -20,16 +20,21 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import org.slf4j.Logger;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class AmiIdProviderImpl implements AmiIdProvider {
@@ -38,14 +43,24 @@ public class AmiIdProviderImpl implements AmiIdProvider {
 
     private final Logger log = getLogger(getClass());
 
+    private final LoadingCache<EC2InstanceContext, Optional<String>> cache = CacheBuilder.newBuilder()
+            .expireAfterAccess(1, MINUTES)
+            .maximumSize(100)
+            .build(new CacheLoader<EC2InstanceContext, Optional<String>>() {
+                @Override
+                public Optional<String> load(@Nonnull EC2InstanceContext context) throws Exception {
+                    final Optional<String> amiId = readAmiIdFromJson(context);
+                    if (amiId.isPresent()) {
+                        return amiId;
+                    } else {
+                        return getAmiIdFromEC2Api(context);
+                    }
+                }
+            });
+
     @Override
     public Optional<String> apply(EC2InstanceContext context) {
-        final Optional<String> amiId = readAmiIdFromJson(context);
-        if (amiId.isPresent()) {
-            return amiId;
-        } else {
-            return getAmiIdFromEC2Api(context);
-        }
+        return cache.getUnchecked(context);
     }
 
     private Optional<String> readAmiIdFromJson(EC2InstanceContext context) {

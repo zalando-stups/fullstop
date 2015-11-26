@@ -24,6 +24,7 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
@@ -106,5 +107,19 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     public Optional<String> getAmiName() {
         // TODO
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final EC2InstanceContextImpl that = (EC2InstanceContextImpl) o;
+        return Objects.equals(getEvent(), that.getEvent()) &&
+                Objects.equals(getInstanceJson(), that.getInstanceJson());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getEvent(), getInstanceJson());
     }
 }
