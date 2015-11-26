@@ -27,6 +27,11 @@
             <artifactId>fullstop-aws-client-support</artifactId>
             <version>${fullstop-aws-support.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
