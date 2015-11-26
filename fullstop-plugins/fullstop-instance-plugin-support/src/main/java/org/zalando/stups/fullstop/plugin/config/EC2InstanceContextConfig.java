@@ -22,7 +22,9 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
 import org.zalando.stups.fullstop.plugin.provider.impl.AmiIdProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.AmiNameProviderImpl;
 
 @Configuration
 public class EC2InstanceContextConfig {
@@ -32,11 +34,17 @@ public class EC2InstanceContextConfig {
     EC2InstanceContextProvider contextProvider(ClientProvider clientProvider) {
         return new EC2InstanceContextProviderImpl(
                 clientProvider,
-                amiIdProvider());
+                amiIdProvider(),
+                amiNameProvider());
     }
 
     @Bean
     AmiIdProvider amiIdProvider() {
         return new AmiIdProviderImpl();
+    }
+
+    @Bean
+    AmiNameProvider amiNameProvider() {
+        return new AmiNameProviderImpl();
     }
 }

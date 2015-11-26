@@ -49,18 +49,26 @@ public class AmiIdProviderImpl implements AmiIdProvider {
             .build(new CacheLoader<EC2InstanceContext, Optional<String>>() {
                 @Override
                 public Optional<String> load(@Nonnull EC2InstanceContext context) throws Exception {
-                    final Optional<String> amiId = readAmiIdFromJson(context);
-                    if (amiId.isPresent()) {
-                        return amiId;
-                    } else {
-                        return getAmiIdFromEC2Api(context);
+                    final Optional<String> amiId = getAmiId(context);
+                    if (!amiId.isPresent()) {
+                        log.warn("No AMI id found for {}", context);
                     }
+                    return amiId;
                 }
             });
 
     @Override
     public Optional<String> apply(EC2InstanceContext context) {
         return cache.getUnchecked(context);
+    }
+
+    private Optional<String> getAmiId(@Nonnull EC2InstanceContext context) {
+        final Optional<String> amiId = readAmiIdFromJson(context);
+        if (amiId.isPresent()) {
+            return amiId;
+        } else {
+            return getAmiIdFromEC2Api(context);
+        }
     }
 
     private Optional<String> readAmiIdFromJson(EC2InstanceContext context) {

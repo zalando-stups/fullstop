@@ -18,16 +18,19 @@ package org.zalando.stups.fullstop.plugin.impl;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.google.common.base.MoreObjects;
+import com.jayway.jsonpath.JsonPath;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getEventId;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUsernameAsString;
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
@@ -47,15 +50,18 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final AmiIdProvider amiIdProvider;
 
+    private final AmiNameProvider amiNameProvider;
+
     public EC2InstanceContextImpl(
             final CloudTrailEvent event,
             final String instanceJson,
             final ClientProvider clientProvider,
-            final AmiIdProvider amiIdProvider) {
+            final AmiIdProvider amiIdProvider, AmiNameProvider amiNameProvider) {
         this.event = event;
         this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
         this.amiIdProvider = amiIdProvider;
+        this.amiNameProvider = amiNameProvider;
     }
 
     @Override
@@ -70,13 +76,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public String getInstanceId() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public Optional<String> getAmiId() {
-        return amiIdProvider.apply(this);
+        return JsonPath.read(instanceJson, "$.instanceId");
     }
 
     @Override
@@ -89,14 +89,9 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         return new ViolationBuilder()
                 .withAccountId(getAccountId())
                 .withRegion(getRegion().getName())
-                .withEventId(getEventId(getEvent()))
+                .withEventId(getEventId().toString())
                 .withInstanceId(getInstanceId())
                 .withUsername(getUsernameAsString(getEvent()));
-    }
-
-    private String getAccountId() {
-        // TODO
-        return null;
     }
 
     private Region getRegion() {
@@ -104,9 +99,13 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
+    public Optional<String> getAmiId() {
+        return amiIdProvider.apply(this);
+    }
+
+    @Override
     public Optional<String> getAmiName() {
-        // TODO
-        return null;
+        return amiNameProvider.apply(this);
     }
 
     @Override
@@ -121,5 +120,28 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     @Override
     public int hashCode() {
         return Objects.hash(getEvent(), getInstanceJson());
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("accountId", getAccountId())
+                .add("region", getRegion())
+                .add("eventId", getEventId())
+                .add("eventName", getEventName())
+                .add("instanceId", getInstanceId())
+                .toString();
+    }
+
+    private String getAccountId() {
+        return getEvent().getEventData().getAccountId();
+    }
+
+    private UUID getEventId() {
+        return getEvent().getEventData().getEventId();
+    }
+
+    private String getEventName() {
+        return getEvent().getEventData().getEventName();
     }
 }

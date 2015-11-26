@@ -22,6 +22,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -37,7 +38,8 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
 
     public EC2InstanceContextProviderImpl(
             final ClientProvider clientProvider,
-            final AmiIdProvider amiIdProvider) {
+            final AmiIdProvider amiIdProvider,
+            final AmiNameProvider amiNameProvider) {
         cache = newBuilder()
                 .expireAfterAccess(1, MINUTES)
                 .maximumSize(100)
@@ -46,11 +48,12 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
                            public List<EC2InstanceContext> load(@Nonnull final CloudTrailEvent cloudTrailEvent) {
                                return getInstances(cloudTrailEvent)
                                        .stream()
-                                       .map(i -> new EC2InstanceContextImpl(
+                                       .map(instanceJson -> new EC2InstanceContextImpl(
                                                cloudTrailEvent,
-                                               i,
+                                               instanceJson,
                                                clientProvider,
-                                               amiIdProvider))
+                                               amiIdProvider,
+                                               amiNameProvider))
                                        .collect(toList());
                            }
                        }
