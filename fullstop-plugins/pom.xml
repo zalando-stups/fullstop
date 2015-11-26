@@ -39,6 +39,7 @@
     </properties>
 
     <modules>
+        <module>fullstop-instance-plugin-support</module>
         <module>fullstop-ami-plugin</module>
         <module>fullstop-application-masterdata-plugin</module>
         <module>fullstop-count-events-plugin</module>
