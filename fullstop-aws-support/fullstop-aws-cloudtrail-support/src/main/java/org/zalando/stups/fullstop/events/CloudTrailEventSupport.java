@@ -32,10 +32,8 @@ import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;
@@ -206,19 +204,11 @@ public abstract class CloudTrailEventSupport {
         return JsonPath.read(responseElements, INSTANCE_LAUNCH_TIME);
     }
 
-    public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
-        cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
-
-        CloudTrailEventData cloudTrailEventData = checkNotNull(
-                cloudTrailEvent.getEventData(),
-                CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
-
-        return getRegion(cloudTrailEventData.getAwsRegion());
-    }
-
-    public static Region getRegion(final String regionString) {
-        checkState(!isNullOrEmpty(regionString), REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY);
-        return Region.getRegion(Regions.fromName(regionString));
+    public static Region getRegion(final CloudTrailEvent cloudTrailEvent) {
+        return Optional.ofNullable(getRegionAsString(cloudTrailEvent))
+                .map(Regions::fromName)
+                .map(Region::getRegion)
+                .orElseThrow(() -> new IllegalArgumentException("Missing awsRegion in CloudTrailEvent " + cloudTrailEvent));
     }
 
     public static String getRegionAsString(final CloudTrailEvent event) {

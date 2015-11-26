@@ -13,27 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin;
+package org.zalando.stups.fullstop.plugin.provider;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 
 import java.util.Optional;
+import java.util.function.Function;
 
-public interface EC2InstanceContext {
-
-    CloudTrailEvent getEvent();
-
-    String getInstanceJson();
-
-    String getInstanceId();
-
-    Optional<String> getAmiId();
-
-    Optional<String> getAmiName();
-
-    <T extends AmazonWebServiceClient> T getClient(Class<T> type);
-
-    ViolationBuilder violation();
+public interface AmiIdProvider extends Function<EC2InstanceContext, Optional<String>> {
 }

@@ -21,6 +21,7 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Optional;
@@ -30,16 +31,51 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUserna
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
 
+    /**
+     * The original CloudTrailEvent
+     */
+    private final CloudTrailEvent event;
+
+    /**
+     * An excerpt of the CloudTrailEvent for this particular instance.
+     * In other words: one "item" in the responseElements $.instancesSet.items.
+     */
+    private final String instanceJson;
+
     private final ClientProvider clientProvider;
 
-    public EC2InstanceContextImpl(ClientProvider clientProvider) {
+    private final AmiIdProvider amiIdProvider;
+
+    public EC2InstanceContextImpl(
+            final CloudTrailEvent event,
+            final String instanceJson,
+            final ClientProvider clientProvider,
+            final AmiIdProvider amiIdProvider) {
+        this.event = event;
+        this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
+        this.amiIdProvider = amiIdProvider;
+    }
+
+    @Override
+    public CloudTrailEvent getEvent() {
+        return event;
+    }
+
+    @Override
+    public String getInstanceJson() {
+        return instanceJson;
+    }
+
+    @Override
+    public String getInstanceId() {
+        // TODO
+        return null;
     }
 
     @Override
     public Optional<String> getAmiId() {
-        // TODO
-        return Optional.empty();
+        return amiIdProvider.apply(this);
     }
 
     @Override
@@ -64,18 +100,6 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private Region getRegion() {
         return CloudTrailEventSupport.getRegion(getEvent());
-    }
-
-    @Override
-    public CloudTrailEvent getEvent() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public String getInstanceId() {
-        // TODO
-        return null;
     }
 
     @Override
