@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -36,7 +35,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -44,58 +42,27 @@ import static java.util.Optional.ofNullable;
  */
 public abstract class CloudTrailEventSupport {
 
-    public static final String IMAGE_ID_JSON_PATH = "$.imageId";
-
-    public static final String IMAGE_ID_AND_INSTANCE_JSON_PATH = "$.instancesSet.items[*].imageId";
-
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
     public static final String INSTANCE_JSON_PATH = "$.instancesSet.items[*]";
 
     public static final String RUN_INSTANCE_DATE_JSON_PATH = "$.launchTime";
 
-    public static final String SINGLE_INSTANCE_ID_JSON_PATH = "$.instanceId";
-
-    public static final String PRIVATE_IP_JSON_PATH = "$.instancesSet.items[*].privateIpAddress";
-
-    public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
-
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
             "$.groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
-    public static final String EVENT_TIME = "$.eventTime";
-
     public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
-
-    public static final String ROLE_NAME_JSON_PATH = "$.instancesSet.items[*].roleName";
 
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
-    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-            "RegionString should never be null or empty";
-
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
             "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
-
-    /**
-     * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
-     */
-    public static Optional<String> getAmi(final String instanceJson) {
-        if (isNullOrEmpty(instanceJson)) {
-            return empty();
-        }
-        try {
-            return Optional.ofNullable(JsonPath.read(instanceJson, IMAGE_ID_JSON_PATH));
-        } catch (JsonPathException ignored) {
-            return empty();
-        }
-    }
 
     /**
      * Extracts list of instanceIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -138,17 +105,6 @@ public abstract class CloudTrailEventSupport {
         return JsonPath.read(parameters, KEY_PAIR_JSON_PATH);
     }
 
-    /**
-     * Extracts ids of security-groups.
-     */
-    public static List<String> readSecurityGroupIds(final String parameters) {
-        if (parameters == null) {
-            return null;
-        }
-
-        return read(parameters, "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
-    }
-
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
@@ -175,10 +131,6 @@ public abstract class CloudTrailEventSupport {
      */
     public static List<String> read(final String responseElements, final String pattern) {
         return read(responseElements, pattern, false);
-    }
-
-    public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern) {
-        return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, false);
     }
 
     public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern,
@@ -213,18 +165,6 @@ public abstract class CloudTrailEventSupport {
 
     public static String getRegionAsString(final CloudTrailEvent event) {
         return event.getEventData().getAwsRegion();
-    }
-
-    /**
-     * + * Extract the 'roleName'. +
-     */
-    public static List<String> readRoleName(final String parameters) {
-
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
     }
 
     public static ViolationBuilder violationFor(CloudTrailEvent cloudTrailEvent) {

@@ -19,26 +19,16 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstanceIds;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getInstances;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
  * @author jbellmann
  */
 public class CloudTrailEventSupportTest {
-
-    @Test
-    public void getAmisTest() {
-        List<String> instances = getInstances(createCloudTrailEvent("/responseElements.json"));
-        for (String instance : instances) {
-            Optional<String> ami = getAmi(instance);
-            assertThat(ami).isPresent();
-            assertThat(ami.get()).isNotEmpty();
-        }
-    }
 
     @Test
     public void getInstanceIdsTest() {
