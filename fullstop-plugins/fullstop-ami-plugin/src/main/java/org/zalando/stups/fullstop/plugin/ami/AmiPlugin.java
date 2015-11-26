@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -35,8 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
@@ -46,12 +43,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 @Component
 public class AmiPlugin extends AbstractFullstopPlugin {
-
-    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
-
-    private static final String EVENT_NAME = "RunInstances";
-
-    private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
 
     private final ClientProvider clientProvider;
 
@@ -71,7 +62,7 @@ public class AmiPlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        return eventFilter.test(event);
+        return isRunInstancesEvent(event);
     }
 
     @Override

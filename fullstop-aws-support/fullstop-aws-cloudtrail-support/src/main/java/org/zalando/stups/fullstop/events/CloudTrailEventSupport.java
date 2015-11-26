@@ -85,10 +85,6 @@ public abstract class CloudTrailEventSupport {
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
 
-    public static Predicate<CloudTrailEvent> EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
-
-    public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
-
     /**
      * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
      */
@@ -192,12 +188,12 @@ public abstract class CloudTrailEventSupport {
         return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, emptyListOnNullOrEmptyResponse);
     }
 
-    public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EC2_EVENT.test(cloudTrailEvent);
-    }
-
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return RUN_INSTANCES.test(cloudTrailEvent);
+        return Optional.ofNullable(cloudTrailEvent)
+                .map(CloudTrailEvent::getEventData)
+                .filter(e -> "ec2.amazonaws.com".equals(e.getEventSource()))
+                .filter(e -> "RunInstances".equals(e.getEventName()))
+                .isPresent();
     }
 
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
