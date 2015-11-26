@@ -15,36 +15,33 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.function.Predicate;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static java.lang.String.format;
+import static java.util.function.Predicate.isEqual;
+import static java.util.stream.Collectors.toSet;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.isRunInstancesEvent;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
-/**
- * @author mrandi
- */
+public class AmiPlugin extends AbstractEC2InstancePlugin {
 
-@Component
-public class AmiPlugin extends AbstractFullstopPlugin {
-
-    private final ClientProvider clientProvider;
+    private final Logger log = getLogger(getClass());
 
     private final ViolationSink violationSink;
 
@@ -55,8 +52,8 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     private String whitelistedAmiAccount;
 
     @Autowired
-    public AmiPlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
-        this.clientProvider = clientProvider;
+    public AmiPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
+        super(contextProvider);
         this.violationSink = violationSink;
     }
 
@@ -66,55 +63,42 @@ public class AmiPlugin extends AbstractFullstopPlugin {
     }
 
     @Override
-    public void processEvent(final CloudTrailEvent event) {
-        List<String> jsonInstances = getInstances(event);
-        List<String> whitelistedAmis = Lists.newArrayList();
-
-        whitelistedAmis = getWhitelistedAmis(event, whitelistedAmis);
-
-        for (String jsonInstance : jsonInstances) {
-            final Optional<String> ami = getAmi(jsonInstance);
-            if (!ami.isPresent()) {
-                break;
-            }
-            String instanceId = getInstanceId(jsonInstance);
-            if (instanceId == null) {
-                break;
-            }
-
-            boolean valid = false;
-
-            for (String whitelistedAmi : whitelistedAmis) {
-
-                if (ami.get().equals(whitelistedAmi)) {
-                    valid = true;
-                }
-            }
-
-            if (!valid) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(WRONG_AMI)
-                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
-                                           .withMetaInfo(ami)
-                                           .build());
-            }
-        }
+    protected Predicate<? super String> supportsEventName() {
+        return isEqual("RunInstances");
     }
 
-    private List<String> getWhitelistedAmis(CloudTrailEvent event, List<String> whitelistedAmis) {
-        AmazonEC2Client ec2Client = clientProvider.getClient(
-                AmazonEC2Client.class, whitelistedAmiAccount,
-                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
+    @Override
+    protected void process(EC2InstanceContext context) {
+        final Set<String> whiteListedAmiIds;
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
+        try {
+            whiteListedAmiIds = context.getClient(AmazonEC2Client.class)
+                    .describeImages(new DescribeImagesRequest().withOwners(whitelistedAmiAccount))
+                    .getImages().stream()
+                    .filter(image -> image.getName().startsWith(amiNameStartWith))
+                    .map(Image::getImageId)
+                    .collect(toSet());
+        } catch (AmazonClientException e) {
+            log.warn(format("Could not list AMIs for owner %s", whitelistedAmiAccount), e);
+            return;
+        }
 
-        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
-        List<Image> images = describeImagesResult.getImages();
+        if (whiteListedAmiIds.isEmpty()) {
+            log.warn("No white-listed AMIs found: Owner {}, prefix {}", whitelistedAmiAccount, amiNameStartWith);
+            return;
+        }
 
-        whitelistedAmis.addAll(
-                images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
-                      .map(Image::getImageId).collect(Collectors.toList()));
-        return whitelistedAmis;
+        context.getAmiId().ifPresent(amiId -> {
+            if (!whiteListedAmiIds.contains(amiId)) {
+                violationSink.put(
+                        context.violation()
+                                .withType(WRONG_AMI)
+                                .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                                .withMetaInfo(ImmutableMap.of(
+                                        "ami_id", amiId,
+                                        "ami_name", context.getAmiName().orElse(null)))
+                                .build());
+            }
+        });
     }
 }

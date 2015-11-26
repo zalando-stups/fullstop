@@ -22,6 +22,11 @@
             <artifactId>fullstop-aws-cloudtrail-support</artifactId>
             <version>${fullstop-aws-support.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-aws-client-support</artifactId>
+            <version>${fullstop-aws-support.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

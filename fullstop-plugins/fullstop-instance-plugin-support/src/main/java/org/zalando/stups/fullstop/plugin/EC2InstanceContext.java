@@ -15,6 +15,23 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
-public class EC2InstanceContext {
+import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
+import java.util.Optional;
+
+public interface EC2InstanceContext {
+
+    CloudTrailEvent getEvent();
+
+    String getInstanceId();
+
+    Optional<String> getAmiId();
+
+    Optional<String> getAmiName();
+
+    <T extends AmazonWebServiceClient> T getClient(Class<T> type);
+
+    ViolationBuilder violation();
 }
