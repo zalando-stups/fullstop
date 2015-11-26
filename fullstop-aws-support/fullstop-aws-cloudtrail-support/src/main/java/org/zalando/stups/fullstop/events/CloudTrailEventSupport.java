@@ -266,7 +266,6 @@ public abstract class CloudTrailEventSupport {
     }
 
     public static DateTime getRunInstanceTime(String instance) {
-
         return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
     }
 
@@ -277,13 +276,5 @@ public abstract class CloudTrailEventSupport {
         Date eventTime = event.getEventData().getEventTime();
 
         return new DateTime(eventTime);
-    }
-
-    public static String getInstanceId(String instanceJson) {
-        if (instanceJson == null) {
-            return null;
-        }
-        return JsonPath.read(instanceJson, SINGLE_INSTANCE_ID_JSON_PATH);
-
     }
 }

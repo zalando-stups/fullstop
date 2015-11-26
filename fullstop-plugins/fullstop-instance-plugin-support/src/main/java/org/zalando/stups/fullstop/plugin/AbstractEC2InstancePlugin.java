@@ -23,6 +23,11 @@ import java.util.function.Predicate;
 
 public abstract class AbstractEC2InstancePlugin extends AbstractFullstopPlugin {
 
+    protected static final String START_INSTANCES = "StartInstances";
+    protected static final String RUN_INSTANCES = "RunInstances";
+    protected static final String STOP_INSTANCES = "StopInstances";
+    protected static final String TERMINATE_INSTANCES = "TerminateInstances";
+
     private final EC2InstanceContextProvider context;
 
     protected AbstractEC2InstancePlugin(EC2InstanceContextProvider context) {

@@ -94,8 +94,25 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
                 .withUsername(getUsernameAsString(getEvent()));
     }
 
+    @Override
+    public String getRegionAsString() {
+        return CloudTrailEventSupport.getRegionAsString(getEvent());
+    }
+
     private Region getRegion() {
         return CloudTrailEventSupport.getRegion(getEvent());
+    }
+
+    @Override
+    public Optional<String> getApplicationId() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Optional<String> getVersionId() {
+        // TODO
+        return null;
     }
 
     @Override
@@ -106,6 +123,11 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     @Override
     public Optional<String> getAmiName() {
         return amiNameProvider.apply(this);
+    }
+
+    @Override
+    public String getEventName() {
+        return getEvent().getEventData().getEventName();
     }
 
     @Override
@@ -133,15 +155,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
                 .toString();
     }
 
-    private String getAccountId() {
+    @Override
+    public String getAccountId() {
         return getEvent().getEventData().getAccountId();
     }
 
     private UUID getEventId() {
         return getEvent().getEventData().getEventId();
-    }
-
-    private String getEventName() {
-        return getEvent().getEventData().getEventName();
     }
 }

@@ -16,7 +16,6 @@
 package org.zalando.stups.fullstop.plugin.ami;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.Image;
@@ -36,7 +35,6 @@ import static java.lang.String.format;
 import static java.util.function.Predicate.isEqual;
 import static java.util.stream.Collectors.toSet;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.isRunInstancesEvent;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 public class AmiPlugin extends AbstractEC2InstancePlugin {
@@ -55,11 +53,6 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
     public AmiPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
         super(contextProvider);
         this.violationSink = violationSink;
-    }
-
-    @Override
-    public boolean supports(final CloudTrailEvent event) {
-        return isRunInstancesEvent(event);
     }
 
     @Override

@@ -36,4 +36,14 @@ public interface EC2InstanceContext {
     <T extends AmazonWebServiceClient> T getClient(Class<T> type);
 
     ViolationBuilder violation();
+
+    String getEventName();
+
+    String getAccountId();
+
+    String getRegionAsString();
+
+    Optional<String> getApplicationId();
+
+    Optional<String> getVersionId();
 }
