@@ -17,14 +17,11 @@ package org.zalando.stups.fullstop.plugin.keypair.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
-import org.zalando.stups.fullstop.plugin.config.EC2InstanceContextConfig;
 import org.zalando.stups.fullstop.plugin.keypair.KeyPairPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 @Configuration
-@Import(EC2InstanceContextConfig.class)
 public class KeyPairPluginAutoConfiguration {
 
     @Bean

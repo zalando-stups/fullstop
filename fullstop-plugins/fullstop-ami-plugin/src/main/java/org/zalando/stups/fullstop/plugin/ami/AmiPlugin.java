@@ -57,7 +57,7 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected Predicate<? super String> supportsEventName() {
-        return isEqual("RunInstances");
+        return isEqual(RUN_INSTANCES);
     }
 
     @Override

@@ -41,6 +41,8 @@ public class KeyPairPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected Predicate<? super String> supportsEventName() {
+        // A key pair can only be assigned to an EC instance at launch time.
+        // Once the key pair is set it cannot be changed.
         return isEqual(RUN_INSTANCES);
     }
 
