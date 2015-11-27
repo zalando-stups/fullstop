@@ -22,19 +22,16 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 import javax.annotation.PostConstruct;
 
-/**
- * @author jbellmann
- */
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
 @EnablePluginRegistries({ FullstopPlugin.class })
-@EnableWebMvcSecurity
+@EnableWebSecurity
 @EnableScheduling
 public class Fullstop {
 
