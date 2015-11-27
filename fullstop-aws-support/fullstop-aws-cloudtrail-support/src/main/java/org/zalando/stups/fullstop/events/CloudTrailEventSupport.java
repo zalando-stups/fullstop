@@ -53,8 +53,6 @@ public abstract class CloudTrailEventSupport {
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
-    public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
-
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
@@ -91,18 +89,6 @@ public abstract class CloudTrailEventSupport {
         UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
 
         return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
-    }
-
-    /**
-     * Extract the 'keyName'.
-     */
-    public static List<String> containsKeyNames(final String parameters) {
-
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, KEY_PAIR_JSON_PATH);
     }
 
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {

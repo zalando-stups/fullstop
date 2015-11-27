@@ -64,6 +64,7 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
     protected void process(EC2InstanceContext context) {
         final Set<String> whiteListedAmiIds;
 
+        // TODO move this to an external class and implement caching
         try {
             whiteListedAmiIds = context.getClient(AmazonEC2Client.class)
                     .describeImages(new DescribeImagesRequest().withOwners(whitelistedAmiAccount))
