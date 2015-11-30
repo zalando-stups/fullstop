@@ -19,10 +19,13 @@ import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackEx
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static org.mockito.Matchers.any;
@@ -36,16 +39,18 @@ public class RegionPluginTest {
 
     private ViolationSink violationSink = new SystemOutViolationSink();
     private RegionPlugin plugin;
-
-    ;
-
     private RegionPluginProperties regionPluginProperties;
+    private EC2InstanceContext instanceContext;
 
     @Before
     public void setUp() {
+        final EC2InstanceContextProvider contextProvider = mock(EC2InstanceContextProvider.class);
         violationSink = Mockito.spy(violationSink);
+//        instanceContext = mock(EC2InstanceContext.class);
         regionPluginProperties = new RegionPluginProperties();
-        plugin = new RegionPlugin(violationSink, regionPluginProperties);
+        plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);
+
+//        when(instanceContext.violation()).thenReturn(new ViolationBuilder());
     }
 
     @Test
@@ -64,7 +69,8 @@ public class RegionPluginTest {
 
     @Test
     public void testWithLocalPluginProcessor() throws CallbackException {
-        RegionPlugin plugin = new RegionPlugin(violationSink, regionPluginProperties);
+        final EC2InstanceContextProvider contextProvider = mock(EC2InstanceContextProvider.class);
+        RegionPlugin plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);
         LocalPluginProcessor lpp = new LocalPluginProcessor(plugin);
         lpp.processEvents(getClass().getResourceAsStream("/record-run.json"));
     }
