@@ -99,7 +99,8 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         return CloudTrailEventSupport.getRegionAsString(getEvent());
     }
 
-    private Region getRegion() {
+    @Override
+    public Region getRegion() {
         return CloudTrailEventSupport.getRegion(getEvent());
     }
 

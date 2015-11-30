@@ -16,6 +16,7 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
@@ -41,9 +42,12 @@ public interface EC2InstanceContext {
 
     String getAccountId();
 
+    Region getRegion();
+
     String getRegionAsString();
 
     Optional<String> getApplicationId();
 
     Optional<String> getVersionId();
+
 }

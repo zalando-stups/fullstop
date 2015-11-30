@@ -15,14 +15,8 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
@@ -31,28 +25,21 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
 import static java.util.function.Predicate.isEqual;
-import static java.util.stream.Collectors.toSet;
-import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 public class AmiPlugin extends AbstractEC2InstancePlugin {
 
-    private final Logger log = getLogger(getClass());
-
     private final ViolationSink violationSink;
-
-    @Value("${fullstop.plugins.ami.amiNameStartWith}")
-    private String amiNameStartWith;
-
-    @Value("${fullstop.plugins.ami.whitelistedAmiAccount}")
-    private String whitelistedAmiAccount;
+    private final WhiteListedAmiProvider whiteListedAmiProvider;
 
     @Autowired
-    public AmiPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
+    public AmiPlugin(final EC2InstanceContextProvider contextProvider,
+                     final ViolationSink violationSink,
+                     final WhiteListedAmiProvider whiteListedAmiProvider) {
         super(contextProvider);
         this.violationSink = violationSink;
+        this.whiteListedAmiProvider = whiteListedAmiProvider;
     }
 
     @Override
@@ -62,23 +49,9 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected void process(EC2InstanceContext context) {
-        final Set<String> whiteListedAmiIds;
-
-        // TODO move this to an external class and implement caching
-        try {
-            whiteListedAmiIds = context.getClient(AmazonEC2Client.class)
-                    .describeImages(new DescribeImagesRequest().withOwners(whitelistedAmiAccount))
-                    .getImages().stream()
-                    .filter(image -> image.getName().startsWith(amiNameStartWith))
-                    .map(Image::getImageId)
-                    .collect(toSet());
-        } catch (AmazonClientException e) {
-            log.warn(format("Could not list AMIs for owner %s", whitelistedAmiAccount), e);
-            return;
-        }
+        final Set<String> whiteListedAmiIds = whiteListedAmiProvider.apply(context);
 
         if (whiteListedAmiIds.isEmpty()) {
-            log.warn("No white-listed AMIs found: Owner {}, prefix {}", whitelistedAmiAccount, amiNameStartWith);
             return;
         }
 
@@ -90,7 +63,7 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
                                 .withPluginFullyQualifiedClassName(AmiPlugin.class)
                                 .withMetaInfo(ImmutableMap.of(
                                         "ami_id", amiId,
-                                        "ami_name", context.getAmiName().orElse(null)))
+                                        "ami_name", context.getAmiName().orElse("")))
                                 .build());
             }
         });
