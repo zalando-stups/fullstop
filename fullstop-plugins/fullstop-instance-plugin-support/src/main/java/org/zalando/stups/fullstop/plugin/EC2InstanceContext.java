@@ -18,9 +18,11 @@ package org.zalando.stups.fullstop.plugin;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.model.Image;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
+import java.util.Map;
 import java.util.Optional;
 
 public interface EC2InstanceContext {
@@ -33,7 +35,7 @@ public interface EC2InstanceContext {
 
     Optional<String> getAmiId();
 
-    Optional<String> getAmiName();
+    Optional<Image> getAmi();
 
     <T extends AmazonWebServiceClient> T getClient(Class<T> type);
 
@@ -52,4 +54,8 @@ public interface EC2InstanceContext {
     Optional<String> getVersionId();
 
     Optional<Application> getKioApplication();
+
+    Optional<Boolean> isTaupageAmi();
+
+    Optional<Map> getTaupageYaml();
 }

@@ -18,6 +18,7 @@ package org.zalando.stups.fullstop.plugin.impl;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.amazonaws.services.ec2.model.Image;
 import com.google.common.base.MoreObjects;
 import com.jayway.jsonpath.JsonPath;
 import org.zalando.stups.clients.kio.Application;
@@ -25,9 +26,11 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +39,8 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUserna
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
 
+    public static final String TAUPAGE = "Taupage";
+    public static final String STUPS_ACCOUNT_ID = "XXX";
     /**
      * The original CloudTrailEvent
      */
@@ -51,18 +56,23 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final AmiIdProvider amiIdProvider;
 
-    private final AmiNameProvider amiNameProvider;
+    private final AmiProvider amiProvider;
+
+    private final TaupageYamlProvider taupageYamlProvider;
 
     public EC2InstanceContextImpl(
             final CloudTrailEvent event,
             final String instanceJson,
             final ClientProvider clientProvider,
-            final AmiIdProvider amiIdProvider, AmiNameProvider amiNameProvider) {
+            final AmiIdProvider amiIdProvider,
+            final AmiProvider amiProvider,
+            final TaupageYamlProvider taupageYamlProvider) {
         this.event = event;
         this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
         this.amiIdProvider = amiIdProvider;
-        this.amiNameProvider = amiNameProvider;
+        this.amiProvider = amiProvider;
+        this.taupageYamlProvider = taupageYamlProvider;
     }
 
     @Override
@@ -107,14 +117,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        // TODO
-        return null;
+        return getTaupageYaml().map(data -> (String) data.get("application_id")); // TODO: check if name is right
     }
 
     @Override
     public Optional<String> getVersionId() {
-        // TODO
-        return null;
+        return getTaupageYaml().map(data -> (String) data.get("application_version")); // TODO: check if name is right
     }
 
     @Override
@@ -129,8 +137,18 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public Optional<String> getAmiName() {
-        return amiNameProvider.apply(this);
+    public Optional<Image> getAmi() {
+        return amiProvider.apply(this);
+    }
+
+    @Override
+    public Optional<Boolean> isTaupageAmi() {
+        return getAmi().map(image -> image.getName().startsWith(TAUPAGE) && image.getOwnerId().equals(STUPS_ACCOUNT_ID) );
+    }
+
+    @Override
+    public Optional<Map> getTaupageYaml() {
+        return taupageYamlProvider.apply(this);
     }
 
     @Override

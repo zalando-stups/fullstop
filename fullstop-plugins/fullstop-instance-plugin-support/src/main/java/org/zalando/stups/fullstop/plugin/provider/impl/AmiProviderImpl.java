@@ -25,7 +25,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
-import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -34,25 +34,25 @@ import static java.util.Optional.empty;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class AmiNameProviderImpl implements AmiNameProvider {
+public class AmiProviderImpl implements AmiProvider {
 
     private final Logger log = getLogger(getClass());
 
-    private final LoadingCache<EC2InstanceContext, Optional<String>> cache = CacheBuilder.newBuilder()
+    private final LoadingCache<EC2InstanceContext, Optional<Image>> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(1, MINUTES)
             .maximumSize(100)
-            .build(new CacheLoader<EC2InstanceContext, Optional<String>>() {
+            .build(new CacheLoader<EC2InstanceContext, Optional<Image>>() {
                 @Override
-                public Optional<String> load(@Nonnull EC2InstanceContext context) throws Exception {
-                    final Optional<String> amiName = getAmiName(context);
+                public Optional<Image> load(@Nonnull EC2InstanceContext context) throws Exception {
+                    final Optional<Image> amiName = getAmi(context);
                     if (!amiName.isPresent()) {
-                        log.warn("Could not find the AMI name for {}", context);
+                        log.warn("Could not find the AMI for {}", context);
                     }
                     return amiName;
                 }
             });
 
-    private Optional<String> getAmiName(@Nonnull EC2InstanceContext context) {
+    private Optional<Image> getAmi(@Nonnull EC2InstanceContext context) {
         final Optional<String> amiId = context.getAmiId();
         try {
             return amiId
@@ -60,16 +60,15 @@ public class AmiNameProviderImpl implements AmiNameProvider {
                             .getClient(AmazonEC2Client.class)
                             .describeImages(new DescribeImagesRequest().withImageIds(id)))
                     .map(DescribeImagesResult::getImages)
-                    .flatMap(images -> images.stream().findFirst())
-                    .map(Image::getName);
+                    .flatMap(images -> images.stream().findFirst());
         } catch (AmazonClientException e) {
-            log.warn("Could not get AMI name of" + amiId.get(), e);
+            log.warn("Could not get AMI of: " + amiId.get(), e);
             return empty();
         }
     }
 
     @Override
-    public Optional<String> apply(EC2InstanceContext context) {
+    public Optional<Image> apply(EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }

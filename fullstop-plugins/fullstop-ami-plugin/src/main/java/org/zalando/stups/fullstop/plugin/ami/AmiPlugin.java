@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
+import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
@@ -63,7 +64,7 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
                                 .withPluginFullyQualifiedClassName(AmiPlugin.class)
                                 .withMetaInfo(ImmutableMap.of(
                                         "ami_id", amiId,
-                                        "ami_name", context.getAmiName().orElse("")))
+                                        "ami_name", context.getAmi().map(Image::getName).orElse("")))
                                 .build());
             }
         });

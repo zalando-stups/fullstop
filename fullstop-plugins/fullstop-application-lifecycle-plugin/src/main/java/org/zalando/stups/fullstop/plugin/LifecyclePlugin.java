@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin;
 
+import com.amazonaws.services.ec2.model.Image;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class LifecyclePlugin extends AbstractEC2InstancePlugin {
         lifecycleEntity.setRegion(context.getRegionAsString());
         lifecycleEntity.setInstanceId(context.getInstanceId());
         context.getAmiId().ifPresent(lifecycleEntity::setImageId);
-        context.getAmiName().ifPresent(lifecycleEntity::setImageName);
+        context.getAmi().map(Image::getName).ifPresent(lifecycleEntity::setImageName);
 
         final Optional<ApplicationEntity> application = context.getApplicationId().map(ApplicationEntity::new);
         if (!application.isPresent()) {

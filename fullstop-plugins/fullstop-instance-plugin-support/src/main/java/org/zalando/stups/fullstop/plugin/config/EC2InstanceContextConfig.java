@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,9 +22,11 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.plugin.provider.impl.AmiIdProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.impl.AmiNameProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.AmiProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.TaupageYamlProviderImpl;
 
 @Configuration
 public class EC2InstanceContextConfig {
@@ -35,7 +37,8 @@ public class EC2InstanceContextConfig {
         return new EC2InstanceContextProviderImpl(
                 clientProvider,
                 amiIdProvider(),
-                amiNameProvider());
+                amiProvider(),
+                taupageYamlProvider());
     }
 
     @Bean
@@ -44,7 +47,12 @@ public class EC2InstanceContextConfig {
     }
 
     @Bean
-    AmiNameProvider amiNameProvider() {
-        return new AmiNameProviderImpl();
+    AmiProvider amiProvider() {
+        return new AmiProviderImpl();
+    }
+
+    @Bean
+    TaupageYamlProvider taupageYamlProvider() {
+        return new TaupageYamlProviderImpl();
     }
 }

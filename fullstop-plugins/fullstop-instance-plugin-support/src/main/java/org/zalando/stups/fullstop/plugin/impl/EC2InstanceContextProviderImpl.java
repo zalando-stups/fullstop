@@ -22,7 +22,8 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiNameProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -39,7 +40,8 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
     public EC2InstanceContextProviderImpl(
             final ClientProvider clientProvider,
             final AmiIdProvider amiIdProvider,
-            final AmiNameProvider amiNameProvider) {
+            final AmiProvider amiProvider,
+            final TaupageYamlProvider taupageYamlProvider) {
         cache = newBuilder()
                 .expireAfterAccess(1, MINUTES)
                 .maximumSize(100)
@@ -53,7 +55,8 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
                                                instanceJson,
                                                clientProvider,
                                                amiIdProvider,
-                                               amiNameProvider))
+                                               amiProvider,
+                                               taupageYamlProvider))
                                        .collect(toList());
                            }
                        }

@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
+import com.amazonaws.services.ec2.model.Image;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class AmiPluginTest {
         amiPlugin = new AmiPlugin(mockContextProvider, mockViolationSink, mockWhiteListedAmiProvider);
 
         when(mockContext.violation()).thenReturn(new ViolationBuilder());
-        when(mockContext.getAmiName()).thenReturn(Optional.empty());
+        when(mockContext.getAmi().map(Image::getName)).thenReturn(Optional.empty());
     }
 
     @After
@@ -109,7 +110,7 @@ public class AmiPluginTest {
         verify(mockWhiteListedAmiProvider).apply(same(mockContext));
         verify(mockContext).getAmiId();
         verify(mockContext).violation();
-        verify(mockContext).getAmiName();
+        verify(mockContext).getAmi().map(Image::getName);
         verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
     }
 }
