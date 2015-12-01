@@ -15,19 +15,14 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -35,6 +30,7 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
 public class AmiPluginTest {
@@ -115,25 +111,5 @@ public class AmiPluginTest {
         verify(mockContext).violation();
         verify(mockContext).getAmiName();
         verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
-    }
-
-    private static Matcher<Violation> hasType(final String expectedType) {
-        return new TypeSafeDiagnosingMatcher<Violation>() {
-            @Override
-            protected boolean matchesSafely(Violation violation, Description mismatchDescription) {
-                final String actualType = violation.getViolationType();
-                if (!Objects.equals(actualType, expectedType)) {
-                    mismatchDescription.appendText("type was ").appendValue(actualType);
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("violation of type ").appendValue(expectedType);
-            }
-        };
     }
 }

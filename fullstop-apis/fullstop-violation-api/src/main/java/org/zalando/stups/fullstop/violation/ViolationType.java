@@ -63,4 +63,10 @@ public class ViolationType {
     public static final String WRONG_APPLICATION_MASTERDATA = "WRONG_APPLICATION_MASTERDATA";
 
     public static final String UNSECURED_ENDPOINT = "UNSECURED_ENDPOINT";
+
+    public static final String SPEC_URL_IS_MISSING_IN_KIO = "SPEC_URL_IS_MISSING_IN_KIO";
+
+    public static final String SPEC_TYPE_IS_MISSING_IN_KIO = "SPEC_TYPE_IS_MISSING_IN_KIO";
+
+
 }

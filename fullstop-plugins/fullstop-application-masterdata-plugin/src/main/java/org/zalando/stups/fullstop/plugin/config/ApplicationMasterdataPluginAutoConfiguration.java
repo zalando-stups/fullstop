@@ -15,16 +15,19 @@
  */
 package org.zalando.stups.fullstop.plugin.config;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.fullstop.plugin.ApplicationMasterdataPlugin;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 
-/**
- * @author jbellmann
- */
 @Configuration
-@ComponentScan(basePackageClasses = { ApplicationMasterdataPlugin.class })
-@EnableConfigurationProperties({ ApplicationMasterdataPluginProperties.class })
 public class ApplicationMasterdataPluginAutoConfiguration {
+
+    @Bean
+    ApplicationMasterdataPlugin applicationMasterdataPlugin(
+            final EC2InstanceContextProvider contextProvider,
+            final ViolationSink violationSink) {
+        return new ApplicationMasterdataPlugin(contextProvider, violationSink);
+    }
 }

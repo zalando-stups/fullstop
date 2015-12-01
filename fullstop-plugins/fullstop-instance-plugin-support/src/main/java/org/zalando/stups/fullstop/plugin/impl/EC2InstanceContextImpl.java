@@ -20,6 +20,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.base.MoreObjects;
 import com.jayway.jsonpath.JsonPath;
+import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
@@ -112,6 +113,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getVersionId() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Optional<Application> getKioApplication() {
         // TODO
         return null;
     }
