@@ -23,7 +23,6 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.Set;
 import java.util.function.Predicate;
 
 import static java.util.function.Predicate.isEqual;
@@ -32,15 +31,12 @@ import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 public class AmiPlugin extends AbstractEC2InstancePlugin {
 
     private final ViolationSink violationSink;
-    private final WhiteListedAmiProvider whiteListedAmiProvider;
 
     @Autowired
     public AmiPlugin(final EC2InstanceContextProvider contextProvider,
-                     final ViolationSink violationSink,
-                     final WhiteListedAmiProvider whiteListedAmiProvider) {
+                     final ViolationSink violationSink) {
         super(contextProvider);
         this.violationSink = violationSink;
-        this.whiteListedAmiProvider = whiteListedAmiProvider;
     }
 
     @Override
@@ -50,23 +46,17 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected void process(EC2InstanceContext context) {
-        final Set<String> whiteListedAmiIds = whiteListedAmiProvider.apply(context);
 
-        if (whiteListedAmiIds.isEmpty()) {
-            return;
+        if (!context.isTaupageAmi().orElse(false)) {
+            violationSink.put(
+                    context.violation()
+                            .withType(WRONG_AMI)
+                            .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "ami_id", context.getAmiId().orElse(""),
+                                    "ami_name", context.getAmi().map(Image::getName).orElse("")))
+                            .build());
         }
 
-        context.getAmiId().ifPresent(amiId -> {
-            if (!whiteListedAmiIds.contains(amiId)) {
-                violationSink.put(
-                        context.violation()
-                                .withType(WRONG_AMI)
-                                .withPluginFullyQualifiedClassName(AmiPlugin.class)
-                                .withMetaInfo(ImmutableMap.of(
-                                        "ami_id", amiId,
-                                        "ami_name", context.getAmi().map(Image::getName).orElse("")))
-                                .build());
-            }
-        });
     }
 }

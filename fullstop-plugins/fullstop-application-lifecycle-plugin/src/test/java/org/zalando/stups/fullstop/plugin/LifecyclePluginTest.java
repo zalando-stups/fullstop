@@ -108,7 +108,7 @@ public class LifecyclePluginTest {
         when(contextMock.getInstanceJson()).thenReturn(
                 "{\"launchTime\": 1434616306000}");
         when(contextMock.getAmiId()).thenReturn(Optional.of("ami-01234567"));
-        when(contextMock.getAmi().map(Image::getName)).thenReturn(Optional.of("Foobar"));
+        when(contextMock.getAmi()).thenReturn(Optional.empty());
         when(contextMock.getApplicationId()).thenReturn(Optional.of("hello-world"));
         when(contextMock.getVersionId()).thenReturn(Optional.of("1.0"));
 
@@ -123,7 +123,7 @@ public class LifecyclePluginTest {
         when(contextMock.getInstanceJson()).thenReturn(
                 "{\"launchTime\": 1434616306000}");
         when(contextMock.getAmiId()).thenReturn(Optional.of("ami-01234567"));
-        when(contextMock.getAmi().map(Image::getName)).thenReturn(Optional.of("Foobar"));
+        when(contextMock.getAmi()).thenReturn(Optional.empty());
         when(contextMock.getApplicationId()).thenReturn(Optional.empty());
         when(contextMock.getVersionId()).thenReturn(Optional.of("1.0"));
 
@@ -136,7 +136,7 @@ public class LifecyclePluginTest {
         when(contextMock.getInstanceJson()).thenReturn(
                 "{\"launchTime\": 1434616306000}");
         when(contextMock.getAmiId()).thenReturn(Optional.of("ami-01234567"));
-        when(contextMock.getAmi().map(Image::getName)).thenReturn(Optional.of("Foobar"));
+        when(contextMock.getAmi()).thenReturn(Optional.empty());
         when(contextMock.getApplicationId()).thenReturn(Optional.of("hello-world"));
         when(contextMock.getVersionId()).thenReturn(Optional.empty());
 
@@ -150,7 +150,7 @@ public class LifecyclePluginTest {
         when(contextMock.getEventName()).thenReturn(START_INSTANCES);
         when(contextMock.getEvent()).thenReturn(new CloudTrailEvent(eventData, null));
         when(contextMock.getAmiId()).thenReturn(Optional.of("ami-01234567"));
-        when(contextMock.getAmi().map(Image::getName)).thenReturn(Optional.of("Foobar"));
+        when(contextMock.getAmi()).thenReturn(Optional.empty());
         when(contextMock.getApplicationId()).thenReturn(Optional.of("hello-world"));
         when(contextMock.getVersionId()).thenReturn(Optional.of("1.0"));
 

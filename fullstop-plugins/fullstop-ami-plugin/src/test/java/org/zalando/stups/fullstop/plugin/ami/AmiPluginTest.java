@@ -15,7 +15,6 @@
  */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import com.amazonaws.services.ec2.model.Image;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +25,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.Optional;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
@@ -38,7 +34,6 @@ public class AmiPluginTest {
 
     private EC2InstanceContextProvider mockContextProvider;
     private ViolationSink mockViolationSink;
-    private WhiteListedAmiProvider mockWhiteListedAmiProvider;
     private AmiPlugin amiPlugin;
     private EC2InstanceContext mockContext;
 
@@ -46,18 +41,18 @@ public class AmiPluginTest {
     public void setUp() throws Exception {
         mockContextProvider = mock(EC2InstanceContextProvider.class);
         mockViolationSink = mock(ViolationSink.class);
-        mockWhiteListedAmiProvider = mock(WhiteListedAmiProvider.class);
         mockContext = mock(EC2InstanceContext.class);
 
-        amiPlugin = new AmiPlugin(mockContextProvider, mockViolationSink, mockWhiteListedAmiProvider);
+        amiPlugin = new AmiPlugin(mockContextProvider, mockViolationSink);
 
         when(mockContext.violation()).thenReturn(new ViolationBuilder());
-        when(mockContext.getAmi().map(Image::getName)).thenReturn(Optional.empty());
+        when(mockContext.getAmi()).thenReturn(Optional.empty());
+        when(mockContext.getAmiId()).thenReturn(Optional.empty());
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(mockContextProvider, mockViolationSink, mockWhiteListedAmiProvider, mockContext);
+        verifyNoMoreInteractions(mockContextProvider, mockViolationSink, mockContext);
     }
 
     @Test
@@ -70,47 +65,38 @@ public class AmiPluginTest {
     }
 
     @Test
-    public void testSkipOnEmptyWhiteListedAmis() throws Exception {
-        when(mockWhiteListedAmiProvider.apply(any())).thenReturn(emptySet());
+    public void testIsTaupageAmi() throws Exception {
+        when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
 
         amiPlugin.process(mockContext);
 
-        verify(mockWhiteListedAmiProvider).apply(same(mockContext));
+        verify(mockContext).isTaupageAmi();
     }
 
     @Test
-    public void testSkipOnMIssingAmiId() throws Exception {
-        when(mockWhiteListedAmiProvider.apply(any())).thenReturn(newHashSet("0815", "4711"));
-        when(mockContext.getAmiId()).thenReturn(Optional.empty());
+    public void testUnknownTaupageAmi() throws Exception {
+        when(mockContext.isTaupageAmi()).thenReturn(Optional.empty());
 
         amiPlugin.process(mockContext);
 
-        verify(mockWhiteListedAmiProvider).apply(same(mockContext));
-        verify(mockContext).getAmiId();
-    }
-
-    @Test
-    public void testSupportedAmi() throws Exception {
-        when(mockWhiteListedAmiProvider.apply(any())).thenReturn(newHashSet("0815", "4711"));
-        when(mockContext.getAmiId()).thenReturn(Optional.of("4711"));
-
-        amiPlugin.process(mockContext);
-
-        verify(mockWhiteListedAmiProvider).apply(same(mockContext));
-        verify(mockContext).getAmiId();
-    }
-
-    @Test
-    public void testUnsupportedAmi() throws Exception {
-        when(mockWhiteListedAmiProvider.apply(any())).thenReturn(newHashSet("0815", "4711"));
-        when(mockContext.getAmiId()).thenReturn(Optional.of("1234"));
-
-        amiPlugin.process(mockContext);
-
-        verify(mockWhiteListedAmiProvider).apply(same(mockContext));
+        verify(mockContext).isTaupageAmi();
         verify(mockContext).getAmiId();
         verify(mockContext).violation();
-        verify(mockContext).getAmi().map(Image::getName);
+        verify(mockContext).getAmi();
+        verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
+    }
+
+
+    @Test
+    public void testIsNotTaupageAmi() throws Exception {
+        when(mockContext.isTaupageAmi()).thenReturn(Optional.of(false));
+
+        amiPlugin.process(mockContext);
+
+        verify(mockContext).isTaupageAmi();
+        verify(mockContext).getAmiId();
+        verify(mockContext).violation();
+        verify(mockContext).getAmi();
         verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
     }
 }

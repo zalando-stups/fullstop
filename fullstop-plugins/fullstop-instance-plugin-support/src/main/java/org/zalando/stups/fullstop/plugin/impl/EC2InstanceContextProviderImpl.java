@@ -41,7 +41,9 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
             final ClientProvider clientProvider,
             final AmiIdProvider amiIdProvider,
             final AmiProvider amiProvider,
-            final TaupageYamlProvider taupageYamlProvider) {
+            final TaupageYamlProvider taupageYamlProvider,
+            final String taupageNamePrefix,
+            final String taupageOwner) {
         cache = newBuilder()
                 .expireAfterAccess(1, MINUTES)
                 .maximumSize(100)
@@ -56,7 +58,9 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
                                                clientProvider,
                                                amiIdProvider,
                                                amiProvider,
-                                               taupageYamlProvider))
+                                               taupageYamlProvider,
+                                               taupageNamePrefix,
+                                               taupageOwner))
                                        .collect(toList());
                            }
                        }

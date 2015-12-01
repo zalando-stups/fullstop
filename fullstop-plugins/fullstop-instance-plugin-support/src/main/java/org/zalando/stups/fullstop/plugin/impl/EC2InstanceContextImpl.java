@@ -39,8 +39,10 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUserna
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
 
-    public static final String TAUPAGE = "Taupage";
-    public static final String STUPS_ACCOUNT_ID = "XXX";
+    private final String taupageNamePrefix;
+
+    private final String taupageOwner;
+
     /**
      * The original CloudTrailEvent
      */
@@ -66,13 +68,17 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
             final ClientProvider clientProvider,
             final AmiIdProvider amiIdProvider,
             final AmiProvider amiProvider,
-            final TaupageYamlProvider taupageYamlProvider) {
+            final TaupageYamlProvider taupageYamlProvider,
+            final String taupageNamePrefix,
+            final String taupageOwner) {
         this.event = event;
         this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
         this.amiIdProvider = amiIdProvider;
         this.amiProvider = amiProvider;
         this.taupageYamlProvider = taupageYamlProvider;
+        this.taupageNamePrefix = taupageNamePrefix;
+        this.taupageOwner = taupageOwner;
     }
 
     @Override
@@ -117,12 +123,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_id")); // TODO: check if name is right
+        return getTaupageYaml().map(data -> (String) data.get("application_id"));
     }
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_version")); // TODO: check if name is right
+        return getTaupageYaml().map(data -> (String) data.get("application_version"));
     }
 
     @Override
@@ -143,7 +149,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<Boolean> isTaupageAmi() {
-        return getAmi().map(image -> image.getName().startsWith(TAUPAGE) && image.getOwnerId().equals(STUPS_ACCOUNT_ID) );
+        return getAmi().map(image -> image.getName().startsWith(taupageNamePrefix) && image.getOwnerId().equals(taupageOwner) );
     }
 
     @Override

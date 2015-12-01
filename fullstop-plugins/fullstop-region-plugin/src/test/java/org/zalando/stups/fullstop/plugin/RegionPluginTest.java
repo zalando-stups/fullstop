@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.fullstop.plugin.config;
+package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
-import org.zalando.stups.fullstop.plugin.RegionPlugin;
+import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
@@ -54,7 +53,7 @@ public class RegionPluginTest {
         contextProvider = new EC2InstanceContextProviderImpl(clientProvider,
                 amiIdProvider,
                 amiProvider,
-                taupageYamlProvider);
+                taupageYamlProvider, "blub", "34234");
         violationSink = Mockito.spy(violationSink);
         regionPluginProperties = new RegionPluginProperties();
         plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);

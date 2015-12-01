@@ -15,14 +15,10 @@
  */
 package org.zalando.stups.fullstop.plugin.ami.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.ami.AmiPlugin;
-import org.zalando.stups.fullstop.plugin.ami.WhiteListedAmiProvider;
-import org.zalando.stups.fullstop.plugin.ami.WhiteListedAmiProviderImpl;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 @Configuration
@@ -30,15 +26,7 @@ public class AmiPluginAutoConfiguration {
 
     @Bean
     AmiPlugin amiPlugin(EC2InstanceContextProvider contextProvider,
-                        ViolationSink violationSink,
-                        WhiteListedAmiProvider whiteListedAmiProvider) {
-        return new AmiPlugin(contextProvider, violationSink, whiteListedAmiProvider);
-    }
-
-    @Bean
-    WhiteListedAmiProvider whiteListedAmiProvider(@Value("${fullstop.plugins.ami.amiNameStartWith}") final String amiNameStartWith,
-                                                  @Value("${fullstop.plugins.ami.whitelistedAmiAccount}") final String whitelistedAmiAccount,
-                                                  final ClientProvider clientProvider) {
-        return new WhiteListedAmiProviderImpl(amiNameStartWith, whitelistedAmiAccount, clientProvider);
+                        ViolationSink violationSink) {
+        return new AmiPlugin(contextProvider, violationSink);
     }
 }
