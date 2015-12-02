@@ -24,7 +24,7 @@
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>10</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
@@ -329,7 +329,7 @@
         <url>https://github.com/zalando-stups/fullstop.git</url>
         <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>fullstop-parent-10</tag>
     </scm>
 
     <licenses>
