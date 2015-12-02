@@ -93,12 +93,6 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public Optional<Instance> getInstance() {
-        // TODO
-        return Optional.empty();
-    }
-
-    @Override
     public <T extends AmazonWebServiceClient> T getClient(Class<T> type) {
         return clientProvider.getClient(type, getAccountId(), getRegion());
     }
@@ -166,12 +160,6 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     @Override
     public Optional<Map> getTaupageYaml() {
         return taupageYamlProvider.apply(this);
-    }
-
-    @Override
-    public List<RouteTable> getRouteTables() {
-        // TODO: see SubnetPlugin for implementation hint
-        return Collections.emptyList();
     }
 
     @Override
