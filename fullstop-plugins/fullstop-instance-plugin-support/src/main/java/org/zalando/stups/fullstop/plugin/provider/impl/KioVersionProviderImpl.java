@@ -35,7 +35,11 @@ public class KioVersionProviderImpl implements KioVersionProvider {
 
     private final Logger log = getLogger(getClass());
 
-    private KioOperations kioOperations;
+    private final KioOperations kioOperations;
+
+    public KioVersionProviderImpl(KioOperations kioOperations) {
+        this.kioOperations = kioOperations;
+    }
 
     private final LoadingCache<EC2InstanceContext, Optional<Version>> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(60, MINUTES)

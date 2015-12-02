@@ -37,7 +37,11 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
 
     private final Logger log = getLogger(getClass());
 
-    private KioOperations kioOperations;
+    private final KioOperations kioOperations;
+
+    public KioApprovalProviderImpl(KioOperations kioOperations) {
+        this.kioOperations = kioOperations;
+    }
 
     private final LoadingCache<EC2InstanceContext, Optional<List<Approval>>> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(60, MINUTES)
