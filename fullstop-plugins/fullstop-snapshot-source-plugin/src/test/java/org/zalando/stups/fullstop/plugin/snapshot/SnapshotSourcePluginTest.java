@@ -1,101 +1,87 @@
 package org.zalando.stups.fullstop.plugin.snapshot;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
+import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
+import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_A_SNAPSHOT_IMAGE;
 
 public class SnapshotSourcePluginTest {
 
-    private UserDataProvider provider;
-
-    private ViolationSink sink;
-
-    private CloudTrailEvent event;
+    private ViolationSink mockViolationSink;
+    private EC2InstanceContextProvider mockContextProvider;
+    private EC2InstanceContext mockContext;
 
     private SnapshotSourcePlugin plugin;
 
     @Before
     public void setUp() {
-        provider = mock(UserDataProvider.class);
-        sink = mock(ViolationSink.class);
-        plugin = new SnapshotSourcePlugin(provider, sink);
+        mockViolationSink = mock(ViolationSink.class);
+        mockContextProvider = mock(EC2InstanceContextProvider.class);
+        mockContext = mock(EC2InstanceContext.class);
+        plugin = new SnapshotSourcePlugin(mockContextProvider, mockViolationSink);
+
+        when(mockContext.violation()).thenReturn(new ViolationBuilder());
     }
 
     @After
     public void tearDown() {
-        Mockito.verifyNoMoreInteractions(sink, provider);
+        verifyNoMoreInteractions(mockViolationSink, mockContextProvider, mockContext);
     }
 
     @Test
-    public void shouldNotSupportTerminateEvent() {
-        event = createCloudTrailEvent("/record-termination.json");
-        assertThat(plugin.supports(event)).isFalse();
+    public void testSupportsEventName() throws Exception {
+        assertThat(plugin.supportsEventName().test("RunInstances")).isTrue();
+        assertThat(plugin.supportsEventName().test("StartInstances")).isTrue();
+        assertThat(plugin.supportsEventName().test("TerminateInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("StopInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("Foobar")).isFalse();
     }
 
     @Test
-    public void shouldSupportRunEvent() {
-        event = createCloudTrailEvent("/record-run.json");
-        assertThat(plugin.supports(event)).isTrue();
+    public void testMissingSource() throws Exception {
+        when(mockContext.getSource()).thenReturn(Optional.empty());
+
+        plugin.process(mockContext);
+
+        verify(mockContext).getSource();
     }
 
     @Test
-    public void shouldComplainWithoutSource() {
-        event = createCloudTrailEvent("/record-run.json");
-        when(provider.getUserData(any(), any(String.class), any())).thenReturn(new HashMap<String, String>());
-        plugin.processEvent(event);
+    public void testFixVersion() throws Exception {
+        when(mockContext.getSource()).thenReturn(Optional.of("docker://registry.zalando.com/stups/SNAPSHOT:1.0"));
 
-        verify(provider).getUserData(any(), any(String.class), any(String.class));
-        verify(sink).put(any(Violation.class));
+        plugin.process(mockContext);
+
+        verify(mockContext).getSource();
     }
 
     @Test
-    public void shouldComplainWithSnapshotSource() {
-        event = createCloudTrailEvent("/record-run.json");
+    public void testSnapshotInName() throws Exception {
+        when(mockContext.getSource()).thenReturn(Optional.of("docker://registry.zalando.com/stups/SNAPSHOT:1.0"));
 
-        Map<String, String> userData = new HashMap<>();
-        userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT");
-        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
-        plugin.processEvent(event);
+        plugin.process(mockContext);
 
-        verify(provider).getUserData(any(), any(String.class), any(String.class));
-        verify(sink).put(any(Violation.class));
+        verify(mockContext).getSource();
     }
 
     @Test
-    public void shouldNotComplainWithSnapshotInName() {
-        event = createCloudTrailEvent("/record-run.json");
+    public void testSnapshotArtifact() throws Exception {
+        when(mockContext.getSource()).thenReturn(Optional.of("docker://registry.zalando.com/stups/yourturn:1.0-SNAPSHOT"));
 
-        Map<String, String> userData = new HashMap<>();
-        userData.put("source", "docker://registry.zalando.com/stups/SNAPSHOT:1.0");
-        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
-        plugin.processEvent(event);
+        plugin.process(mockContext);
 
-        verify(provider).getUserData(any(), any(String.class), any(String.class));
-        verify(sink, never()).put(any(Violation.class));
-    }
-
-    @Test
-    public void shouldNotComplainWithoutSnapshotSource() {
-        event = createCloudTrailEvent("/record-run.json");
-
-        Map<String, String> userData = new HashMap<>();
-        userData.put("source", "docker://registry.zalando.com/stups/yourturn:1.0");
-        when(provider.getUserData(any(), any(String.class), any())).thenReturn(userData);
-        plugin.processEvent(event);
-
-        verify(provider).getUserData(any(), any(String.class), any(String.class));
-        verify(sink, never()).put(any(Violation.class));
+        verify(mockContext).getSource();
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(EC2_WITH_A_SNAPSHOT_IMAGE)));
     }
 }

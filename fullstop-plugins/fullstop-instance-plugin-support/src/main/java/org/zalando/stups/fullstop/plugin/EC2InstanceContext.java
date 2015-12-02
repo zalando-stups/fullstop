@@ -41,6 +41,11 @@ public interface EC2InstanceContext {
 
     Optional<String> getVersionId();
 
+    /**
+     * "source" attribute in Taupage yaml
+     */
+    Optional<String> getSource();
+
     Optional<Application> getKioApplication();
 
     Optional<Version> getKioVersion();
@@ -50,5 +55,4 @@ public interface EC2InstanceContext {
     Optional<Boolean> isTaupageAmi();
 
     Optional<Map> getTaupageYaml();
-
 }

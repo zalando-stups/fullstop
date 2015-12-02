@@ -128,6 +128,11 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
+    public Optional<String> getSource() {
+        return getTaupageYaml().map(data -> (String) data.get("source"));
+    }
+
+    @Override
     public Optional<Application> getKioApplication() {
         return kioApplicationProvider.apply(this);
     }
