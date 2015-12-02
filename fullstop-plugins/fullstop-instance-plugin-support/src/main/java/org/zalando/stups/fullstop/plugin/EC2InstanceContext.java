@@ -19,9 +19,12 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.Image;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.RouteTable;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,6 +35,8 @@ public interface EC2InstanceContext {
     String getInstanceJson();
 
     String getInstanceId();
+
+    Optional<Instance> getInstance();
 
     Optional<String> getAmiId();
 
@@ -58,4 +63,6 @@ public interface EC2InstanceContext {
     Optional<Boolean> isTaupageAmi();
 
     Optional<Map> getTaupageYaml();
+
+    List<RouteTable> getRouteTables();
 }

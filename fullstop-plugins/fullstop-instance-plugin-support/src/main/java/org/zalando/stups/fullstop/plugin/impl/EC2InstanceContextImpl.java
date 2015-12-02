@@ -19,6 +19,8 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.Image;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.RouteTable;
 import com.google.common.base.MoreObjects;
 import com.jayway.jsonpath.JsonPath;
 import org.zalando.stups.clients.kio.Application;
@@ -30,10 +32,7 @@ import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUsernameAsString;
 
@@ -97,6 +96,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
+    public Optional<Instance> getInstance() {
+        // TODO
+        return Optional.empty();
+    }
+
+    @Override
     public <T extends AmazonWebServiceClient> T getClient(Class<T> type) {
         return clientProvider.getClient(type, getAccountId(), getRegion());
     }
@@ -155,6 +160,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     @Override
     public Optional<Map> getTaupageYaml() {
         return taupageYamlProvider.apply(this);
+    }
+
+    @Override
+    public List<RouteTable> getRouteTables() {
+        // TODO: see SubnetPlugin for implementation hint
+        return Collections.emptyList();
     }
 
     @Override
