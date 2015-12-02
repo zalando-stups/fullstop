@@ -144,7 +144,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public Optional<List<Approval>> getKioApprovals() {
+    public List<Approval> getKioApprovals() {
         return kioApprovalProvider.apply(this);
     }
 

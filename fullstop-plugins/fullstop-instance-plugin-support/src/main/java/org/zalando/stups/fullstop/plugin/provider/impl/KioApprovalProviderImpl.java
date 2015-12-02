@@ -11,10 +11,10 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -28,34 +28,34 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
         this.kioOperations = kioOperations;
     }
 
-    private final LoadingCache<EC2InstanceContext, Optional<List<Approval>>> cache = CacheBuilder.newBuilder()
+    private final LoadingCache<EC2InstanceContext, List<Approval>> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(60, MINUTES)
             .maximumSize(100)
-            .build(new CacheLoader<EC2InstanceContext, Optional<List<Approval>>>() {
+            .build(new CacheLoader<EC2InstanceContext, List<Approval>>() {
                 @Override
-                public Optional<List<Approval>> load(@Nonnull EC2InstanceContext context) throws Exception {
-                    final Optional<List<Approval>> kioApproval = getKioApproval(context);
-                    if (!kioApproval.isPresent()) {
+                public List<Approval> load(@Nonnull EC2InstanceContext context) throws Exception {
+                    final List<Approval> kioApproval = getKioApproval(context);
+                    if (kioApproval == null && kioApproval.isEmpty()) {
                         log.warn("Could not find the Approval {} in KIO.", context);
                     }
                     return kioApproval;
                 }
             });
 
-    private Optional<List<Approval>> getKioApproval(@Nonnull EC2InstanceContext context) {
+    private List<Approval> getKioApproval(@Nonnull EC2InstanceContext context) {
 
         Optional<String> applicationId = context.getApplicationId();
         Optional<Version> applicationVersion = context.getKioVersion();
 
         if (applicationId.isPresent() && applicationVersion.isPresent()) {
-            return ofNullable(kioOperations.getApplicationVersionApprovals(applicationId.get(),applicationVersion.get().getId()));
+            return kioOperations.getApplicationVersionApprovals(applicationId.get(),applicationVersion.get().getId());
         }
 
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
     @Override
-    public Optional<List<Approval>> apply(EC2InstanceContext context) {
+    public List<Approval> apply(EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }

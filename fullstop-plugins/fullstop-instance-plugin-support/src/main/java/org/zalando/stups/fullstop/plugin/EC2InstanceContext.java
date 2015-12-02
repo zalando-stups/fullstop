@@ -49,7 +49,7 @@ public interface EC2InstanceContext {
 
     Optional<Version> getKioVersion();
 
-    Optional<List<Approval>> getKioApprovals();
+    List<Approval> getKioApprovals();
 
     Optional<Boolean> isTaupageAmi();
 
