@@ -21,19 +21,19 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.RouteTable;
-import com.google.common.base.MoreObjects;
 import com.jayway.jsonpath.JsonPath;
 import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.Approval;
+import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
-import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
-import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.plugin.provider.*;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.*;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUsernameAsString;
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
@@ -61,6 +61,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final TaupageYamlProvider taupageYamlProvider;
 
+    private final KioApplicationProvider kioApplicationProvider;
+
+    private final KioVersionProvider kioVersionProvider;
+
+    private final KioApprovalProvider kioApprovalProvider;
+
     public EC2InstanceContextImpl(
             final CloudTrailEvent event,
             final String instanceJson,
@@ -69,7 +75,10 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
             final AmiProvider amiProvider,
             final TaupageYamlProvider taupageYamlProvider,
             final String taupageNamePrefix,
-            final String taupageOwner) {
+            final String taupageOwner,
+            final KioApplicationProvider kioApplicationProvider,
+            final KioVersionProvider kioVersionProvider,
+            final KioApprovalProvider kioApprovalProvider) {
         this.event = event;
         this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
@@ -78,6 +87,9 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         this.taupageYamlProvider = taupageYamlProvider;
         this.taupageNamePrefix = taupageNamePrefix;
         this.taupageOwner = taupageOwner;
+        this.kioApplicationProvider = kioApplicationProvider;
+        this.kioVersionProvider = kioVersionProvider;
+        this.kioApprovalProvider = kioApprovalProvider;
     }
 
     @Override
@@ -138,8 +150,17 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<Application> getKioApplication() {
-        // TODO
-        return null;
+        return kioApplicationProvider.apply(this);
+    }
+
+    @Override
+    public Optional<Version> getKioVersion() {
+        return kioVersionProvider.apply(this);
+    }
+
+    @Override
+    public Optional<List<Approval>> getKioApprovals() {
+        return kioApprovalProvider.apply(this);
     }
 
     @Override
@@ -154,7 +175,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<Boolean> isTaupageAmi() {
-        return getAmi().map(image -> image.getName().startsWith(taupageNamePrefix) && image.getOwnerId().equals(taupageOwner) );
+        return getAmi().map(image -> image.getName().startsWith(taupageNamePrefix) && image.getOwnerId().equals(taupageOwner));
     }
 
     @Override
@@ -189,12 +210,16 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
+        return toStringHelper(this)
                 .add("accountId", getAccountId())
                 .add("region", getRegion())
                 .add("eventId", getEventId())
                 .add("eventName", getEventName())
                 .add("instanceId", getInstanceId())
+                .add("applicationId", getApplicationId())
+                .add("kioApplication",getKioApplication())
+                .add("kioApplicationVersion",getKioVersion())
+                .add("kioApplicationApproval",getKioApprovals())
                 .toString();
     }
 

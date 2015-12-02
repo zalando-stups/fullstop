@@ -22,9 +22,7 @@ import org.mockito.Mockito;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
-import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.plugin.provider.*;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -49,11 +47,20 @@ public class RegionPluginTest {
         final AmiIdProvider amiIdProvider = mock(AmiIdProvider.class);
         final AmiProvider amiProvider = mock(AmiProvider.class);
         final TaupageYamlProvider taupageYamlProvider = mock(TaupageYamlProvider.class);
+        final KioApplicationProvider kioApplicationProvider = mock(KioApplicationProvider.class);
+        final KioVersionProvider kioVersionProvider = mock(KioVersionProvider.class);
+        final KioApprovalProvider kioApprovalProvider = mock(KioApprovalProvider.class);
         
         contextProvider = new EC2InstanceContextProviderImpl(clientProvider,
                 amiIdProvider,
                 amiProvider,
-                taupageYamlProvider, "blub", "34234");
+                taupageYamlProvider,
+                "blub",
+                "34234",
+                kioApplicationProvider,
+                kioVersionProvider,
+                kioApprovalProvider);
+
         violationSink = Mockito.spy(violationSink);
         regionPluginProperties = new RegionPluginProperties();
         plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);

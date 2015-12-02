@@ -22,12 +22,8 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
-import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
-import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
-import org.zalando.stups.fullstop.plugin.provider.impl.AmiIdProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.impl.AmiProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.impl.TaupageYamlProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.*;
+import org.zalando.stups.fullstop.plugin.provider.impl.*;
 
 @Configuration
 public class EC2InstanceContextConfig {
@@ -43,7 +39,10 @@ public class EC2InstanceContextConfig {
                 amiProvider(),
                 taupageYamlProvider(),
                 taupageNamePrefix,
-                taupageOwner
+                taupageOwner,
+                kioApplicationProvider(),
+                kioVersionProvider(),
+                kioApprovalProvider()
         );
     }
 
@@ -60,5 +59,20 @@ public class EC2InstanceContextConfig {
     @Bean
     TaupageYamlProvider taupageYamlProvider() {
         return new TaupageYamlProviderImpl();
+    }
+
+    @Bean
+    KioApplicationProvider kioApplicationProvider() {
+        return new KioApplicationProviderImpl();
+    }
+
+    @Bean
+    KioVersionProvider kioVersionProvider() {
+        return new KioVersionProviderImpl();
+    }
+
+    @Bean
+    KioApprovalProvider kioApprovalProvider() {
+        return new KioApprovalProviderImpl();
     }
 }

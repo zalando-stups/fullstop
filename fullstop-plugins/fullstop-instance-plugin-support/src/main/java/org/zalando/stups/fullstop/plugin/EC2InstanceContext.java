@@ -22,6 +22,8 @@ import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.RouteTable;
 import org.zalando.stups.clients.kio.Application;
+import org.zalando.stups.clients.kio.Approval;
+import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.List;
@@ -59,6 +61,10 @@ public interface EC2InstanceContext {
     Optional<String> getVersionId();
 
     Optional<Application> getKioApplication();
+
+    Optional<Version> getKioVersion();
+
+    Optional<List<Approval>> getKioApprovals();
 
     Optional<Boolean> isTaupageAmi();
 
