@@ -4,8 +4,6 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.Image;
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.RouteTable;
 import com.jayway.jsonpath.JsonPath;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
@@ -15,6 +13,7 @@ import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.*;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.pierone.client.TagSummary;
 
 import java.util.*;
 
@@ -133,6 +132,11 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
+    public Optional<String> getRuntime() {
+        return getTaupageYaml().map(m -> (String) m.get("runtime"));
+    }
+
+    @Override
     public Optional<Application> getKioApplication() {
         return kioApplicationProvider.apply(this);
     }
@@ -168,6 +172,18 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
+    public Optional<TagSummary> getPieroneTag() {
+        // TODO
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Map<String, String>> getScmSource() {
+        // TODO
+        return Optional.empty();
+    }
+
+    @Override
     public String getEventName() {
         return getEvent().getEventData().getEventName();
     }
@@ -194,10 +210,6 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
                 .add("eventId", getEventId())
                 .add("eventName", getEventName())
                 .add("instanceId", getInstanceId())
-                .add("applicationId", getApplicationId())
-                .add("kioApplication",getKioApplication())
-                .add("kioApplicationVersion",getKioVersion())
-                .add("kioApplicationApproval",getKioApprovals())
                 .toString();
     }
 

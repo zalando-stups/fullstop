@@ -8,6 +8,7 @@ import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.pierone.client.TagSummary;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,8 @@ public interface EC2InstanceContext {
      */
     Optional<String> getSource();
 
+    Optional<String> getRuntime();
+
     Optional<Application> getKioApplication();
 
     Optional<Version> getKioVersion();
@@ -55,4 +58,8 @@ public interface EC2InstanceContext {
     Optional<Boolean> isTaupageAmi();
 
     Optional<Map> getTaupageYaml();
+
+    Optional<TagSummary> getPieroneTag();
+
+    Optional<Map<String,String>> getScmSource();
 }
