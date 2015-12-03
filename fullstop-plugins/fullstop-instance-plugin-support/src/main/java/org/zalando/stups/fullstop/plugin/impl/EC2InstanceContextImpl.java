@@ -204,6 +204,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public String toString() {
+        // make sure to never add "expensive" information here.
         return toStringHelper(this)
                 .add("accountId", getAccountId())
                 .add("region", getRegion())
