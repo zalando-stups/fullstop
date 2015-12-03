@@ -12,24 +12,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-instance-plugin-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-plugin-api</artifactId>
-            <version>${fullstop-plugin-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-userdata-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
         </dependency>
 
         <dependency>
@@ -38,17 +28,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>kio-client-java-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -58,11 +43,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-test-support</artifactId>
@@ -70,13 +51,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
