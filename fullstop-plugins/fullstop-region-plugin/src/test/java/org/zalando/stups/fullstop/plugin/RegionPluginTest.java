@@ -35,7 +35,9 @@ public class RegionPluginTest {
         final KioApplicationProvider kioApplicationProvider = mock(KioApplicationProvider.class);
         final KioVersionProvider kioVersionProvider = mock(KioVersionProvider.class);
         final KioApprovalProvider kioApprovalProvider = mock(KioApprovalProvider.class);
-        
+        final PieroneTagProvider pieroneTagProvider = mock(PieroneTagProvider.class);
+        final ScmSourceProvider scmSourceProvider = mock(ScmSourceProvider.class);
+
         contextProvider = new EC2InstanceContextProviderImpl(clientProvider,
                 amiIdProvider,
                 amiProvider,
@@ -44,7 +46,9 @@ public class RegionPluginTest {
                 "34234",
                 kioApplicationProvider,
                 kioVersionProvider,
-                kioApprovalProvider);
+                kioApprovalProvider,
+                pieroneTagProvider,
+                scmSourceProvider);
 
         violationSink = Mockito.spy(violationSink);
         regionPluginProperties = new RegionPluginProperties();

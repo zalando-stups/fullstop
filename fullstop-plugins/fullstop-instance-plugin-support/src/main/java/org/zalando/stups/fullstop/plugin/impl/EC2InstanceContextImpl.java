@@ -51,6 +51,10 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final KioApprovalProvider kioApprovalProvider;
 
+    private final PieroneTagProvider pieroneTagProvider;
+
+    private final ScmSourceProvider scmSourceProvider;
+
     public EC2InstanceContextImpl(
             final CloudTrailEvent event,
             final String instanceJson,
@@ -62,7 +66,9 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
             final String taupageOwner,
             final KioApplicationProvider kioApplicationProvider,
             final KioVersionProvider kioVersionProvider,
-            final KioApprovalProvider kioApprovalProvider) {
+            final KioApprovalProvider kioApprovalProvider,
+            final PieroneTagProvider pieroneTagProvider,
+            final ScmSourceProvider scmSourceProvider) {
         this.event = event;
         this.instanceJson = instanceJson;
         this.clientProvider = clientProvider;
@@ -74,6 +80,8 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         this.kioApplicationProvider = kioApplicationProvider;
         this.kioVersionProvider = kioVersionProvider;
         this.kioApprovalProvider = kioApprovalProvider;
+        this.pieroneTagProvider = pieroneTagProvider;
+        this.scmSourceProvider = scmSourceProvider;
     }
 
     @Override
@@ -173,14 +181,12 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<TagSummary> getPieroneTag() {
-        // TODO
-        return Optional.empty();
+        return pieroneTagProvider.apply(this);
     }
 
     @Override
     public Optional<Map<String, String>> getScmSource() {
-        // TODO
-        return Optional.empty();
+        return scmSourceProvider.apply(this);
     }
 
     @Override

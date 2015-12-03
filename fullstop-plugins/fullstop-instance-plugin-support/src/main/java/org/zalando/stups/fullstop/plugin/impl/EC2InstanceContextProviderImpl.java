@@ -29,7 +29,9 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
             final String taupageOwner,
             final KioApplicationProvider kioApplicationProvider,
             final KioVersionProvider kioVersionProvider,
-            final KioApprovalProvider kioApprovalProvider) {
+            final KioApprovalProvider kioApprovalProvider,
+            final PieroneTagProvider pieroneTagProvider,
+            final ScmSourceProvider scmSourceProvider) {
         cache = newBuilder()
                 .expireAfterAccess(1, MINUTES)
                 .maximumSize(100)
@@ -49,7 +51,9 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
                                                taupageOwner,
                                                kioApplicationProvider,
                                                kioVersionProvider,
-                                               kioApprovalProvider))
+                                               kioApprovalProvider,
+                                               pieroneTagProvider,
+                                               scmSourceProvider))
                                        .collect(toList());
                            }
                        }

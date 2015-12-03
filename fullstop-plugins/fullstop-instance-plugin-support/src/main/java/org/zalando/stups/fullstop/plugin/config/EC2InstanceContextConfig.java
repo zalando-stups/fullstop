@@ -11,12 +11,16 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
 import org.zalando.stups.fullstop.plugin.provider.*;
 import org.zalando.stups.fullstop.plugin.provider.impl.*;
+import org.zalando.stups.pierone.client.PieroneOperations;
 
 @Configuration
 public class EC2InstanceContextConfig {
 
     @Autowired
     private KioOperations kioOperations;
+
+    @Autowired
+    private PieroneOperations pieroneOperations;
 
     @ConditionalOnMissingBean
     @Bean
@@ -32,8 +36,9 @@ public class EC2InstanceContextConfig {
                 taupageOwner,
                 kioApplicationProvider(),
                 kioVersionProvider(),
-                kioApprovalProvider()
-        );
+                kioApprovalProvider(),
+                pieroneTagProvider(),
+                scmSourceProvider());
     }
 
     @Bean
@@ -64,5 +69,15 @@ public class EC2InstanceContextConfig {
     @Bean
     KioApprovalProvider kioApprovalProvider() {
         return new KioApprovalProviderImpl(kioOperations);
+    }
+
+    @Bean
+    PieroneTagProvider pieroneTagProvider() {
+        return new PieroneTagProviderImpl(pieroneOperations);
+    }
+
+    @Bean
+    ScmSourceProvider scmSourceProvider() {
+        return new ScmSourceProviderImpl(pieroneOperations);
     }
 }
