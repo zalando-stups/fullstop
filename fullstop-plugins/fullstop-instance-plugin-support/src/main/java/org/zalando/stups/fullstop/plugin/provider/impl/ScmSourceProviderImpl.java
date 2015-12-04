@@ -11,8 +11,10 @@ import org.zalando.stups.pierone.client.PieroneOperations;
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class ScmSourceProviderImpl implements ScmSourceProvider {
@@ -25,7 +27,10 @@ public class ScmSourceProviderImpl implements ScmSourceProvider {
 
     public ScmSourceProviderImpl(final Function<String, PieroneOperations> pieroneOperationsProvider) {
         this.pieroneOperationsProvider = pieroneOperationsProvider;
-        this.cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Optional<Map<String, String>>>() {
+        this.cache = CacheBuilder.newBuilder()
+                .maximumSize(100)
+                .expireAfterAccess(5, MINUTES)
+                .build(new CacheLoader<String, Optional<Map<String, String>>>() {
             @Override
             public Optional<Map<String, String>> load(@Nonnull String source) throws Exception {
                 final Optional<Map<String, String>> result = scmSourceFor(source);

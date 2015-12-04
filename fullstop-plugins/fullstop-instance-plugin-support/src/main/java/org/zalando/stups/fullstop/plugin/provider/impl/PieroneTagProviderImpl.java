@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class PieroneTagProviderImpl implements PieroneTagProvider {
@@ -25,7 +26,10 @@ public class PieroneTagProviderImpl implements PieroneTagProvider {
 
     public PieroneTagProviderImpl(Function<String, PieroneOperations> pieroneOperationsProvider) {
         this.pieroneOperationsProvider = pieroneOperationsProvider;
-        this.cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Optional<TagSummary>>() {
+        this.cache = CacheBuilder.newBuilder()
+                .maximumSize(100)
+                .expireAfterAccess(5, MINUTES)
+                .build(new CacheLoader<String, Optional<TagSummary>>() {
             @Override
             public Optional<TagSummary> load(@Nonnull String source) throws Exception {
                 final Optional<TagSummary> result = tagForSource(source);
