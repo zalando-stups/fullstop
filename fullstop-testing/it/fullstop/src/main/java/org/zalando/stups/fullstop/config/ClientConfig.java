@@ -26,9 +26,12 @@ import org.zalando.stups.pierone.client.PieroneOperations;
 import org.zalando.stups.pierone.client.RestTemplatePieroneOperations;
 import org.zalando.stups.tokens.AccessTokens;
 
-/**
- * @author jbellmann
- */
+import java.net.URL;
+import java.util.List;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
+
 @Configuration
 public class ClientConfig {
 
@@ -37,9 +40,6 @@ public class ClientConfig {
 
     @Value("${fullstop.clients.kio.url}")
     private String kioBaseUrl;
-
-    @Value("${fullstop.clients.pierone.url}")
-    private String pieroneBaseUrl;
 
     @Value("${fullstop.clients.teamService.url}")
     private String teamServiceBaseUrl;
@@ -56,14 +56,6 @@ public class ClientConfig {
     }
 
     @Bean
-    public PieroneOperations pieroneOperations() {
-        return new HystrixSpringPieroneOperations(
-                new RestTemplatePieroneOperations(
-                        buildOAuth2RestTemplate("pierone"),
-                        pieroneBaseUrl));
-    }
-
-    @Bean
     public TeamOperations teamOperations() {
         return new HystrixTeamOperations(
                 new RestTemplateTeamOperations(
@@ -77,6 +69,19 @@ public class ClientConfig {
                 new RestTemplateKontrollettiOperations(
                         buildOAuth2RestTemplate("kontrolletti", new KontrollettiResponseErrorHandler()),
                         kontrollettiBaseUrl));
+    }
+
+    @Bean
+    public Function<String, PieroneOperations> pieroneOperationsProvider(
+            @Value("${fullstop.client.pierone.urls}") final List<URL> pieroneUrls) {
+        return pieroneUrls.stream().collect(toMap(URL::getHost, this::newPieroneOperations))::get;
+    }
+
+    private PieroneOperations newPieroneOperations(URL baseUrl) {
+        return new HystrixSpringPieroneOperations(
+                new RestTemplatePieroneOperations(
+                        buildOAuth2RestTemplate("pierone"),
+                        baseUrl.toString()));
     }
 
     private RestOperations buildOAuth2RestTemplate(final String tokenName) {

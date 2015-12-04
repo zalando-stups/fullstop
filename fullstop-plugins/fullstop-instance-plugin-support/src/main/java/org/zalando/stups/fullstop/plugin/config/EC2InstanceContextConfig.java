@@ -13,6 +13,8 @@ import org.zalando.stups.fullstop.plugin.provider.*;
 import org.zalando.stups.fullstop.plugin.provider.impl.*;
 import org.zalando.stups.pierone.client.PieroneOperations;
 
+import java.util.function.Function;
+
 @Configuration
 public class EC2InstanceContextConfig {
 
@@ -20,7 +22,7 @@ public class EC2InstanceContextConfig {
     private KioOperations kioOperations;
 
     @Autowired
-    private PieroneOperations pieroneOperations;
+    private Function<String, PieroneOperations> pieroneOperationsProvider;
 
     @ConditionalOnMissingBean
     @Bean
@@ -73,11 +75,11 @@ public class EC2InstanceContextConfig {
 
     @Bean
     PieroneTagProvider pieroneTagProvider() {
-        return new PieroneTagProviderImpl(pieroneOperations);
+        return new PieroneTagProviderImpl(pieroneOperationsProvider);
     }
 
     @Bean
     ScmSourceProvider scmSourceProvider() {
-        return new ScmSourceProviderImpl(pieroneOperations);
+        return new ScmSourceProviderImpl(pieroneOperationsProvider);
     }
 }

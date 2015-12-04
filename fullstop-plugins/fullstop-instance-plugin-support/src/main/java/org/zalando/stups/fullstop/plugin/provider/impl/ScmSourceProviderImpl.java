@@ -6,13 +6,14 @@ import org.zalando.stups.pierone.client.PieroneOperations;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class ScmSourceProviderImpl implements ScmSourceProvider {
 
-    private final PieroneOperations pieroneOperations;
+    private final Function<String, PieroneOperations> pieroneOperationsProvider;
 
-    public ScmSourceProviderImpl(final PieroneOperations pieroneOperations) {
-        this.pieroneOperations = pieroneOperations;
+    public ScmSourceProviderImpl(final Function<String, PieroneOperations> pieroneOperationsProvider) {
+        this.pieroneOperationsProvider = pieroneOperationsProvider;
     }
 
     @Override

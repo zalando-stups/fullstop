@@ -92,9 +92,6 @@ fullstop:
         kio:
             url: https://example.com/kio/api
 
-        pierone:
-            url: https://example.com/pierone/api
-
         registry:
             defaultMandatoryApprovals:
               - SPECIFICATION
@@ -124,7 +121,8 @@ fullstop:
             url: https://example.com/kio/api
 
         pierone:
-            url: https://example.com/pierone/api
+            urls:
+              - https://example.com/pierone/api
 
         teamService:
             url: https://example.com/teams/api
