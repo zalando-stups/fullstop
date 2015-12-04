@@ -26,9 +26,10 @@ import org.zalando.stups.pierone.client.PieroneOperations;
 import org.zalando.stups.pierone.client.RestTemplatePieroneOperations;
 import org.zalando.stups.tokens.AccessTokens;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -46,6 +47,9 @@ public class ClientConfig {
 
     @Value("${fullstop.clients.kontrolletti.url}")
     private String kontrollettiBaseUrl;
+
+    @Value("${fullstop.clients.pierone.urls}")
+    private String pieroneUrls;
 
     @Bean
     public KioOperations kioOperations() {
@@ -72,9 +76,19 @@ public class ClientConfig {
     }
 
     @Bean
-    public Function<String, PieroneOperations> pieroneOperationsProvider(
-            @Value("${fullstop.client.pierone.urls}") final List<URL> pieroneUrls) {
-        return pieroneUrls.stream().collect(toMap(URL::getHost, this::newPieroneOperations))::get;
+    public Function<String, PieroneOperations> pieroneOperationsProvider() {
+        return Stream.of(pieroneUrls.split(","))
+                .map(ClientConfig::toUrl)
+                .collect(toMap(URL::getHost, this::newPieroneOperations))
+                ::get;
+    }
+
+    private static URL toUrl(String urlString) {
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private PieroneOperations newPieroneOperations(URL baseUrl) {
