@@ -121,8 +121,7 @@ fullstop:
             url: https://example.com/kio/api
 
         pierone:
-            urls:
-              - https://example.com/pierone/api
+            urls: https://example.com/pierone/api
 
         teamService:
             url: https://example.com/teams/api
