@@ -45,10 +45,10 @@ public class PieroneTagProviderImpl implements PieroneTagProvider {
     private Optional<TagSummary> tagForSource(@Nonnull String source) {
         return Optional.of(source)
                 .flatMap(PieroneImage::tryParse)
-                .flatMap(this::foo);
+                .flatMap(this::loadTag);
     }
 
-    private Optional<TagSummary> foo(PieroneImage image) {
+    private Optional<TagSummary> loadTag(PieroneImage image) {
         return Optional.ofNullable(pieroneOperationsProvider.apply(image.getRepository()))
                 .map(client -> client.listTags(image.getTeam(), image.getArtifact()))
                 .map(result -> result.get(image.getTag()));
