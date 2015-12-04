@@ -53,5 +53,9 @@ public class ViolationType {
 
     public static final String SPEC_TYPE_IS_MISSING_IN_KIO = "SPEC_TYPE_IS_MISSING_IN_KIO";
 
+    public static final String MISSING_APPLICATION_ID_IN_USER_DATA = "MISSING_APPLICATION_ID_IN_USER_DATA";
+
+    public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
+
 
 }
