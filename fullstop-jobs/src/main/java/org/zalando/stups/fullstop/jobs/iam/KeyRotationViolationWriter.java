@@ -11,7 +11,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TO_OLD;
+import static org.zalando.stups.fullstop.violation.ViolationType.ACTIVE_KEY_TOO_OLD;
 
 /**
  * Access Keys have to be rotated regularly
@@ -35,7 +35,7 @@ public class KeyRotationViolationWriter {
                         .withAccountId(accountId)
                         .withRegion(NoPasswordViolationWriter.NO_REGION)
                         .withEventId("check-access-key_" + accessKey.getAccessKeyId())
-                        .withType(ACTIVE_KEY_TO_OLD)
+                        .withType(ACTIVE_KEY_TOO_OLD)
                         .withPluginFullyQualifiedClassName(KeyRotationJob.class)
                         .withMetaInfo(metaMap(accessKey))
                         .build());

@@ -13,7 +13,7 @@ public class ViolationType {
 
     public static final String EC2_RUN_IN_PUBLIC_SUBNET = "EC2_RUN_IN_PUBLIC_SUBNET";
 
-    public static final String ACTIVE_KEY_TO_OLD = "ACTIVE_KEY_TO_OLD";
+    public static final String ACTIVE_KEY_TOO_OLD = "ACTIVE_KEY_TOO_OLD";
 
     public static final String PASSWORD_USED = "PASSWORD_USED";
 
