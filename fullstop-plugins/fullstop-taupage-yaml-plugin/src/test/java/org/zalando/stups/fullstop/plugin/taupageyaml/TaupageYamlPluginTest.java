@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.plugin.taupageyaml;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,6 +11,7 @@ import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_ID_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_VERSION_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
 import java.util.Optional;
 
@@ -46,7 +48,11 @@ public class TaupageYamlPluginTest {
 
     @Test
     public void testSupportsEventName() throws Exception {
-
+        assertThat(plugin.supportsEventName().test("RunInstances")).isTrue();
+        assertThat(plugin.supportsEventName().test("StartInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("TerminateInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("StopInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("Foobar")).isFalse();
     }
 
     @Test
@@ -82,6 +88,19 @@ public class TaupageYamlPluginTest {
         plugin.process(mockContext);
 
         verify(mockContext).isTaupageAmi();
+    }
+
+    @Test
+    public void testProcessMissingTaupageYaml() throws Exception {
+        when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
+        when(mockContext.getTaupageYaml()).thenReturn(Optional.empty());
+
+        plugin.process(mockContext);
+
+        verify(mockContext).isTaupageAmi();
+        verify(mockContext).getTaupageYaml();
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(MISSING_USER_DATA)));
     }
 
     @Test

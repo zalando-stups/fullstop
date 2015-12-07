@@ -55,7 +55,6 @@ public class RegionPlugin extends AbstractEC2InstancePlugin {
         final List<String> allowedRegions = regionPluginProperties.getWhitelistedRegions();
         if (!allowedRegions.contains(ec2InstanceContext.getRegionAsString())) {
             violationSink.put(ec2InstanceContext.violation()
-                    .withInstanceId(instanceId)
                     .withType(WRONG_REGION)
                     .withPluginFullyQualifiedClassName(RegionPlugin.class)
                     .withMetaInfo(singletonMap("allowed_regions", allowedRegions))
