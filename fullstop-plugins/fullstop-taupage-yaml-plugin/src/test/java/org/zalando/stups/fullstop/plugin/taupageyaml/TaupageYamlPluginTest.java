@@ -23,9 +23,6 @@ import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-/**
- * Created by clohmann on 04.12.15.
- */
 public class TaupageYamlPluginTest {
 
     private ViolationSink mockViolationSink;
@@ -41,7 +38,6 @@ public class TaupageYamlPluginTest {
         mockContext = mock(EC2InstanceContext.class);
         plugin = new TaupageYamlPlugin(mockContextProvider, mockViolationSink);
 
-        when(mockContext.getInstanceId()).thenReturn("abc");
         when(mockContext.violation()).thenReturn(new ViolationBuilder());
     }
 
@@ -107,7 +103,6 @@ public class TaupageYamlPluginTest {
         verify(mockContext).getVersionId();
         verify(mockContext).getSource();
         verify(mockContext).violation();
-        verify(mockContext).getInstanceId();
         verify(mockViolationSink).put(argThat(hasType(MISSING_APPLICATION_ID_IN_USER_DATA)));
     }
 
@@ -128,7 +123,6 @@ public class TaupageYamlPluginTest {
         verify(mockContext).getVersionId();
         verify(mockContext).getSource();
         verify(mockContext).violation();
-        verify(mockContext).getInstanceId();
         verify(mockViolationSink).put(argThat(hasType(MISSING_APPLICATION_VERSION_IN_USER_DATA)));
     }
 
@@ -149,7 +143,6 @@ public class TaupageYamlPluginTest {
         verify(mockContext).getVersionId();
         verify(mockContext).getSource();
         verify(mockContext).violation();
-        verify(mockContext).getInstanceId();
         verify(mockViolationSink).put(argThat(hasType(MISSING_SOURCE_IN_USER_DATA)));
     }
 }
