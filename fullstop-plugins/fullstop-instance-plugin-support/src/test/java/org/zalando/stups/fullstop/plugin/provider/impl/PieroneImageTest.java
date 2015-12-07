@@ -38,6 +38,7 @@ public class PieroneImageTest {
         assertThat(result.get().getArtifact()).isEqualTo(ARTIFACT);
         assertThat(result.get().getTag()).isEqualTo(TAG);
 
+        assertThat(pieroneImage.toString()).isEqualTo(result.get().toString());
 
     }
 
