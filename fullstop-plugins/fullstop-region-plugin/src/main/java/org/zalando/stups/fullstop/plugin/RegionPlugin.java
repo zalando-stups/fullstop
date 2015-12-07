@@ -45,13 +45,6 @@ public class RegionPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected void process(final EC2InstanceContext ec2InstanceContext) {
-        final String instanceId = ec2InstanceContext.getInstanceId();
-
-        if (StringUtils.isEmpty(instanceId)) {
-            // TODO investigate RunInstances events w/o instance ids. Is it a bug or intentional? Remove this warning
-            // in the latter case.
-            log.warn("RunInstances event without EC2 instance ids: {}", ec2InstanceContext.getEvent().getEventData());
-        }
         final List<String> allowedRegions = regionPluginProperties.getWhitelistedRegions();
         if (!allowedRegions.contains(ec2InstanceContext.getRegionAsString())) {
             violationSink.put(ec2InstanceContext.violation()
