@@ -11,7 +11,6 @@ import org.zalando.stups.pierone.client.PieroneOperations;
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -50,10 +49,10 @@ public class ScmSourceProviderImpl implements ScmSourceProvider {
     private Optional<Map<String, String>> scmSourceFor(String source) {
         return Optional.of(source)
                 .flatMap(PieroneImage::tryParse)
-                .flatMap(this::loadSmSource);
+                .flatMap(this::loadScmSource);
     }
 
-    private Optional<Map<String, String>> loadSmSource(PieroneImage image) {
+    private Optional<Map<String, String>> loadScmSource(PieroneImage image) {
         return Optional.ofNullable(image)
                 .map(PieroneImage::getRepository)
                 .map(pieroneOperationsProvider)
