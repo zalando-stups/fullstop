@@ -39,7 +39,7 @@ public class ScmSourceProviderImplTest {
 
     @Test
     public void testScmSourceNotFound() {
-        when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("opensource.example.org/team/repository:tag"));
+        when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("opensource.example.org/team/artifact:tag"));
         Optional<Map<String, String>> result = scmSourceProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
@@ -49,7 +49,7 @@ public class ScmSourceProviderImplTest {
 
     @Test
     public void testScmSource() {
-        when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("pierone.example.org/team/repository:tag"));
+        when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("pierone.example.org/team/artifact:tag"));
 
         Optional<Map<String, String>> result = scmSourceProvider.apply(ec2InstanceContextMock);
 
