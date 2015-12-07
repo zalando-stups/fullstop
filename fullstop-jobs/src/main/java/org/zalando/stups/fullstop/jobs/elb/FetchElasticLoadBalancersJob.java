@@ -41,7 +41,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
+import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 /**
  * Created by gkneitschel.
@@ -148,7 +148,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         continue;
                     }
 
-                    if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_ENDPOINT)) {
+                    if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
                         continue;
                     }
 
@@ -216,7 +216,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         Violation violation = violationBuilder.withAccountId(account)
                                               .withRegion(region)
                                               .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
-                                              .withType(UNSECURED_ENDPOINT)
+                                              .withType(UNSECURED_PUBLIC_ENDPOINT)
                                               .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
                                               .withInstanceId(canonicalHostedZoneName)

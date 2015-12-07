@@ -43,7 +43,7 @@ public class ViolationType {
 
     public static final String APPLICATION_VERSION_NOT_PRESENT_IN_KIO = "APPLICATION_VERSION_NOT_PRESENT_IN_KIO";
 
-    public static final String UNSECURED_ENDPOINT = "UNSECURED_ENDPOINT";
+    public static final String UNSECURED_PUBLIC_ENDPOINT = "UNSECURED_PUBLIC_ENDPOINT";
 
     public static final String SPEC_URL_IS_MISSING_IN_KIO = "SPEC_URL_IS_MISSING_IN_KIO";
 

@@ -38,7 +38,7 @@ import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.stream.Collectors.toList;
-import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
+import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 @Component
 public class FetchEC2Job implements FullstopJob {
@@ -139,7 +139,7 @@ public class FetchEC2Job implements FullstopJob {
                         final List<String> errorMessages = newArrayList();
                         final String instancePublicIpAddress = instance.getPublicIpAddress();
 
-                        if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), UNSECURED_ENDPOINT)) {
+                        if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), UNSECURED_PUBLIC_ENDPOINT)) {
                             continue;
                         }
 
@@ -203,7 +203,7 @@ public class FetchEC2Job implements FullstopJob {
         Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchEC2Job.class)
-                .withType(UNSECURED_ENDPOINT)
+                .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withInstanceId(instanceId)
                 .withEventId(EVENT_ID).build();

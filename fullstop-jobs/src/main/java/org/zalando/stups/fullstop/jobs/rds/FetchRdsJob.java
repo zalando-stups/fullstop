@@ -23,7 +23,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ENDPOINT;
+import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 @Component
 public class FetchRdsJob implements FullstopJob {
@@ -78,7 +78,7 @@ public class FetchRdsJob implements FullstopJob {
         Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchRdsJob.class)
-                .withType(UNSECURED_ENDPOINT)
+                .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
                 .withInstanceId(rdsEndpoint)
