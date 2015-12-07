@@ -11,7 +11,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICA
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_VERSION_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -19,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
-import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
