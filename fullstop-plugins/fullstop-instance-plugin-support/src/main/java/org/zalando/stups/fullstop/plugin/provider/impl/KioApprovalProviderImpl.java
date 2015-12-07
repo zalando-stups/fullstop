@@ -35,7 +35,7 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
                 @Override
                 public List<Approval> load(@Nonnull EC2InstanceContext context) throws Exception {
                     final List<Approval> kioApproval = getKioApproval(context);
-                    if (kioApproval == null && kioApproval.isEmpty()) {
+                    if (kioApproval == null || kioApproval.isEmpty()) {
                         log.warn("Could not find the Approval {} in KIO.", context);
                     }
                     return kioApproval;

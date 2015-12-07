@@ -11,10 +11,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PieroneImageTest {
 
-    public static final String REPOSITORY = "pierone.example.org";
-    public static final String TEAM = "team";
-    public static final String ARTIFACT = "artifact";
-    public static final String TAG = "0.1.0.5.0-7.8";
+    private static final String REPOSITORY = "pierone.example.org";
+    private static final String TEAM = "team";
+    private static final String ARTIFACT = "artifact";
+    private static final String TAG = "0.1.0.5.0-7.8";
     private PieroneImage pieroneImage;
 
     @Before
