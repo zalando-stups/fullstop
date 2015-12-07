@@ -36,7 +36,6 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
                 violationSink.put(
                         context.violation()
                                 .withType(MISSING_USER_DATA)
-                                .withInstanceId(context.getInstanceId())
                                 .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
                                 .build());
                 return;
@@ -46,7 +45,6 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
                 violationSink.put(
                         context.violation()
                                 .withType(MISSING_APPLICATION_ID_IN_USER_DATA)
-                                .withInstanceId(context.getInstanceId())
                                 .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
                                 .build());
             }
@@ -55,7 +53,6 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
                 violationSink.put(
                         context.violation()
                                 .withType(MISSING_APPLICATION_VERSION_IN_USER_DATA)
-                                .withInstanceId(context.getInstanceId())
                                 .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
                                 .build());
             }
@@ -64,7 +61,6 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
                 violationSink.put(
                         context.violation()
                                 .withType(MISSING_SOURCE_IN_USER_DATA)
-                                .withInstanceId(context.getInstanceId())
                                 .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
                                 .build());
             }

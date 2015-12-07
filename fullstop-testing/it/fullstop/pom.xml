@@ -120,6 +120,11 @@
             <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
             <version>${fullstop-plugin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-taupage-yaml-plugin</artifactId>
+            <version>${fullstop-plugin.version}</version>
+        </dependency>
 
         <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
         <!--<dependency>-->
