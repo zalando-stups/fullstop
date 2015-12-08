@@ -18,9 +18,6 @@ import java.io.IOException;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
-/**
- * @author mrandi
- */
 @Component
 public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
@@ -39,7 +36,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
+    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider,
+                                           final ViolationSink violationSink,
                                            final PolicyTemplatesProvider policyTemplatesProvider,
                                            final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
         this.policyProvider = policyProvider;
@@ -106,7 +104,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                 && !event.getEventData().getRequestParameters().isEmpty()) {
 
             return JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
-        
+
         } else {
             return null;
         }
