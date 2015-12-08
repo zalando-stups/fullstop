@@ -15,7 +15,7 @@ script:
     - mvn clean install -Pfullstop-startup,pg-travis -U
 
 after_success:
-    - mvn coveralls:report -Ptravis
+    - mvn org.eluder.coveralls:coveralls-maven-plugin:report -Ptravis
 
 notifications:
     email:
