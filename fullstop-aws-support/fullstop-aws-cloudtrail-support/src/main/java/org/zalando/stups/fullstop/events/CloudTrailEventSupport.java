@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Date;
@@ -21,11 +22,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author jbellmann
  */
 public abstract class CloudTrailEventSupport {
+
+    private static final Logger LOG = getLogger(CloudTrailEventSupport.class);
 
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
@@ -169,7 +173,7 @@ public abstract class CloudTrailEventSupport {
             try {
                 instances.add(mapper.writeValueAsString(item));
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                LOG.warn(e.getMessage(), e);
             }
         }
 
