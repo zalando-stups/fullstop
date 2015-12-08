@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
@@ -17,6 +18,8 @@ import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Shows how it works with the registry itself.
@@ -31,6 +34,8 @@ public class ExamplePluginRegistryTest {
     private CloudTrailEventData eventData;
 
     private PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry;
+
+    private final Logger log = getLogger(getClass());
 
     @Before
     public void setUp() {
@@ -76,9 +81,8 @@ public class ExamplePluginRegistryTest {
 
         try {
             processor.process(Lists.newArrayList(event));
-        }
-        catch (CallbackException e) {
-            e.printStackTrace();
+        } catch (CallbackException e) {
+            log.error(e.getMessage(), e);
             Assert.fail();
         }
     }
