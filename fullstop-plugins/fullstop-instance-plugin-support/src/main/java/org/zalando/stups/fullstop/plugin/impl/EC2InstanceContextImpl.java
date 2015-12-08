@@ -96,7 +96,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public String getInstanceId() {
-        return JsonPath.read(instanceJson, "$.instanceId");
+        return JsonPath.read(getInstanceJson(), "$.instanceId");
     }
 
     @Override
