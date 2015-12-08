@@ -10,12 +10,14 @@ addons:
 before_script:
   - psql -c 'CREATE DATABASE fullstop;' -U postgres
 #  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
+  - pip install --user codecov
 
 script:
     - mvn clean install -Pfullstop-startup,pg-travis -U
 
 after_success:
     - mvn org.eluder.coveralls:coveralls-maven-plugin:report -Ptravis
+    - codecov
 
 notifications:
     email:
