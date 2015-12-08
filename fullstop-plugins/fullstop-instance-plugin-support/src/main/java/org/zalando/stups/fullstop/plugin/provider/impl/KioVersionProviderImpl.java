@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
@@ -12,6 +13,7 @@ import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -41,15 +43,18 @@ public class KioVersionProviderImpl implements KioVersionProvider {
             });
 
     private Optional<Version> getKioVersion(@Nonnull EC2InstanceContext context) {
-
-        Optional<String> applicationId = context.getApplicationId();
-        Optional<String> versionId = context.getVersionId();
+        final Optional<String> applicationId = context.getApplicationId();
+        final Optional<String> versionId = context.getVersionId();
 
         if (applicationId.isPresent() && versionId.isPresent()) {
-            return ofNullable(kioOperations.getApplicationVersion(applicationId.get(),versionId.get()));
+            try {
+                return ofNullable(kioOperations.getApplicationVersion(applicationId.get(), versionId.get()));
+            } catch (NotFoundException ignored) {
+                return empty();
+            }
         }
 
-        return Optional.empty();
+        return empty();
     }
 
     @Override

@@ -6,15 +6,15 @@ import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.Version;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -43,15 +43,18 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
             });
 
     private List<Approval> getKioApproval(@Nonnull EC2InstanceContext context) {
-
-        Optional<String> applicationId = context.getApplicationId();
-        Optional<Version> applicationVersion = context.getKioVersion();
+        final Optional<String> applicationId = context.getApplicationId();
+        final Optional<String> applicationVersion = context.getVersionId();
 
         if (applicationId.isPresent() && applicationVersion.isPresent()) {
-            return kioOperations.getApplicationVersionApprovals(applicationId.get(),applicationVersion.get().getId());
+            try {
+                return kioOperations.getApplicationVersionApprovals(applicationId.get(), applicationVersion.get());
+            } catch (NotFoundException ignored) {
+                return emptyList();
+            }
         }
 
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
