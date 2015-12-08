@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.violation;
 
 /**
@@ -28,7 +13,7 @@ public class ViolationType {
 
     public static final String EC2_RUN_IN_PUBLIC_SUBNET = "EC2_RUN_IN_PUBLIC_SUBNET";
 
-    public static final String ACTIVE_KEY_TO_OLD = "ACTIVE_KEY_TO_OLD";
+    public static final String ACTIVE_KEY_TOO_OLD = "ACTIVE_KEY_TOO_OLD";
 
     public static final String PASSWORD_USED = "PASSWORD_USED";
 
@@ -58,9 +43,15 @@ public class ViolationType {
 
     public static final String APPLICATION_VERSION_NOT_PRESENT_IN_KIO = "APPLICATION_VERSION_NOT_PRESENT_IN_KIO";
 
-    public static final String WRONG_USER_DATA = "WRONG_USER_DATA";
+    public static final String UNSECURED_PUBLIC_ENDPOINT = "UNSECURED_PUBLIC_ENDPOINT";
 
-    public static final String WRONG_APPLICATION_MASTERDATA = "WRONG_APPLICATION_MASTERDATA";
+    public static final String SPEC_URL_IS_MISSING_IN_KIO = "SPEC_URL_IS_MISSING_IN_KIO";
 
-    public static final String UNSECURED_ENDPOINT = "UNSECURED_ENDPOINT";
+    public static final String SPEC_TYPE_IS_MISSING_IN_KIO = "SPEC_TYPE_IS_MISSING_IN_KIO";
+
+    public static final String MISSING_APPLICATION_ID_IN_USER_DATA = "MISSING_APPLICATION_ID_IN_USER_DATA";
+
+    public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
+
+
 }

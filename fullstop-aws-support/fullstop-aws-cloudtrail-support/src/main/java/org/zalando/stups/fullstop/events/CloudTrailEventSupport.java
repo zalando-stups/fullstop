@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.events;
 
 import com.amazonaws.regions.Region;
@@ -24,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -32,13 +16,10 @@ import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -46,62 +27,25 @@ import static java.util.Optional.ofNullable;
  */
 public abstract class CloudTrailEventSupport {
 
-    public static final String IMAGE_ID_JSON_PATH = "$.imageId";
-
-    public static final String IMAGE_ID_AND_INSTANCE_JSON_PATH = "$.instancesSet.items[*].imageId";
-
     public static final String INSTANCE_ID_JSON_PATH = "$.instancesSet.items[*].instanceId";
 
     public static final String INSTANCE_JSON_PATH = "$.instancesSet.items[*]";
 
     public static final String RUN_INSTANCE_DATE_JSON_PATH = "$.launchTime";
 
-    public static final String SINGLE_INSTANCE_ID_JSON_PATH = "$.instanceId";
-
-    public static final String PRIVATE_IP_JSON_PATH = "$.instancesSet.items[*].privateIpAddress";
-
-    public static final String PUBLIC_IP_JSON_PATH = "$.instancesSet.items[*].publicIpAddress";
-
     public static final String SECURITY_GROUP_IDS_JSON_PATH =
             "$.groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
-    public static final String EVENT_TIME = "$.eventTime";
-
-    public static final String KEY_PAIR_JSON_PATH = "$.instancesSet.items[*].keyName";
-
-    public static final String ROLE_NAME_JSON_PATH = "$.instancesSet.items[*].roleName";
-
     private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
-
-    private static final String REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY =
-            "RegionString should never be null or empty";
 
     private static final String CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL =
             "CloudTrailEventData should never be null";
 
     private static final String CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL = "CloudTrailEvent should never be null";
-
-    public static Predicate<CloudTrailEvent> EC2_EVENT = new EventSourcePredicate("ec2.amazonaws.com");
-
-    public static Predicate<CloudTrailEvent> RUN_INSTANCES = new EventNamePredicate("RunInstances");
-
-    /**
-     * Extracts list of imageIds from {@link CloudTrailEvent}s 'responseElements'.
-     */
-    public static Optional<String> getAmi(final String instanceJson) {
-        if (isNullOrEmpty(instanceJson)) {
-            return empty();
-        }
-        try {
-            return Optional.ofNullable(JsonPath.read(instanceJson, IMAGE_ID_JSON_PATH));
-        } catch (JsonPathException ignored) {
-            return empty();
-        }
-    }
 
     /**
      * Extracts list of instanceIds from {@link CloudTrailEvent}s 'responseElements'.
@@ -132,29 +76,6 @@ public abstract class CloudTrailEventSupport {
         return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
     }
 
-    /**
-     * Extract the 'keyName'.
-     */
-    public static List<String> containsKeyNames(final String parameters) {
-
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, KEY_PAIR_JSON_PATH);
-    }
-
-    /**
-     * Extracts ids of security-groups.
-     */
-    public static List<String> readSecurityGroupIds(final String parameters) {
-        if (parameters == null) {
-            return null;
-        }
-
-        return read(parameters, "$.instancesSet.items[*].networkInterfaceSet.items[*].groupSet.items[*].groupId");
-    }
-
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
@@ -183,21 +104,17 @@ public abstract class CloudTrailEventSupport {
         return read(responseElements, pattern, false);
     }
 
-    public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern) {
-        return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, false);
-    }
-
     public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern,
                                     final boolean emptyListOnNullOrEmptyResponse) {
         return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, emptyListOnNullOrEmptyResponse);
     }
 
-    public static boolean isEc2EventSource(final CloudTrailEvent cloudTrailEvent) {
-        return EC2_EVENT.test(cloudTrailEvent);
-    }
-
     public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return RUN_INSTANCES.test(cloudTrailEvent);
+        return Optional.ofNullable(cloudTrailEvent)
+                .map(CloudTrailEvent::getEventData)
+                .filter(e -> "ec2.amazonaws.com".equals(e.getEventSource()))
+                .filter(e -> "RunInstances".equals(e.getEventName()))
+                .isPresent();
     }
 
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
@@ -210,35 +127,15 @@ public abstract class CloudTrailEventSupport {
         return JsonPath.read(responseElements, INSTANCE_LAUNCH_TIME);
     }
 
-    public static Region getRegion(CloudTrailEvent cloudTrailEvent) {
-        cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
-
-        CloudTrailEventData cloudTrailEventData = checkNotNull(
-                cloudTrailEvent.getEventData(),
-                CLOUD_TRAIL_EVENT_DATA_SHOULD_NEVER_BE_NULL);
-
-        return getRegion(cloudTrailEventData.getAwsRegion());
-    }
-
-    public static Region getRegion(final String regionString) {
-        checkState(!isNullOrEmpty(regionString), REGION_STRING_SHOULD_NEVER_BE_NULL_OR_EMPTY);
-        return Region.getRegion(Regions.fromName(regionString));
+    public static Region getRegion(final CloudTrailEvent cloudTrailEvent) {
+        return Optional.ofNullable(getRegionAsString(cloudTrailEvent))
+                .map(Regions::fromName)
+                .map(Region::getRegion)
+                .orElseThrow(() -> new IllegalArgumentException("Missing awsRegion in CloudTrailEvent " + cloudTrailEvent));
     }
 
     public static String getRegionAsString(final CloudTrailEvent event) {
         return event.getEventData().getAwsRegion();
-    }
-
-    /**
-     * + * Extract the 'roleName'. +
-     */
-    public static List<String> readRoleName(final String parameters) {
-
-        if (parameters == null) {
-            return null;
-        }
-
-        return JsonPath.read(parameters, ROLE_NAME_JSON_PATH);
     }
 
     public static ViolationBuilder violationFor(CloudTrailEvent cloudTrailEvent) {
@@ -280,7 +177,6 @@ public abstract class CloudTrailEventSupport {
     }
 
     public static DateTime getRunInstanceTime(String instance) {
-
         return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
     }
 
@@ -291,13 +187,5 @@ public abstract class CloudTrailEventSupport {
         Date eventTime = event.getEventData().getEventTime();
 
         return new DateTime(eventTime);
-    }
-
-    public static String getInstanceId(String instanceJson) {
-        if (instanceJson == null) {
-            return null;
-        }
-        return JsonPath.read(instanceJson, SINGLE_INSTANCE_ID_JSON_PATH);
-
     }
 }

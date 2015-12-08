@@ -71,15 +71,12 @@ fullstop:
         kio:
             url: ${FULLSTOP_KIO_URL}
 
-        pierone:
-            url: ${FULLSTOP_PIERONE_URL}
-
     clients:
         kio:
             url: ${FULLSTOP_KIO_URL}
 
         pierone:
-            url: ${FULLSTOP_PIERONE_URL}
+            urls: ${FULLSTOP_PIERONE_URLS:}
 
 #
 # OAuth2

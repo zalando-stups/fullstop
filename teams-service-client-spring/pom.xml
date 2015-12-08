@@ -5,7 +5,7 @@
     <parent>
         <artifactId>fullstop-parent</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>9</version>
+        <version>10</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>

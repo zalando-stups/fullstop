@@ -1,5 +1,0 @@
-fullstop:
-    plugins:
-        applicationMasterdata:
-            validatorsEnabled:
-                - scm_url
