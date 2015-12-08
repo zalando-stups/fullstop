@@ -15,6 +15,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
 
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
@@ -90,7 +91,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                     violationFor(event)
                             .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
                             .withType(MODIFIED_ROLE_OR_SERVICE)
-                            .withMetaInfo(roleName)
+                            .withMetaInfo(singletonMap("role_name", roleName))
                             .build());
 
         }

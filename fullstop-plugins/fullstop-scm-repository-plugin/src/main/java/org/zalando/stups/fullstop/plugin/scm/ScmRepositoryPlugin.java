@@ -126,8 +126,16 @@ public class ScmRepositoryPlugin extends AbstractFullstopPlugin {
             final String team = app.getTeamId();
             final String kioScmUrl = app.getScmUrl();
             if (isBlank(kioScmUrl)) {
-                violationSink.put(violationFor(event).withInstanceId(instanceId).withPluginFullyQualifiedClassName(
-                                          ScmRepositoryPlugin.class).withType(SCM_URL_IS_MISSING_IN_KIO).build());
+                violationSink.put(
+                        violationFor(event)
+                                .withInstanceId(instanceId)
+                                .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                                .withType(SCM_URL_IS_MISSING_IN_KIO)
+                                .withMetaInfo(ImmutableMap.of(
+                                        "team", team,
+                                        "artifact", artifact,
+                                        "version", tag))
+                                .build());
                 return;
             }
 
