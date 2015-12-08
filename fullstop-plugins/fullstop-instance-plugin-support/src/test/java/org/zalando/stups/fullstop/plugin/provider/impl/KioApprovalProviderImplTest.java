@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.Version;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
 
@@ -25,10 +25,8 @@ public class KioApprovalProviderImplTest {
     private EC2InstanceContext ec2InstanceContextMock;
     private KioOperations kioOperationsMock;
 
-
     @Before
     public void setUp() {
-
         kioOperationsMock = mock(KioOperations.class);
         kioApprovalProvider = new KioApprovalProviderImpl(kioOperationsMock);
 
@@ -43,53 +41,53 @@ public class KioApprovalProviderImplTest {
     @Test
     public void testApprovalFound() throws Exception {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
-
-        Version version = new Version();
-        version.setId("1.0");
-
-        when(ec2InstanceContextMock.getKioVersion()).thenReturn(Optional.of(version));
-
+        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
         when(kioOperationsMock.getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID))).thenReturn(newArrayList(new Approval()));
 
         List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isNotEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
-        verify(ec2InstanceContextMock).getKioVersion();
+        verify(ec2InstanceContextMock).getVersionId();
         verify(kioOperationsMock).getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID));
     }
 
     @Test
     public void testApprovalNotFound1() throws Exception {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
-
-
-        when(ec2InstanceContextMock.getKioVersion()).thenReturn(Optional.empty());
+        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.empty());
 
 
         List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
-        verify(ec2InstanceContextMock).getKioVersion();
+        verify(ec2InstanceContextMock).getVersionId();
     }
 
     @Test
     public void testApprovalNotFound2() throws Exception {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.empty());
-
-        Version version = new Version();
-        version.setId("1.0");
-
-        when(ec2InstanceContextMock.getKioVersion()).thenReturn(Optional.of(version));
-
+        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
 
         List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
-        verify(ec2InstanceContextMock).getKioVersion();
+        verify(ec2InstanceContextMock).getVersionId();
     }
 
+    @Test
+    public void testNotFoundException() throws Exception {
+        when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
+        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
+        when(kioOperationsMock.getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID))).thenThrow(new NotFoundException());
 
+        List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
+        assertThat(result).isEmpty();
+
+        verify(ec2InstanceContextMock).getApplicationId();
+        verify(ec2InstanceContextMock).getVersionId();
+        verify(kioOperationsMock).getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID));
+    }
 }

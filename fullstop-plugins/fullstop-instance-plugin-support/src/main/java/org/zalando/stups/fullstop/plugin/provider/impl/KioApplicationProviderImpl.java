@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.KioOperations;
+import org.zalando.stups.clients.kio.NotFoundException;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
 
@@ -41,14 +42,11 @@ public class KioApplicationProviderImpl implements KioApplicationProvider {
             });
 
     private Optional<Application> getKioApplication(@Nonnull EC2InstanceContext context) {
-
-        Optional<String> applicationId = context.getApplicationId();
-
-        if (applicationId.isPresent()) {
-            return ofNullable(kioOperations.getApplicationById(applicationId.get()));
+        try {
+            return context.getApplicationId().map(kioOperations::getApplicationById);
+        } catch (final NotFoundException ignored) {
+            return empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
