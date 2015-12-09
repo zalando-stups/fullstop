@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,21 +14,25 @@ import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
-import org.zalando.stups.fullstop.clients.pierone.PieroneOperations;
-import org.zalando.stups.fullstop.clients.pierone.spring.RestTemplatePieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixKioOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixKontrollettiOperations;
-import org.zalando.stups.fullstop.hystrix.HystrixPieroneOperations;
 import org.zalando.stups.fullstop.hystrix.HystrixTeamOperations;
 import org.zalando.stups.fullstop.teams.RestTemplateTeamOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.pierone.client.HystrixSpringPieroneOperations;
+import org.zalando.stups.pierone.client.PieroneOperations;
+import org.zalando.stups.pierone.client.RestTemplatePieroneOperations;
 import org.zalando.stups.tokens.AccessTokens;
 
-/**
- * @author jbellmann
- */
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
+
 @Configuration
 public class ClientConfig {
 
@@ -53,14 +42,14 @@ public class ClientConfig {
     @Value("${fullstop.clients.kio.url}")
     private String kioBaseUrl;
 
-    @Value("${fullstop.clients.pierone.url}")
-    private String pieroneBaseUrl;
-
     @Value("${fullstop.clients.teamService.url}")
     private String teamServiceBaseUrl;
 
     @Value("${fullstop.clients.kontrolletti.url}")
     private String kontrollettiBaseUrl;
+
+    @Value("${fullstop.clients.pierone.urls}")
+    private String pieroneUrls;
 
     @Bean
     public KioOperations kioOperations() {
@@ -68,14 +57,6 @@ public class ClientConfig {
                 new RestTemplateKioOperations(
                         buildOAuth2RestTemplate("kio", new KioClientResponseErrorHandler()),
                         kioBaseUrl));
-    }
-
-    @Bean
-    public PieroneOperations pieroneOperations() {
-        return new HystrixPieroneOperations(
-                new RestTemplatePieroneOperations(
-                        buildOAuth2RestTemplate("pierone"),
-                        pieroneBaseUrl));
     }
 
     @Bean
@@ -92,6 +73,29 @@ public class ClientConfig {
                 new RestTemplateKontrollettiOperations(
                         buildOAuth2RestTemplate("kontrolletti", new KontrollettiResponseErrorHandler()),
                         kontrollettiBaseUrl));
+    }
+
+    @Bean
+    public Function<String, PieroneOperations> pieroneOperationsProvider() {
+        return Stream.of(pieroneUrls.split(","))
+                .map(ClientConfig::toUrl)
+                .collect(toMap(URL::getHost, this::newPieroneOperations))
+                ::get;
+    }
+
+    private static URL toUrl(String urlString) {
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private PieroneOperations newPieroneOperations(URL baseUrl) {
+        return new HystrixSpringPieroneOperations(
+                new RestTemplatePieroneOperations(
+                        buildOAuth2RestTemplate("pierone"),
+                        baseUrl.toString()));
     }
 
     private RestOperations buildOAuth2RestTemplate(final String tokenName) {

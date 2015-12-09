@@ -1,132 +1,48 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.plugin.ami;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
-import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.events.CloudTrailEventPredicate;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.fromSource;
-import static org.zalando.stups.fullstop.events.CloudTrailEventPredicate.withName;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static java.util.function.Predicate.isEqual;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_AMI;
 
-/**
- * @author mrandi
- */
-
-@Component
-public class AmiPlugin extends AbstractFullstopPlugin {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AmiPlugin.class);
-
-    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
-
-    private static final String EVENT_NAME = "RunInstances";
-
-    private final CloudTrailEventPredicate eventFilter = fromSource(EC2_SOURCE_EVENTS).andWith(withName(EVENT_NAME));
-
-    private final ClientProvider clientProvider;
+public class AmiPlugin extends AbstractEC2InstancePlugin {
 
     private final ViolationSink violationSink;
 
-    @Value("${fullstop.plugins.ami.amiNameStartWith}")
-    private String amiNameStartWith;
-
-    @Value("${fullstop.plugins.ami.whitelistedAmiAccount}")
-    private String whitelistedAmiAccount;
-
     @Autowired
-    public AmiPlugin(final ClientProvider clientProvider, final ViolationSink violationSink) {
-        this.clientProvider = clientProvider;
+    public AmiPlugin(final EC2InstanceContextProvider contextProvider,
+                     final ViolationSink violationSink) {
+        super(contextProvider);
         this.violationSink = violationSink;
     }
 
     @Override
-    public boolean supports(final CloudTrailEvent event) {
-        return eventFilter.test(event);
+    protected Predicate<? super String> supportsEventName() {
+        return isEqual(RUN_INSTANCES);
     }
 
     @Override
-    public void processEvent(final CloudTrailEvent event) {
-        List<String> jsonInstances = getInstances(event);
-        List<String> whitelistedAmis = Lists.newArrayList();
+    protected void process(EC2InstanceContext context) {
 
-        whitelistedAmis = getWhitelistedAmis(event, whitelistedAmis);
-
-        for (String jsonInstance : jsonInstances) {
-            String ami = getAmi(jsonInstance);
-            if (ami == null) {
-                break;
-            }
-            String instanceId = getInstanceId(jsonInstance);
-            if (instanceId == null) {
-                break;
-            }
-
-            boolean valid = false;
-
-            for (String whitelistedAmi : whitelistedAmis) {
-
-                if (ami.equals(whitelistedAmi)) {
-                    valid = true;
-                }
-            }
-
-            if (!valid) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(WRONG_AMI)
-                                           .withPluginFullyQualifiedClassName(AmiPlugin.class)
-                                           .withMetaInfo(ami)
-                                           .build());
-            }
+        if (!context.isTaupageAmi().orElse(false)) {
+            violationSink.put(
+                    context.violation()
+                            .withType(WRONG_AMI)
+                            .withPluginFullyQualifiedClassName(AmiPlugin.class)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "ami_owner_id", context.getAmi().map(Image::getOwnerId).orElse(""),
+                                    "ami_id", context.getAmiId().orElse(""),
+                                    "ami_name", context.getAmi().map(Image::getName).orElse("")))
+                            .build());
         }
-    }
 
-    private List<String> getWhitelistedAmis(CloudTrailEvent event, List<String> whitelistedAmis) {
-        AmazonEC2Client ec2Client = clientProvider.getClient(
-                AmazonEC2Client.class, whitelistedAmiAccount,
-                Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
-
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withOwners(whitelistedAmiAccount);
-
-        DescribeImagesResult describeImagesResult = ec2Client.describeImages(describeImagesRequest);
-        List<Image> images = describeImagesResult.getImages();
-
-        whitelistedAmis.addAll(
-                images.stream().filter(image -> image.getName().startsWith(amiNameStartWith))
-                      .map(Image::getImageId).collect(Collectors.toList()));
-        return whitelistedAmis;
     }
 }

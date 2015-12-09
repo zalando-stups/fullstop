@@ -104,9 +104,6 @@ fullstop:
         kio:
             url: ${FULLSTOP_KIO_URL}
 
-        pierone:
-            url: ${FULLSTOP_PIERONE_URL}
-
         registry:
             mandatoryApprovals: ${FULLSTOP_MANDATORY_APPROVALS:SPECIFICATION,CODE_CHANGE,TEST,DEPLOY}
             approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY:CODE_CHANGE,TEST,DEPLOY}
@@ -127,7 +124,7 @@ fullstop:
             url: ${FULLSTOP_KIO_URL}
 
         pierone:
-            url: ${FULLSTOP_PIERONE_URL}
+            urls: ${FULLSTOP_PIERONE_URLS:}
 
         teamService:
             url: ${FULLSTOP_TEAM_SERVICE_URL}

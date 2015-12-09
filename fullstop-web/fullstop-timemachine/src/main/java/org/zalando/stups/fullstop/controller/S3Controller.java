@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.controller;
 
 import com.amazonaws.regions.Region;
@@ -32,10 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.CloudTrailProcessingLibraryProperties;
 import org.zalando.stups.fullstop.PluginEventsProcessor;
 import org.zalando.stups.fullstop.filereader.FileEventReader;
-import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -61,7 +44,7 @@ public class S3Controller {
 
     @Autowired
     public S3Controller(final PluginEventsProcessor pluginEventsProcessor,
-            final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties) {
+                        final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties) {
         this.pluginEventsProcessor = pluginEventsProcessor;
         this.cloudTrailProcessingLibraryProperties = cloudTrailProcessingLibraryProperties;
     }
@@ -77,8 +60,7 @@ public class S3Controller {
 
         try {
             files = directory.listFiles();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new FileNotFoundException("You should download the file before read these.");
         }
 
@@ -96,15 +78,14 @@ public class S3Controller {
 
     @RequestMapping(method = RequestMethod.GET, value = "/download")
     public void downloadFiles(@RequestParam(value = "bucket") final String bucket,
-            @RequestParam(value = "location") final String location,
-            @RequestParam(value = "page") final int page) {
+                              @RequestParam(value = "location") final String location,
+                              @RequestParam(value = "page") final int page) {
 
         try {
             log.info("Creating fullstop directory here: {}", fullstopLoggingDir);
 
             boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             // do nothing
         }
 
@@ -113,7 +94,7 @@ public class S3Controller {
                 Region.getRegion(
                         Regions.fromName(
                                 (String) cloudTrailProcessingLibraryProperties.getAsProperties()
-                                                                              .get(S3_REGION_KEY))));
+                                        .get(S3_REGION_KEY))));
 
         ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest().withBucketName(bucket) //
@@ -159,9 +140,8 @@ public class S3Controller {
 
             out.close();
             in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
         }
     }
 }

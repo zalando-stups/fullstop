@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.plugin.unapproved;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
@@ -30,13 +15,10 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonMap;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
-/**
- * @author mrandi
- */
 @Component
 public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
@@ -55,9 +37,10 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider, final ViolationSink violationSink,
-            final PolicyTemplatesProvider policyTemplatesProvider,
-            final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
+    public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider,
+                                           final ViolationSink violationSink,
+                                           final PolicyTemplatesProvider policyTemplatesProvider,
+                                           final UnapprovedServicesAndRoleProperties unapprovedServicesAndRoleProperties) {
         this.policyProvider = policyProvider;
         this.violationSink = violationSink;
         this.policyTemplatesProvider = policyTemplatesProvider;
@@ -79,6 +62,15 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         String roleName = getRoleName(event);
 
+        if (roleName == null) {
+            LOG.info("Could not find roleName for event: {}, {} for account: {} and region: {}",
+                    event.getEventData().getEventId(),
+                    event.getEventData().getEventName(),
+                    event.getEventData().getAccountId(),
+                    event.getEventData().getAwsRegion());
+            return;
+        }
+
         String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
 
         String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
@@ -89,8 +81,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         try {
             policyJson = objectMapper.readTree(policy);
             templatePolicyJson = objectMapper.readTree(policyTemplate);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
             return;
         }
@@ -100,7 +91,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                     violationFor(event)
                             .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
                             .withType(MODIFIED_ROLE_OR_SERVICE)
-                            .withMetaInfo(roleName)
+                            .withMetaInfo(singletonMap("role_name", roleName))
                             .build());
 
         }
@@ -108,7 +99,17 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     }
 
     private String getRoleName(final CloudTrailEvent event) {
-        return JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
+
+        if (event.getEventData() != null
+                && event.getEventData().getRequestParameters() != null
+                && !event.getEventData().getRequestParameters().isEmpty()) {
+
+            return JsonPath.read(event.getEventData().getRequestParameters(), "$.roleName");
+
+        } else {
+            return null;
+        }
+
     }
 
 }

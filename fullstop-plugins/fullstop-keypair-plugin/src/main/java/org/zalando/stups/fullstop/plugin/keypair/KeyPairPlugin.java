@@ -1,81 +1,54 @@
-/**
- * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.zalando.stups.fullstop.plugin.keypair;
 
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
-import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
+import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static java.util.Collections.singletonMap;
+import static java.util.function.Predicate.isEqual;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_KEYPAIR;
 
-/**
- * @author ljaeckel
- */
-@Component
-public class KeyPairPlugin extends AbstractFullstopPlugin {
-
-    private static final Logger LOG = LoggerFactory.getLogger(KeyPairPlugin.class);
-
-    private static final String EC2_SOURCE_EVENTS = "ec2.amazonaws.com";
-
-    private static final String EVENT_NAME = "RunInstances";
+public class KeyPairPlugin extends AbstractEC2InstancePlugin {
 
     private final ViolationSink violationSink;
 
-    @Autowired
-    public KeyPairPlugin(final ViolationSink violationSink) {
+    public KeyPairPlugin(EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
+        super(contextProvider);
         this.violationSink = violationSink;
     }
 
     @Override
-    public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
-        String eventName = cloudTrailEventData.getEventName();
-
-        return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
+    protected Predicate<? super String> supportsEventName() {
+        // A key pair can only be assigned to an EC instance at launch time.
+        // Once the key pair is set it cannot be changed.
+        return isEqual(RUN_INSTANCES);
     }
 
     @Override
-    public void processEvent(final CloudTrailEvent event) {
-
-        List<String> instanceIds = getInstanceIds(event);
-        List<String> keyNames = containsKeyNames(event.getEventData().getRequestParameters());
-
-        for (String instanceId : instanceIds) {
-            if (!CollectionUtils.isEmpty(keyNames)) {
-                violationSink.put(
-                        violationFor(event).withInstanceId(instanceId)
-                                           .withType(EC2_WITH_KEYPAIR)
-                                           .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
-                                           .withMetaInfo(keyNames)
-                                           .build());
-
-            }
-        }
-
+    protected void process(EC2InstanceContext context) {
+        getKeyName(context).ifPresent(
+                k -> violationSink.put(
+                        context.violation()
+                                .withType(EC2_WITH_KEYPAIR)
+                                .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
+                                .withMetaInfo(singletonMap("key_name", k))
+                                .build()));
     }
+
+    private Optional<String> getKeyName(EC2InstanceContext context) {
+        try {
+            return Optional.ofNullable(trimToNull(JsonPath.read(context.getInstanceJson(), "$.keyName")));
+        } catch (JsonPathException ignored) {
+            return Optional.empty();
+        }
+    }
+
 
 }

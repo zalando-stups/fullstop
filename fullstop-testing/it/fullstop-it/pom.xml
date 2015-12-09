@@ -69,5 +69,11 @@
                 <active-profiles>it-with-timeout,travis</active-profiles>
             </properties>
         </profile>
+        <profile>
+            <id>gocd</id>
+            <properties>
+                <active-profiles>it-with-timeout,gocd</active-profiles>
+            </properties>
+        </profile>
     </profiles>
 </project>
