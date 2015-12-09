@@ -67,7 +67,7 @@ public class AmiPluginTest {
         verify(mockContext).isTaupageAmi();
         verify(mockContext).getAmiId();
         verify(mockContext).violation();
-        verify(mockContext).getAmi();
+        verify(mockContext, times(2)).getAmi();
         verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
     }
 
@@ -81,7 +81,7 @@ public class AmiPluginTest {
         verify(mockContext).isTaupageAmi();
         verify(mockContext).getAmiId();
         verify(mockContext).violation();
-        verify(mockContext).getAmi();
+        verify(mockContext, times(2)).getAmi();
         verify(mockViolationSink).put(argThat(hasType(WRONG_AMI)));
     }
 }

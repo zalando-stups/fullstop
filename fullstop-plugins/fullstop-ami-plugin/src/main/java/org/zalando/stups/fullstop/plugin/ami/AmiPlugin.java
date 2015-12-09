@@ -38,6 +38,7 @@ public class AmiPlugin extends AbstractEC2InstancePlugin {
                             .withType(WRONG_AMI)
                             .withPluginFullyQualifiedClassName(AmiPlugin.class)
                             .withMetaInfo(ImmutableMap.of(
+                                    "ami_owner_id", context.getAmi().map(Image::getOwnerId).orElse(""),
                                     "ami_id", context.getAmiId().orElse(""),
                                     "ami_name", context.getAmi().map(Image::getName).orElse("")))
                             .build());
