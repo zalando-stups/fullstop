@@ -4,8 +4,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -15,11 +16,11 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
+import javax.persistence.OptimisticLockException;
+import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
 
 /**
  * Created by gkneitschel.
@@ -40,7 +41,8 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     private LifecycleRepository lifecycleRepository;
 
     @Override
-    @Transactional(isolation = SERIALIZABLE)
+    @Transactional
+    @Retryable(value = OptimisticLockException.class, maxAttempts = 10, backoff = @Backoff(delay =100, maxDelay = 500))
     public LifecycleEntity saveLifecycle(final ApplicationEntity applicationEntity, final VersionEntity versionEntity,
             final LifecycleEntity lifecycleEntity) {
 
