@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
 
     @Override
     @Transactional
-    @Retryable(value = OptimisticLockException.class, maxAttempts = 10, backoff = @Backoff(delay =100, maxDelay = 500))
+    @Retryable(include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class}, maxAttempts = 10, backoff = @Backoff(delay = 100, maxDelay = 500))
     public LifecycleEntity saveLifecycle(final ApplicationEntity applicationEntity, final VersionEntity versionEntity,
             final LifecycleEntity lifecycleEntity) {
 
