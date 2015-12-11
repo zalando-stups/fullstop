@@ -58,7 +58,7 @@ public class WhitelistConfig {
         LOG.info("Processed drools file: ");
         LOG.info(droolsFile);
         final KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
-        kieFileSystem.write("src/main/resources/drools/TestRule.drl", droolsFile);
+        kieFileSystem.write("src/main/resources/drools/TaupageBuildRuleTemplate.drl", droolsFile);
         kieServices.newKieBuilder(kieFileSystem).buildAll();
     }
 }
