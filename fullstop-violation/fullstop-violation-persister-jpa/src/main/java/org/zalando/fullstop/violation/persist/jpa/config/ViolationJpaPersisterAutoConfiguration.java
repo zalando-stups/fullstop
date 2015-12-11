@@ -1,5 +1,7 @@
 package org.zalando.fullstop.violation.persist.jpa.config;
 
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.StatelessKieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +35,12 @@ public class ViolationJpaPersisterAutoConfiguration {
     @Autowired
     private CounterService counterService;
 
+    @Autowired
+    private StatelessKieSession kieSession;
+
     @Bean
     public ViolationJpaPersister violationJpaPersister() {
-        return new ViolationJpaPersister(eventBus, violationRepository, violationTypeRepository, counterService);
+        return new ViolationJpaPersister(eventBus, violationRepository, violationTypeRepository, counterService,
+                kieSession);
     }
 }

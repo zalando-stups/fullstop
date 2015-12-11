@@ -64,6 +64,7 @@
         <!-- jobs -->
         <module>fullstop-jobs</module>
         <module>fullstop-job-launcher</module>
+        <module>fullstop-whitelist</module>
     </modules>
 
     <build>

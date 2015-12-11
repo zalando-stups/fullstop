@@ -27,6 +27,8 @@ class DefaultViolation implements Violation {
 
     private String username;
 
+    private Boolean whitelisted;
+
     DefaultViolation(final String eventId, final String accountId, final String region, final String instanceId, final String message,
             final Object metaInfo, final String comment, final Boolean checked, final String username) {
         this.eventId = eventId;
@@ -72,6 +74,11 @@ class DefaultViolation implements Violation {
     @Override
     public String getInstanceId() {
         return instanceId;
+    }
+
+    @Override
+    public Boolean getWhitelisted() {
+        return whitelisted;
     }
 
     public void setInstanceId(String instanceId) {

@@ -25,4 +25,6 @@ public interface Violation {
     Boolean getChecked();
 
     String getInstanceId();
+
+    Boolean getWhitelisted();
 }

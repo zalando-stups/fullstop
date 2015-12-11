@@ -1,11 +1,11 @@
-package org.zalando.stups.fullstop.violation.domain;
+package org.zalando.stups.fullstop.domain;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly;
+import org.zalando.stups.fullstop.domain.validation.groups.PersistenceOnly;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;

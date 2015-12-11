@@ -1,4 +1,4 @@
-package org.zalando.stups.fullstop.violation.domain.validation.groups;
+package org.zalando.stups.fullstop.domain.validation.groups;
 
 /**
  * Validation group marker interface for constraints, that should be verified only in the persistence layer (Especially

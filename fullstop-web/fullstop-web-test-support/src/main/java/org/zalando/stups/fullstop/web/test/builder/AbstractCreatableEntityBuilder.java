@@ -2,7 +2,7 @@ package org.zalando.stups.fullstop.web.test.builder;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
-import org.zalando.stups.fullstop.violation.domain.AbstractCreatableEntity;
+import org.zalando.stups.fullstop.domain.AbstractCreatableEntity;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;

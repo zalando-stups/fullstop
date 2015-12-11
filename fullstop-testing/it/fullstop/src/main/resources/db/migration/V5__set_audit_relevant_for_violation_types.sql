@@ -1,0 +1,1 @@
+UPDATE fullstop_data.violation_type SET is_audit_relevant = false;
