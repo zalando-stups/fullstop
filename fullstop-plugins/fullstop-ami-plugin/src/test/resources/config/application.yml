@@ -1,5 +1,5 @@
 fullstop:
     plugins:
         ami:
-            whitelistedAmiAccount: 123456789
-            amiNameStartWith: taupage-
+            taupageOwners: 123456789
+            taupageNamePrefix: taupage-

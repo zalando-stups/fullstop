@@ -15,8 +15,8 @@ EVENT NAME = "RunInstances"
 You can always configure fullstop via environment variable:
 
 
-    $ export FULLSTOP_WHITELISTED_AMI_ACCOUNT=999999999999
-    $ export FULLSTOP_AMI_NAME_START_WITH=Taupage
+    $ export FULLSTOP_TAUPAGE_OWNERS=999999999999
+    $ export FULLSTOP_TAUPAGE_NAME_PREFIX=Taupage
 
 
 or modify [application.yml](../../fullstop/src/main/resources/config/application.yml)
@@ -26,7 +26,7 @@ fullstop:
     plugins:
         ami:
             # Account containing whitelisted AMI
-            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
+            taupageOwners: ${FULLSTOP_TAUPAGE_OWNERS}
             # will be checked if the image of the instance starts with this name
-            amiNameStartWith: ${FULLSTOP_AMI_NAME_START_WITH}
+            taupageNamePrefix: ${FULLSTOP_TAUPAGE_NAME_PREFIX}
 ```

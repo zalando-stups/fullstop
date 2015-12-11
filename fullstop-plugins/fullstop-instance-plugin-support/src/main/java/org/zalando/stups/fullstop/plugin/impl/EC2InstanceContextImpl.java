@@ -24,7 +24,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final String taupageNamePrefix;
 
-    private final String taupageOwner;
+    private final List<String> taupageOwners;
 
     /**
      * The original CloudTrailEvent
@@ -63,7 +63,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
             final AmiProvider amiProvider,
             final TaupageYamlProvider taupageYamlProvider,
             final String taupageNamePrefix,
-            final String taupageOwner,
+            final List<String> taupageOwners,
             final KioApplicationProvider kioApplicationProvider,
             final KioVersionProvider kioVersionProvider,
             final KioApprovalProvider kioApprovalProvider,
@@ -76,7 +76,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         this.amiProvider = amiProvider;
         this.taupageYamlProvider = taupageYamlProvider;
         this.taupageNamePrefix = taupageNamePrefix;
-        this.taupageOwner = taupageOwner;
+        this.taupageOwners = taupageOwners;
         this.kioApplicationProvider = kioApplicationProvider;
         this.kioVersionProvider = kioVersionProvider;
         this.kioApprovalProvider = kioApprovalProvider;
@@ -171,7 +171,10 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<Boolean> isTaupageAmi() {
-        return getAmi().map(image -> image.getName().startsWith(taupageNamePrefix) && image.getOwnerId().equals(taupageOwner));
+        return getAmi()
+                .filter(image -> image.getName().startsWith(taupageNamePrefix))
+                .map(Image::getOwnerId)
+                .map(taupageOwners::contains);
     }
 
     @Override
