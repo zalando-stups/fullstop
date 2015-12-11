@@ -86,8 +86,8 @@ fullstop:
 
         ami:
             # Account containing whitelisted AMI
-            whitelistedAmiAccount: 123456,2345678,34567890
-            amiNameStartWith: aPrefix
+            taupageOwners: 123456,2345678,34567890
+            taupageNamePrefix: aPrefix
 
         kio:
             url: https://example.com/kio/api

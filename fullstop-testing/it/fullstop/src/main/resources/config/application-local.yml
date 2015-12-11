@@ -65,8 +65,8 @@ fullstop:
 
         ami:
             # Account containing whitelisted AMI
-            whitelistedAmiAccount: ${FULLSTOP_WHITELISTED_AMI_ACCOUNT}
-            amiNameStartWith: ${FULLSTOP_AMI_NAME_START_WITH}
+            taupageOwners: ${FULLSTOP_TAUPAGE_OWNERS}
+            taupageNamePrefix: ${FULLSTOP_TAUPAGE_NAME_PREFIX}
 
         kio:
             url: ${FULLSTOP_KIO_URL}
