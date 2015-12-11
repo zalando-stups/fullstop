@@ -56,8 +56,6 @@ public class WhitelistConfig {
         final List<RuleEntity> ruleEntities = ruleEntityRepository.findAll();
         final RuleDataProvider ruleDataProvider = new RuleDataProvider(ruleEntities);
         final String droolsFile = new DataProviderCompiler().compile(ruleDataProvider, inputStream);
-        LOG.info("Processed drools file: ");
-        LOG.info(droolsFile);
         final KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
         kieFileSystem.write("src/main/resources/drools/TaupageBuildRuleTemplate.drl", droolsFile);
         kieServices.newKieBuilder(kieFileSystem).buildAll();
