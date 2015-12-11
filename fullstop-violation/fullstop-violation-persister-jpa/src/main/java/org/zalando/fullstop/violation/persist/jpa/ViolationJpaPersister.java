@@ -39,8 +39,6 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
         this.whitelistRulesSession = whitelistRulesSession;
-
-        this.whitelistRulesSession.setGlobal("logger", log);
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {

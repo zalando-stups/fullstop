@@ -25,7 +25,7 @@ import org.zalando.stups.fullstop.whitelist.RuleDataProvider;
 @Configuration
 public class WhitelistConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WhitelistConfig.class);
+    private static final Logger LOG = LoggerFactory.getLogger("whitelist-logger");
 
     @Autowired
     private RuleEntityRepository ruleEntityRepository;
@@ -39,8 +39,9 @@ public class WhitelistConfig {
         rebuildRules();
 
         final KieContainer kContainer = kieServices.newKieContainer(kieServices.getRepository().getDefaultReleaseId());
-
-        return kContainer.newStatelessKieSession();
+        final StatelessKieSession statelessKieSession = kContainer.newStatelessKieSession();
+        statelessKieSession.setGlobal("logger", LOG);
+        return statelessKieSession;
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 30, initialDelay = 240_000) // 30 min rate, 4 min delay

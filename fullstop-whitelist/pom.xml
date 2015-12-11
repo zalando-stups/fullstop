@@ -9,6 +9,7 @@
         <version>0-SNAPSHOT</version>
     </parent>
     <artifactId>fullstop-whitelist</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
     <name>Fullstop -- Whitelisting Utility</name>
 
     <properties>
