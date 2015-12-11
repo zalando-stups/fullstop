@@ -68,7 +68,7 @@ public class TaupageBuildRulesTest {
 
         kieSession.execute(violationEntity);
 
-        Assert.assertEquals("Automatic resolution by whitelisting", violationEntity.getComment());
+        Assert.assertEquals("Automatic resolution by whitelisting rule: 1st Rule", violationEntity.getComment());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TaupageBuildRulesTest {
 
         kieSession.execute(violationEntityPositive);
 
-        Assert.assertEquals("Automatic resolution by whitelisting", violationEntityPositive.getComment());
+        Assert.assertEquals("Automatic resolution by whitelisting rule: 1st Rule", violationEntityPositive.getComment());
 
         final ViolationEntity violationEntity = new ViolationEntity("002", "456", "eu-west-1", "abc"
                 , new Object(), null, "testuser");

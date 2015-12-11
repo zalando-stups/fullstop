@@ -20,6 +20,6 @@ rule "@{RULE_NAME}"
         ViolationEntity(violationTypeEntity.id in (ViolationType.WRONG_AMI, ViolationType.EC2_WITH_KEYPAIR), $vioEntity: violationTypeEntity)
     then
         logger.info("Whitelisted violation!");
-        entity.setComment("Automatic resolution by whitelisting");
+        entity.setComment("Automatic resolution by whitelisting rule: @{RULE_NAME}");
 end
 end template
