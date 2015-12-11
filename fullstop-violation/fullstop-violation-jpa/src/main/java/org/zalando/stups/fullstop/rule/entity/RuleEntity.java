@@ -1,4 +1,13 @@
-package org.zalando.stups.fullstop.violation.entity;
+package org.zalando.stups.fullstop.rule.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -7,29 +16,24 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 import org.zalando.stups.fullstop.domain.validation.groups.PersistenceOnly;
+import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import com.google.common.base.MoreObjects;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-
-/**
- * Created by mrandi.
- */
-@Table(name = "violation_type", schema = "fullstop_data")
+@Table(name = "rule_entity", schema = "fullstop_data")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class ViolationTypeEntity {
+public class RuleEntity {
 
     @Id
-    private String id;
+    private String ruleName;
 
-    private String helpText;
+    private String accountId;
 
-    private Integer violationSeverity;
-
-    private boolean isAuditRelevant;
+    @ManyToOne
+    private ViolationTypeEntity violationTypeEntity;
 
     @CreatedDate
     @NotNull(groups = { PersistenceOnly.class })
@@ -57,44 +61,29 @@ public class ViolationTypeEntity {
     @Version
     private Long version;
 
-    public ViolationTypeEntity() {
+    public String getAccountId() {
+        return accountId;
     }
 
-    public ViolationTypeEntity(String id) {
-        this.id = id;
+    public void setAccountId(final String accountId) {
+        this.accountId = accountId;
     }
 
-    public String getId() {
-        return id;
+    public ViolationTypeEntity getViolationTypeEntity() {
+        return violationTypeEntity;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setViolationTypeEntity(
+            final ViolationTypeEntity violationTypeEntity) {
+        this.violationTypeEntity = violationTypeEntity;
     }
 
-    public String getHelpText() {
-        return helpText;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setHelpText(String helpText) {
-        this.helpText = helpText;
-    }
-
-    public Integer getViolationSeverity() {
-        return violationSeverity;
-    }
-
-    public void setViolationSeverity(
-            Integer violationSeverity) {
-        this.violationSeverity = violationSeverity;
-    }
-
-    public boolean isAuditRelevant() {
-        return isAuditRelevant;
-    }
-
-    public void setIsAuditRelevant(boolean isAuditRelevant) {
-        this.isAuditRelevant = isAuditRelevant;
+    public void setRuleName(final String ruleName) {
+        this.ruleName = ruleName;
     }
 
     public DateTime getCreated() {
@@ -110,7 +99,7 @@ public class ViolationTypeEntity {
     }
 
     public void setCreatedBy(final String createdBy) {
-        this.createdBy = createdBy == null ? null : createdBy.trim();
+        this.createdBy = createdBy;
     }
 
     public DateTime getLastModified() {
@@ -126,7 +115,7 @@ public class ViolationTypeEntity {
     }
 
     public void setLastModifiedBy(final String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy == null ? null : lastModifiedBy.trim();
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     public Long getVersion() {
@@ -139,16 +128,15 @@ public class ViolationTypeEntity {
 
     @Override
     public String toString() {
-        return toStringHelper(this)
-                .add("id", id)
-                .add("helpText", helpText)
-                .add("violationSeverity", violationSeverity)
-                .add("isAuditRelevant", isAuditRelevant)
-                .add("createdBy", createdBy)
+        return MoreObjects.toStringHelper(this)
+                .add("ruleName", ruleName)
+                .add("accountId", accountId)
+                .add("violationTypeEntity", violationTypeEntity)
                 .add("created", created)
+                .add("createdBy", createdBy)
+                .add("lastModified", lastModified)
                 .add("lastModifiedBy", lastModifiedBy)
                 .add("version", version)
-                .add("lastModified", lastModified)
                 .toString();
     }
 }

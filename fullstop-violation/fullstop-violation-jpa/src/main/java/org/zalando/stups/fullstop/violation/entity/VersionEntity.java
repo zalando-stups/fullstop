@@ -1,7 +1,7 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.MoreObjects;
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

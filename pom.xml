@@ -52,6 +52,9 @@
         <!-- all violation modules -->
         <module>fullstop-violation</module>
 
+        <!-- whitelisting module-->
+        <module>fullstop-whitelist</module>
+
         <!-- web-modules -->
         <module>fullstop-web/fullstop-web-test-support</module>
         <module>fullstop-web/fullstop-web-commons</module>

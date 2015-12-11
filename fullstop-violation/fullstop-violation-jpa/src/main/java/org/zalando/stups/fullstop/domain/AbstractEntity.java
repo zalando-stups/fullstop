@@ -1,4 +1,4 @@
-package org.zalando.stups.fullstop.violation.domain;
+package org.zalando.stups.fullstop.domain;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
