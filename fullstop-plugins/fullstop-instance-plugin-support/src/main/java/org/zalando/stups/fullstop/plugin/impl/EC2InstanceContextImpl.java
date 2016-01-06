@@ -5,6 +5,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.Image;
 import com.jayway.jsonpath.JsonPath;
+import org.apache.commons.lang3.StringUtils;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.Version;
@@ -126,22 +127,22 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_id"));
+        return getTaupageYaml().map(data -> (String) data.get("application_id")).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_version"));
+        return getTaupageYaml().map(data -> (String) data.get("application_version")).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getSource() {
-        return getTaupageYaml().map(data -> (String) data.get("source"));
+        return getTaupageYaml().map(data -> (String) data.get("source")).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getRuntime() {
-        return getTaupageYaml().map(m -> (String) m.get("runtime"));
+        return getTaupageYaml().map(m -> (String) m.get("runtime")).map(StringUtils::trimToNull);
     }
 
     @Override

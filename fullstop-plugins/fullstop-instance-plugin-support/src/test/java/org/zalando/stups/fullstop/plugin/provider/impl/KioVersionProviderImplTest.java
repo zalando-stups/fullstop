@@ -76,30 +76,6 @@ public class KioVersionProviderImplTest {
     }
 
     @Test
-    public void testApplicationIdBlank() throws Exception {
-        when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(" "));
-        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
-
-        Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
-        assertThat(result).isEmpty();
-
-        verify(ec2InstanceContextMock).getApplicationId();
-        verify(ec2InstanceContextMock).getVersionId();
-    }
-
-    @Test
-    public void testVersionIdBlank() throws Exception {
-        when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
-        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(" "));
-
-        Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
-        assertThat(result).isEmpty();
-
-        verify(ec2InstanceContextMock).getApplicationId();
-        verify(ec2InstanceContextMock).getVersionId();
-    }
-
-    @Test
     public void testNotFoundException() throws Exception {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
