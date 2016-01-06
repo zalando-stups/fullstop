@@ -13,7 +13,7 @@ before_script:
   - pip install --user codecov
 
 script:
-    - mvn clean install -Pfullstop-startup,pg-travis -U
+    - mvn clean verify -Pintegration-test,pg-travis -U
 
 after_success:
     - mvn org.eluder.coveralls:coveralls-maven-plugin:report -Ptravis

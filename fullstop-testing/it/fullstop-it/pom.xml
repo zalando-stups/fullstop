@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <active-profiles>it-with-timeout</active-profiles>
+        <active-profiles>integration-test</active-profiles>
     </properties>
 
     <dependencies>
@@ -21,44 +21,36 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-it-autoshutdown</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
     </dependencies>
 
     <profiles>
         <profile>
-            <id>fullstop-startup</id>
+            <id>integration-test</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.4.0</version>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>org.zalando.stups.fullstop.Fullstop</argument>
-                                <argument>--spring.config.location=${basedir}/config</argument>
-                                <argument>--spring.profiles.active=${active-profiles}</argument>
-                                <argument>--debug</argument>
-                            </arguments>
-                        </configuration>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <executions>
                             <execution>
                                 <goals>
-                                    <goal>exec</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
                                 </goals>
-                                <phase>pre-integration-test</phase>
                             </execution>
                         </executions>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <spring.profiles.active>${active-profiles}</spring.profiles.active>
+                            </systemPropertyVariables>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -66,13 +58,13 @@
         <profile>
             <id>pg-travis</id>
             <properties>
-                <active-profiles>it-with-timeout,travis</active-profiles>
+                <active-profiles>integration-test,travis</active-profiles>
             </properties>
         </profile>
         <profile>
             <id>gocd</id>
             <properties>
-                <active-profiles>it-with-timeout,gocd</active-profiles>
+                <active-profiles>integration-test,gocd</active-profiles>
             </properties>
         </profile>
     </profiles>
