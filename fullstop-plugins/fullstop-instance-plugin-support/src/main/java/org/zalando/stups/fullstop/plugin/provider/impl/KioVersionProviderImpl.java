@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.plugin.provider.impl;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.NotFoundException;
@@ -46,7 +47,10 @@ public class KioVersionProviderImpl implements KioVersionProvider {
         final Optional<String> applicationId = context.getApplicationId();
         final Optional<String> versionId = context.getVersionId();
 
-        if (applicationId.isPresent() && versionId.isPresent()) {
+        if (applicationId.isPresent() &&
+                versionId.isPresent() &&
+                StringUtils.trimToNull(applicationId.get()) != null &&
+                StringUtils.trimToNull(versionId.get()) != null) {
             try {
                 return ofNullable(kioOperations.getApplicationVersion(applicationId.get(), versionId.get()));
             } catch (NotFoundException ignored) {
@@ -61,5 +65,5 @@ public class KioVersionProviderImpl implements KioVersionProvider {
     public Optional<Version> apply(EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
-    
+
 }
