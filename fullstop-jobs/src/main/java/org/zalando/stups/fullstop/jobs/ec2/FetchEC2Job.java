@@ -128,88 +128,87 @@ public class FetchEC2Job implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
-                log.info("Scanning public EC2 instances for {}/{}", account, region);
 
-                DescribeInstancesResult describeEC2Result;
                 try {
-                    describeEC2Result = getDescribeEC2Result(
+
+                    log.info("Scanning public EC2 instances for {}/{}", account, region);
+
+                    DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
                             account,
                             region);
+
+                    for (final Reservation reservation : describeEC2Result.getReservations()) {
+
+                        for (final Instance instance : reservation.getInstances()) {
+                            final Map<String, Object> metaData = newHashMap();
+                            final List<String> errorMessages = newArrayList();
+                            final String instancePublicIpAddress = instance.getPublicIpAddress();
+
+                            if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), UNSECURED_PUBLIC_ENDPOINT)) {
+                                continue;
+                            }
+
+                            final Set<String> unsecureGroups = securityGroupsChecker.check(
+                                    instance.getSecurityGroups().stream().map(GroupIdentifier::getGroupId).collect(toList()),
+                                    account,
+                                    getRegion(fromName(region)));
+                            if (!unsecureGroups.isEmpty()) {
+                                metaData.put("unsecuredSecurityGroups", unsecureGroups);
+                                errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
+                            }
+
+                            if (metaData.size() > 0) {
+                                metaData.put("errorMessages", errorMessages);
+                                writeViolation(account, region, metaData, instance.getInstanceId());
+
+                                // skip http response check, as we are already having a violation here
+                                continue;
+                            }
+
+                            // skip check for publicly available apps
+                            if (awsApplications.isPubliclyAccessible(account, region, newArrayList(instance.getInstanceId())).orElse(false)) {
+                                continue;
+                            }
+
+                            for (Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
+
+                                if (allowedPort == 22) {
+                                    continue;
+                                }
+
+                                HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
+                                ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
+                                        httpCall);
+                                listenableFuture.addCallback(
+                                        httpCallResult -> {
+                                            log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
+                                            if (httpCallResult.isOpen()) {
+                                                Map<String, Object> md = newHashMap();
+                                                md.put("instancePublicIpAddress", instancePublicIpAddress);
+                                                md.put("Port", allowedPort);
+                                                md.put("Error", httpCallResult.getMessage());
+                                                writeViolation(account, region, md, instance.getInstanceId());
+                                            }
+                                        }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
+
+                                log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
+                            }
+
+                        }
+
+                    }
+
                 } catch (AmazonServiceException a) {
 
                     if (a.getErrorCode().equals("RequestLimitExceeded")) {
                         log.warn("RequestLimitExceeded for account: {}", account);
-                    }
-
-                    log.error(a.getMessage(), a);
-
-                    continue;
-                }
-
-                for (final Reservation reservation : describeEC2Result.getReservations()) {
-
-                    for (final Instance instance : reservation.getInstances()) {
-                        final Map<String, Object> metaData = newHashMap();
-                        final List<String> errorMessages = newArrayList();
-                        final String instancePublicIpAddress = instance.getPublicIpAddress();
-
-                        if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), UNSECURED_PUBLIC_ENDPOINT)) {
-                            continue;
-                        }
-
-                        final Set<String> unsecureGroups = securityGroupsChecker.check(
-                                instance.getSecurityGroups().stream().map(GroupIdentifier::getGroupId).collect(toList()),
-                                account,
-                                getRegion(fromName(region)));
-                        if (!unsecureGroups.isEmpty()) {
-                            metaData.put("unsecuredSecurityGroups", unsecureGroups);
-                            errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
-                        }
-
-                        if (metaData.size() > 0) {
-                            metaData.put("errorMessages", errorMessages);
-                            writeViolation(account, region, metaData, instance.getInstanceId());
-
-                            // skip http response check, as we are already having a violation here
-                            continue;
-                        }
-
-                        // skip check for publicly available apps
-                        if (awsApplications.isPubliclyAccessible(account, region, newArrayList(instance.getInstanceId())).orElse(false)) {
-                            continue;
-                        }
-
-                        for (Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
-
-                            if (allowedPort == 22) {
-                                continue;
-                            }
-
-                            HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
-                            ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
-                                    httpCall);
-                            listenableFuture.addCallback(
-                                    httpCallResult -> {
-                                        log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
-                                        if (httpCallResult.isOpen()) {
-                                            Map<String, Object> md = newHashMap();
-                                            md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                            md.put("Port", allowedPort);
-                                            md.put("Error", httpCallResult.getMessage());
-                                            writeViolation(account, region, md, instance.getInstanceId());
-                                        }
-                                    }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
-
-                            log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
-                        }
-
+                    } else {
+                        log.error(a.getMessage(), a);
                     }
 
                 }
-
             }
         }
-
     }
 
     private void writeViolation(String account, String region, Object metaInfo, String instanceId) {

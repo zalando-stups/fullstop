@@ -139,68 +139,81 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
-                for (LoadBalancerDescription elb : getELBs(account, region)) {
-                    Map<String, Object> metaData = newHashMap();
-                    List<String> errorMessages = newArrayList();
-                    final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
 
-                    if (!elb.getScheme().equals("internet-facing")) {
-                        continue;
+                try {
+
+                    for (LoadBalancerDescription elb : getELBs(account, region)) {
+                        Map<String, Object> metaData = newHashMap();
+                        List<String> errorMessages = newArrayList();
+                        final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
+
+                        if (!elb.getScheme().equals("internet-facing")) {
+                            continue;
+                        }
+
+                        if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
+                            continue;
+                        }
+
+                        List<Integer> unsecuredPorts = portsChecker.check(elb);
+                        if (!unsecuredPorts.isEmpty()) {
+                            metaData.put("unsecuredPorts", unsecuredPorts);
+                            errorMessages.add(format("ELB %s listens on insecure ports! Only ports 80 and 443 are allowed",
+                                    elb.getLoadBalancerName()));
+                        }
+
+
+                        final Set<String> unsecureGroups = securityGroupsChecker.check(
+                                elb.getSecurityGroups(),
+                                account,
+                                getRegion(fromName(region)));
+                        if (!unsecureGroups.isEmpty()) {
+                            metaData.put("unsecuredSecurityGroups", unsecureGroups);
+                            errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
+                        }
+
+
+                        if (metaData.size() > 0) {
+                            metaData.put("errorMessages", errorMessages);
+                            writeViolation(account, region, metaData, canonicalHostedZoneName);
+
+                            // skip http response check, as we are already having a violation here
+                            continue;
+                        }
+
+                        final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
+
+                        // skip check for publicly available apps
+                        if (awsApplications.isPubliclyAccessible(account, region, instanceIds).orElse(false)) {
+                            continue;
+                        }
+
+                        for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
+                            HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
+                            ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
+                            listenableFuture.addCallback(
+                                    httpCallResult -> {
+                                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
+                                        if (httpCallResult.isOpen()) {
+                                            final Map<String, Object> md = newHashMap();
+                                            md.put("canonicalHostedZoneName", canonicalHostedZoneName);
+                                            md.put("port", allowedPort);
+                                            md.put("Error", httpCallResult.getMessage());
+                                            writeViolation(account, region, md, canonicalHostedZoneName);
+                                        }
+                                    }, ex -> log.warn(ex.getMessage(), ex));
+
+                            log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
+                        }
+
                     }
 
-                    if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
-                        continue;
-                    }
+                } catch (AmazonServiceException a) {
 
-                    List<Integer> unsecuredPorts = portsChecker.check(elb);
-                    if (!unsecuredPorts.isEmpty()) {
-                        metaData.put("unsecuredPorts", unsecuredPorts);
-                        errorMessages.add(format("ELB %s listens on insecure ports! Only ports 80 and 443 are allowed",
-                                elb.getLoadBalancerName()));
-                    }
-
-
-                    final Set<String> unsecureGroups = securityGroupsChecker.check(
-                            elb.getSecurityGroups(),
-                            account,
-                            getRegion(fromName(region)));
-                    if (!unsecureGroups.isEmpty()) {
-                        metaData.put("unsecuredSecurityGroups", unsecureGroups);
-                        errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
-                    }
-
-
-                    if (metaData.size() > 0) {
-                        metaData.put("errorMessages", errorMessages);
-                        writeViolation(account, region, metaData, canonicalHostedZoneName);
-
-                        // skip http response check, as we are already having a violation here
-                        continue;
-                    }
-
-                    final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
-
-                    // skip check for publicly available apps
-                    if (awsApplications.isPubliclyAccessible(account, region, instanceIds).orElse(false)) {
-                        continue;
-                    }
-
-                    for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
-                        HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
-                        ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
-                        listenableFuture.addCallback(
-                                httpCallResult -> {
-                                    log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
-                                    if (httpCallResult.isOpen()) {
-                                        final Map<String, Object> md = newHashMap();
-                                        md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                        md.put("port", allowedPort);
-                                        md.put("Error", httpCallResult.getMessage());
-                                        writeViolation(account, region, md, canonicalHostedZoneName);
-                                    }
-                                }, ex -> log.warn(ex.getMessage(), ex));
-
-                        log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
+                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                        log.warn("RequestLimitExceeded for account: {}", account);
+                    } else {
+                        log.error(a.getMessage(), a);
                     }
 
                 }
@@ -225,24 +238,12 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
     }
 
     private List<LoadBalancerDescription> getELBs(String account, String region) {
-        AmazonElasticLoadBalancingClient elbClient;
+        AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
+                AmazonElasticLoadBalancingClient.class,
+                account,
+                getRegion(
+                        fromName(region)));
 
-        try {
-            elbClient = clientProvider.getClient(
-                    AmazonElasticLoadBalancingClient.class,
-                    account,
-                    getRegion(
-                            fromName(region)));
-        } catch (AmazonServiceException a) {
-
-            if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                log.warn("RequestLimitExceeded for account: {}", account);
-            }
-
-            log.error(a.getMessage(), a);
-
-            return newArrayList();
-        }
 
         DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
         return elbClient.describeLoadBalancers(
