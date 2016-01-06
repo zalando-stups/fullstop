@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.jobs.rds;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rds.AmazonRDSClient;
@@ -61,17 +62,28 @@ public class FetchRdsJob implements FullstopJob {
         for (final String accountId : allAccountIds.get()) {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
-                DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
-                describeDBInstancesResult.getDBInstances().stream()
-                        .filter(DBInstance::getPubliclyAccessible)
-                        .filter(dbInstance -> dbInstance.getEndpoint() != null )
-                        .forEach(dbInstance -> {
-                            metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
-                            metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
-                            writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+                try {
+                    DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
 
-                        });
+                    describeDBInstancesResult.getDBInstances().stream()
+                            .filter(DBInstance::getPubliclyAccessible)
+                            .filter(dbInstance -> dbInstance.getEndpoint() != null)
+                            .forEach(dbInstance -> {
+                                metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                                metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                                writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
 
+                            });
+
+                } catch (AmazonServiceException a) {
+
+                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                        log.warn("RequestLimitExceeded for account: {}", accountId);
+                    } else {
+                        log.error(a.getMessage(), a);
+                    }
+
+                }
             }
         }
     }
