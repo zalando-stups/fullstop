@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.jobs.ec2;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import org.apache.http.client.config.RequestConfig;
@@ -128,9 +129,22 @@ public class FetchEC2Job implements FullstopJob {
         for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning public EC2 instances for {}/{}", account, region);
-                final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
-                        account,
-                        region);
+
+                DescribeInstancesResult describeEC2Result;
+                try {
+                    describeEC2Result = getDescribeEC2Result(
+                            account,
+                            region);
+                } catch (AmazonServiceException a) {
+
+                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                        log.warn("RequestLimitExceeded for account: {}", account);
+                    }
+
+                    log.error(a.getMessage(), a);
+
+                    continue;
+                }
 
                 for (final Reservation reservation : describeEC2Result.getReservations()) {
 

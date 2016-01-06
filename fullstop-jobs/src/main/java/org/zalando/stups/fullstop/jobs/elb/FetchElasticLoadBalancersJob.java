@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.jobs.elb;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
@@ -108,22 +109,21 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 .build();
         try {
             httpclient = HttpClientBuilder.create()
-                                          .disableAuthCaching()
-                                          .disableAutomaticRetries()
-                                          .disableConnectionState()
-                                          .disableCookieManagement()
-                                          .disableRedirectHandling()
-                                          .setDefaultRequestConfig(requestConfig)
-                                          .setHostnameVerifier(new AllowAllHostnameVerifier())
-                                          .setSslcontext(
-                                                  new SSLContextBuilder()
-                                                          .loadTrustMaterial(
-                                                                  null,
-                                                                  (arrayX509Certificate, value) -> true)
-                                                          .build())
-                                          .build();
-        }
-        catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+                    .disableAuthCaching()
+                    .disableAutomaticRetries()
+                    .disableConnectionState()
+                    .disableCookieManagement()
+                    .disableRedirectHandling()
+                    .setDefaultRequestConfig(requestConfig)
+                    .setHostnameVerifier(new AllowAllHostnameVerifier())
+                    .setSslcontext(
+                            new SSLContextBuilder()
+                                    .loadTrustMaterial(
+                                            null,
+                                            (arrayX509Certificate, value) -> true)
+                                    .build())
+                    .build();
+        } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             throw new IllegalStateException("Could not initialize httpClient", e);
         }
     }
@@ -214,22 +214,36 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
     private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
         ViolationBuilder violationBuilder = new ViolationBuilder();
         Violation violation = violationBuilder.withAccountId(account)
-                                              .withRegion(region)
-                                              .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
-                                              .withType(UNSECURED_PUBLIC_ENDPOINT)
-                                              .withMetaInfo(metaInfo)
+                .withRegion(region)
+                .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
+                .withType(UNSECURED_PUBLIC_ENDPOINT)
+                .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
-                                              .withInstanceId(canonicalHostedZoneName)
-                                              .build();
+                .withInstanceId(canonicalHostedZoneName)
+                .build();
         violationSink.put(violation);
     }
 
     private List<LoadBalancerDescription> getELBs(String account, String region) {
-        AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
-                AmazonElasticLoadBalancingClient.class,
-                account,
-                getRegion(
-                        fromName(region)));
+        AmazonElasticLoadBalancingClient elbClient;
+
+        try {
+            elbClient = clientProvider.getClient(
+                    AmazonElasticLoadBalancingClient.class,
+                    account,
+                    getRegion(
+                            fromName(region)));
+        } catch (AmazonServiceException a) {
+
+            if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                log.warn("RequestLimitExceeded for account: {}", account);
+            }
+
+            log.error(a.getMessage(), a);
+
+            return newArrayList();
+        }
+
         DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
         return elbClient.describeLoadBalancers(
                 describeLoadBalancersRequest).getLoadBalancerDescriptions();
