@@ -77,8 +77,8 @@ public class KioVersionProviderImplTest {
 
     @Test
     public void testApplicationIdBlank() throws Exception {
-        when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
-        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(" "));
+        when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(" "));
+        when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
 
         Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
