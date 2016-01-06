@@ -1,22 +1,15 @@
 package org.zalando.stups.fullstop.violation.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -24,9 +17,7 @@ import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +32,7 @@ import static org.joda.time.DateTime.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
+@SpringApplicationConfiguration(classes = EmbeddedPostgresJpaConfig.class)
 @Transactional
 public class ViolationRepositoryTest {
 
@@ -220,28 +211,5 @@ public class ViolationRepositoryTest {
     public void testMetadataObjectJsonList() throws Exception {
         ViolationEntity one = violationRepository.getOne(vio2.getId());
         assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoList));
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
-    @EntityScan("org.zalando.stups.fullstop.violation")
-    @EnableJpaAuditing
-    static class TestConfig {
-
-        @Bean
-        DataSource dataSource() throws IOException {
-            return embeddedPostgres().getPostgresDatabase();
-        }
-
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
-            return EmbeddedPostgreSQL.start();
-        }
-
-        @Bean
-        AuditorAware<String> auditorAware() {
-            return () -> "unit-test";
-        }
     }
 }

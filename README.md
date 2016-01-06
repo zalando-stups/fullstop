@@ -1,6 +1,5 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
-[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg?branch=master)](https://coveralls.io/r/zalando-stups/fullstop?branch=master)
 [![codecov.io](https://codecov.io/github/zalando-stups/fullstop/coverage.svg?branch=master)](https://codecov.io/github/zalando-stups/fullstop?branch=master)
 [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Issues in progress](https://badge.waffle.io/zalando-stups/fullstop.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/zalando-stups/fullstop)
@@ -160,7 +159,7 @@ You need a locally running PostgreSQL 9.4 server (database "fullstop", host "loc
 
 Build fullstop:
 
-    $ mvn clean install -U
+    $ mvn clean package -U
 
 Build scm-source.json:
 
@@ -181,12 +180,6 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
-
-##How to deploy
-
-    $ mvn release:prepare
-
-    $ mvn release:perform
 
 ## Contributing
 Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).

@@ -14,6 +14,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
@@ -27,7 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
+@SpringApplicationConfiguration(classes = EmbeddedPostgresJpaConfig.class)
 @Transactional
 public class ApplicationRepositoryTest {
 
@@ -99,25 +100,5 @@ public class ApplicationRepositoryTest {
         List<ApplicationEntity> apps1 = versionEntities.get(0).getApplicationEntities();
         List<ApplicationEntity> apps2 = versionEntities.get(1).getApplicationEntities();
         assertThat(apps1.get(0)).isEqualTo(apps2.get(0));
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
-    @EntityScan("org.zalando.stups.fullstop.violation")
-    @EnableJpaAuditing
-    static class TestConfig {
-
-        @Bean DataSource dataSource() throws IOException {
-            return embeddedPostgres().getPostgresDatabase();
-        }
-
-        @Bean EmbeddedPostgreSQL embeddedPostgres() throws IOException {
-            return EmbeddedPostgreSQL.start();
-        }
-
-        @Bean AuditorAware<String> auditorAware() {
-            return () -> "unit-test";
-        }
     }
 }

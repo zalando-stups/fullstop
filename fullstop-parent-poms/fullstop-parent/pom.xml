@@ -25,7 +25,6 @@
         <java.source>1.8</java.source>
         <java.target>1.8</java.target>
 
-        <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
         <argLine />
         <license.skip>true</license.skip>

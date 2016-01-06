@@ -2,11 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-testing-it</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <artifactId>fullstop-parent</artifactId>
+        <version>10</version>
+        <relativePath/>
     </parent>
 
     <artifactId>fullstop</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
     <name>Fullstop</name>
     <description>Audit reporting application</description>
     <url>http://stups.io/fullstop/</url>
@@ -28,35 +30,35 @@
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-timemachine</artifactId>
-            <version>${fullstop-web.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violations-rest</artifactId>
-            <version>${fullstop-web.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-processing</artifactId>
-            <version>${fullstop-core.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-sink-reactor</artifactId>
-            <version>${fullstop-core.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-jpa</artifactId>
-            <version>${fullstop-violation.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-persister-jpa</artifactId>
-            <version>${fullstop-violation.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -66,69 +68,69 @@
 
         <!-- START PLUGINS -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-ami-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-application-masterdata-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-count-events-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-keypair-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-region-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-registry-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-save-securitygroups-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-snapshot-source-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-subnet-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-application-lifecycle-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-unapproved-services-and-role-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-taupage-yaml-plugin</artifactId>
-            <version>${fullstop-plugin.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
         <!--<dependency>-->
-        <!--<groupId>${project.groupId}</groupId>-->
+        <!--<groupId>org.zalando.stups</groupId>-->
         <!--<artifactId>fullstop-scm-repository-plugin</artifactId>-->
         <!--<version>${project.version}</version>-->
         <!--</dependency>-->
@@ -230,14 +232,6 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/docker</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>scm-source.json</include>
-                </includes>
-                <targetPath>${project.build.directory}/docker</targetPath>
-            </resource>
-            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
             </resource>
@@ -291,31 +285,12 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
                     <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                     <generateGitPropertiesFile>false</generateGitPropertiesFile>
                     <!-- <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename> -->
                     <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/assembly/docker.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>docker-deployment</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
