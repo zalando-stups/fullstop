@@ -20,8 +20,8 @@ import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.test.RestControllerTestSupport;
-import sun.misc.BASE64Encoder;
 
+import java.util.Base64;
 import java.util.Date;
 
 import static org.joda.time.DateTimeZone.UTC;
@@ -42,7 +42,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
 
     public static final String ACCOUNT_ID = "123";
 
-    public static final String ENCODED_LOG_FILE = new BASE64Encoder().encode("this is my log".getBytes());
+    public static final String ENCODED_LOG_FILE = Base64.getEncoder().encodeToString("this is my log".getBytes());
 
     public static final Date INSTANCE_BOOT_TIME = new DateTime(UTC).toDate();
 

@@ -13,7 +13,7 @@ services:
 
 script:
     - psql -c 'CREATE DATABASE fullstop;' -U postgres
-    - mvn clean install -Pfullstop-startup,pg-travis --batch-mode
+    - mvn clean verify -Pintegration-test,pg-travis --batch-mode
 
 box:
     type: jfy

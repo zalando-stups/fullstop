@@ -62,12 +62,15 @@ public class FetchRdsJob implements FullstopJob {
             Map<String, Object> metadata = newHashMap();
             for (String region : jobsProperties.getWhitelistedRegions()) {
                 DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
-                describeDBInstancesResult.getDBInstances().stream().filter(DBInstance::getPubliclyAccessible).forEach(dbInstance -> {
-                    metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
-                    metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
-                    writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+                describeDBInstancesResult.getDBInstances().stream()
+                        .filter(DBInstance::getPubliclyAccessible)
+                        .filter(dbInstance -> dbInstance.getEndpoint() != null )
+                        .forEach(dbInstance -> {
+                            metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                            metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                            writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
 
-                });
+                        });
 
             }
         }
