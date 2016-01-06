@@ -1,10 +1,8 @@
-FROM zalando/openjdk:8u45-b14-5
+FROM registry.opensource.zalan.do/stups/openjdk:8u66-b17-1-9
 
 MAINTAINER Zalando SE
 
-COPY ${project.build.finalName}.jar /fullstop.jar
-COPY scm-source.json /
-
-EXPOSE 8080
-
 CMD java $(java-dynamic-memory-opts) $(appdynamics-agent) $(newrelic-agent) -jar /fullstop.jar
+
+COPY target/fullstop.jar /
+COPY target/scm-source.json /

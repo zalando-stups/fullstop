@@ -1,7 +1,9 @@
 spring:
   jpa:
-    show-sql: true
+    ## Toggle to print sql statements
+    # show-sql: true
     hibernate:
       ddl-auto: create
-    properties:
-      hibernate.format_sql: true
+    ## Toggle to print sql statements
+    # properties:
+      # hibernate.format_sql: true

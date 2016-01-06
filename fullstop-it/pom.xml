@@ -3,31 +3,37 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-testing-it</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <artifactId>fullstop-parent</artifactId>
+        <version>10</version>
+        <relativePath/>
     </parent>
+
     <artifactId>fullstop-it</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
         <active-profiles>integration-test</active-profiles>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-logging</artifactId>
+            <artifactId>fullstop</artifactId>
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-logging</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

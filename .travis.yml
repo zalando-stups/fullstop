@@ -16,7 +16,6 @@ script:
     - mvn clean verify -Pintegration-test,pg-travis -U
 
 after_success:
-    - mvn org.eluder.coveralls:coveralls-maven-plugin:report -Ptravis
     - codecov
 
 notifications:
