@@ -10,6 +10,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
@@ -34,7 +35,7 @@ public class AmiIdProviderImpl implements AmiIdProvider {
             .build(new CacheLoader<EC2InstanceContext, Optional<String>>() {
                 @Override
                 public Optional<String> load(@Nonnull EC2InstanceContext context) throws Exception {
-                    final Optional<String> amiId = getAmiId(context);
+                    final Optional<String> amiId = getAmiId(context).map(StringUtils::trimToNull);
                     if (!amiId.isPresent()) {
                         log.warn("No AMI id found for {}", context);
                     }
