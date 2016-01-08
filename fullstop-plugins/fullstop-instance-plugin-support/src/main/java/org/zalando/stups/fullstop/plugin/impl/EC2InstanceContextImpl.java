@@ -132,7 +132,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_version")).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(data -> String.valueOf(data.get("application_version"))).map(StringUtils::trimToNull);
     }
 
     @Override
