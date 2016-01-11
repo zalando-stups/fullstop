@@ -19,8 +19,7 @@ import static org.mockito.Mockito.*;
 
 public class EC2InstanceContextImplTest {
 
-    private Map<String, Double> USER_DATA = Maps.newHashMap();
-
+    private Map<String, Double> USER_DATA;
     private TaupageYamlProvider taupageYamlProviderMock;
     private CloudTrailEvent eventMock;
     private String instanceJsonMock = "";
@@ -37,7 +36,8 @@ public class EC2InstanceContextImplTest {
 
     @Before
     public void setUp() throws Exception {
-        USER_DATA.put("application_version", 10.0);
+        USER_DATA = Maps.newHashMap();
+
         taupageYamlProviderMock = mock(TaupageYamlProvider.class);
         eventMock = mock(CloudTrailEvent.class);
         clientProviderMock = mock(ClientProvider.class);
@@ -57,6 +57,8 @@ public class EC2InstanceContextImplTest {
 
     @Test
     public void testGetVersionId() throws Exception {
+        USER_DATA.put("application_version", 10.0);
+
         when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(USER_DATA));
         EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
                 eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
@@ -66,5 +68,18 @@ public class EC2InstanceContextImplTest {
         assertThat(versionId).isPresent();
         assertThat(versionId.get()).isExactlyInstanceOf(String.class);
         assertThat(versionId.get()).isEqualTo("10.0");
+    }
+
+    @Test
+    public void TestNull() throws Exception{
+        USER_DATA.put("application_version", null);
+
+        when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(USER_DATA));
+        EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
+                eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
+                taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock, kioVersionProviderMock, kioApprovalProviderMock,
+                pieroneTagProviderMock, scmSourceProviderMock);
+        Optional<String> versionId = ec2InstanceContext.getVersionId();
+        assertThat(versionId).isEmpty();
     }
 }
