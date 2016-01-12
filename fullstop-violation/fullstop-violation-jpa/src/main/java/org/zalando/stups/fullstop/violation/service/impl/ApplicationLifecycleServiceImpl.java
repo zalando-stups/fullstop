@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -17,17 +18,22 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
+import javax.annotation.Resource;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+
 /**
  * Created by gkneitschel.
  */
-@Service
+@Service(ApplicationLifecycleServiceImpl.BEAN_NAME)
 public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleService {
+
+    protected static final String BEAN_NAME = "applicationLifecycleService";
 
     private final Logger log = LoggerFactory.getLogger(ApplicationLifecycleServiceImpl.class);
 
@@ -41,9 +47,13 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Autowired
     private LifecycleRepository lifecycleRepository;
 
+    @Resource(name = BEAN_NAME)
+    private ApplicationLifecycleService self;
+
     @Override
-    @Transactional
-    @Retryable(include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class}, maxAttempts = 10, backoff = @Backoff(delay = 100, maxDelay = 500))
+    @Retryable(maxAttempts = 10, backoff = @Backoff(delay = 100, maxDelay = 500),
+            include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class, DataIntegrityViolationException.class})
+    @Transactional(REQUIRES_NEW)
     public LifecycleEntity saveLifecycle(final ApplicationEntity applicationEntity, final VersionEntity versionEntity,
             final LifecycleEntity lifecycleEntity) {
 
@@ -109,7 +119,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         lifecycleEntity.setRegion(region);
         lifecycleEntity.setUserdataPath(userdataPath);
 
-        LifecycleEntity savedLifecycleEntity = saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
+        LifecycleEntity savedLifecycleEntity = self.saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
 
         return savedLifecycleEntity;
     }

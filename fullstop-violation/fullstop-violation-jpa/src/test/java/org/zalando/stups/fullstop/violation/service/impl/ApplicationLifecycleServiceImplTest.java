@@ -41,11 +41,7 @@ public class ApplicationLifecycleServiceImplTest {
 
     private ApplicationEntity fullstop2;
 
-    private ApplicationEntity yourturn;
-
     private LifecycleEntity runInstance;
-
-    private LifecycleEntity terminteInstance;
 
     private LifecycleEntity stopInstance;
 
@@ -72,7 +68,6 @@ public class ApplicationLifecycleServiceImplTest {
 
         fullstop = new ApplicationEntity("Fullstop");
         fullstop2 = new ApplicationEntity("Fullstop");
-        yourturn = new ApplicationEntity("Yourturn");
 
         runInstance = new LifecycleEntity();
         runInstance.setRegion("eu-west-1");
@@ -80,7 +75,7 @@ public class ApplicationLifecycleServiceImplTest {
         runInstance.setInstanceId("i-1234");
         runInstance.setEventType("RunInstances");
 
-        terminteInstance = new LifecycleEntity();
+        LifecycleEntity terminteInstance = new LifecycleEntity();
         terminteInstance.setEventDate(new DateTime());
         terminteInstance.setEventType("TerminateInstances");
         terminteInstance.setRegion("eu-central-1");
@@ -175,11 +170,10 @@ public class ApplicationLifecycleServiceImplTest {
         String instanceId = "i-1234";
         String region = "eu-west-1";
         String accountId = "123456";
-        String userdata = null;
         LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
-                userdataPath, region, userdata, accountId);
+                userdataPath, region, null, accountId);
         assertThat(lifecycleEntity).isNull();
 
     }
@@ -202,7 +196,7 @@ public class ApplicationLifecycleServiceImplTest {
                         + "application_version: '0.5-Snaphot'\n"
                         + "environment:\n"
                         + "  xx: xx");
-        LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+        applicationLifecycleService.saveInstanceLogLifecycle(
                 instanceId,
                 instanceBootTime,
                 userdataPath, region, userdata, accountId);
