@@ -125,34 +125,12 @@ for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/lates
 
     $ mvn clean install
 
-###License Header
-
-If your build fails because of missing license header:
-
-```
-...
-[INFO]
-[INFO] --- license-maven-plugin:2.10:check (default) @ fullstop-count-events-plugin ---
-[INFO] Checking licenses...
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/test/java/org/zalando/stups/fullstop/plugin/count/CountEventsPluginTest.java
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsPlugin.java
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsMetric.java
-...
-```
-
-then do the following command:
-
-```
-mvn license:format
-```
-
-
 ##How to run
 
 You need a locally running PostgreSQL 9.4 server (database "fullstop", host "localhost", user "postgres", password "postgres").
 
     $ # set env variables first
-    $ cd fullstop-testing/it/fullstop
+    $ cd fullstop
     $ mvn spring-boot:run -Dfullstop.container.autoStart=false
 
 ##How to build a docker image
