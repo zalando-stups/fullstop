@@ -55,7 +55,6 @@ public class ViolationRepositoryTest {
     private ViolationEntity vio5;
 
     private Map<String, String> metaInfoMap = singletonMap("test", "jsonSerialization");
-    private List<String> metaInfoList = newArrayList("test", "jsonSerialization");
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -65,7 +64,7 @@ public class ViolationRepositoryTest {
         final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
 
         vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username"), type1);
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoList, null, "username"), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username"), type1);
         vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username"), type2);
         vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username"), type1);
         vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username"), type2);
@@ -199,17 +198,5 @@ public class ViolationRepositoryTest {
                 Optional.of(now().plusDays(1)),
                 Optional.of(FALSE));
         assertThat(result).hasSize(1);
-    }
-
-    @Test
-    public void testMetadataObjectJsonMap() throws Exception {
-        ViolationEntity one = violationRepository.getOne(vio1.getId());
-        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoMap));
-    }
-
-    @Test
-    public void testMetadataObjectJsonList() throws Exception {
-        ViolationEntity one = violationRepository.getOne(vio2.getId());
-        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoList));
     }
 }
