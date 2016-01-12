@@ -159,12 +159,6 @@ Push docker image:
 
     $ docker push registry/fullstop:0.1
 
-## Contributing
-Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
-
-## Project TODO:
-- [ ] ...
-
 ## License
 
 Copyright © 2015 Zalando SE
