@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.EnableRetry;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -72,15 +73,47 @@ public class SaveApplicationLifecycleRetryTest {
                 .thenThrow(new ObjectOptimisticLockingFailureException(ApplicationEntity.class, "foobar"))
                 // second time throw another exception
                 .thenThrow(new OptimisticLockException("Oops"))
+                // third time thrwo another exception
+                .thenThrow(new DataIntegrityViolationException("Hoppla"))
                 // Last time succeed.
                 .thenReturn(lifecycle);
 
         assertThat(service.saveLifecycle(application, version, lifecycle)).isSameAs(lifecycle);
 
-        verify(mockApplicationRepository, times(3)).findByName(eq("foobar"));
-        verify(mockVersionRepository, times(3)).findByName(eq("1.0"));
-        verify(mockLifecycleRepository, times(3)).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(anyString(), any(), any(), anyString());
-        verify(mockLifecycleRepository, times(3)).save(any(LifecycleEntity.class));
+        verify(mockApplicationRepository, times(4)).findByName(eq("foobar"));
+        verify(mockVersionRepository, times(4)).findByName(eq("1.0"));
+        verify(mockLifecycleRepository, times(4)).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+        verify(mockLifecycleRepository, times(4)).save(any(LifecycleEntity.class));
+    }
+
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void testFailOnMaxAttemptsExceeded() throws Exception {
+        when(mockLifecycleRepository.save(any(LifecycleEntity.class))).thenThrow(new DataIntegrityViolationException("constraint violation"));
+
+        try {
+            service.saveLifecycle(application, version, lifecycle);
+        } finally {
+            verify(mockApplicationRepository, times(10)).findByName(eq("foobar"));
+            verify(mockVersionRepository, times(10)).findByName(eq("1.0"));
+            verify(mockLifecycleRepository, times(10)).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+            verify(mockLifecycleRepository, times(10)).save(any(LifecycleEntity.class));
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFailOnNonRetriableException() throws Exception {
+        when(mockLifecycleRepository.save(any(LifecycleEntity.class))).thenThrow(new IllegalArgumentException());
+
+        try {
+            service.saveLifecycle(application, version, lifecycle);
+        } finally {
+            verify(mockApplicationRepository).findByName(eq("foobar"));
+            verify(mockVersionRepository).findByName(eq("1.0"));
+            verify(mockLifecycleRepository).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+            verify(mockLifecycleRepository).save(any(LifecycleEntity.class));
+        }
+
     }
 
     @Configuration
