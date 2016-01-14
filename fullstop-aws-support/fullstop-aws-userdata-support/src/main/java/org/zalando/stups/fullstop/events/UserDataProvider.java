@@ -51,8 +51,8 @@ public class UserDataProvider {
         byte[] bytesUserData = Base64.decode(userData);
         String decodedUserData = new String(bytesUserData);
 
-        Yaml yaml = new Yaml();
+        final Object yamlData = new Yaml().load(decodedUserData);
 
-        return (Map) yaml.load(decodedUserData);
+        return yamlData instanceof Map ? (Map) yamlData : null;
     }
 }

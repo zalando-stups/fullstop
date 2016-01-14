@@ -108,6 +108,7 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
                 .map(base64Decoder::decode)
                 .map(String::new)
                 .map(yaml::load)
+                .filter(data -> data instanceof Map)
                 .map(map -> (Map) map);
 
         final Optional<ApplicationEntity> application = taupageYaml

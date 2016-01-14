@@ -57,12 +57,16 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
                                         .withInstanceId(instanceId)
                                         .withAttribute(USER_DATA));
 
+                final Yaml yaml = new Yaml();
+
                 return ofNullable(response)
                         .map(DescribeInstanceAttributeResult::getInstanceAttribute)
                         .map(InstanceAttribute::getUserData)
                         .map(Base64::decode)
                         .map(String::new)
-                        .map(data -> (Map) new Yaml().load(data));
+                        .map(yaml::load)
+                        .filter(data -> data instanceof Map) // everything else is obviously no valid taupage format
+                        .map(data -> (Map) data);
 
             } catch (AmazonClientException e) {
                 log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
