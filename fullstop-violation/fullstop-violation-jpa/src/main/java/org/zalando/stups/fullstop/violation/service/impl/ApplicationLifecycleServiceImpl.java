@@ -4,10 +4,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.yaml.snakeyaml.Yaml;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -17,17 +19,25 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
+import javax.annotation.Resource;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
+
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 /**
  * Created by gkneitschel.
  */
-@Service
+@Service(ApplicationLifecycleServiceImpl.BEAN_NAME)
 public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleService {
+
+    protected static final String BEAN_NAME = "applicationLifecycleService";
+
+    private final Base64.Decoder base64Decoder = Base64.getMimeDecoder();
 
     private final Logger log = LoggerFactory.getLogger(ApplicationLifecycleServiceImpl.class);
 
@@ -41,21 +51,21 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Autowired
     private LifecycleRepository lifecycleRepository;
 
+    @Resource(name = BEAN_NAME)
+    private ApplicationLifecycleService self;
+
     @Override
-    @Transactional
-    @Retryable(include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class}, maxAttempts = 10, backoff = @Backoff(delay = 100, maxDelay = 500))
+    @Retryable(maxAttempts = 10, backoff = @Backoff(delay = 100, maxDelay = 500),
+            include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class, DataIntegrityViolationException.class})
+    @Transactional(REQUIRES_NEW)
     public LifecycleEntity saveLifecycle(final ApplicationEntity applicationEntity, final VersionEntity versionEntity,
             final LifecycleEntity lifecycleEntity) {
-
-        if (applicationEntity == null || versionEntity == null || lifecycleEntity == null) {
-            throw new RuntimeException("saveLifecycle: One or more parameters are null!");
-        }
+        Assert.notNull(applicationEntity, "applicationEntity must not be null");
+        Assert.notNull(versionEntity, "versionEntity must not be null");
+        Assert.notNull(lifecycleEntity, "lifecycleEntity must not be null");
 
         ApplicationEntity applicationByName = applicationRepository.findByName(applicationEntity.getName());
         VersionEntity versionByName = versionRepository.findByName(versionEntity.getName());
-        LifecycleEntity lifecycleByInstanceId =
-                lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegion(
-                        lifecycleEntity.getInstanceId(), applicationByName, versionByName, lifecycleEntity.getRegion());
 
         if (applicationByName == null) {
             applicationByName = applicationRepository.save(applicationEntity);
@@ -64,6 +74,16 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         if (versionByName == null) {
             versionByName = versionRepository.save(versionEntity);
         }
+
+        if (!applicationByName.getVersionEntities().contains(versionByName)) {
+            applicationByName.getVersionEntities().add(versionByName);
+            applicationByName = applicationRepository.save(applicationByName);
+        }
+
+
+        LifecycleEntity lifecycleByInstanceId =
+                lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(
+                        lifecycleEntity.getInstanceId(), applicationByName, versionByName, lifecycleEntity.getRegion(), lifecycleEntity.getAccountId());
 
         if (lifecycleByInstanceId != null) {
             lifecycleByInstanceId.setEventDate(lifecycleEntity.getEventDate());
@@ -74,44 +94,46 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
             return lifecycleByInstanceId;
         }
 
-        if (!applicationByName.getVersionEntities().contains(versionByName)) {
-            applicationByName.getVersionEntities().add(versionByName);
-            applicationRepository.save(applicationByName);
-        }
-
         lifecycleEntity.setApplicationEntity(applicationByName);
         lifecycleEntity.setVersionEntity(versionByName);
 
-        LifecycleEntity savedLifecycleEntity = lifecycleRepository.save(lifecycleEntity);
-        return savedLifecycleEntity;
+        return lifecycleRepository.save(lifecycleEntity);
     }
 
     @Override
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
             final String userdataPath, final String region, final String logData, final String accountId) {
-        if (logData == null) {
-            log.warn("Logdata must not be null!");
+        final Yaml yaml = new Yaml();
+        final Optional<Map> taupageYaml = Optional.ofNullable(logData)
+                .map(base64Decoder::decode)
+                .map(String::new)
+                .map(yaml::load)
+                .map(map -> (Map) map);
+
+        final Optional<ApplicationEntity> application = taupageYaml
+                .map(yamlMap -> yamlMap.get("application_id"))
+                .map(String::valueOf)
+                .map(ApplicationEntity::new);
+
+        final Optional<VersionEntity> version = taupageYaml
+                .map(yamlMap -> yamlMap.get("application_version"))
+                .map(String::valueOf)
+                .map(VersionEntity::new);
+
+        if (application.isPresent() && version.isPresent()) {
+            final LifecycleEntity lifecycleEntity = new LifecycleEntity();
+            lifecycleEntity.setInstanceBootTime(instanceBootTime);
+            lifecycleEntity.setInstanceId(instanceId);
+            lifecycleEntity.setAccountId(accountId);
+            lifecycleEntity.setRegion(region);
+            lifecycleEntity.setUserdataPath(userdataPath);
+
+            return self.saveLifecycle(application.get(), version.get(), lifecycleEntity);
+        } else {
+            log.warn("Empty or invalid taupage yaml.");
             return null;
         }
-        Yaml yaml = new Yaml();
-        String decodedLogData = new String(Base64.getMimeDecoder().decode(logData));
 
-        Map userdata = (Map) yaml.load(decodedLogData);
-
-        ApplicationEntity applicationEntity = new ApplicationEntity(userdata.get("application_id").toString());
-
-        VersionEntity versionEntity = new VersionEntity(userdata.get("application_version").toString());
-
-        LifecycleEntity lifecycleEntity = new LifecycleEntity();
-        lifecycleEntity.setInstanceBootTime(instanceBootTime);
-        lifecycleEntity.setInstanceId(instanceId);
-        lifecycleEntity.setAccountId(accountId);
-        lifecycleEntity.setRegion(region);
-        lifecycleEntity.setUserdataPath(userdataPath);
-
-        LifecycleEntity savedLifecycleEntity = saveLifecycle(applicationEntity, versionEntity, lifecycleEntity);
-
-        return savedLifecycleEntity;
     }
 
     @Override
