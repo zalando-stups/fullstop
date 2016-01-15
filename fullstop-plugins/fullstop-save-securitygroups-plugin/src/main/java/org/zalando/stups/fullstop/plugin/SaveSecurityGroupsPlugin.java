@@ -118,7 +118,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                 DateTime currentBucketDate = new DateTime(currentBucket.get(2), UTC);
 
                 // TODO we should use absolute values
-                if (instanceBucketNameControlElement != null || instanceBootTimeControlElement != null) {
+                if (instanceBucketNameControlElement != null) {
                     if (instanceLaunchTime.getMillis() - currentBucketDate.getMillis()
                             < instanceLaunchTime.getMillis() - instanceBootTimeControlElement.getMillis()) {
 
@@ -139,10 +139,6 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
     public String getSecurityGroup(final List<String> securityGroupIds, final Region region, final String accountId) {
         return securityGroupProvider.getSecurityGroup(securityGroupIds, region, accountId);
-    }
-
-    protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
-        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
     }
 
     protected void writeToS3(final String content, final String prefix, final String instanceId) {

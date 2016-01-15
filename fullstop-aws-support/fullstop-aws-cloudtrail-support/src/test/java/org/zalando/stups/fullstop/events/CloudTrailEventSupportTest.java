@@ -45,4 +45,11 @@ public class CloudTrailEventSupportTest {
         List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/empty-responseElements.json"));
         assertThat(instanceIds).isEmpty();
     }
+
+    @Test
+    public void testReadEmptySecurityGroups() throws Exception {
+        final List<String> groups = CloudTrailEventSupport.readSecurityGroupIds(createCloudTrailEvent("/empty-security-groups.json"));
+        assertThat(groups).containsOnly("sg-aaaabbbb");
+
+    }
 }

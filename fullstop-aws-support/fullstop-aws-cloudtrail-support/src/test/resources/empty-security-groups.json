@@ -1,0 +1,170 @@
+{
+  "Records": [
+    {
+      "eventVersion": "1.03",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "111222333444",
+        "arn": "arn:aws:iam::111222333444:root",
+        "accountId": "111222333444",
+        "userName": "zalando-hacker",
+        "invokedBy": "autoscaling.amazonaws.com"
+      },
+      "eventTime": "2016-01-15T12:56:06Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "RunInstances",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "autoscaling.amazonaws.com",
+      "userAgent": "autoscaling.amazonaws.com",
+      "requestParameters": {
+        "instancesSet": {
+          "items": [
+            {
+              "imageId": "ami-1111111",
+              "minCount": 1,
+              "maxCount": 1
+            }
+          ]
+        },
+        "userData": "<sensitiveDataRemoved>",
+        "instanceType": "t2.micro",
+        "blockDeviceMapping": {},
+        "availabilityZone": "eu-west-1b",
+        "monitoring": {
+          "enabled": true
+        },
+        "disableApiTermination": false,
+        "clientToken": "11111111-2222-3333-4444-555555555555_subnet-6666666_1",
+        "networkInterfaceSet": {
+          "items": [
+            {
+              "deviceIndex": 0,
+              "subnetId": "subnet-6666666",
+              "associatePublicIpAddress": false,
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-77777777"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "iamInstanceProfile": {
+          "name": "my-super-app-AppServerInstanceProfile-1234567890AB"
+        }
+      },
+      "responseElements": {
+        "reservationId": "r-11223344",
+        "ownerId": "111222333444",
+        "groupSet": {},
+        "instancesSet": {
+          "items": [
+            {
+              "instanceId": "i-55667788",
+              "imageId": "ami-1111111",
+              "instanceState": {
+                "code": 0,
+                "name": "pending"
+              },
+              "privateDnsName": "ip-172-31-1-1.eu-west-1.compute.internal",
+              "amiLaunchIndex": 0,
+              "productCodes": {},
+              "instanceType": "t2.micro",
+              "launchTime": 1452862566000,
+              "placement": {
+                "availabilityZone": "eu-west-1b",
+                "tenancy": "default"
+              },
+              "monitoring": {
+                "state": "pending"
+              },
+              "subnetId": "subnet-6666666",
+              "vpcId": "vpc-9900aabb",
+              "privateIpAddress": "172.31.1.1",
+              "stateReason": {
+                "code": "pending",
+                "message": "pending"
+              },
+              "architecture": "x86_64",
+              "rootDeviceType": "ebs",
+              "rootDeviceName": "/dev/sda1",
+              "blockDeviceMapping": {},
+              "virtualizationType": "hvm",
+              "hypervisor": "xen",
+              "clientToken": "11111111-2222-3333-4444-55555555555_subnet-6666666_1",
+              "interfaceId": "interface-ccddeeff",
+              "groupSet": {
+                "items": [
+                  {
+                    "groupId": "sg-aaaabbbb",
+                    "groupName": "app-my-super-app"
+                  }
+                ]
+              },
+              "sourceDestCheck": true,
+              "networkInterfaceSet": {
+                "items": [
+                  {
+                    "networkInterfaceId": "eni-ccddeeff",
+                    "internalInterfaceId": "interface-ccddeeff",
+                    "subnetId": "subnet-6666666",
+                    "vpcId": "vpc-9900aabb",
+                    "availabilityZone": "eu-west-1b",
+                    "ownerId": "111222333444",
+                    "requesterManaged": false,
+                    "status": "in-use",
+                    "macAddress": "00:33:cc:88:88:cc",
+                    "privateIpAddress": "172.31.1.1",
+                    "privateDnsName": "ip-172-31-1-1.eu-west-1.compute.internal",
+                    "sourceDestCheck": true,
+                    "groupSet": {
+                      "items": [
+                        {
+                          "groupId": "sg-aaaabbbb",
+                          "groupName": "app-my-super-app"
+                        }
+                      ]
+                    },
+                    "attachment": {
+                      "attachmentId": "eni-attach-bbbbcccc",
+                      "instanceId": "i-55667788",
+                      "instanceOwnerId": "111222333444",
+                      "deviceIndex": 0,
+                      "status": "attaching",
+                      "attachTime": 1452862566000,
+                      "deleteOnTermination": true
+                    },
+                    "attachableToInstanceBySet": {},
+                    "associableWithElasticIpBySet": {},
+                    "privateIpAddressesSet": {
+                      "item": [
+                        {
+                          "privateIpAddress": "172.31.1.1",
+                          "privateDnsName": "ip-172-31-1-1.eu-west-1.compute.internal",
+                          "primary": true
+                        }
+                      ]
+                    },
+                    "tagSet": {}
+                  }
+                ]
+              },
+              "iamInstanceProfile": {
+                "arn": "arn:aws:iam::111222333444:instance-profile/my-super-app-2-AppServerInstanceProfile-1234567890AB",
+                "id": "XXXXXXXXXXXXXXXXXXXXX"
+              },
+              "ebsOptimized": false
+            }
+          ]
+        },
+        "requesterId": "111222333444"
+      },
+      "requestID": "fa8affb2-e1d2-49bd-a08c-bfe7f1dba8ec",
+      "eventID": "c2a4c77e-8b46-49d3-b2b4-5266960a4399",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "111222333444"
+    }
+  ]
+}
