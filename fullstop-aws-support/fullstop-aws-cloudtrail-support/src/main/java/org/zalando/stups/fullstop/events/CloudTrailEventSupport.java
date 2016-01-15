@@ -7,20 +7,23 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import net.minidev.json.JSONArray;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newLinkedHashSet;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,8 +40,8 @@ public abstract class CloudTrailEventSupport {
 
     public static final String RUN_INSTANCE_DATE_JSON_PATH = "$.launchTime";
 
-    public static final String SECURITY_GROUP_IDS_JSON_PATH =
-            "$.groupSet.items[*].groupId";
+    public static final String SECURITY_GROUP_IDS_JSON_PATH = "$.groupSet.items[*].groupId";
+    public static final String INSTANCES_SECURITY_GROUP_IDS_JSON_PATH = "$.instancesSet.items[*].groupSet.items[*].groupId";
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
@@ -94,10 +97,18 @@ public abstract class CloudTrailEventSupport {
     public static List<String> read(final String responseElements, final String pattern,
                                     final boolean emptyListOnNullOrEmptyResponse) {
         if (isNullOrEmpty(responseElements) && emptyListOnNullOrEmptyResponse) {
-            return Lists.newArrayList();
+            return emptyList();
         }
 
-        return JsonPath.read(responseElements, pattern);
+        try {
+            return JsonPath.read(responseElements, pattern);
+        } catch (PathNotFoundException e) {
+            if (emptyListOnNullOrEmptyResponse) {
+                return emptyList();
+            } else {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -111,14 +122,6 @@ public abstract class CloudTrailEventSupport {
     public static List<String> read(final CloudTrailEvent cloudTrailEvent, final String pattern,
                                     final boolean emptyListOnNullOrEmptyResponse) {
         return read(getEventData(cloudTrailEvent).getResponseElements(), pattern, emptyListOnNullOrEmptyResponse);
-    }
-
-    public static boolean isRunInstancesEvent(final CloudTrailEvent cloudTrailEvent) {
-        return Optional.ofNullable(cloudTrailEvent)
-                .map(CloudTrailEvent::getEventData)
-                .filter(e -> "ec2.amazonaws.com".equals(e.getEventSource()))
-                .filter(e -> "RunInstances".equals(e.getEventName()))
-                .isPresent();
     }
 
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
@@ -191,5 +194,12 @@ public abstract class CloudTrailEventSupport {
         Date eventTime = event.getEventData().getEventTime();
 
         return new DateTime(eventTime);
+    }
+
+    public static List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
+        final LinkedHashSet<String> result = newLinkedHashSet();
+        result.addAll(read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true));
+        result.addAll(read(cloudTrailEvent, INSTANCES_SECURITY_GROUP_IDS_JSON_PATH, true));
+        return newArrayList(result);
     }
 }
