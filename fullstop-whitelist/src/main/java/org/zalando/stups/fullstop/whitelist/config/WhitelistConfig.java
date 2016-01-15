@@ -1,11 +1,5 @@
 package org.zalando.stups.fullstop.whitelist.config;
 
-import static org.kie.internal.io.ResourceFactory.newClassPathResource;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import org.drools.template.DataProviderCompiler;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieFileSystem;
@@ -21,6 +15,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.whitelist.RuleDataProvider;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import static java.util.stream.Collectors.joining;
+import static org.kie.internal.io.ResourceFactory.newClassPathResource;
 
 @Configuration
 public class WhitelistConfig {
@@ -54,6 +55,8 @@ public class WhitelistConfig {
             throw new ApplicationContextException("Couldn't find the rules template resource!", ex);
         }
         final List<RuleEntity> ruleEntities = ruleEntityRepository.findAll();
+        LOG.info("Refreshing whitelisting rules. New rules are:\n" + ruleEntities.stream().map(String::valueOf).collect(joining("\n")));
+
         final RuleDataProvider ruleDataProvider = new RuleDataProvider(ruleEntities);
         final String droolsFile = new DataProviderCompiler().compile(ruleDataProvider, inputStream);
         final KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
