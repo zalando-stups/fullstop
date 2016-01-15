@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Maps.newHashMap;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.mockito.Mockito.*;
 
 public class PieroneTagProviderImplTest {
