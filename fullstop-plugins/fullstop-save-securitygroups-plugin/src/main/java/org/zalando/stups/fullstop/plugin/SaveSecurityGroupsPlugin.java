@@ -17,10 +17,10 @@ import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
@@ -44,13 +44,15 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
     private final SecurityGroupProvider securityGroupProvider;
 
-    @Value("${fullstop.instanceData.bucketName}")
-    private String bucketName;
+    private final String bucketName;
 
     @Autowired
-    public SaveSecurityGroupsPlugin(final SecurityGroupProvider securityGroupProvider, final S3Service s3Writer) {
+    public SaveSecurityGroupsPlugin(final SecurityGroupProvider securityGroupProvider,
+                                    final S3Service s3Writer,
+                                    @Value("${fullstop.instanceData.bucketName}") final String bucketName) {
         this.securityGroupProvider = securityGroupProvider;
         this.s3Writer = s3Writer;
+        this.bucketName = bucketName;
     }
 
     @Override
@@ -142,11 +144,12 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
     }
 
     protected void writeToS3(final String content, final String prefix, final String instanceId) {
-        InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(content.length());
+        final byte[] bytes = content.getBytes(UTF_8);
+        final InputStream stream = new ByteArrayInputStream(bytes);
+        final ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(bytes.length);
 
-        String fileName = instanceId + SECURITY_GROUPS + new DateTime(UTC) + JSON;
+        final String fileName = instanceId + SECURITY_GROUPS + new DateTime(UTC) + JSON;
         s3Writer.putObjectToS3(bucketName, fileName, prefix, metadata, stream);
     }
 
