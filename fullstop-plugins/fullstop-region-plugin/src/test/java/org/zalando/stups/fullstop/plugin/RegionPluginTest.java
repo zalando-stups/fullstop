@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,7 +44,7 @@ public class RegionPluginTest {
                 amiProvider,
                 taupageYamlProvider,
                 "blub",
-                "34234",
+                Lists.newArrayList("1234"),
                 kioApplicationProvider,
                 kioVersionProvider,
                 kioApprovalProvider,

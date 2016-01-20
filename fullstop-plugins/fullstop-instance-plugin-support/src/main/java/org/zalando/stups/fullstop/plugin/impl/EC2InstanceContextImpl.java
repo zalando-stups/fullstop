@@ -5,6 +5,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.ec2.model.Image;
 import com.jayway.jsonpath.JsonPath;
+import org.apache.commons.lang3.StringUtils;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.Version;
@@ -24,7 +25,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final String taupageNamePrefix;
 
-    private final String taupageOwner;
+    private final List<String> taupageOwners;
 
     /**
      * The original CloudTrailEvent
@@ -63,7 +64,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
             final AmiProvider amiProvider,
             final TaupageYamlProvider taupageYamlProvider,
             final String taupageNamePrefix,
-            final String taupageOwner,
+            final List<String> taupageOwners,
             final KioApplicationProvider kioApplicationProvider,
             final KioVersionProvider kioVersionProvider,
             final KioApprovalProvider kioApprovalProvider,
@@ -76,7 +77,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
         this.amiProvider = amiProvider;
         this.taupageYamlProvider = taupageYamlProvider;
         this.taupageNamePrefix = taupageNamePrefix;
-        this.taupageOwner = taupageOwner;
+        this.taupageOwners = taupageOwners;
         this.kioApplicationProvider = kioApplicationProvider;
         this.kioVersionProvider = kioVersionProvider;
         this.kioApprovalProvider = kioApprovalProvider;
@@ -126,22 +127,22 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_id"));
+        return getTaupageYaml().map(data -> (String) data.get("application_id")).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_version"));
+        return getTaupageYaml().map(data -> data.get("application_version")).map(String::valueOf).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getSource() {
-        return getTaupageYaml().map(data -> (String) data.get("source"));
+        return getTaupageYaml().map(data -> (String) data.get("source")).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getRuntime() {
-        return getTaupageYaml().map(m -> (String) m.get("runtime"));
+        return getTaupageYaml().map(m -> (String) m.get("runtime")).map(StringUtils::trimToNull);
     }
 
     @Override
@@ -171,7 +172,10 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<Boolean> isTaupageAmi() {
-        return getAmi().map(image -> image.getName().startsWith(taupageNamePrefix) && image.getOwnerId().equals(taupageOwner));
+        return getAmi()
+                .filter(image -> image.getName().startsWith(taupageNamePrefix))
+                .map(Image::getOwnerId)
+                .map(taupageOwners::contains);
     }
 
     @Override

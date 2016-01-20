@@ -14,6 +14,9 @@ import org.zalando.stups.fullstop.plugin.provider.impl.*;
 import org.zalando.stups.pierone.client.PieroneOperations;
 
 import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Configuration
 public class EC2InstanceContextConfig {
@@ -27,15 +30,15 @@ public class EC2InstanceContextConfig {
     @ConditionalOnMissingBean
     @Bean
     EC2InstanceContextProvider contextProvider(ClientProvider clientProvider,
-                                               @Value("${fullstop.plugins.ami.amiNameStartWith}") final String taupageNamePrefix,
-                                               @Value("${fullstop.plugins.ami.whitelistedAmiAccount}") final String taupageOwner) {
+                                               @Value("${fullstop.plugins.ami.taupageNamePrefix}") final String taupageNamePrefix,
+                                               @Value("${fullstop.plugins.ami.taupageOwners}") final String taupageOwners) {
         return new EC2InstanceContextProviderImpl(
                 clientProvider,
                 amiIdProvider(),
                 amiProvider(),
                 taupageYamlProvider(),
                 taupageNamePrefix,
-                taupageOwner,
+                Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList()),
                 kioApplicationProvider(),
                 kioVersionProvider(),
                 kioApprovalProvider(),

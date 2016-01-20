@@ -2,7 +2,7 @@ package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.Objects;
 import org.joda.time.DateTime;
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;

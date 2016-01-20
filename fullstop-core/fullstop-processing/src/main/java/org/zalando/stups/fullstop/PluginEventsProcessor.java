@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop;
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.amazonaws.services.cloudtrail.processinglibrary.interfaces.EventsProcessor;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,6 @@ import java.util.List;
 
 /**
  * Simple {@link EventsProcessor} that delegates to {@link FullstopPlugin}s that can procces the {@link CloudTrailEvent}.
- *
- * @author jbellmann
  */
 @Component
 public class PluginEventsProcessor implements EventsProcessor {
@@ -31,15 +30,12 @@ public class PluginEventsProcessor implements EventsProcessor {
 
     @Override
     public void process(final List<CloudTrailEvent> events) throws CallbackException {
-        for (CloudTrailEvent event : events) {
-            doProcess(event);
-        }
+        events.forEach(this::doProcess);
     }
 
     /**
      * Processes an single event by looping available plugins.
      *
-     * @param event
      * @see #doProcess(CloudTrailEvent, FullstopPlugin)
      */
     protected void doProcess(final CloudTrailEvent event) {
@@ -50,16 +46,13 @@ public class PluginEventsProcessor implements EventsProcessor {
 
     /**
      * Processes an specific event on specified plugin.
-     *
-     * @param event
-     * @param plugin
      */
     protected void doProcess(final CloudTrailEvent event, final FullstopPlugin plugin) {
         try {
-
             plugin.processEvent(event);
-        }
-        catch (Exception e) {
+        } catch (HystrixRuntimeException e) {
+            log.warn(e.getMessage(), e);
+        } catch (Exception e) {
 
             // can we do more?
             log.error(e.getMessage(), e);
@@ -69,7 +62,6 @@ public class PluginEventsProcessor implements EventsProcessor {
     /**
      * Returns a list of plugins configured.
      *
-     * @param event
      * @return list of plugins configured
      */
     protected List<FullstopPlugin> getPluginsForEvent(final CloudTrailEvent event) {

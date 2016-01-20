@@ -1,0 +1,171 @@
+management:
+    # move all management endpoints to a different port
+    port: 7979
+
+endpoints:
+    health:
+        sensitive: false
+
+# defaults values for info endpoints
+project:
+    artifactId: fullstop
+    name: Fullstop
+    version: X.X.X.X
+    description: Audit reporting application
+
+# values from maven
+info:
+    app:
+        artifact: "@project.artifactId@"
+        name: "@project.name@"
+        description: "@project.description@"
+        version: "@project.version@"
+
+spring:
+    # JACKSON (JacksonProperties)
+    jackson:
+        property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+        date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+        serialization:
+              write-dates-as-timestamps: false
+        deserialization:
+            fail-on-unknown-properties: false
+    oauth2:
+        resource:
+            tokenInfoUri: ${TOKEN_INFO_URI}
+    datasource:
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USER}
+        password: ${DATABASE_PASSWORD}
+        driver-class-name: ${DATABASE_DRIVER}
+        initialize: false
+    jpa:
+        properties:
+            hibernate:
+                default_schema: fullstop_data
+
+fullstop:
+
+    container:
+        autoStart: true
+
+    processor:
+        properties:
+            # The sqs url where you wish to pull CloudTrail notification from (required)
+            sqsUrl: ${FULLSTOP_SQS_URL}
+
+            # The SQS end point specific to a region
+            sqsRegion: ${FULLSTOP_SQS_REGION}
+
+            # A period of time during which Amazon SQS prevents other consuming components
+            # from receiving and processing that message
+            visibilityTimeout: 60
+
+            # The S3 end point specific to a region
+            s3Region: ${FULLSTOP_S3_REGION}
+
+            # Number of threads to download S3 files in parallel when you enable thread mode
+            threadCount: 1
+
+            # The duration in seconds to wait for thread pool termination before issue shutDownNow
+            threadTerminationDelaySeconds: 60
+
+            # Max number of AWSCloudTrailEvent that buffered before emit. EagleEye may emit 0 events
+            maxEventsPerEmit: 10
+
+            # Whether to include raw event in CloudTrailEventMetadata
+            enableRawEventInfo: false
+    instanceData:
+      # Bucket, where USER_DATA and AUDIT_LOG will be stored
+      bucketName: ${INSTANCE_LOGS_S3_BUCKET}
+
+    jobs:
+        whitelistedRegions:
+            - 'eu-west-1'
+            - 'eu-central-1'
+        accessKeysExpireAfterDays: ${FULLSTOP_ACCESS_KEYS_EXPIRE_AFTER_DAYS:30}
+
+    plugins:
+        properties:
+            # The bucket, where our enriched data will be stored
+            s3bucket: ${FULLSTOP_S3_BUCKET}
+
+        region:
+            # The whitelist of regions
+            whitelistedRegions:
+              - 'eu-west-1'
+              - 'eu-central-1'
+
+        ami:
+            # Account containing whitelisted AMI
+            taupageOwners: ${FULLSTOP_TAUPAGE_OWNERS}
+            taupageNamePrefix: ${FULLSTOP_TAUPAGE_NAME_PREFIX}
+
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+
+        registry:
+            mandatoryApprovals: ${FULLSTOP_MANDATORY_APPROVALS:SPECIFICATION,CODE_CHANGE,TEST,DEPLOY}
+            approvalsFromMany: ${FULLSTOP_APPROVALS_FROM_MANY:CODE_CHANGE,TEST,DEPLOY}
+
+        unapprovedServicesAndRole:
+            bucketName: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}
+            prefix: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX}
+            # iam event names that activates the plugin
+            eventNames:
+              - 'CreateRole'
+              - 'DeleteRole'
+              - 'AttachRolePolicy'
+              - 'UpdateAssumeRolePolicy'
+              - 'PutRolePolicy'
+
+    clients:
+        kio:
+            url: ${FULLSTOP_KIO_URL}
+
+        pierone:
+            urls: ${FULLSTOP_PIERONE_URLS:}
+
+        teamService:
+            url: ${FULLSTOP_TEAM_SERVICE_URL}
+
+        kontrolletti:
+            url: ${FULLSTOP_KONTROLLETTI_URL}
+
+#
+# OAuth2
+#
+tokens:
+    accessTokenUri: ${ACCESS_TOKEN_URI}
+    credentialsDirectory: ${CREDENTIALS_DIR}
+
+    token-configuration-list:
+        - tokenId: kio
+          scopes:
+              - uid
+        - tokenId: pierone
+          scopes:
+              - uid
+        - tokenId: teamService
+          scopes:
+              - uid
+        - tokenId: kontrolletti
+          scopes:
+              - uid
+
+
+javax:
+    persistence:
+        validation:
+            # force validation - fail fast if something goes wrong
+            mode: CALLBACK
+            group:
+                pre-update: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-persist: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+                pre-remove: javax.validation.groups.Default,org.zalando.stups.fullstop.violation.domain.validation.groups.PersistenceOnly
+
+flyway:
+    baseline-on-migrate: ${FLYWAY_BASELINE:false}
+    baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
+    schemas:
+     - "fullstop_data"

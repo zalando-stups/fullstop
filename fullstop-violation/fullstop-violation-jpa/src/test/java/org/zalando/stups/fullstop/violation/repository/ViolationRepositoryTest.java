@@ -1,22 +1,15 @@
 package org.zalando.stups.fullstop.violation.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -24,9 +17,7 @@ import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +32,7 @@ import static org.joda.time.DateTime.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ViolationRepositoryTest.TestConfig.class)
+@SpringApplicationConfiguration(classes = EmbeddedPostgresJpaConfig.class)
 @Transactional
 public class ViolationRepositoryTest {
 
@@ -64,7 +55,6 @@ public class ViolationRepositoryTest {
     private ViolationEntity vio5;
 
     private Map<String, String> metaInfoMap = singletonMap("test", "jsonSerialization");
-    private List<String> metaInfoList = newArrayList("test", "jsonSerialization");
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -74,7 +64,7 @@ public class ViolationRepositoryTest {
         final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
 
         vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username"), type1);
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoList, null, "username"), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username"), type1);
         vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username"), type2);
         vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username"), type1);
         vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username"), type2);
@@ -208,40 +198,5 @@ public class ViolationRepositoryTest {
                 Optional.of(now().plusDays(1)),
                 Optional.of(FALSE));
         assertThat(result).hasSize(1);
-    }
-
-    @Test
-    public void testMetadataObjectJsonMap() throws Exception {
-        ViolationEntity one = violationRepository.getOne(vio1.getId());
-        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoMap));
-    }
-
-    @Test
-    public void testMetadataObjectJsonList() throws Exception {
-        ViolationEntity one = violationRepository.getOne(vio2.getId());
-        assertThat(one.getMetaInfo()).isEqualTo(objectMapper.writeValueAsString(metaInfoList));
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
-    @EntityScan("org.zalando.stups.fullstop.violation")
-    @EnableJpaAuditing
-    static class TestConfig {
-
-        @Bean
-        DataSource dataSource() throws IOException {
-            return embeddedPostgres().getPostgresDatabase();
-        }
-
-        @Bean
-        EmbeddedPostgreSQL embeddedPostgres() throws IOException {
-            return EmbeddedPostgreSQL.start();
-        }
-
-        @Bean
-        AuditorAware<String> auditorAware() {
-            return () -> "unit-test";
-        }
     }
 }

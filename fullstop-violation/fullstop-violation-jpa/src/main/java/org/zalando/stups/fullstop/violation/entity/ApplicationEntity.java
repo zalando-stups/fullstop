@@ -1,10 +1,11 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.MoreObjects;
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -51,26 +52,17 @@ public class ApplicationEntity extends AbstractModifiableEntity {
         this.versionEntities = versionEntities;
     }
 
-    @Override public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ApplicationEntity that = (ApplicationEntity) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null)
-            return false;
-        return !(versionEntities != null ?
-                !versionEntities.equals(that.versionEntities) :
-                that.versionEntities != null);
-
+        return Objects.equals(getName(), that.getName());
     }
 
-    @Override public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (versionEntities != null ? versionEntities.hashCode() : 0);
-        return result;
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 
     @Override

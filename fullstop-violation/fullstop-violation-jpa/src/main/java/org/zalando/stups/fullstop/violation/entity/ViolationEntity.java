@@ -1,6 +1,6 @@
 package org.zalando.stups.fullstop.violation.entity;
 
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

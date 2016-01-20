@@ -61,5 +61,5 @@ public class KioVersionProviderImpl implements KioVersionProvider {
     public Optional<Version> apply(EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
-    
+
 }

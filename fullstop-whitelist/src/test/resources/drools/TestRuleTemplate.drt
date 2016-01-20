@@ -1,0 +1,25 @@
+template header
+RULE_NAME
+ACCOUNT_ID
+VIOLATION_TYPE
+
+package rulestemplates;
+dialect  "mvel"
+
+import org.zalando.stups.fullstop.violation.ViolationType
+import org.zalando.stups.fullstop.violation.entity.ViolationEntity
+import org.slf4j.Logger;
+
+global Logger logger;
+
+template "Taupage Build Rules"
+rule "@{RULE_NAME}"
+
+    when
+        entity: ViolationEntity(accountId == "@{ACCOUNT_ID}")
+        ViolationEntity(violationTypeEntity.id in (ViolationType.WRONG_AMI, ViolationType.EC2_WITH_KEYPAIR), $vioEntity: violationTypeEntity)
+    then
+        logger.info("Whitelisted violation!");
+        entity.setComment("Automatic resolution by whitelisting rule: @{RULE_NAME}");
+end
+end template

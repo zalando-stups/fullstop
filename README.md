@@ -1,6 +1,5 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
-[![Coverage Status](https://coveralls.io/repos/zalando-stups/fullstop/badge.svg?branch=master)](https://coveralls.io/r/zalando-stups/fullstop?branch=master)
 [![codecov.io](https://codecov.io/github/zalando-stups/fullstop/coverage.svg?branch=master)](https://codecov.io/github/zalando-stups/fullstop?branch=master)
 [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Issues in progress](https://badge.waffle.io/zalando-stups/fullstop.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/zalando-stups/fullstop)
@@ -55,8 +54,8 @@ This environment variables should be set:
     FULLSTOP_SQS_URL
     FULLSTOP_SQS_REGION
     FULLSTOP_S3_REGION
-    FULLSTOP_WHITELISTED_AMI_ACCOUNT
-    FULLSTOP_AMI_NAME_START_WITH
+    FULLSTOP_TAUPAGE_OWNERS
+    FULLSTOP_TAUPAGE_NAME_PREFIX
     FULLSTOP_S3_BUCKET
     FULLSTOP_KIO_URL
     FULLSTOP_PIERONE_URL
@@ -79,8 +78,8 @@ Example:
     $ export FULLSTOP_SQS_URL=https://sqs.eu-central-1.amazonaws.com/ACCOUNT_ID/fullstop
     $ export FULLSTOP_SQS_REGION=eu-central-1
     $ export FULLSTOP_S3_REGION=eu-west-1
-    $ export FULLSTOP_WHITELISTED_AMI_ACCOUNT=999999999999
-    $ export FULLSTOP_AMI_NAME_START_WITH=Taupage
+    $ export FULLSTOP_TAUPAGE_OWNERS=999999999999
+    $ export FULLSTOP_TAUPAGE_NAME_PREFIX=Taupage
     $ export FULLSTOP_S3_BUCKET=fullstop-bucket
     $ export FULLSTOP_KIO_URL: https://application.registry.address
     $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
@@ -126,41 +125,19 @@ for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/lates
 
     $ mvn clean install
 
-###License Header
-
-If your build fails because of missing license header:
-
-```
-...
-[INFO]
-[INFO] --- license-maven-plugin:2.10:check (default) @ fullstop-count-events-plugin ---
-[INFO] Checking licenses...
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/test/java/org/zalando/stups/fullstop/plugin/count/CountEventsPluginTest.java
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsPlugin.java
-[WARNING] Missing header in: /Users/jbellmann/dev/work/zalando/stups/fullstop/fullstop-plugins/fullstop-count-events-plugin/src/main/java/org/zalando/stups/fullstop/plugin/count/CountEventsMetric.java
-...
-```
-
-then do the following command:
-
-```
-mvn license:format
-```
-
-
 ##How to run
 
 You need a locally running PostgreSQL 9.4 server (database "fullstop", host "localhost", user "postgres", password "postgres").
 
     $ # set env variables first
-    $ cd fullstop-testing/it/fullstop
+    $ cd fullstop
     $ mvn spring-boot:run -Dfullstop.container.autoStart=false
 
 ##How to build a docker image
 
 Build fullstop:
 
-    $ mvn clean install -U
+    $ mvn clean package -U
 
 Build scm-source.json:
 
@@ -181,18 +158,6 @@ Run with docker:
 Push docker image:
 
     $ docker push registry/fullstop:0.1
-
-##How to deploy
-
-    $ mvn release:prepare
-
-    $ mvn release:perform
-
-## Contributing
-Please configure your IDE to use the [code-formatter.xml](https://github.com/zalando-stups/fullstop/blob/master/code-formatter.xml).
-
-## Project TODO:
-- [ ] ...
 
 ## License
 

@@ -8,6 +8,7 @@
 
     <Loggers>
         <Logger name="org.zalando.stups" level="info"/>
+        <Logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="OFF" />
 
         <Root level="info">
             <AppenderRef ref="Console"/>

@@ -20,10 +20,7 @@ public final class SpringSecurityAuditorAware implements AuditorAware<String> {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return "FULLSTOP";
-        }
-        else {
-            Assert.notNull(authentication, "Current authentication is null; could not gather user details from it");
-
+        } else {
             final String userName = authentication.getName();
             logger.trace("Found Auditor: {}", userName);
 

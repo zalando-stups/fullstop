@@ -1,0 +1,66 @@
+spring:
+    oauth2:
+        resource:
+            tokenInfoUri: https://example.com/oauth/tokeninfo
+    datasource:
+        url: jdbc:postgresql://localhost:5432/fullstop_test
+        username: postgres
+        password: postgres
+        driver-class-name: org.postgresql.Driver
+
+fullstop:
+
+    container:
+        autoStart: false
+
+    processor:
+        properties:
+            # The sqs url where you wish to pull CloudTrail notification from (required)
+            sqsUrl: https://sqs.us-west-1.amazonaws.com/1234567890/fullstop
+
+            # The SQS end point specific to a region
+            sqsRegion: us-west-1
+
+            # The S3 end point specific to a region
+            s3Region: us-west-1
+    instanceData:
+      # Bucket, where USER_DATA and AUDIT_LOG will be stored
+      bucketName: anBucketName
+
+    plugins:
+        properties:
+            # The bucket, where our enriched data will be stored
+            s3bucket: anotherBucketName
+
+        ami:
+            # Account containing whitelisted AMI
+            taupageOwners: 123456,2345678,34567890
+            taupageNamePrefix: aPrefix
+
+        kio:
+            url: https://example.com/kio/api
+
+        unapprovedServicesAndRole:
+            bucketName: fullstop-template-bucket
+            prefix: template-folder
+
+    clients:
+        kio:
+            url: https://example.com/kio/api
+
+        pierone:
+            urls: https://example.com/pierone/api
+
+        teamService:
+            url: https://example.com/teams/api
+
+        kontrolletti:
+            url: https://example.com/kontrolletti/api
+
+#
+# OAuth2
+#
+tokens:
+    accessTokenUri: https://example.com/oauth/accesstoken
+    credentialsDirectory: ${user.dir}/credentials
+    autoStartup: false

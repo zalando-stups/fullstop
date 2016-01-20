@@ -15,15 +15,15 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTimeZone.UTC;
 
-/**
- * Created by mrandi.
- */
 @Service
 public class S3Service {
 
@@ -33,7 +33,7 @@ public class S3Service {
 
     public static final String LOG_GZ = ".log.gz";
 
-    private static final Logger logger = LoggerFactory.getLogger(S3Service.class);
+    private final Logger log = LoggerFactory.getLogger(S3Service.class);
 
     private final AmazonS3Client s3client = new AmazonS3Client();
 
@@ -61,7 +61,7 @@ public class S3Service {
             break;
 
         default:
-            logger.error("Wrong logType given: " + logType);
+            log.error("Wrong logType given: " + logType);
             break;
         }
 
@@ -80,13 +80,13 @@ public class S3Service {
             final ObjectMetadata metadata, final InputStream stream) {
         // AmazonS3 s3client = new AmazonS3Client();
         try {
-            logger.info("Uploading a new object to S3 from a file");
+            log.info("Uploading a new object to S3 from a file");
 
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
         }
         catch (AmazonServiceException e) {
-            logger.error("Error Message:    " + e.getMessage());
+            log.error("Could not put object to S3", e);
         }
     }
 
@@ -94,43 +94,46 @@ public class S3Service {
         final List<String> commonPrefixes = Lists.newArrayList();
 
         try {
-            logger.info("Listing objects");
+            log.info("Listing objects in bucket '{}' with prefix '{}'", bucketName, prefix);
 
-            ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withDelimiter("/")
-                                                                            .withBucketName(bucketName).withPrefix(
-                            prefix);
+            final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
+                    .withDelimiter("/")
+                    .withBucketName(bucketName)
+                    .withPrefix(prefix);
 
             ObjectListing objectListing;
 
             do {
                 objectListing = s3client.listObjects(listObjectsRequest);
-                commonPrefixes.addAll(objectListing.getCommonPrefixes());
-                for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                    System.out.println(
-                            " - " + objectSummary.getKey() + "  " + "(size = " + objectSummary.getSize()
-                                    + ")");
-                }
-
+                objectListing.getCommonPrefixes().stream().map(S3Service::urlDecode).forEach(commonPrefixes::add);
                 listObjectsRequest.setMarker(objectListing.getNextMarker());
             } while (objectListing.isTruncated());
 
-        }
-        catch (AmazonServiceException e) {
-            logger.error("Error Message:    " + e.getMessage());
+        } catch (final AmazonServiceException e) {
+            log.error("Could not list common prefixes in S3", e);
         }
 
         return commonPrefixes;
+    }
+
+    private static String urlDecode(String url) {
+        try {
+            return URLDecoder.decode(url, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public List<String> listS3Objects(final String bucketName, final String prefix) {
         final List<String> s3Objects = Lists.newArrayList();
 
         try {
-            logger.info("Listing objects");
+            log.info("Listing objects");
 
-            ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withDelimiter("/")
-                                                                            .withBucketName(bucketName).withPrefix(
-                            prefix);
+            final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
+                    .withDelimiter("/")
+                    .withBucketName(bucketName)
+                    .withPrefix(prefix);
 
             ObjectListing objectListing;
 
@@ -148,7 +151,7 @@ public class S3Service {
 
         }
         catch (AmazonServiceException e) {
-            logger.error("Error Message:    " + e.getMessage());
+            log.error("Error Message:    " + e.getMessage());
         }
 
         return s3Objects;
@@ -165,7 +168,7 @@ public class S3Service {
             result = IOUtils.toString(inputStream);
         }
         catch (IOException e) {
-            logger.warn("Could not download file for bucket: {}, with key: {}", bucketName, key);
+            log.warn("Could not download file for bucket: {}, with key: {}", bucketName, key);
         }
         finally {
             if (inputStream != null) {
@@ -173,12 +176,12 @@ public class S3Service {
                     inputStream.close();
                 }
                 catch (IOException ex) {
-                    logger.debug("Ignore failure in closing the Closeable", ex);
+                    log.debug("Ignore failure in closing the Closeable", ex);
                 }
             }
         }
 
-        logger.info("Downloaded file for bucket: {}, with key: {}", bucketName, key);
+        log.info("Downloaded file for bucket: {}, with key: {}", bucketName, key);
         return result;
     }
 }

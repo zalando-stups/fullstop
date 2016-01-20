@@ -1,5 +1,6 @@
 package org.zalando.fullstop.violation.persist.jpa;
 
+import org.kie.api.runtime.StatelessKieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
@@ -28,13 +29,16 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private final CounterService counterService;
 
+    private final StatelessKieSession whitelistRulesSession;
+
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
-            final ViolationTypeRepository violationTypeRepository,
-            final CounterService counterService) {
+                                 final ViolationTypeRepository violationTypeRepository,
+                                 final CounterService counterService, final StatelessKieSession whitelistRulesSession) {
         super(eventBus);
         this.violationRepository = violationRepository;
         this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
+        this.whitelistRulesSession = whitelistRulesSession;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -76,6 +80,8 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         entity.setMetaInfo(violation.getMetaInfo());
 
         entity.setRegion(violation.getRegion());
+
+        whitelistRulesSession.execute(entity);
 
         return entity;
     }

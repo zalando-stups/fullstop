@@ -1,18 +1,37 @@
 package org.zalando.stups.fullstop.s3;
 
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.util.List;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
+@Ignore
 public class S3ServiceTest {
+
+    private final Logger log = getLogger(getClass());
+    
+    private S3Service service;
+
+    @Before
+    public void setUp() throws Exception {
+        service = new S3Service();
+    }
 
     @Test
     public void testS3ServiceListObject() {
-        S3Service service = new S3Service();
         List<String> result = service.listCommonPrefixesS3Objects(
-                "zalando-fullstop",
-                "12094567/eu-central-1/2015/5/22/");
-        System.out.println(result.toString());
+                "an-s3-bucket",
+                "111222333444/eu-west-1/2016/01/15/");
+        log.info("{}", result);
     }
 
+    @Test
+    public void testListObjects() throws Exception {
+        final List<String> result = service.listS3Objects("an-s3-bucket", "111222333444/eu-west-1/2016/01/15/i-62f41fea-2016-01-15T15:59:54.000Z/");
+        log.info("{}", result);
+    }
 }

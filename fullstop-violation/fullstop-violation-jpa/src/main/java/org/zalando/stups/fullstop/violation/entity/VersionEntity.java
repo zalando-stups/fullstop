@@ -1,10 +1,14 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import com.google.common.base.MoreObjects;
-import org.zalando.stups.fullstop.violation.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -48,26 +52,17 @@ public class VersionEntity extends AbstractModifiableEntity {
         this.applicationEntities = applicationEntities;
     }
 
-    @Override public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         VersionEntity that = (VersionEntity) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null)
-            return false;
-        return !(applicationEntities != null ?
-                !applicationEntities.equals(that.applicationEntities) :
-                that.applicationEntities != null);
-
+        return Objects.equals(getName(), that.getName());
     }
 
-    @Override public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (applicationEntities != null ? applicationEntities.hashCode() : 0);
-        return result;
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 
     @Override

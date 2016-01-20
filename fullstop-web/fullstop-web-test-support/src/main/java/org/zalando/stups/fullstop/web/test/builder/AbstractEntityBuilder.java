@@ -2,7 +2,7 @@ package org.zalando.stups.fullstop.web.test.builder;
 
 import com.google.common.base.Preconditions;
 import org.zalando.stups.fullstop.web.test.TestObjectBuilder;
-import org.zalando.stups.fullstop.violation.domain.AbstractEntity;
+import org.zalando.stups.fullstop.domain.AbstractEntity;
 
 /**
  * @author ahartmann
