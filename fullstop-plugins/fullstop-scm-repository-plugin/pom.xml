@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>fullstop-instance-plugin-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
@@ -49,7 +54,11 @@
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-api</artifactId>
             <!-- TODO move this to parent -->
-            <version>0.1.0-RC-2</version>
+            <version>0.1.0-RC-3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
 
         <dependency>
