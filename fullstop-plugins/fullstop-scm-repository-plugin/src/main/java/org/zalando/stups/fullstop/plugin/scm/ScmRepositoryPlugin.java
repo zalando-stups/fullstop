@@ -118,6 +118,8 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                                 .withMetaInfo(singletonMap("normalized_repository_url", normalizedScmSourceUrl))
                                 .build()
                 );
+            } else {
+                throw e;
             }
         }
     }

@@ -5,6 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.resources.Repository;
 import org.zalando.stups.clients.kio.Application;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
@@ -169,5 +170,41 @@ public class ScmRepositoryPluginTest {
         verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
         verify(mockContext).violation();
         verify(mockViolationSink).put(argThat(hasType(ILLEGAL_SCM_REPOSITORY)));
+    }
+
+    @Test(expected = HttpServerErrorException.class)
+    public void testProcessEventWithKontrollettiServerError() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
+        when(mockKontrollettiOperations.getRepository(anyString())).thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR));
+
+        try {
+            plugin.process(mockContext);
+        } finally {
+            verify(mockContext).getKioApplication();
+            verify(mockContext).getScmSource();
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+            verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
+        }
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void testProcessEventWithKontrollettiBadRequest() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
+        when(mockKontrollettiOperations.getRepository(anyString())).thenThrow(new HttpClientErrorException(BAD_REQUEST));
+
+        try {
+            plugin.process(mockContext);
+        } finally {
+            verify(mockContext).getKioApplication();
+            verify(mockContext).getScmSource();
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+            verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
+        }
     }
 }
