@@ -90,6 +90,15 @@
             <artifactId>commons-csv</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-api</artifactId>
+            <version>0.1.0-RC-3</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface AwsApplications {
 
     /**
-     * Returns true if the application, to which the given instanceIds belong to, is glagged as "publicly_accessible"
+     * Returns true if the application, to which the given instanceIds belong to, is flagged as "publicly_accessible"
      * in Kio.
      *
      * @param accountId   the AWS account id. Must not be blank
