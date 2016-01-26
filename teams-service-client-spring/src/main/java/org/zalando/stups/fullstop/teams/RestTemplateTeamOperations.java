@@ -8,6 +8,7 @@ import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.RequestEntity.get;
 
@@ -40,10 +41,11 @@ public class RestTemplateTeamOperations implements TeamOperations {
         return response.getBody();
     }
 
-    @Override public List<Account> getAccounts() {
+    @Override
+    public List<Account> getActiveAccounts() {
         final ResponseEntity<List<Account>> response = restOperations.exchange(
                 get(URI.create(baseUrl + "/api/accounts/aws")).build(), accountType);
         Preconditions.checkState(response.getStatusCode().is2xxSuccessful(), "getAccounts failed: %s", response);
-        return response.getBody();
+        return response.getBody().parallelStream().filter(account -> !account.isDisabled()).collect(Collectors.toList());
     }
 }
