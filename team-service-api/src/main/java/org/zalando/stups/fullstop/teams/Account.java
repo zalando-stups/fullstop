@@ -12,6 +12,8 @@ public class Account {
     private final String name;
     private final String type;
     private final String description;
+    private final String owner;
+    private final boolean disabled;
 
     @JsonCreator
     public Account(
@@ -22,11 +24,17 @@ public class Account {
             @JsonProperty("type")
             String type,
             @JsonProperty("description")
-            String description) {
+            String description,
+            @JsonProperty("owner")
+            String owner,
+            @JsonProperty("disabled")
+            boolean disabled) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.description = description;
+        this.owner = owner;
+        this.disabled = disabled;
     }
 
     public String getId() {
@@ -45,16 +53,28 @@ public class Account {
         return description;
     }
 
-    @Override public String toString() {
-        return MoreObjects.toStringHelper(this)
-                      .add("id", id)
-                      .add("name", name)
-                      .add("type", type)
-                      .add("description", description)
-                      .toString();
+    public String getOwner() {
+        return owner;
     }
 
-    @Override public boolean equals(Object o) {
+    public boolean isDisabled(){
+        return disabled;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("name", name)
+                .add("type", type)
+                .add("description", description)
+                .add("owner", owner)
+                .add("disabled", disabled)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -66,7 +86,8 @@ public class Account {
                 Objects.equal(description, account.description);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hashCode(id, name, type, description);
     }
 }
