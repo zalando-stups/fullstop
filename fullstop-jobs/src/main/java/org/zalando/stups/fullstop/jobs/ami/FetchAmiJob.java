@@ -158,11 +158,7 @@ public class FetchAmiJob implements FullstopJob {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
         DateTime taupageImageDate = formatter.parseDateTime(rawDate);
 
-        if (taupageImageDate.isBefore(maxValidityTimeForAmi)) {
-            return true;
-        }
-
-        return false;
+        return taupageImageDate.isBefore(maxValidityTimeForAmi);
     }
 
     private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
