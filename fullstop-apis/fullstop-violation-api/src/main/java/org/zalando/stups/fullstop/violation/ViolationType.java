@@ -53,5 +53,5 @@ public class ViolationType {
 
     public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
 
-
+    public static final String OUTDATED_AMI = "OUTDATED_AMI";
 }

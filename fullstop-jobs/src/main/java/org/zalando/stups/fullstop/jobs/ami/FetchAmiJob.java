@@ -1,0 +1,207 @@
+package org.zalando.stups.fullstop.jobs.ami;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.*;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.ClientProvider;
+import org.zalando.stups.fullstop.jobs.FullstopJob;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+import org.zalando.stups.fullstop.violation.service.ViolationService;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.amazonaws.regions.Region.getRegion;
+import static com.amazonaws.regions.Regions.fromName;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_AMI;
+
+@Component
+public class FetchAmiJob implements FullstopJob {
+
+    private static final String EVENT_ID = "checkAmiJob";
+
+    private final String taupageNamePrefix;
+
+    private final List<String> taupageOwners;
+
+    private final Logger log = LoggerFactory.getLogger(FetchAmiJob.class);
+
+    private final ViolationSink violationSink;
+
+    private final ClientProvider clientProvider;
+
+    private final AccountIdSupplier allAccountIds;
+
+    private final JobsProperties jobsProperties;
+
+    private final ViolationService violationService;
+
+    @Autowired
+    public FetchAmiJob(ViolationSink violationSink,
+                       ClientProvider clientProvider,
+                       AccountIdSupplier allAccountIds, JobsProperties jobsProperties,
+                       ViolationService violationService,
+                       @Value("${FULLSTOP_TAUPAGE_NAME_PREFIX}") final String taupageNamePrefix,
+                       @Value("${FULLSTOP_TAUPAGE_OWNERS}") final String taupageOwners) {
+        this.violationSink = violationSink;
+        this.clientProvider = clientProvider;
+        this.allAccountIds = allAccountIds;
+        this.jobsProperties = jobsProperties;
+        this.violationService = violationService;
+        this.taupageNamePrefix = taupageNamePrefix;
+        this.taupageOwners = Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList());
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("{} initalized", getClass().getSimpleName());
+    }
+
+    @Scheduled(fixedRate = 300_000, initialDelay = -1) // 5 min rate, 0 min delay
+    public void run() {
+        log.info("Running job {}", getClass().getSimpleName());
+        for (String account : allAccountIds.get()) {
+            for (String region : jobsProperties.getWhitelistedRegions()) {
+
+                try {
+
+                    log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
+
+                    DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
+                            account,
+                            region);
+
+                    for (final Reservation reservation : describeEC2Result.getReservations()) {
+
+                        for (final Instance instance : reservation.getInstances()) {
+                            final Map<String, Object> metaData = newHashMap();
+                            final List<String> errorMessages = newArrayList();
+
+                            if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_AMI)) {
+                                continue;
+                            }
+
+                            Optional<Image> image = getAmiFromEC2Api(account, region, instance.getImageId()).get().stream().findFirst();
+                            Optional<Boolean> isTaupageAmi = image
+                                    .filter(img -> img.getName().startsWith(taupageNamePrefix))
+                                    .map(Image::getOwnerId)
+                                    .map(taupageOwners::contains);
+
+                            // will not check for all non taupage ami
+                            // or images with taupage as name but created from another owner
+                            if (!isTaupageAmi.orElse(false)) {
+                                continue;
+                            }
+
+                            DateTime now = DateTime.now();
+                            if (isTaupageToOld(image.map(Image::getName), now)) {
+                                metaData.put("ami_owner_id", image.map(Image::getOwnerId).orElse(""));
+                                metaData.put("ami_id", image.map(Image::getImageId).orElse(""));
+                                metaData.put("ami_name", image.map(Image::getName).orElse(""));
+                                DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
+                                errorMessages.add("Outdated AMI! Please use the latest version available." +
+                                        " Should be at least from: " + maxValidityTimeForAmi.monthOfYear().getAsText()
+                                        + " " + maxValidityTimeForAmi.year().getAsText());
+                            }
+
+                            if (metaData.size() > 0) {
+                                metaData.put("errorMessages", errorMessages);
+                                writeViolation(account, region, metaData, instance.getInstanceId());
+                            }
+
+                        }
+
+                    }
+
+                } catch (AmazonServiceException a) {
+
+                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                        log.warn("RequestLimitExceeded for account: {}", account);
+                    } else {
+                        log.error(a.getMessage(), a);
+                    }
+
+                }
+            }
+        }
+    }
+
+    private boolean isTaupageToOld(Optional<String> imageName, DateTime now) {
+        DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
+
+        String rawDate = imageName.map(s -> Stream.of(s.split("-")).collect(Collectors.toList())).get().get(2);
+
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+        DateTime taupageImageDate = formatter.parseDateTime(rawDate);
+
+        if (taupageImageDate.isBefore(maxValidityTimeForAmi)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
+        ViolationBuilder violationBuilder = new ViolationBuilder();
+        Violation violation = violationBuilder.withAccountId(account)
+                .withRegion(region)
+                .withPluginFullyQualifiedClassName(FetchAmiJob.class)
+                .withType(OUTDATED_AMI)
+                .withMetaInfo(metaInfo)
+                .withInstanceId(instanceId)
+                .withEventId(EVENT_ID).build();
+        violationSink.put(violation);
+    }
+
+    private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
+        AmazonEC2Client ec2Client = clientProvider.getClient(
+                AmazonEC2Client.class,
+                account,
+                getRegion(
+                        fromName(region)));
+        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        return ec2Client.describeInstances(describeInstancesRequest);
+    }
+
+    private Optional<List<Image>> getAmiFromEC2Api(String account, String region, final String imageId) {
+        try {
+            AmazonEC2Client ec2Client = clientProvider.getClient(
+                    AmazonEC2Client.class,
+                    account,
+                    getRegion(
+                            fromName(region)));
+
+            DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
+            describeImagesRequest.setImageIds(newArrayList(imageId));
+            return ofNullable(ec2Client.describeImages(describeImagesRequest).getImages().stream().collect(Collectors.toList()));
+
+        } catch (final AmazonClientException e) {
+            log.warn("Could not describe image " + imageId, e);
+            return empty();
+        }
+    }
+}
