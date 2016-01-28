@@ -89,7 +89,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        if (securityGroup != null){
+        if (securityGroup == null){
             return;
         }
 

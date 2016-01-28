@@ -30,7 +30,7 @@ public class SaveSecurityGroupsPluginTest {
         cloudTrailEvent = createCloudTrailEvent("/run-instance-record.json");
 
         when(mockSecurityGroupProvider.getSecurityGroup(any(), any(), any()))
-                .thenReturn("{}");
+                .thenReturn("{this is a security group test}");
 
         when(mockS3Service.listCommonPrefixesS3Objects(any(), any()))
                 .thenReturn(asList(
