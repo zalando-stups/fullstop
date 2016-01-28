@@ -1,6 +1,6 @@
 package org.zalando.stups.fullstop.plugin;
 
-import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
@@ -17,6 +17,8 @@ import java.util.List;
  * @author jbellmann
  */
 public class SecurityGroupProvider {
+
+    public static final String INVALID_GROUP_NOT_FOUND = "InvalidGroup.NotFound";
 
     private final Logger log = LoggerFactory.getLogger(SecurityGroupProvider.class);
 
@@ -39,22 +41,23 @@ public class SecurityGroupProvider {
                     String.format(
                             "Somehow we could not create an Client with accountId: %s and region: %s", accountId,
                             region.toString()));
-        }
-        else {
+        } else {
 
             try {
                 DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
                 result = amazonEC2Client.describeSecurityGroups(request);
-            }
-            catch (AmazonClientException e) {
-                log.error(e.getMessage());
+            } catch (AmazonServiceException e) {
+                if (e.getErrorCode().equals(INVALID_GROUP_NOT_FOUND)) {
+                    log.warn(e.getMessage());
+                } else {
+                    log.error(e.getMessage());
+                }
             }
 
             try {
                 securityGroups = objectMapper.writeValueAsString(result);
-            }
-            catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
 
