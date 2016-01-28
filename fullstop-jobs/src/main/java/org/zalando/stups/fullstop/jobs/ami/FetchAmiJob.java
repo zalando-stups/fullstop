@@ -81,7 +81,7 @@ public class FetchAmiJob implements FullstopJob {
         log.info("{} initalized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 300_000, initialDelay = -1) // 5 min rate, 0 min delay
+    @Scheduled(fixedRate = 60_000 * 60 * 4, initialDelay = -1) // ((1 min * 60) * 4) = 4 hours rate, 0 min delay
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : allAccountIds.get()) {
@@ -118,7 +118,7 @@ public class FetchAmiJob implements FullstopJob {
                             }
 
                             DateTime now = DateTime.now();
-                            if (isTaupageToOld(image.map(Image::getName), now)) {
+                            if (isTaupageTooOld(image.map(Image::getName), now)) {
                                 metaData.put("ami_owner_id", image.map(Image::getOwnerId).orElse(""));
                                 metaData.put("ami_id", image.map(Image::getImageId).orElse(""));
                                 metaData.put("ami_name", image.map(Image::getName).orElse(""));
@@ -150,7 +150,7 @@ public class FetchAmiJob implements FullstopJob {
         }
     }
 
-    private boolean isTaupageToOld(Optional<String> imageName, DateTime now) {
+    private boolean isTaupageTooOld(Optional<String> imageName, DateTime now) {
         DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
 
         String rawDate = imageName.map(s -> Stream.of(s.split("-")).collect(Collectors.toList())).get().get(2);
