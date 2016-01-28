@@ -1,5 +1,5 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Build Status](https://travis-ci.org/lotharschulz/fullstop.svg?branch=master)](https://travis-ci.org/lotharschulz/fullstop)
+[![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
 [![codecov.io](https://codecov.io/github/zalando-stups/fullstop/coverage.svg?branch=master)](https://codecov.io/github/zalando-stups/fullstop?branch=master)
 [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Issues in progress](https://badge.waffle.io/zalando-stups/fullstop.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/zalando-stups/fullstop)
