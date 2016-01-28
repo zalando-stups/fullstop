@@ -53,12 +53,14 @@ public class SecurityGroupProvider {
                 } else {
                     log.error(e.getMessage());
                 }
+                return null;
             }
 
             try {
                 securityGroups = objectMapper.writeValueAsString(result);
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
+                return null;
             }
 
             return securityGroups;

@@ -89,6 +89,10 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
+        if (securityGroup != null){
+            return;
+        }
+
         String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
 
         List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
