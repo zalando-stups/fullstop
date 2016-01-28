@@ -52,7 +52,7 @@ public class HttpGetRootCall implements Callable<HttpCallResult> {
                     .orElse(EMPTY_STRING);
 
             final int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == 401 || statusCode == 403) {
+            if (statusCode == 401 || statusCode == 403 || statusCode == 404) {
                 log.debug("URI {} is secured GET / returned {}", uri, statusCode);
             } else if (String.valueOf(statusCode).startsWith("3")) {
                 if (location.startsWith("https")) {
