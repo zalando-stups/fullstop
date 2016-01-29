@@ -105,7 +105,7 @@ public class FetchAmiJob implements FullstopJob {
                                 continue;
                             }
 
-                            Optional<Image> image = getAmiFromEC2Api(account, region, instance.getImageId()).get().stream().findFirst();
+                            Optional<Image> image = ofNullable(getAmiFromEC2Api(account, region, instance.getImageId()).get());
                             Optional<Boolean> isTaupageAmi = image
                                     .filter(img -> img.getName().startsWith(taupageNamePrefix))
                                     .map(Image::getOwnerId)
@@ -122,10 +122,8 @@ public class FetchAmiJob implements FullstopJob {
                                 metaData.put("ami_owner_id", image.map(Image::getOwnerId).orElse(""));
                                 metaData.put("ami_id", image.map(Image::getImageId).orElse(""));
                                 metaData.put("ami_name", image.map(Image::getName).orElse(""));
-                                DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
-                                errorMessages.add("Outdated AMI! Please use the latest version available." +
-                                        " Should be at least from: " + maxValidityTimeForAmi.monthOfYear().getAsText()
-                                        + " " + maxValidityTimeForAmi.year().getAsText());
+                                metaData.put("taupage_image_date", getTaupageImageDate(image.map(Image::getName)));
+                                metaData.put("expiration_date", getTaupageImageDate(image.map(Image::getName)).plus(Days.days(60)));
                             }
 
                             if (metaData.size() > 0) {
@@ -150,14 +148,16 @@ public class FetchAmiJob implements FullstopJob {
         }
     }
 
+
+    private DateTime getTaupageImageDate(Optional<String> imageName) {
+        String rawDate = imageName.map(s -> Stream.of(s.split("-")).collect(Collectors.toList())).get().get(2);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+        return formatter.parseDateTime(rawDate);
+    }
+
     private boolean isTaupageTooOld(Optional<String> imageName, DateTime now) {
         DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
-
-        String rawDate = imageName.map(s -> Stream.of(s.split("-")).collect(Collectors.toList())).get().get(2);
-
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        DateTime taupageImageDate = formatter.parseDateTime(rawDate);
-
+        DateTime taupageImageDate = getTaupageImageDate(imageName);
         return taupageImageDate.isBefore(maxValidityTimeForAmi);
     }
 
@@ -183,7 +183,7 @@ public class FetchAmiJob implements FullstopJob {
         return ec2Client.describeInstances(describeInstancesRequest);
     }
 
-    private Optional<List<Image>> getAmiFromEC2Api(String account, String region, final String imageId) {
+    private Optional<Image> getAmiFromEC2Api(String account, String region, final String imageId) {
         try {
             AmazonEC2Client ec2Client = clientProvider.getClient(
                     AmazonEC2Client.class,
@@ -193,7 +193,7 @@ public class FetchAmiJob implements FullstopJob {
 
             DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
             describeImagesRequest.setImageIds(newArrayList(imageId));
-            return ofNullable(ec2Client.describeImages(describeImagesRequest).getImages().stream().collect(Collectors.toList()));
+            return ofNullable(ec2Client.describeImages(describeImagesRequest)).map(DescribeImagesResult::getImages).get().stream().findFirst();
 
         } catch (final AmazonClientException e) {
             log.warn("Could not describe image " + imageId, e);

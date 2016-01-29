@@ -60,8 +60,8 @@ public class FetchElasticLoadBalancersJobTest {
         this.portsChecker = mock(PortsChecker.class);
         this.securityGroupsChecker = mock(SecurityGroupsChecker.class);
         this.mockAwsELBClient = mock(AmazonElasticLoadBalancingClient.class);
-        mockAwsApplications = mock(AwsApplications.class);
-        mockViolationService = mock(ViolationService.class);
+        this.mockAwsApplications = mock(AwsApplications.class);
+        this.mockViolationService = mock(ViolationService.class);
 
         final Listener listener = new Listener("HTTPS", 80, 80);
 
