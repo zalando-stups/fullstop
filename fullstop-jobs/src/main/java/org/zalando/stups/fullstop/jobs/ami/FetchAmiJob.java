@@ -105,8 +105,8 @@ public class FetchAmiJob implements FullstopJob {
                                 continue;
                             }
 
-                            Optional<Image> image = ofNullable(getAmiFromEC2Api(account, region, instance.getImageId()).get());
-                            Optional<Boolean> isTaupageAmi = image
+                            final Optional<Image> image = getAmiFromEC2Api(account, region, instance.getImageId());
+                            final Optional<Boolean> isTaupageAmi = image
                                     .filter(img -> img.getName().startsWith(taupageNamePrefix))
                                     .map(Image::getOwnerId)
                                     .map(taupageOwners::contains);
