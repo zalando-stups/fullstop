@@ -19,7 +19,6 @@ public class SecurityGroupProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        amazonEC2ClientMock = mock(AmazonEC2Client.class);
         clientProviderMock = mock(ClientProvider.class);
 
 
