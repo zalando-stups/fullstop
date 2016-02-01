@@ -52,4 +52,14 @@ public class SaveSecurityGroupsPluginTest {
         verify(mockS3Service).listCommonPrefixesS3Objects(eq("saved-security-groups"), eq("123456789111/eu-west-1/2015/06/18/"));
         verify(mockS3Service).putObjectToS3(eq("saved-security-groups"), anyString(), anyString(), any(), any());
     }
+
+    @Test
+    public void testNullSecurityGroup() throws Exception {
+        when(mockSecurityGroupProvider.getSecurityGroup(any(), any(), any()))
+                .thenReturn(null);
+
+        plugin.processEvent(cloudTrailEvent);
+
+        verify(mockSecurityGroupProvider).getSecurityGroup(eq(singletonList("sg-24051988")), eq(getRegion(EU_WEST_1)), eq("123456789111"));
+    }
 }
