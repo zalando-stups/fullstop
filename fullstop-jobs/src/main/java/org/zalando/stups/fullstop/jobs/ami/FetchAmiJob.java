@@ -174,26 +174,26 @@ public class FetchAmiJob implements FullstopJob {
     }
 
     private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
-        AmazonEC2Client ec2Client = clientProvider.getClient(
+        final AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
-                getRegion(
-                        fromName(region)));
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
-        return ec2Client.describeInstances(describeInstancesRequest);
+                getRegion(fromName(region)));
+        return ec2Client.describeInstances(new DescribeInstancesRequest());
     }
 
     private Optional<Image> getAmiFromEC2Api(String account, String region, final String imageId) {
         try {
-            AmazonEC2Client ec2Client = clientProvider.getClient(
+            final AmazonEC2Client ec2Client = clientProvider.getClient(
                     AmazonEC2Client.class,
                     account,
-                    getRegion(
-                            fromName(region)));
+                    getRegion(fromName(region)));
 
-            DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest();
-            describeImagesRequest.setImageIds(newArrayList(imageId));
-            return ofNullable(ec2Client.describeImages(describeImagesRequest)).map(DescribeImagesResult::getImages).get().stream().findFirst();
+            final DescribeImagesResult response = ec2Client.describeImages(new DescribeImagesRequest().withImageIds(imageId));
+
+            return ofNullable(response)
+                    .map(DescribeImagesResult::getImages)
+                    .map(List::stream)
+                    .flatMap(Stream::findFirst);
 
         } catch (final AmazonClientException e) {
             log.warn("Could not describe image " + imageId, e);
