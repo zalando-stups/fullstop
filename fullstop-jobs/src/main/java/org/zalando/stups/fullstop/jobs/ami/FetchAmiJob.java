@@ -152,7 +152,7 @@ public class FetchAmiJob implements FullstopJob {
                 .map(TAUPAGE_NAME_SPLITTER::splitToList)
                 .filter(list -> list.size() == 4) // "Taupage-AMI-20160201-123456"
                 .map(parts -> parts.get(2))
-                .map(timestamp -> LocalDate.parse(timestamp, ofPattern("yyayMMdd")))
+                .map(timestamp -> LocalDate.parse(timestamp, ofPattern("yyyyMMdd")))
                 .map(creationDate -> creationDate.plusDays(60));
     }
 
