@@ -9,12 +9,12 @@ INSERT INTO fullstop_data.violation_type (
   created_by,
   version)
 VALUES ('OUTDATED_AMI',
-        'The AMI you are currently use is older than 60 days. You must update it. See our policy.',
+        'The AMI you are currently using is expired and no longer supported. Please update your EC2 instances to use a newer AMI',
         1,
-        'AMI used is older than 60 days.',
+        'AMI is expired',
         '#335',
         now(),
         now(),
         '#335',
-        0);
+        1);
 
