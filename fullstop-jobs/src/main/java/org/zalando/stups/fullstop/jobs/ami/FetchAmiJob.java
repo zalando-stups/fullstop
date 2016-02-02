@@ -33,7 +33,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_AMI;
+import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_TAUPAGE;
 
 @Component
 public class FetchAmiJob implements FullstopJob {
@@ -94,7 +94,7 @@ public class FetchAmiJob implements FullstopJob {
             DescribeInstancesResult describeEC2Result = getDescribeEC2Result(account, region);
             for (final Reservation reservation : describeEC2Result.getReservations()) {
                 for (final Instance instance : reservation.getInstances()) {
-                    if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_AMI)) {
+                    if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_TAUPAGE)) {
                         continue;
                     }
 
@@ -121,7 +121,7 @@ public class FetchAmiJob implements FullstopJob {
                                     .withRegion(region)
                                     .withPluginFullyQualifiedClassName(FetchAmiJob.class)
                                     .withEventId(EVENT_ID)
-                                    .withType(OUTDATED_AMI)
+                                    .withType(OUTDATED_TAUPAGE)
                                     .withInstanceId(instance.getInstanceId())
                                     .withMetaInfo(ImmutableMap.of(
                                             "ami_owner_id", image.getOwnerId(),
