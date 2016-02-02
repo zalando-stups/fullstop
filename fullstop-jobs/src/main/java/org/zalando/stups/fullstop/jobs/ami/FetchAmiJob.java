@@ -4,10 +4,8 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +16,20 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
-import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.time.LocalDate.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -59,6 +55,7 @@ public class FetchAmiJob implements FullstopJob {
     private final JobsProperties jobsProperties;
 
     private final ViolationService violationService;
+    private static final Splitter TAUPAGE_NAME_SPLITTER = Splitter.on('-');
 
     @Autowired
     public FetchAmiJob(ViolationSink violationSink,
@@ -86,91 +83,77 @@ public class FetchAmiJob implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : allAccountIds.get()) {
             for (String region : jobsProperties.getWhitelistedRegions()) {
-
-                try {
-
-                    log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
-
-                    DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
-                            account,
-                            region);
-
-                    for (final Reservation reservation : describeEC2Result.getReservations()) {
-
-                        for (final Instance instance : reservation.getInstances()) {
-                            final Map<String, Object> metaData = newHashMap();
-                            final List<String> errorMessages = newArrayList();
-
-                            if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_AMI)) {
-                                continue;
-                            }
-
-                            final Optional<Image> image = getAmiFromEC2Api(account, region, instance.getImageId());
-                            final Optional<Boolean> isTaupageAmi = image
-                                    .filter(img -> img.getName().startsWith(taupageNamePrefix))
-                                    .map(Image::getOwnerId)
-                                    .map(taupageOwners::contains);
-
-                            // will not check for all non taupage ami
-                            // or images with taupage as name but created from another owner
-                            if (!isTaupageAmi.orElse(false)) {
-                                continue;
-                            }
-
-                            DateTime now = DateTime.now();
-                            if (isTaupageTooOld(image.map(Image::getName), now)) {
-                                metaData.put("ami_owner_id", image.map(Image::getOwnerId).orElse(""));
-                                metaData.put("ami_id", image.map(Image::getImageId).orElse(""));
-                                metaData.put("ami_name", image.map(Image::getName).orElse(""));
-                                metaData.put("taupage_image_date", getTaupageImageDate(image.map(Image::getName)));
-                                metaData.put("expiration_date", getTaupageImageDate(image.map(Image::getName)).plus(Days.days(60)));
-                            }
-
-                            if (metaData.size() > 0) {
-                                metaData.put("errorMessages", errorMessages);
-                                writeViolation(account, region, metaData, instance.getInstanceId());
-                            }
-
-                        }
-
-                    }
-
-                } catch (AmazonServiceException a) {
-
-                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                        log.warn("RequestLimitExceeded for account: {}", account);
-                    } else {
-                        log.error(a.getMessage(), a);
-                    }
-
-                }
+                runOn(account, region);
             }
         }
     }
 
+    private void runOn(String account, String region) {
+        try {
+            log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
+            DescribeInstancesResult describeEC2Result = getDescribeEC2Result(account, region);
+            for (final Reservation reservation : describeEC2Result.getReservations()) {
+                for (final Instance instance : reservation.getInstances()) {
+                    if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_AMI)) {
+                        continue;
+                    }
 
-    private DateTime getTaupageImageDate(Optional<String> imageName) {
-        String rawDate = imageName.map(s -> Stream.of(s.split("-")).collect(Collectors.toList())).get().get(2);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        return formatter.parseDateTime(rawDate);
+                    final Optional<Image> optionalImage = getAmiFromEC2Api(account, region, instance.getImageId());
+                    final Optional<Boolean> isTaupageAmi = optionalImage
+                            .filter(img -> img.getName().startsWith(taupageNamePrefix))
+                            .map(Image::getOwnerId)
+                            .map(taupageOwners::contains);
+
+                    // will not check for all non taupage ami
+                    // or images with taupage as name but created from another owner
+                    if (!isTaupageAmi.orElse(false)) {
+                        continue;
+                    }
+
+
+                    final Image image = optionalImage.get();
+                    final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
+                    if (optionalExpirationDate.isPresent()) {
+                        final LocalDate expirationDate = optionalExpirationDate.get();
+                        if (now().isAfter(expirationDate)) {
+                            violationSink.put(new ViolationBuilder()
+                                    .withAccountId(account)
+                                    .withRegion(region)
+                                    .withPluginFullyQualifiedClassName(FetchAmiJob.class)
+                                    .withEventId(EVENT_ID)
+                                    .withType(OUTDATED_AMI)
+                                    .withInstanceId(instance.getInstanceId())
+                                    .withMetaInfo(ImmutableMap.of(
+                                            "ami_owner_id", image.getOwnerId(),
+                                            "ami_id", image.getImageId(),
+                                            "ami_name", image.getName(),
+                                            "expiration_date", expirationDate.toString()))
+                                    .build());
+                        }
+                    } else {
+                        log.warn("Could not expiration date of taupage AMI {}", image);
+                    }
+                }
+            }
+        } catch (final AmazonServiceException a) {
+            if (a.getErrorCode().equals("RequestLimitExceeded")) {
+                log.warn("RequestLimitExceeded for account: {}", account);
+            } else {
+                log.error(a.getMessage(), a);
+            }
+
+        }
     }
 
-    private boolean isTaupageTooOld(Optional<String> imageName, DateTime now) {
-        DateTime maxValidityTimeForAmi = now.minus(Days.days(60));
-        DateTime taupageImageDate = getTaupageImageDate(imageName);
-        return taupageImageDate.isBefore(maxValidityTimeForAmi);
-    }
-
-    private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
-        ViolationBuilder violationBuilder = new ViolationBuilder();
-        Violation violation = violationBuilder.withAccountId(account)
-                .withRegion(region)
-                .withPluginFullyQualifiedClassName(FetchAmiJob.class)
-                .withType(OUTDATED_AMI)
-                .withMetaInfo(metaInfo)
-                .withInstanceId(instanceId)
-                .withEventId(EVENT_ID).build();
-        violationSink.put(violation);
+    private Optional<LocalDate> getExpirationDate(Image image) {
+        // current implementation parse creation date from name + add 60 days support period
+        return Optional.ofNullable(image.getName())
+                .filter(name -> !name.isEmpty())
+                .map(TAUPAGE_NAME_SPLITTER::splitToList)
+                .filter(list -> list.size() == 4) // "Taupage-AMI-20160201-123456"
+                .map(parts -> parts.get(2))
+                .map(timestamp -> LocalDate.parse(timestamp, ofPattern("yyayMMdd")))
+                .map(creationDate -> creationDate.plusDays(60));
     }
 
     private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
