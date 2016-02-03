@@ -2,8 +2,10 @@ package org.zalando.stups.fullstop.jobs.scm;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.ListCommitsResponse;
 import org.zalando.kontrolletti.resources.Commit;
@@ -24,11 +26,15 @@ import java.util.Optional;
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.joining;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.zalando.kontrolletti.CommitRangeRequest.Builder.inRepository;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SPEC_LINKS;
 
 @Component
 public class ScmCommitsJob implements FullstopJob {
+
+    private final Logger log = getLogger(getClass());
 
     private static final String EVENT_ID = "scmCommitsJob";
     private final KioOperations kio;
@@ -62,10 +68,23 @@ public class ScmCommitsJob implements FullstopJob {
                 Optional.of(app)
                         .map(Application::getScmUrl)
                         .filter(StringUtils::isNotBlank)
-                        .map(kontrolletti::normalizeRepositoryUrl) // TODO is this necessary?
+                        .map(this::normalizeRepositoryUrl) // TODO is this necessary?
                         .map(kontrolletti::getRepository)
                         .flatMap(repo -> findViolationInRepo(repo, deployment))
                         .ifPresent(violationSink::put));
+    }
+
+    private String normalizeRepositoryUrl(String url) {
+        try {
+            return kontrolletti.normalizeRepositoryUrl(url);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == BAD_REQUEST) {
+                log.warn("Failed to normalize url {}. Reason: {}", url, e);
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     private Optional<Violation> findViolationInRepo(Repository repository, AccountRegion deployment) {
