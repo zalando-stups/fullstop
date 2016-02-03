@@ -20,7 +20,8 @@ import javax.validation.constraints.NotNull;
 public class RuleEntity {
 
     @Id
-    private String ruleName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String accountId;
 
@@ -67,16 +68,16 @@ public class RuleEntity {
     @Version
     private Long version;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getAccountId() {
         return accountId;
-    }
-
-    public String getRuleName() {
-        return ruleName;
-    }
-
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
     }
 
     public void setAccountId(String accountId) {
@@ -190,21 +191,21 @@ public class RuleEntity {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("ruleName", ruleName)
-                .add("accountId", accountId)
-                .add("region", region)
-                .add("application_id", application_id)
-                .add("application_version", application_version)
-                .add("image_name", image_name)
-                .add("image_owner", image_owner)
-                .add("reason", reason)
-                .add("expiry_date", expiry_date)
-                .add("violationTypeEntity", violationTypeEntity)
-                .add("created", created)
-                .add("createdBy", createdBy)
-                .add("lastModified", lastModified)
-                .add("lastModifiedBy", lastModifiedBy)
                 .add("version", version)
+                .add("lastModifiedBy", lastModifiedBy)
+                .add("lastModified", lastModified)
+                .add("createdBy", createdBy)
+                .add("created", created)
+                .add("violationTypeEntity", violationTypeEntity)
+                .add("expiry_date", expiry_date)
+                .add("reason", reason)
+                .add("image_owner", image_owner)
+                .add("image_name", image_name)
+                .add("application_version", application_version)
+                .add("application_id", application_id)
+                .add("region", region)
+                .add("accountId", accountId)
+                .add("id", id)
                 .toString();
     }
 }
