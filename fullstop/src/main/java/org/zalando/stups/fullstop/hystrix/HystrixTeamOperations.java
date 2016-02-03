@@ -23,8 +23,8 @@ public class HystrixTeamOperations implements TeamOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = HttpClientErrorException.class)
-    public List<Account> getAccounts() {
-        return delegate.getAccounts();
+    public List<Account> getActiveAccounts() {
+        return delegate.getActiveAccounts();
     }
 
 }

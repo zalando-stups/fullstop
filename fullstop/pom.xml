@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>11</version>
+        <version>12</version>
         <relativePath/>
     </parent>
 
@@ -164,7 +164,6 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>spring-boot-zalando-stups-tokens</artifactId>
-            <version>0.9.1</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -199,7 +198,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>3.2.1</version>
         </dependency>
 
         <!-- TESTING -->

@@ -22,6 +22,6 @@ public class AccountIdSupplierImpl implements AccountIdSupplier {
 
     @Override
     public Set<String> get() {
-        return teams.getAccounts().stream().map(Account::getId).collect(toSet());
+        return teams.getActiveAccounts().stream().map(Account::getId).collect(toSet());
     }
 }

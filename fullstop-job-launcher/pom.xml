@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>11</version>
+        <version>12</version>
         <relativePath/>
     </parent>
 
@@ -57,6 +57,11 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>kio-client-java-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
 
     </dependencies>

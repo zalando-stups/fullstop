@@ -194,7 +194,9 @@ public class ViolationsControllerTest {
                                 violationResult.getAccountId(),
                                 "Foo",
                                 "aws",
-                                "account desc")));
+                                "account desc",
+                                "account",
+                                false)));
 
         violationRequest.setComment("my comment");
 
@@ -236,7 +238,9 @@ public class ViolationsControllerTest {
                                 "foo",
                                 "Foo",
                                 "other_teams_account",
-                                "aws")));
+                                "aws",
+                                "account",
+                                false)));
 
         violationRequest.setComment("my comment");
 
@@ -278,7 +282,7 @@ public class ViolationsControllerTest {
 
         @Bean
         @SuppressWarnings("unchecked")
-        public Converter<ViolationEntity, Violation> violationConverter(){
+        public Converter<ViolationEntity, Violation> violationConverter() {
             return mock(Converter.class, "violationConverter");
         }
     }
