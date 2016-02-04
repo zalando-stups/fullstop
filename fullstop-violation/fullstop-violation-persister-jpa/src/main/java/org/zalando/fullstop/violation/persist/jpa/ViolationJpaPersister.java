@@ -1,6 +1,5 @@
 package org.zalando.fullstop.violation.persist.jpa;
 
-import org.kie.api.runtime.StatelessKieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
