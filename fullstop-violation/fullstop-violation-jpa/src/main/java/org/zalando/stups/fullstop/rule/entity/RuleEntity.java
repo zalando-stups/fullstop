@@ -1,15 +1,16 @@
 package org.zalando.stups.fullstop.rule.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.zalando.stups.fullstop.domain.validation.groups.PersistenceOnly;
-import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -23,24 +24,32 @@ public class RuleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty(value = "account_id")
     private String accountId;
 
+    @JsonProperty(value = "region")
     private String region;
 
-    private String application_id;
+    @JsonProperty(value = "application_id")
+    private String applicationId;
 
-    private String application_version;
+    @JsonProperty(value = "application_version")
+    private String applicationVersion;
 
-    private String image_name;
+    @JsonProperty(value = "image_name")
+    private String imageName;
 
-    private String image_owner;
+    @JsonProperty(value = "image_owner")
+    private String imageOwner;
 
+    @JsonProperty(value = "reason")
     private String reason;
 
-    private String expiry_date;
+    @JsonProperty(value = "expiry_date")
+    private LocalDate expiryDate;
 
-    @ManyToOne
-    private ViolationTypeEntity violationTypeEntity;
+    @JsonProperty(value = "violation_type_entity")
+    private String violationTypeEntity;
 
     @CreatedDate
     @NotNull(groups = {PersistenceOnly.class})
@@ -92,36 +101,36 @@ public class RuleEntity {
         this.region = region;
     }
 
-    public String getApplication_id() {
-        return application_id;
+    public String getApplicationId() {
+        return applicationId;
     }
 
-    public void setApplication_id(String application_id) {
-        this.application_id = application_id;
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
-    public String getApplication_version() {
-        return application_version;
+    public String getApplicationVersion() {
+        return applicationVersion;
     }
 
-    public void setApplication_version(String application_version) {
-        this.application_version = application_version;
+    public void setApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
     }
 
-    public String getImage_name() {
-        return image_name;
+    public String getImageName() {
+        return imageName;
     }
 
-    public void setImage_name(String image_name) {
-        this.image_name = image_name;
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 
-    public String getImage_owner() {
-        return image_owner;
+    public String getImageOwner() {
+        return imageOwner;
     }
 
-    public void setImage_owner(String image_owner) {
-        this.image_owner = image_owner;
+    public void setImageOwner(String imageOwner) {
+        this.imageOwner = imageOwner;
     }
 
     public String getReason() {
@@ -132,19 +141,19 @@ public class RuleEntity {
         this.reason = reason;
     }
 
-    public String getExpiry_date() {
-        return expiry_date;
+    public LocalDate getExpiryDate() {
+        return expiryDate;
     }
 
-    public void setExpiry_date(String expiry_date) {
-        this.expiry_date = expiry_date;
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
-    public ViolationTypeEntity getViolationTypeEntity() {
+    public String  getViolationTypeEntity() {
         return violationTypeEntity;
     }
 
-    public void setViolationTypeEntity(ViolationTypeEntity violationTypeEntity) {
+    public void setViolationTypeEntity(String violationTypeEntity) {
         this.violationTypeEntity = violationTypeEntity;
     }
 
@@ -197,12 +206,12 @@ public class RuleEntity {
                 .add("createdBy", createdBy)
                 .add("created", created)
                 .add("violationTypeEntity", violationTypeEntity)
-                .add("expiry_date", expiry_date)
+                .add("expiryDate", expiryDate)
                 .add("reason", reason)
-                .add("image_owner", image_owner)
-                .add("image_name", image_name)
-                .add("application_version", application_version)
-                .add("application_id", application_id)
+                .add("imageOwner", imageOwner)
+                .add("imageName", imageName)
+                .add("applicationVersion", applicationVersion)
+                .add("applicationId", applicationId)
                 .add("region", region)
                 .add("accountId", accountId)
                 .add("id", id)
