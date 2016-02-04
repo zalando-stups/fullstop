@@ -10,6 +10,7 @@ import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
+import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
 /**
@@ -29,16 +30,16 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private final CounterService counterService;
 
-    private final StatelessKieSession whitelistRulesSession;
+    private final WhitelistRules whitelistRules;
 
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
                                  final ViolationTypeRepository violationTypeRepository,
-                                 final CounterService counterService, final StatelessKieSession whitelistRulesSession) {
+                                 final CounterService counterService, final WhitelistRules whitelistRules) {
         super(eventBus);
         this.violationRepository = violationRepository;
         this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
-        this.whitelistRulesSession = whitelistRulesSession;
+        this.whitelistRules = whitelistRules;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -81,7 +82,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setRegion(violation.getRegion());
 
-        whitelistRulesSession.execute(entity);
+        whitelistRules.execute(entity);
 
         return entity;
     }
