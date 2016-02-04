@@ -21,14 +21,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 @RequestMapping(value = "/whitelisting-rules", produces = APPLICATION_JSON_VALUE)
 @PreAuthorize("#oauth2.hasScope('uid')")
-public class WhitelistController2 {
+public class WhitelistController {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private RuleEntityRepository ruleEntityRepository;
 
 
     @Autowired
-    public WhitelistController2(RuleEntityRepository ruleEntityRepository) {
+    public WhitelistController(RuleEntityRepository ruleEntityRepository) {
         this.ruleEntityRepository = ruleEntityRepository;
     }
 
