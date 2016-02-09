@@ -23,20 +23,17 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @PreAuthorize("#oauth2.hasScope('uid')")
 public class WhitelistController {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    private RuleEntityRepository ruleEntityRepository;
-
-
     @Autowired
-    public WhitelistController(RuleEntityRepository ruleEntityRepository) {
-        this.ruleEntityRepository = ruleEntityRepository;
-    }
+    RuleEntityRepository ruleEntityRepository;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 
+    //TODO Swagger for all (?)
     @RequestMapping(value = "/", method = GET)
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
-    public List<RuleEntity> ruleEntities() {
+    public List<RuleEntity> showWhitelistings() {
 
         return ruleEntityRepository.findAll();
     }
@@ -67,8 +64,8 @@ public class WhitelistController {
     @RequestMapping(value = "/{id}", method = PUT)
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
-    public void updateRule(@RequestBody RuleDTO ruleDTO,
-                           @PathVariable("id") final Long id) {
+    public void updateWhitelisting(@RequestBody RuleDTO ruleDTO,
+                                   @PathVariable("id") final Long id) {
         RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
         ruleEntity = mapRuleToRuleEntity(ruleDTO, ruleEntity);
 

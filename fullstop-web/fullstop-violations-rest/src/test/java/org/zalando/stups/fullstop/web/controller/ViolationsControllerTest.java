@@ -28,6 +28,7 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.model.Violation;
+import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -257,7 +258,7 @@ public class ViolationsControllerTest {
     }
 
     @Configuration
-    @Import(ControllerTestConfig.class)
+    @Import(org.zalando.stups.fullstop.web.test.ControllerTestConfig.class)
     static class TestConfig {
 
         @Bean

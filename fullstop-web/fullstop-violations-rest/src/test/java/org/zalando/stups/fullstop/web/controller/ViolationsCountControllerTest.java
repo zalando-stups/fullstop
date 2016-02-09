@@ -18,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
+import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import java.util.Optional;
 
