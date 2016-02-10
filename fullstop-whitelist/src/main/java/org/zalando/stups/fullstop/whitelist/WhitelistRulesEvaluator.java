@@ -4,6 +4,7 @@ import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -69,19 +70,47 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
     }
 
     private static Predicate<ViolationEntity> imageNameMatches(String imageName) {
-        return v -> imageName.equals(v.getMetaInfo() if instanceof map than ..);
+        return v -> {
+            if(v.getMetaInfo() instanceof Map) {
+                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                return imageName.equals(map.get("ami_name"));
+            } else {
+                return false;
+            }
+        };
     }
 
     private static Predicate<ViolationEntity> imageOwnerIsEqual(String imageOwner) {
-        return v -> imageOwner.equals(v.getMetaInfo() if instanceof map than ..);
+        return v -> {
+            if(v.getMetaInfo() instanceof Map) {
+                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                return imageOwner.equals(map.get("ami_owner_id"));
+            } else {
+                return false;
+            }
+        };
     }
 
     private static Predicate<ViolationEntity> applicationIdIsEqual(String applicationId) {
-        return v -> applicationId.equals(v.getMetaInfo() if instanceof map than ..);
+        return v -> {
+            if(v.getMetaInfo() instanceof Map) {
+                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                return applicationId.equals(map.get("application_id"));
+            } else {
+                return false;
+            }
+        };
     }
 
     private static Predicate<ViolationEntity> applicationVersionIsEqual(String applicationVersion) {
-        return v -> applicationVersion.equals(v.getMetaInfo() if instanceof map than ..);
+        return v -> {
+            if(v.getMetaInfo() instanceof Map) {
+                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                return applicationVersion.equals(map.get("application_version"));
+            } else {
+                return false;
+            }
+        };
     }
 
 
