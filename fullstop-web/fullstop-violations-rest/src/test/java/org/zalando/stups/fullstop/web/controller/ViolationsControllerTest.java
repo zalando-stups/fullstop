@@ -258,7 +258,7 @@ public class ViolationsControllerTest {
     }
 
     @Configuration
-    @Import(org.zalando.stups.fullstop.web.test.ControllerTestConfig.class)
+    @Import(ControllerTestConfig.class)
     static class TestConfig {
 
         @Bean
