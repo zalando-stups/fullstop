@@ -18,12 +18,12 @@ public class WhitelistConfig {
     private RuleEntityRepository ruleEntityRepository;
 
     @Bean
-    private WhitelistRulesEvaluator whitelistRulesEvaluator(){
+    WhitelistRulesEvaluator whitelistRulesEvaluator() {
         return new WhitelistRulesEvaluator();
     }
 
     @Bean
-    private WhitelistRules whitelistRules(){
+    WhitelistRules whitelistRules() {
         return new WhitelistRules(ruleEntityRepository, whitelistRulesEvaluator());
     }
 }

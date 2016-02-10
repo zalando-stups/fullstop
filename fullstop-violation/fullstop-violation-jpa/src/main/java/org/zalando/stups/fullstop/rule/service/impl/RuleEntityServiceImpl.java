@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.rule.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
@@ -10,6 +11,7 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
 
+@Service("ruleEntityService")
 public class RuleEntityServiceImpl implements RuleEntityService {
 
     @Autowired
