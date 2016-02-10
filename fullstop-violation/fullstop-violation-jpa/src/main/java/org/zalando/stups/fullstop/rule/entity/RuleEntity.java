@@ -149,7 +149,7 @@ public class RuleEntity {
         this.expiryDate = expiryDate;
     }
 
-    public String  getViolationTypeEntity() {
+    public String getViolationTypeId() {
         return violationTypeEntity;
     }
 
