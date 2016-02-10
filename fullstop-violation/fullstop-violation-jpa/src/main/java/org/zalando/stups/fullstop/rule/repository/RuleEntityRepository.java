@@ -8,7 +8,4 @@ import org.zalando.stups.fullstop.rule.entity.RuleEntity;
  * @author Christian Lohmann
  */
 @Repository
-public interface RuleEntityRepository extends JpaRepository<RuleEntity, String> {
-
-    RuleEntity findOne(Long id);
-}
+public interface RuleEntityRepository extends JpaRepository<RuleEntity, Long> {}
