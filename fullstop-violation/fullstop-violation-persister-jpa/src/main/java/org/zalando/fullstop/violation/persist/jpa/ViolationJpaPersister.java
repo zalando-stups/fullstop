@@ -81,7 +81,7 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setRegion(violation.getRegion());
 
-        whitelistRules.isWhitelisted(entity);
+        whitelistRules.execute(entity);
 
         return entity;
     }

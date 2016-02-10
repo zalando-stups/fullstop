@@ -11,24 +11,26 @@ public class WhitelistRules {
 
     private final RuleEntityRepository ruleEntityRepository;
 
+    private final WhitelistRulesEvaluator whitelistRulesEvaluator;
+
     @Autowired
-    public WhitelistRules(final RuleEntityRepository ruleEntityRepository) {
+    public WhitelistRules(final RuleEntityRepository ruleEntityRepository, final WhitelistRulesEvaluator whitelistRulesEvaluator) {
         this.ruleEntityRepository = ruleEntityRepository;
+        this.whitelistRulesEvaluator = whitelistRulesEvaluator;
     }
 
-    public void isWhitelisted(ViolationEntity entity) {
+    public void execute(ViolationEntity violationEntity) {
 
-        if (entity != null) {
+        if (violationEntity != null) {
 
             List<RuleEntity> rules = ruleEntityRepository.findAll(); // TODO: that are not expired
 
             for (RuleEntity rule : rules) {
 
-                WhitelistRulesEvaluator whitelistRulesEvaluator = new WhitelistRulesEvaluator();
-
-                if (whitelistRulesEvaluator.apply(rule, entity)){
-                    entity.setRuleEntity(rule);
-                    entity.setComment("Whitelisted automatically because of:" + rule.getReason());
+                if (whitelistRulesEvaluator.apply(rule, violationEntity)){
+                    violationEntity.setRuleEntity(rule);
+                    violationEntity.setComment("Whitelisted automatically because of:" + rule.getReason());
+                    return;
                 }
 
             }
