@@ -69,11 +69,11 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
         return v -> violationTypeId.equals(v.getViolationTypeEntity().getId());
     }
 
-    private static Predicate<ViolationEntity> imageNameMatches(String imageName) {
+    private static Predicate<ViolationEntity> imageNameMatches(String imageNamePattern) {
         return v -> {
             if(v.getMetaInfo() instanceof Map) {
                 Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return imageName.equals(map.get("ami_name"));
+                return map.get("ami_name").matches(imageNamePattern);
             } else {
                 return false;
             }

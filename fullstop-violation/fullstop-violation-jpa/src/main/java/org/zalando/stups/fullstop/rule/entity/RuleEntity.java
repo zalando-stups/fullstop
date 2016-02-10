@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,7 +14,7 @@ import org.zalando.stups.fullstop.domain.validation.groups.PersistenceOnly;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Table(name = "rule_entity", schema = "fullstop_data")
+@Table(name = "rule", schema = "fullstop_data")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class RuleEntity {
@@ -46,10 +45,10 @@ public class RuleEntity {
     private String reason;
 
     @JsonProperty(value = "expiry_date")
-    private LocalDate expiryDate;
+    private DateTime expiryDate;
 
-    @JsonProperty(value = "violation_type_entity")
-    private String violationTypeEntity;
+    @JsonProperty(value = "violation_type_entity_id")
+    private String violationTypeEntityId;
 
     @CreatedDate
     @NotNull(groups = {PersistenceOnly.class})
@@ -141,20 +140,20 @@ public class RuleEntity {
         this.reason = reason;
     }
 
-    public LocalDate getExpiryDate() {
+    public DateTime getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDate expiryDate) {
+    public void setExpiryDate(DateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
 
     public String getViolationTypeId() {
-        return violationTypeEntity;
+        return violationTypeEntityId;
     }
 
-    public void setViolationTypeEntity(String violationTypeEntity) {
-        this.violationTypeEntity = violationTypeEntity;
+    public void setViolationTypeEntityId(String violationTypeEntityId) {
+        this.violationTypeEntityId = violationTypeEntityId;
     }
 
     public DateTime getCreated() {
@@ -205,7 +204,7 @@ public class RuleEntity {
                 .add("lastModified", lastModified)
                 .add("createdBy", createdBy)
                 .add("created", created)
-                .add("violationTypeEntity", violationTypeEntity)
+                .add("violationTypeEntityId", violationTypeEntityId)
                 .add("expiryDate", expiryDate)
                 .add("reason", reason)
                 .add("imageOwner", imageOwner)

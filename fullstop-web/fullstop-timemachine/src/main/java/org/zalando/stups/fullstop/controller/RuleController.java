@@ -22,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 @RequestMapping(value = "/whitelisting-rules", produces = APPLICATION_JSON_VALUE)
 @PreAuthorize("#oauth2.hasScope('uid')")
-public class WhitelistController {
+public class RuleController {
 
     @Autowired
     RuleEntityService ruleEntityService;

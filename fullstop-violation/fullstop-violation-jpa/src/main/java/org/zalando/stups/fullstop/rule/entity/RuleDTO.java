@@ -1,7 +1,7 @@
 package org.zalando.stups.fullstop.rule.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 public class RuleDTO {
     @JsonProperty(value = "account_id")
@@ -26,7 +26,7 @@ public class RuleDTO {
     private String reason;
 
     @JsonProperty(value = "expiry_date")
-    private LocalDate expiryDate;
+    private DateTime expiryDate;
 
     @JsonProperty(value = "violation_type_entity")
     private String violationTypeEntity;
@@ -87,11 +87,11 @@ public class RuleDTO {
         this.reason = reason;
     }
 
-    public LocalDate getExpiryDate() {
+    public DateTime getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDate expiryDate) {
+    public void setExpiryDate(DateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
 

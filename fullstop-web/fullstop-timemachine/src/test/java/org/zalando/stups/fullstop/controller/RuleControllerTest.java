@@ -2,7 +2,7 @@ package org.zalando.stups.fullstop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -25,7 +24,7 @@ import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -35,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-public class WhitelistControllerTest {
+public class RuleControllerTest {
 
     private RuleDTO ruleDTO;
 
@@ -60,7 +59,7 @@ public class WhitelistControllerTest {
         ruleDTO.setAccountId("12345");
         ruleDTO.setApplicationId("a-1234");
         ruleDTO.setApplicationVersion("1.0-SNAPSHOT");
-        ruleDTO.setExpiryDate(LocalDate.now());
+        ruleDTO.setExpiryDate(DateTime.now());
         ruleDTO.setImageName("amiName");
         ruleDTO.setImageOwner("Peter Lustig");
         ruleDTO.setReason("BAM!");
@@ -128,7 +127,7 @@ public class WhitelistControllerTest {
     static class TestConfig {
 
         @Bean
-        public WhitelistController whitelistController() { return new WhitelistController(); }
+        public RuleController whitelistController() { return new RuleController(); }
 
         @Bean
         public RuleEntityRepository ruleEntityRepository() { return mock(RuleEntityRepository.class); }

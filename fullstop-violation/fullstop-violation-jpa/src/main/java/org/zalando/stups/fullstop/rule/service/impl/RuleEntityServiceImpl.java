@@ -77,7 +77,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         ruleEntity.setImageOwner(ruleDTO.getImageOwner());
         ruleEntity.setReason(ruleDTO.getReason());
         ruleEntity.setExpiryDate(ruleDTO.getExpiryDate());
-        ruleEntity.setViolationTypeEntity(ruleDTO.getViolationTypeEntity());
+        ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntity());
 
         return ruleEntity;
     }
