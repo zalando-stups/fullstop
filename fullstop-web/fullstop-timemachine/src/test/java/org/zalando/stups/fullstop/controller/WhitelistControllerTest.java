@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -20,9 +22,12 @@ import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
+import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,6 +50,9 @@ public class WhitelistControllerTest {
     @Autowired
     private RuleEntityRepository ruleEntityRepositoryMock;
 
+    @Autowired
+    private RuleEntityService ruleEntityService;
+
 
     @Before
     public void setUp() throws Exception {
@@ -61,8 +69,9 @@ public class WhitelistControllerTest {
 
         ruleEntity = new RuleEntity();
         ruleEntity.setId(1L);
+        ruleEntity.setAccountId("1234");
 
-        when(ruleEntityRepositoryMock.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
+        when(ruleEntityService.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
 
@@ -72,23 +81,35 @@ public class WhitelistControllerTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(ruleEntityRepositoryMock);
+        verifyNoMoreInteractions(ruleEntityService);
     }
 
     @Test
     public void testShowWhitelistings() throws Exception {
-        when(ruleEntityRepositoryMock.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
+        when(ruleEntityService.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
 
         ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$[0].id").value(1));
 
-        verify(ruleEntityRepositoryMock).findAll();
+        verify(ruleEntityService).findAll();
 
 
     }
 
     @Test
     public void testAddWhitelisting() throws Exception {
+        RuleDTO ruleDTO = new RuleDTO();
+        ruleDTO.setAccountId("1234");
+        when(ruleEntityService.save(any(RuleDTO.class))).thenReturn(ruleEntity);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
+
+        ResultActions resultActions = mockMvc.perform(post("/whitelisting-rules/").contentType(APPLICATION_JSON).content(ruleAsJson));
+        resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
+
+        verify(ruleEntityService).save(any(RuleDTO.class));
+
 
     }
 
@@ -111,6 +132,9 @@ public class WhitelistControllerTest {
 
         @Bean
         public RuleEntityRepository ruleEntityRepository() { return mock(RuleEntityRepository.class); }
+
+        @Bean
+        public RuleEntityService ruleEntityService() { return mock(RuleEntityService.class); }
 
 
     }

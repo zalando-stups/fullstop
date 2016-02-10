@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
-import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
+import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class WhitelistController {
 
     @Autowired
-    RuleEntityRepository ruleEntityRepository;
+    RuleEntityService ruleEntityService;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -35,7 +36,7 @@ public class WhitelistController {
     @ResponseStatus(OK)
     public List<RuleEntity> showWhitelistings() {
 
-        return ruleEntityRepository.findAll();
+        return ruleEntityService.findAll();
     }
 
     @RequestMapping(value = "/", method = POST)
@@ -44,12 +45,7 @@ public class WhitelistController {
     @ResponseStatus(CREATED)
     public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO) {
 
-        RuleEntity ruleEntity = new RuleEntity();
-        ruleEntity = mapRuleToRuleEntity(ruleDTO, ruleEntity);
-
-        RuleEntity savedRuleEntity = ruleEntityRepository.save(ruleEntity);
-        log.info("New Whitelisting Rule created {}", ruleEntity);
-        return savedRuleEntity;
+        return ruleEntityService.save(ruleDTO);
     }
 
     @RequestMapping(value = "/{id}", method = GET)
@@ -58,34 +54,20 @@ public class WhitelistController {
     public RuleEntity getWhitelisting(@PathVariable("id")
                                       final Long id) {
 
-        return ruleEntityRepository.findOne(id);
+        return ruleEntityService.findById(id);
     }
 
     @RequestMapping(value = "/{id}", method = PUT)
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public void updateWhitelisting(@RequestBody RuleDTO ruleDTO,
-                                   @PathVariable("id") final Long id) {
-        RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
-        ruleEntity = mapRuleToRuleEntity(ruleDTO, ruleEntity);
+                                   @PathVariable("id") final Long id) throws NotFoundException {
+        RuleEntity updatedRuleEntity = ruleEntityService.update(ruleDTO, id);
+        if (updatedRuleEntity == null) {
+            throw new NotFoundException(String.format("No such Rule! {}", id));
+        }
 
-        ruleEntityRepository.save(ruleEntity);
-        log.info("Whitelisting Rule updated {}", ruleEntity);
+        log.info("Rule {} succesfully updated", id);
 
     }
-
-
-    private RuleEntity mapRuleToRuleEntity(@RequestBody RuleDTO ruleDTO, RuleEntity ruleEntity) {
-        ruleEntity.setAccountId(ruleDTO.getAccountId());
-        ruleEntity.setApplicationId(ruleDTO.getApplicationId());
-        ruleEntity.setApplicationVersion(ruleDTO.getApplicationVersion());
-        ruleEntity.setImageName(ruleDTO.getImageName());
-        ruleEntity.setImageOwner(ruleDTO.getImageOwner());
-        ruleEntity.setReason(ruleDTO.getReason());
-        ruleEntity.setExpiryDate(ruleDTO.getExpiryDate());
-        ruleEntity.setViolationTypeEntity(ruleDTO.getViolationTypeEntity());
-
-        return ruleEntity;
-    }
-
 }
