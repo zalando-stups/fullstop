@@ -12,7 +12,7 @@ import org.zalando.stups.fullstop.whitelist.WhitelistRulesEvaluator;
 @Configuration
 public class WhitelistConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger("whitelist-logger");
+    private static final Logger LOG = LoggerFactory.getLogger("whitelist-logger"); //TODO we don't log anything here
 
     @Autowired
     private RuleEntityService ruleEntityService;
