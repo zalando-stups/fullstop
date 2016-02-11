@@ -27,7 +27,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,14 +49,13 @@ public class RuleControllerTest {
     private WebApplicationContext wac;
 
     @Autowired
-    private RuleEntityRepository ruleEntityRepositoryMock;
-
-    @Autowired
     private RuleEntityService ruleEntityService;
 
 
     @Before
     public void setUp() throws Exception {
+        reset(ruleEntityService);
+
         ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("12345");
         ruleDTO.setApplicationId("a-1234");
@@ -114,11 +115,52 @@ public class RuleControllerTest {
 
     @Test
     public void testGetWhitelisting() throws Exception {
+        when(ruleEntityService.findById(anyLong())).thenReturn(ruleEntity);
 
+        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/1")).andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
+
+        verify(ruleEntityService).findById(anyLong());
+    }
+
+    @Test
+    public void testGetWhitelistingFails() throws Exception {
+        when(ruleEntityService.findById(anyLong())).thenReturn(null);
+
+        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/2")).andExpect(status().isNotFound());
+        resultActions.andExpect(content().string("No such Rule! Id: 2"));
+
+        verify(ruleEntityService).findById(anyLong());
     }
 
     @Test
     public void testUpdateWhitelisting() throws Exception {
+        RuleDTO ruleDTO = new RuleDTO();
+        ruleDTO.setAccountId("4567");
+        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenReturn(ruleEntity);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
+
+        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/1").contentType(APPLICATION_JSON).content(ruleAsJson));
+        resultActions.andExpect(status().isOk());
+
+        verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
+    }
+
+    @Test
+    public void testUpdateWhitelistingFails() throws Exception {
+        RuleDTO ruleDTO = new RuleDTO();
+        ruleDTO.setAccountId("4567");
+        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenReturn(null);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
+
+        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/1").contentType(APPLICATION_JSON).content(ruleAsJson));
+        resultActions.andExpect(content().string("No such Rule! Id: 1"));
+
+        verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
 
     }
 
@@ -127,13 +169,19 @@ public class RuleControllerTest {
     static class TestConfig {
 
         @Bean
-        public RuleController whitelistController() { return new RuleController(); }
+        public RuleController whitelistController() {
+            return new RuleController();
+        }
 
         @Bean
-        public RuleEntityRepository ruleEntityRepository() { return mock(RuleEntityRepository.class); }
+        public RuleEntityRepository ruleEntityRepository() {
+            return mock(RuleEntityRepository.class);
+        }
 
         @Bean
-        public RuleEntityService ruleEntityService() { return mock(RuleEntityService.class); }
+        public RuleEntityService ruleEntityService() {
+            return mock(RuleEntityService.class);
+        }
 
 
     }

@@ -37,7 +37,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     public RuleEntity update(RuleDTO ruleDTO, Long id) {
         RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
         if (ruleEntity == null) {
-            log.warn("No such RuleEntity! ID: {}", id);
+            log.warn("No such RuleEntity found for updating! Id: {}", id);
             return null;
         }
 
@@ -50,7 +50,14 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
     @Override
     public RuleEntity findById(Long id) {
-        return ruleEntityRepository.findOne(id);
+        RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
+        if (ruleEntity == null) {
+            log.warn("No such RuleEntity found! Id: {}", id);
+            return null;
+        }
+
+
+        return ruleEntity;
     }
 
     @Override

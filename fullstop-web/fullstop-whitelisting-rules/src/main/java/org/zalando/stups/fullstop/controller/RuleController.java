@@ -14,6 +14,7 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
 
+import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
@@ -52,9 +53,13 @@ public class RuleController {
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
-                                      final Long id) {
+                                      final Long id) throws NotFoundException {
 
-        return ruleEntityService.findById(id);
+        RuleEntity ruleEntity = ruleEntityService.findById(id);
+        if (ruleEntity == null) {
+            throw new NotFoundException(format("No such Rule! Id: %s", id));
+        }
+        return ruleEntity;
     }
 
     @RequestMapping(value = "/{id}", method = PUT)
@@ -64,7 +69,7 @@ public class RuleController {
                                    @PathVariable("id") final Long id) throws NotFoundException {
         RuleEntity updatedRuleEntity = ruleEntityService.update(ruleDTO, id);
         if (updatedRuleEntity == null) {
-            throw new NotFoundException(String.format("No such Rule! {}", id));
+            throw new NotFoundException(format("No such Rule! Id: %s", id));
         }
 
         log.info("Rule {} succesfully updated", id);
