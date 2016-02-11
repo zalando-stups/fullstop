@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
+import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import org.zalando.stups.fullstop.whitelist.WhitelistRulesEvaluator;
 
@@ -15,7 +15,7 @@ public class WhitelistConfig {
     private static final Logger LOG = LoggerFactory.getLogger("whitelist-logger");
 
     @Autowired
-    private RuleEntityRepository ruleEntityRepository;
+    private RuleEntityService ruleEntityService;
 
     @Bean
     WhitelistRulesEvaluator whitelistRulesEvaluator() {
@@ -24,6 +24,6 @@ public class WhitelistConfig {
 
     @Bean
     WhitelistRules whitelistRules() {
-        return new WhitelistRules(ruleEntityRepository, whitelistRulesEvaluator());
+        return new WhitelistRules(whitelistRulesEvaluator(), ruleEntityService);
     }
 }

@@ -13,5 +13,7 @@ public interface RuleEntityService {
 
     RuleEntity findById(Long id);
 
+    List<RuleEntity> findByNotExpired();
+
     List<RuleEntity> findAll();
 }

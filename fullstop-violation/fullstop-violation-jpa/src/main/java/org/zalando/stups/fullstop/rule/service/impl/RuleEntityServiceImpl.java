@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.rule.service.impl;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,11 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
 
         return ruleEntity;
+    }
+
+    @Override
+    public List<RuleEntity> findByNotExpired() {
+        return ruleEntityRepository.findByExpiryDateAfter(DateTime.now());
     }
 
     @Override
