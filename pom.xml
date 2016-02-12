@@ -42,7 +42,7 @@
         <module>fullstop-aws-support</module>
 
         <module>team-service-api</module>
-        <module>teams-service-client-spring</module>
+        <module>team-service-client-spring</module>
 
 
         <!-- all-plugins -->
