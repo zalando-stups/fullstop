@@ -24,6 +24,10 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     @Override
     public RuleEntity save(RuleDTO ruleDTO) {
 
+        if (ruleDTO.getExpiryDate() == null) {
+            ruleDTO.setExpiryDate(new DateTime(Long.MAX_VALUE));
+        }
+
         RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
 
         RuleEntity entity = ruleEntityRepository.save(ruleEntity);
@@ -36,17 +40,23 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
     @Override
     public RuleEntity update(RuleDTO ruleDTO, Long id) {
-        RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
-        if (ruleEntity == null) {
+        RuleEntity newRule;
+
+        if (ruleDTO.getExpiryDate() == null) {
+            ruleDTO.setExpiryDate(new DateTime(Long.MAX_VALUE));
+        }
+
+        RuleEntity oldRule = ruleEntityRepository.findOne(id);
+        if (oldRule == null) {
             log.warn("No such RuleEntity found for updating! Id: {}", id);
             return null;
         }
+        invalidateRule(oldRule);
 
-        ruleEntity = updateRuleEntity(ruleEntity, ruleDTO);
-
-        ruleEntityRepository.save(ruleEntity);
-        log.info("Whitelisting Rule updated {}", ruleEntity);
-        return ruleEntity;
+        newRule = mapDtoToRuleEntity(ruleDTO);
+        newRule = ruleEntityRepository.save(newRule);
+        log.info("Whitelisting Rule updated {}", newRule);
+        return newRule;
     }
 
     @Override
@@ -71,18 +81,13 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         return ruleEntityRepository.findAll();
     }
 
-    private RuleEntity updateRuleEntity(RuleEntity ruleEntity, RuleDTO ruleDTO) {
-        return mapEntity(ruleDTO, ruleEntity);
+    private void invalidateRule(RuleEntity ruleEntity) {
+        ruleEntity.setExpiryDate(DateTime.now());
+        ruleEntityRepository.save(ruleEntity);
     }
 
     private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO){
         RuleEntity ruleEntity = new RuleEntity();
-
-        return mapEntity(ruleDTO, ruleEntity);
-
-    }
-
-    private RuleEntity mapEntity(RuleDTO ruleDTO, RuleEntity ruleEntity) {
         ruleEntity.setAccountId(ruleDTO.getAccountId());
         ruleEntity.setApplicationId(ruleDTO.getApplicationId());
         ruleEntity.setApplicationVersion(ruleDTO.getApplicationVersion());
@@ -93,5 +98,6 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntity());
 
         return ruleEntity;
+
     }
 }

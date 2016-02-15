@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.rule.service.impl;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,7 @@ public class RuleEntityServiceImplTest {
         RuleEntity savedRuleEntity = ruleEntityServiceImpl.save(ruleDTO);
 
         assertThat(savedRuleEntity.getAccountId()).isEqualTo("1234");
+        assertThat(savedRuleEntity.getExpiryDate()).isEqualByComparingTo(new DateTime(Long.MAX_VALUE));
 
         verify(ruleEntityRepository).save(any(RuleEntity.class));
 
@@ -65,11 +67,11 @@ public class RuleEntityServiceImplTest {
         when(ruleEntityRepository.save(any(RuleEntity.class))).then(AdditionalAnswers.returnsFirstArg());
 
         RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
-        assertThat(updatedRule.getId()).isEqualTo(1L);
         assertThat(updatedRule.getAccountId()).isEqualToIgnoringCase("5678");
+        assertThat(updatedRule.getExpiryDate()).isEqualByComparingTo(new DateTime(Long.MAX_VALUE));
 
         verify(ruleEntityRepository).findOne(anyLong());
-        verify(ruleEntityRepository).save(any(RuleEntity.class));
+        verify(ruleEntityRepository, times(2)).save(any(RuleEntity.class));
     }
 
     @Test
