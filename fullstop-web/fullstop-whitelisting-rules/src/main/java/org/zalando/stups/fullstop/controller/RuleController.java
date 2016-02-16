@@ -1,7 +1,6 @@
 package org.zalando.stups.fullstop.controller;
 
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @RequestMapping(value = "/whitelisting-rules", produces = APPLICATION_JSON_VALUE)
+@Api(value = "/whitelisting-rules", description = "Create, read, update rules for whitelisting violations")
 @PreAuthorize("#oauth2.hasScope('uid')")
 public class RuleController {
 
@@ -31,8 +31,11 @@ public class RuleController {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
 
-    //TODO Swagger for all (?)
     @RequestMapping(value = "/", method = GET)
+    @ApiOperation(value = "Shows a list of all rules", response = RuleEntity.class, responseContainer = "List",
+            authorizations = {@Authorization(value = "oauth",
+                    scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public List<RuleEntity> showWhitelistings() {
@@ -41,6 +44,9 @@ public class RuleController {
     }
 
     @RequestMapping(value = "/", method = POST)
+    @ApiOperation(value = "adds a new rule for whitelisting violations",
+            authorizations = {@Authorization(value = "oauth",
+                    scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(CREATED)
@@ -50,6 +56,10 @@ public class RuleController {
     }
 
     @RequestMapping(value = "/{id}", method = GET)
+    @ApiOperation(value = "adds a new rule for whitelisting violations", response = RuleEntity.class,
+            authorizations = {@Authorization(value = "oauth",
+                    scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
@@ -63,6 +73,9 @@ public class RuleController {
     }
 
     @RequestMapping(value = "/{id}", method = PUT)
+    @ApiOperation(value = "updates a rule by invalidating it and creating a new rule",
+            authorizations = {@Authorization(value = "oauth", scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Updated")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public void updateWhitelisting(@RequestBody RuleDTO ruleDTO,
