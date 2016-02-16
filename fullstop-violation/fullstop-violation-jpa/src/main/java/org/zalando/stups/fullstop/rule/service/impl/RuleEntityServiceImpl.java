@@ -89,6 +89,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         ruleEntity.setReason(ruleDTO.getReason());
         ruleEntity.setExpiryDate(ruleDTO.getExpiryDate());
         ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntity());
+        ruleEntity.setVersion(ruleDTO.getVersion());
 
         return ruleEntity;
 

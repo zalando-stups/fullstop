@@ -31,6 +31,9 @@ public class RuleDTO {
     @JsonProperty(value = "violation_type_entity")
     private String violationTypeEntity;
 
+    @JsonProperty(value = "version")
+    private Long version;
+
     public String getAccountId() {
         return accountId;
     }
@@ -101,5 +104,13 @@ public class RuleDTO {
 
     public void setViolationTypeEntity(String violationTypeEntity) {
         this.violationTypeEntity = violationTypeEntity;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
