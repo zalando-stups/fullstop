@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
@@ -74,16 +75,19 @@ public class RuleEntityServiceImplTest {
         verify(ruleEntityRepository, times(2)).save(any(RuleEntity.class));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void testUpdateFails() throws Exception {
         RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("5678");
         when(ruleEntityRepository.findOne(anyLong())).thenReturn(null);
+        try {
 
-        RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
-        assertThat(updatedRule).isEqualTo(null);
+            RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
+        } finally {
 
-        verify(ruleEntityRepository).findOne(anyLong());
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
+
     }
 
     @Test

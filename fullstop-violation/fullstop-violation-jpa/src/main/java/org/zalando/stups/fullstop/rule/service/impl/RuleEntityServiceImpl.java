@@ -5,12 +5,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
+import java.util.Optional;
+
+import static java.lang.String.*;
 
 @Service("ruleEntityService")
 public class RuleEntityServiceImpl implements RuleEntityService {
@@ -39,24 +43,13 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity update(RuleDTO ruleDTO, Long id) {
-        RuleEntity newRule;
+    public RuleEntity update(RuleDTO ruleDTO, Long id) throws NotFoundException {
 
-        if (ruleDTO.getExpiryDate() == null) {
-            ruleDTO.setExpiryDate(new DateTime(Long.MAX_VALUE));
-        }
+        Optional.ofNullable(ruleEntityRepository.findOne(id)).
+                map(this::invalidateRule).orElseThrow(() -> new NotFoundException(format("No such Rule! Id: %s", id)));
 
-        RuleEntity oldRule = ruleEntityRepository.findOne(id);
-        if (oldRule == null) {
-            log.warn("No such RuleEntity found for updating! Id: {}", id);
-            return null;
-        }
-        invalidateRule(oldRule);
+        return save(ruleDTO);
 
-        newRule = mapDtoToRuleEntity(ruleDTO);
-        newRule = ruleEntityRepository.save(newRule);
-        log.info("Whitelisting Rule updated {}", newRule);
-        return newRule;
     }
 
     @Override
@@ -81,12 +74,12 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         return ruleEntityRepository.findAll();
     }
 
-    private void invalidateRule(RuleEntity ruleEntity) {
+    private RuleEntity invalidateRule(RuleEntity ruleEntity) {
         ruleEntity.setExpiryDate(DateTime.now());
-        ruleEntityRepository.save(ruleEntity);
+        return ruleEntityRepository.save(ruleEntity);
     }
 
-    private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO){
+    private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO) {
         RuleEntity ruleEntity = new RuleEntity();
         ruleEntity.setAccountId(ruleDTO.getAccountId());
         ruleEntity.setApplicationId(ruleDTO.getApplicationId());
