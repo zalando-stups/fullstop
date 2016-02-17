@@ -1,7 +1,6 @@
 package org.zalando.stups.fullstop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -18,20 +19,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.zalando.fullstop.web.api.NotFoundException;
+import org.zalando.stups.fullstop.config.RuleControllerProperties;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
+import org.zalando.stups.fullstop.teams.Account;
+import org.zalando.stups.fullstop.teams.TeamOperations;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -51,10 +53,16 @@ public class RuleControllerTest {
     @Autowired
     private RuleEntityService ruleEntityService;
 
+    @Autowired
+    private TeamOperations teamOperationsMock;
+
+    @Autowired
+    private RuleControllerProperties ruleControllerPropertiesMock;
+
 
     @Before
     public void setUp() throws Exception {
-        reset(ruleEntityService);
+        reset(ruleEntityService, teamOperationsMock, ruleControllerPropertiesMock);
 
         ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("12345");
@@ -71,7 +79,19 @@ public class RuleControllerTest {
         ruleEntity.setId(1L);
         ruleEntity.setAccountId("1234");
 
-        when(ruleEntityService.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test-user", null));
+
+        when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
+
+        when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("Team", "OtherTeam"));
+        when(teamOperationsMock.getTeamsByUser(anyString())).thenReturn(newArrayList(
+                new Account(
+                        "Team",
+                        "Foo",
+                        "teams_account",
+                        "aws",
+                        "account",
+                        false)));
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
 
@@ -81,17 +101,23 @@ public class RuleControllerTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(ruleEntityService);
+
+        verifyNoMoreInteractions(ruleEntityService, teamOperationsMock, ruleControllerPropertiesMock);
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
     }
 
     @Test
     public void testShowWhitelistings() throws Exception {
-        when(ruleEntityService.findAll()).thenReturn(Lists.newArrayList(ruleEntity));
+        when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
         ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$[0].id").value(1));
 
         verify(ruleEntityService).findAll();
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
 
 
     }
@@ -109,6 +135,8 @@ public class RuleControllerTest {
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).save(any(RuleDTO.class));
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
 
 
     }
@@ -121,6 +149,9 @@ public class RuleControllerTest {
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).findById(anyLong());
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
     }
 
     @Test
@@ -131,6 +162,9 @@ public class RuleControllerTest {
         resultActions.andExpect(content().string("No such Rule! Id: 2"));
 
         verify(ruleEntityService).findById(anyLong());
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
     }
 
     @Test
@@ -146,21 +180,27 @@ public class RuleControllerTest {
         resultActions.andExpect(status().isOk());
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
     }
 
     @Test
     public void testUpdateWhitelistingFails() throws Exception {
         RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("4567");
-        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenReturn(null);
+        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenThrow(new NotFoundException("No such ID"));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
-        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/1").contentType(APPLICATION_JSON).content(ruleAsJson));
-        resultActions.andExpect(content().string("No such Rule! Id: 1"));
+        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/2").contentType(APPLICATION_JSON).content(ruleAsJson));
+        resultActions.andExpect(content().string("No such ID"));
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
 
     }
 
@@ -182,6 +222,12 @@ public class RuleControllerTest {
         public RuleEntityService ruleEntityService() {
             return mock(RuleEntityService.class);
         }
+
+        @Bean
+        public TeamOperations teamOperationsMock() { return mock(TeamOperations.class); }
+
+        @Bean
+        public RuleControllerProperties ruleControllerPropertiesMock() { return mock(RuleControllerProperties.class); }
 
 
     }

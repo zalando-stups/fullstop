@@ -1,15 +1,18 @@
 package org.zalando.stups.fullstop.controller;
 
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.zalando.fullstop.web.api.ForbiddenException;
 import org.zalando.fullstop.web.api.NotFoundException;
+import org.zalando.stups.fullstop.config.RuleControllerProperties;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
+import org.zalando.stups.fullstop.teams.Account;
+import org.zalando.stups.fullstop.teams.TeamOperations;
 
 import java.util.List;
 
@@ -28,7 +31,12 @@ public class RuleController {
     @Autowired
     RuleEntityService ruleEntityService;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    @Autowired
+    private TeamOperations teamOperations;
+
+    @Autowired
+    private RuleControllerProperties ruleControllerProperties;
+
 
 
     @RequestMapping(value = "/", method = GET)
@@ -38,10 +46,13 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
-    public List<RuleEntity> showWhitelistings() {
+    public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+
+        checkPermisson(userId);
 
         return ruleEntityService.findAll();
     }
+
 
     @RequestMapping(value = "/", method = POST)
     @ApiOperation(value = "adds a new rule for whitelisting violations",
@@ -50,8 +61,9 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(CREATED)
-    public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO) {
+    public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
 
+        checkPermisson(userId);
         return ruleEntityService.save(ruleDTO);
     }
 
@@ -63,8 +75,8 @@ public class RuleController {
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
-                                      final Long id) throws NotFoundException {
-
+                                      final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
+        checkPermisson(userId);
         RuleEntity ruleEntity = ruleEntityService.findById(id);
         if (ruleEntity == null) {
             throw new NotFoundException(format("No such Rule! Id: %s", id));
@@ -78,14 +90,28 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Updated")})
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
-    public void updateWhitelisting(@RequestBody RuleDTO ruleDTO,
-                                   @PathVariable("id") final Long id) throws NotFoundException {
-        RuleEntity updatedRuleEntity = ruleEntityService.update(ruleDTO, id);
-        if (updatedRuleEntity == null) {
-            throw new NotFoundException(format("No such Rule! Id: %s", id));
+    public RuleEntity updateWhitelisting(@RequestBody RuleDTO ruleDTO,
+                                   @PathVariable("id") final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
+        checkPermisson(userId);
+        return ruleEntityService.update(ruleDTO, id);
+
+    }
+
+    private boolean hasAccessToAccount(final String userId) {
+        final List<Account> teams = teamOperations.getTeamsByUser(userId);
+        final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();
+
+        for (Account team : teams) {
+            if (allowedTeams.contains(team.getId())) {
+                return true;
+            }
         }
+        return false;
+    }
 
-        log.info("Rule {} succesfully updated", id);
-
+    private void checkPermisson(@AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+        if (userId == null || !hasAccessToAccount(userId)) {
+            throw new ForbiddenException("You don't have the permission to use this API");
+        }
     }
 }
