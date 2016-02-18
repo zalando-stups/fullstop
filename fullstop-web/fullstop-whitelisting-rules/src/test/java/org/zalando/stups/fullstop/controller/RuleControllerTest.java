@@ -204,6 +204,19 @@ public class RuleControllerTest {
 
     }
 
+    @Test
+    public void testInvalidUser() throws Exception {
+        when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("WrongTeam", "OtherTeam"));
+        when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
+
+        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/")).andExpect(status().is4xxClientError());
+        resultActions.andExpect(content().string("You don't have the permission to use this API"));
+
+        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(ruleControllerPropertiesMock).getAllowedTeams();
+
+    }
+
     @Configuration
     @Import(org.zalando.stups.fullstop.web.test.ControllerTestConfig.class)
     static class TestConfig {
