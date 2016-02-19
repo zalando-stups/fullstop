@@ -31,6 +31,7 @@ import org.zalando.stups.fullstop.web.model.Violation;
 import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -133,7 +134,7 @@ public class ViolationsControllerTest {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -150,7 +151,7 @@ public class ViolationsControllerTest {
                 isNull(Integer.class),
                 isNull(Boolean.class),
                 isNull(String.class),
-                any());
+                any(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -170,7 +171,7 @@ public class ViolationsControllerTest {
                         any(),
                         any(),
                         any(),
-                        any()))
+                        any(), any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
         ResultActions resultActions = this.mockMvc.perform(
@@ -181,7 +182,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), any());
+                        true), any(), any(), any(), any(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 

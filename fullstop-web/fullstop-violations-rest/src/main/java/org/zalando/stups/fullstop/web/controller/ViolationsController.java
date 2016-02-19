@@ -82,7 +82,7 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations after the one with this id")
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,
-            @ApiParam(value = "Include only violations where checked field equals this value")
+            @ApiParam(value = "Include only violations where checked field equals this value (i.e. resolved violations)")
             @RequestParam(value = "checked", required = false)
             final Boolean checked,
             @ApiParam(value = "Include only violations with a certain severity")
@@ -94,6 +94,9 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations with a certain type")
             @RequestParam(value = "type", required = false)
             final String type,
+            @ApiParam(value = "show also whitelisted vioaltions")
+            @RequestParam(value = "whiltelisted", required = false)
+            final Optional<Boolean> whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
         if (from == null) {
             from = DateTime.now().minusWeeks(1);
@@ -104,7 +107,7 @@ public class ViolationsController {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity, auditRelevant, type, pageable));
+                        checked, severity, auditRelevant, type, whitelisted, pageable));
     }
 
     @ApiOperation(
