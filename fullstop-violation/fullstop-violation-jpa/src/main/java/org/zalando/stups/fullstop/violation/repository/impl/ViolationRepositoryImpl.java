@@ -88,8 +88,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
         }
 
-        if (whitelisted.isPresent()){
+        if (whitelisted.isPresent() && whitelisted.get()){
             predicates.add(qViolationEntity.ruleEntity.id.isNotNull());
+        } else {
+            predicates.add(qViolationEntity.ruleEntity.id.isNull());
         }
 
         final long total = query.where(allOf(predicates)).count();
