@@ -1,12 +1,14 @@
 package org.zalando.stups.fullstop.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@ConfigurationProperties(prefix = "fullstop.whitelist.allowedTeams")
+@Configuration
+@ConfigurationProperties(prefix = "fullstop.whitelist")
 public class RuleControllerProperties {
 
     private List<String> allowedTeams = newArrayList();

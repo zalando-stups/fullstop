@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,8 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
-@RequestMapping(value = "/whitelisting-rules", produces = APPLICATION_JSON_VALUE)
-@Api(value = "/whitelisting-rules", description = "Create, read, update rules for whitelisting violations")
-@PreAuthorize("#oauth2.hasScope('uid')")
+@RequestMapping(value = "/api/whitelisting-rules", produces = APPLICATION_JSON_VALUE)
+@Api(value = "/api/whitelisting-rules", description = "Create, read, update rules for whitelisting violations")
 public class RuleController {
 
     @Autowired
@@ -39,7 +39,7 @@ public class RuleController {
 
 
 
-    @RequestMapping(value = "/", method = GET)
+    @RequestMapping(method = GET)
     @ApiOperation(value = "Shows a list of all rules", response = RuleEntity.class, responseContainer = "List",
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
@@ -54,7 +54,7 @@ public class RuleController {
     }
 
 
-    @RequestMapping(value = "/", method = POST)
+    @RequestMapping(method = POST)
     @ApiOperation(value = "adds a new rule for whitelisting violations",
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
@@ -102,7 +102,10 @@ public class RuleController {
         final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();
 
         for (Account team : teams) {
-            if (allowedTeams.contains(team.getId())) {
+            if (team.getOwner() == null) {
+                continue;
+            }
+            if (allowedTeams.contains(team.getOwner())) {
                 return true;
             }
         }

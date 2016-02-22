@@ -83,14 +83,14 @@ public class RuleControllerTest {
 
         when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
-        when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("Team", "OtherTeam"));
+        when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("Owner", "OtherTeam"));
         when(teamOperationsMock.getTeamsByUser(anyString())).thenReturn(newArrayList(
                 new Account(
                         "Team",
                         "Foo",
                         "teams_account",
-                        "aws",
-                        "account",
+                        "Description",
+                        "Owner",
                         false)));
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
@@ -112,7 +112,7 @@ public class RuleControllerTest {
     public void testShowWhitelistings() throws Exception {
         when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
-        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/")).andExpect(status().isOk());
+        ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$[0].id").value(1));
 
         verify(ruleEntityService).findAll();
@@ -131,7 +131,7 @@ public class RuleControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
-        ResultActions resultActions = mockMvc.perform(post("/whitelisting-rules/").contentType(APPLICATION_JSON).content(ruleAsJson));
+        ResultActions resultActions = mockMvc.perform(post("/api/whitelisting-rules").contentType(APPLICATION_JSON).content(ruleAsJson));
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).save(any(RuleDTO.class));
@@ -145,7 +145,7 @@ public class RuleControllerTest {
     public void testGetWhitelisting() throws Exception {
         when(ruleEntityService.findById(anyLong())).thenReturn(ruleEntity);
 
-        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/1")).andExpect(status().isOk());
+        ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules/1")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).findById(anyLong());
@@ -158,7 +158,7 @@ public class RuleControllerTest {
     public void testGetWhitelistingFails() throws Exception {
         when(ruleEntityService.findById(anyLong())).thenReturn(null);
 
-        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/2")).andExpect(status().isNotFound());
+        ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules/2")).andExpect(status().isNotFound());
         resultActions.andExpect(content().string("No such Rule! Id: 2"));
 
         verify(ruleEntityService).findById(anyLong());
@@ -176,7 +176,7 @@ public class RuleControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
-        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/1").contentType(APPLICATION_JSON).content(ruleAsJson));
+        ResultActions resultActions = mockMvc.perform(put("/api/whitelisting-rules/1").contentType(APPLICATION_JSON).content(ruleAsJson));
         resultActions.andExpect(status().isOk());
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
@@ -194,7 +194,7 @@ public class RuleControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
-        ResultActions resultActions = mockMvc.perform(put("/whitelisting-rules/2").contentType(APPLICATION_JSON).content(ruleAsJson));
+        ResultActions resultActions = mockMvc.perform(put("/api/whitelisting-rules/2").contentType(APPLICATION_JSON).content(ruleAsJson));
         resultActions.andExpect(content().string("No such ID"));
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
@@ -209,7 +209,7 @@ public class RuleControllerTest {
         when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("WrongTeam", "OtherTeam"));
         when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
-        ResultActions resultActions = mockMvc.perform(get("/whitelisting-rules/")).andExpect(status().is4xxClientError());
+        ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules/")).andExpect(status().is4xxClientError());
         resultActions.andExpect(content().string("You don't have the permission to use this API"));
 
         verify(teamOperationsMock).getTeamsByUser(anyString());

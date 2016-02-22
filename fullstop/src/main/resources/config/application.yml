@@ -112,7 +112,7 @@ fullstop:
             bucketName: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_BUCKET_NAME}
             prefix: ${FULLSTOP_UNAPPROVED_SERVICES_AND_ROLE_PREFIX}
             # iam event names that activates the plugin
-            allowedTeams:
+            eventNames:
               - 'CreateRole'
               - 'DeleteRole'
               - 'AttachRolePolicy'
@@ -134,9 +134,8 @@ fullstop:
 
     whitelist:
         # Which teams are allowed to whitelist violations
-        allowedTeams:
-          - 'aTeam'
-          - 'someOtherTeam'
+        allowed-teams:
+          - 'stups'
 
 #
 # OAuth2
