@@ -63,7 +63,7 @@ public class NoPasswordsJob implements FullstopJob {
             Stream.of(csvReportEntries)
                     .flatMap(Collection::stream)
                     .filter(CSVReportEntry::isPasswordEnabled)
-                    .forEach(c -> violationWriter.writeViolation(accountId, c));
+                    .forEach(c -> violationWriter.writeNoPasswordViolation(accountId, c));
 
             //check for the root user account
             log.info("Checking account {} for IAM users with mfa, access key", accountId);
@@ -71,7 +71,7 @@ public class NoPasswordsJob implements FullstopJob {
                     .flatMap(Collection::stream)
                     .filter(c -> c.getUser().equals(ROOT_ACCOUNT) || c.getUser().endsWith(ROOT_SUFFIX))
                     .filter(c -> !c.isMfaActive() || c.isAccessKey1Active() || c.isAccessKey2Active())
-                    .forEach(c -> violationWriter.writeViolation(accountId, c));
+                    .forEach(c -> violationWriter.writeRootUserViolation(accountId, c));
         }
 
 
