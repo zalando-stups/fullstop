@@ -14,7 +14,8 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
+import static org.joda.time.DateTimeZone.UTC;
 
 @Service("ruleEntityService")
 public class RuleEntityServiceImpl implements RuleEntityService {
@@ -29,7 +30,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     public RuleEntity save(RuleDTO ruleDTO) {
 
         if (ruleDTO.getExpiryDate() == null) {
-            ruleDTO.setExpiryDate(new DateTime(Long.MAX_VALUE));
+            ruleDTO.setExpiryDate(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
         }
 
         RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
@@ -82,13 +83,14 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO) {
         RuleEntity ruleEntity = new RuleEntity();
         ruleEntity.setAccountId(ruleDTO.getAccountId());
+        ruleEntity.setRegion(ruleDTO.getRegion());
         ruleEntity.setApplicationId(ruleDTO.getApplicationId());
         ruleEntity.setApplicationVersion(ruleDTO.getApplicationVersion());
         ruleEntity.setImageName(ruleDTO.getImageName());
         ruleEntity.setImageOwner(ruleDTO.getImageOwner());
         ruleEntity.setReason(ruleDTO.getReason());
         ruleEntity.setExpiryDate(ruleDTO.getExpiryDate());
-        ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntity());
+        ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntityId());
         ruleEntity.setVersion(ruleDTO.getVersion());
 
         return ruleEntity;

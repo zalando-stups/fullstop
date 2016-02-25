@@ -28,8 +28,8 @@ public class RuleDTO {
     @JsonProperty(value = "expiry_date")
     private DateTime expiryDate;
 
-    @JsonProperty(value = "violation_type_entity")
-    private String violationTypeEntity;
+    @JsonProperty(value = "violation_type")
+    private String violationTypeEntityId;
 
     @JsonProperty(value = "version")
     private Long version;
@@ -98,12 +98,12 @@ public class RuleDTO {
         this.expiryDate = expiryDate;
     }
 
-    public String getViolationTypeEntity() {
-        return violationTypeEntity;
+    public String getViolationTypeEntityId() {
+        return violationTypeEntityId;
     }
 
     public void setViolationTypeEntity(String violationTypeEntity) {
-        this.violationTypeEntity = violationTypeEntity;
+        this.violationTypeEntityId = violationTypeEntity;
     }
 
     public Long getVersion() {

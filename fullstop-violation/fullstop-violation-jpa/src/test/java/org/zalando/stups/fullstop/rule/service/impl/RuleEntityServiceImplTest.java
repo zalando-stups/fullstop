@@ -18,6 +18,7 @@ import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.joda.time.DateTimeZone.UTC;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,7 +55,7 @@ public class RuleEntityServiceImplTest {
         RuleEntity savedRuleEntity = ruleEntityServiceImpl.save(ruleDTO);
 
         assertThat(savedRuleEntity.getAccountId()).isEqualTo("1234");
-        assertThat(savedRuleEntity.getExpiryDate()).isEqualByComparingTo(new DateTime(Long.MAX_VALUE));
+        assertThat(savedRuleEntity.getExpiryDate()).isEqualTo(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
 
         verify(ruleEntityRepository).save(any(RuleEntity.class));
 
@@ -69,7 +70,7 @@ public class RuleEntityServiceImplTest {
 
         RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
         assertThat(updatedRule.getAccountId()).isEqualToIgnoringCase("5678");
-        assertThat(updatedRule.getExpiryDate()).isEqualByComparingTo(new DateTime(Long.MAX_VALUE));
+        assertThat(updatedRule.getExpiryDate()).isEqualByComparingTo(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
 
         verify(ruleEntityRepository).findOne(anyLong());
         verify(ruleEntityRepository, times(2)).save(any(RuleEntity.class));
