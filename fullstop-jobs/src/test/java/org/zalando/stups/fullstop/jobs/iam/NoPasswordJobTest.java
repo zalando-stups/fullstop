@@ -41,7 +41,8 @@ public class NoPasswordJobTest {
         verify(mockAccountIdSupplier).get();
         verify(iamDataSource, times(2)).getCredentialReportCSV(anyString());
         verify(mockCsvParser, times(2)).apply(any());
-        verify(violationWriter, times(3)).writeNoPasswordViolation(eq("account01"), any());
+        verify(violationWriter, times(2)).writeNoPasswordViolation(eq("account01"), any());
+        verify(violationWriter).writeRootUserViolation(eq("account01"), any());
         verify(violationWriter).writeNoPasswordViolation(eq("account02"), any());
     }
 }
