@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtElevenPM;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.iam.csv.CSVReportEntry;
 import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
-import org.zalando.stups.fullstop.jobs.iam.csv.User;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
@@ -55,7 +55,7 @@ public class NoPasswordsJob implements FullstopJob {
                     .map(iamDataSource::getCredentialReportCSV)
                     .map(csvParser::apply)
                     .flatMap(Collection::stream)
-                    .filter(User::isPasswordEnabled)
+                    .filter(CSVReportEntry::isPasswordEnabled)
                     .forEach(user -> violationWriter.writeViolation(accountId, user));
         });
 

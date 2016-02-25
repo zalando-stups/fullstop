@@ -5,12 +5,12 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 public class CSVReportEntry {
     private final String user;
     private final String arn;
-    private final String passwordEnabled;
+    private final boolean passwordEnabled;
     private final boolean mfaActive;
     private final boolean accessKey1Active;
     private final boolean accessKey2Active;
 
-    public CSVReportEntry(String user, String arn, String passwordEnabled, boolean mfaActive, boolean accessKey1Active, boolean accessKey2Active) {
+    public CSVReportEntry(String user, String arn, boolean passwordEnabled, boolean mfaActive, boolean accessKey1Active, boolean accessKey2Active) {
         this.user = user;
         this.arn = arn;
         this.passwordEnabled = passwordEnabled;
@@ -27,7 +27,7 @@ public class CSVReportEntry {
         return arn;
     }
 
-    public String getPasswordEnabled() {
+    public boolean isPasswordEnabled() {
         return passwordEnabled;
     }
 
