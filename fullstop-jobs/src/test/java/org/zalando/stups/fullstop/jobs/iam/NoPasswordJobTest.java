@@ -30,7 +30,7 @@ public class NoPasswordJobTest {
         when(mockAccountIdSupplier.get()).thenReturn(newHashSet("account01", "account02"));
         when(iamDataSource.getCredentialReportCSV(eq("account01"))).thenReturn(report1);
         when(iamDataSource.getCredentialReportCSV(eq("account02"))).thenReturn(report2);
-        when(mockCsvParser.apply(same(report1))).thenReturn(asList(new CSVReportEntry("1", "arn:fdsafsd:root", false, true, false, false), new CSVReportEntry("2", "arn:fdsafsd:test",true, false, true, false), new CSVReportEntry("3", "arn:fdsafsd:test234",true, false, true, false)));
+        when(mockCsvParser.apply(same(report1))).thenReturn(asList(new CSVReportEntry("<root_account>", "arn:fdsafsd:root", false, true, false, true), new CSVReportEntry("2", "arn:fdsafsd:test",true, false, true, false), new CSVReportEntry("3", "arn:fdsafsd:test234",true, false, true, false)));
         when(mockCsvParser.apply(same(report2))).thenReturn(asList(new CSVReportEntry("4","arn:fdsafsd:test", true, false, true, false), new CSVReportEntry("5","arn:fdsafsd:root123", false, false, true, false)));
     }
 
@@ -41,7 +41,7 @@ public class NoPasswordJobTest {
         verify(mockAccountIdSupplier).get();
         verify(iamDataSource, times(2)).getCredentialReportCSV(anyString());
         verify(mockCsvParser, times(2)).apply(any());
-        verify(violationWriter, times(2)).writeViolation(eq("account01"), any());
+        verify(violationWriter, times(3)).writeViolation(eq("account01"), any());
         verify(violationWriter).writeViolation(eq("account02"), any());
     }
 }
