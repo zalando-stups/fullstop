@@ -25,7 +25,7 @@ public class NoPasswordViolationWriter {
         this.violationSink = violationSink;
     }
 
-    public void writeViolation(String accountId, User user) {
+    public void writeViolation(String accountId, User CSVReportEntry) {
         log.info("Found IAM user {} that has a password in account {}", user.getName(), accountId);
         violationSink.put(
                 new ViolationBuilder()
