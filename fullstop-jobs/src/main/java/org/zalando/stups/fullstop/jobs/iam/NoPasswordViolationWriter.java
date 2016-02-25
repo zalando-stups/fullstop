@@ -57,7 +57,7 @@ public class NoPasswordViolationWriter {
         violationSink.put(
                 new ViolationBuilder()
                         .withEventId("check-iam-user_" + csvReportEntry.getUser())
-                        .withAccountId(stups)
+                        .withAccountId("put here the account property")
                         .withRegion(NO_REGION)
                         .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
                         .withType(UNSECURED_ROOT_USER)
