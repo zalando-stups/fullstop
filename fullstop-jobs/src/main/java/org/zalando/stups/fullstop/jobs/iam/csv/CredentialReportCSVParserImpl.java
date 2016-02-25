@@ -54,9 +54,15 @@ public class CredentialReportCSVParserImpl implements CredentialReportCSVParser 
     }
 
     private CSVReportEntry toCSVReportEntry(CSVRecord record) {
-        final Optional<Boolean> passwordEnabled = Optional.ofNullable(record.get("password_enabled")).map(Boolean::valueOf);
-        if (passwordEnabled.isPresent()) {
-            return new CSVReportEntry(record.get("user"), passwordEnabled.get());
+        final Optional<String> user = Optional.ofNullable(record.get("user"));
+        final Optional<String> arn = Optional.ofNullable(record.get("arn"));
+        final Optional<String> passwordEnabled = Optional.ofNullable(record.get("password_enabled"));
+        final Optional<Boolean> mfaActive = Optional.ofNullable(record.get("mfa_active")).map(Boolean::valueOf);
+        final Optional<Boolean> accessKey1Active = Optional.ofNullable(record.get("access_key_1_active")).map(Boolean::valueOf);
+        final Optional<Boolean> accessKey2Active = Optional.ofNullable(record.get("access_key_2_active")).map(Boolean::valueOf);
+
+        if (user.isPresent() && arn.isPresent() && passwordEnabled.isPresent() && mfaActive.isPresent() && accessKey1Active.isPresent() && accessKey2Active.isPresent()) {
+            return new CSVReportEntry(user.get(), arn.get(), passwordEnabled.get(), mfaActive.get(), accessKey1Active.get(), accessKey2Active.get());
         } else {
             return null;
         }
