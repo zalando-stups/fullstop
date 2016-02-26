@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.jobs.iam;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.iam.csv.CSVReportEntry;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -24,9 +25,12 @@ public class NoPasswordViolationWriter {
 
     private final ViolationSink violationSink;
 
+    private final JobsProperties jobsProperties;
+
     @Autowired
-    public NoPasswordViolationWriter(ViolationSink violationSink) {
+    public NoPasswordViolationWriter(ViolationSink violationSink, JobsProperties jobsProperties) {
         this.violationSink = violationSink;
+        this.jobsProperties = jobsProperties;
     }
 
     public void writeNoPasswordViolation(String accountId, CSVReportEntry csvReportEntry) {
@@ -57,7 +61,7 @@ public class NoPasswordViolationWriter {
         violationSink.put(
                 new ViolationBuilder()
                         .withEventId("check-iam-user_" + csvReportEntry.getUser())
-                        .withAccountId("put here the account property")
+                        .withAccountId(jobsProperties.getManagementAccount())
                         .withRegion(NO_REGION)
                         .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
                         .withType(UNSECURED_ROOT_USER)

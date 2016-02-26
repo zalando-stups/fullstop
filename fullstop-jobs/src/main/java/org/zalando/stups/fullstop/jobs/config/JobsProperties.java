@@ -18,6 +18,7 @@ public class JobsProperties {
     private Set<Integer> elbAllowedPorts = Sets.newHashSet(80, 443);
     private Set<Integer> ec2AllowedPorts = Sets.newHashSet(80, 443, 22);
     private int accessKeysExpireAfterDays = 30;
+    private String managementAccount;
 
     public List<String> getWhitelistedRegions() {
         return whitelistedRegions;
@@ -57,5 +58,13 @@ public class JobsProperties {
 
     public void setAccessKeysExpireAfterDays(int accessKeysExpireAfterDays) {
         this.accessKeysExpireAfterDays = accessKeysExpireAfterDays;
+    }
+
+    public String getManagementAccount() {
+        return managementAccount;
+    }
+
+    public void setManagementAccount(String managementAccount) {
+        this.managementAccount = managementAccount;
     }
 }
