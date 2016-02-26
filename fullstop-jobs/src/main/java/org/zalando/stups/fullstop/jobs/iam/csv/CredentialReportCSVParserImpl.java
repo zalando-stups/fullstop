@@ -33,7 +33,7 @@ public class CredentialReportCSVParserImpl implements CredentialReportCSVParser 
             .withAllowMissingColumnNames();
 
     @Override
-    public List<User> apply(GetCredentialReportResult report) {
+    public List<CSVReportEntry> apply(GetCredentialReportResult report) {
         Assert.state(Textcsv.toString().equals(report.getReportFormat()), "unknown credential report format: " + report.getReportFormat());
 
         try (final Reader r = new BufferedReader(new InputStreamReader(new ByteBufferBackedInputStream(report.getContent())))) {
@@ -41,18 +41,28 @@ public class CredentialReportCSVParserImpl implements CredentialReportCSVParser 
             final Map<String, Integer> headers = parser.getHeaderMap();
 
             Assert.state(headers.containsKey("user"), "Header 'user' not found in CSV");
+            Assert.state(headers.containsKey("arn"), "Header 'arn' not found in CSV");
             Assert.state(headers.containsKey("password_enabled"), "Header 'password_enabled' not found in CSV");
+            Assert.state(headers.containsKey("mfa_active"), "Header 'mfa_active' not found in CSV");
+            Assert.state(headers.containsKey("access_key_1_active"), "Header 'access_key_1_active' not found in CSV");
+            Assert.state(headers.containsKey("access_key_2_active"), "Header 'access_key_2_active' not found in CSV");
 
-            return stream(parser.spliterator(), false).map(this::toUser).filter(Objects::nonNull).collect(toList());
+            return stream(parser.spliterator(), false).map(this::toCSVReportEntry).filter(Objects::nonNull).collect(toList());
         } catch (IOException e) {
             throw new RuntimeException("Could not read csv report", e);
         }
     }
 
-    private User toUser(CSVRecord record) {
+    private CSVReportEntry toCSVReportEntry(CSVRecord record) {
+        final Optional<String> user = Optional.ofNullable(record.get("user"));
+        final Optional<String> arn = Optional.ofNullable(record.get("arn"));
         final Optional<Boolean> passwordEnabled = Optional.ofNullable(record.get("password_enabled")).map(Boolean::valueOf);
-        if (passwordEnabled.isPresent()) {
-            return new User(record.get("user"), passwordEnabled.get());
+        final Optional<Boolean> mfaActive = Optional.ofNullable(record.get("mfa_active")).map(Boolean::valueOf);
+        final Optional<Boolean> accessKey1Active = Optional.ofNullable(record.get("access_key_1_active")).map(Boolean::valueOf);
+        final Optional<Boolean> accessKey2Active = Optional.ofNullable(record.get("access_key_2_active")).map(Boolean::valueOf);
+
+        if (user.isPresent() && arn.isPresent() && passwordEnabled.isPresent() && mfaActive.isPresent() && accessKey1Active.isPresent() && accessKey2Active.isPresent()) {
+            return new CSVReportEntry(user.get(), arn.get(), passwordEnabled.get(), mfaActive.get(), accessKey1Active.get(), accessKey2Active.get());
         } else {
             return null;
         }

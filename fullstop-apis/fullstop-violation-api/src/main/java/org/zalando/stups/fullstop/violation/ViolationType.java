@@ -54,4 +54,7 @@ public class ViolationType {
     public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
 
     public static final String OUTDATED_TAUPAGE = "OUTDATED_TAUPAGE";
+
+    public static final String UNSECURED_ROOT_USER = "UNSECURED_ROOT_USER";
+
 }
