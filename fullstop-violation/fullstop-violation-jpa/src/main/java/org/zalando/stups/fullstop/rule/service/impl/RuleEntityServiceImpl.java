@@ -5,13 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -44,10 +44,10 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity update(RuleDTO ruleDTO, Long id) throws NotFoundException {
+    public RuleEntity update(RuleDTO ruleDTO, Long id) throws NoSuchElementException {
 
         Optional.ofNullable(ruleEntityRepository.findOne(id)).
-                map(this::invalidateRule).orElseThrow(() -> new NotFoundException(format("No such Rule! Id: %s", id)));
+                map(this::invalidateRule).orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
 
         return save(ruleDTO);
 

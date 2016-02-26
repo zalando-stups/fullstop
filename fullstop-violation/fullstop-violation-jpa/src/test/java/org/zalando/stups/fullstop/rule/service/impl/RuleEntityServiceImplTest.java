@@ -11,11 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
+
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.time.DateTimeZone.UTC;
@@ -76,7 +77,7 @@ public class RuleEntityServiceImplTest {
         verify(ruleEntityRepository, times(2)).save(any(RuleEntity.class));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testUpdateFails() throws Exception {
         RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("5678");

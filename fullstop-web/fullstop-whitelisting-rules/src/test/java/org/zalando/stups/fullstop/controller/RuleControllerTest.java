@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.zalando.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.config.RuleControllerProperties;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
@@ -27,6 +26,8 @@ import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+
+import java.util.NoSuchElementException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.*;
@@ -40,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class RuleControllerTest {
 
+    public static final String MESSAGE = "No such Rule! Id: 12";
     private RuleDTO ruleDTO;
 
     private RuleEntity ruleEntity;
@@ -189,18 +191,17 @@ public class RuleControllerTest {
     public void testUpdateWhitelistingFails() throws Exception {
         RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("4567");
-        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenThrow(new NotFoundException("No such ID"));
+        when(ruleEntityService.update(any(RuleDTO.class), anyLong())).thenThrow(new NoSuchElementException(MESSAGE));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
         ResultActions resultActions = mockMvc.perform(put("/api/whitelisting-rules/2").contentType(APPLICATION_JSON).content(ruleAsJson));
-        resultActions.andExpect(content().string("No such ID"));
+        resultActions.andExpect(content().string(MESSAGE));
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
         verify(teamOperationsMock).getTeamsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
-
 
     }
 

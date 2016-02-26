@@ -2,7 +2,6 @@ package org.zalando.stups.fullstop.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +15,7 @@ import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -36,7 +36,6 @@ public class RuleController {
 
     @Autowired
     private RuleControllerProperties ruleControllerProperties;
-
 
 
     @RequestMapping(method = GET)
@@ -91,10 +90,21 @@ public class RuleController {
     @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity updateWhitelisting(@RequestBody RuleDTO ruleDTO,
-                                   @PathVariable("id") final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
-        checkPermisson(userId);
-        return ruleEntityService.update(ruleDTO, id);
+                                         @PathVariable("id") final Long id,
+                                         @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+            throws ForbiddenException, NotFoundException {
 
+        checkPermisson(userId);
+
+        RuleEntity ruleEntity;
+
+        try {
+            ruleEntity = ruleEntityService.update(ruleDTO, id);
+        } catch (NoSuchElementException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+
+        return ruleEntity;
     }
 
     private boolean hasAccessToAccount(final String userId) {

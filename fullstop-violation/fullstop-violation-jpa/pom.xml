@@ -19,11 +19,6 @@
             <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-web-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
