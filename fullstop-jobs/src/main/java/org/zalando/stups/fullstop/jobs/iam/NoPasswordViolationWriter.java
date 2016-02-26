@@ -8,7 +8,7 @@ import org.zalando.stups.fullstop.jobs.iam.csv.CSVReportEntry;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.singletonMap;
@@ -46,26 +46,16 @@ public class NoPasswordViolationWriter {
                         .build());
     }
 
-    public void writeRootUserViolation(String accountId, CSVReportEntry csvReportEntry) {
-        log.info("Found IAM root user: {} that has configuration problem in account: {}", csvReportEntry.getUser(), accountId);
+    public void writeRootUserViolation(List<Map<String, String>> metaInfoList) {
+        log.info("Found IAM root user that has configuration problem");
 
-        Map<String, String> metaInfo = new HashMap<>();
-        metaInfo.put("account_id", accountId);
-        metaInfo.put("user", csvReportEntry.getUser());
-        metaInfo.put("arn", csvReportEntry.getArn());
-        metaInfo.put("is_password_enabled", String.valueOf(csvReportEntry.isPasswordEnabled()));
-        metaInfo.put("is_mfa_active", String.valueOf(csvReportEntry.isMfaActive()));
-        metaInfo.put("is_access_key_1_active", String.valueOf(csvReportEntry.isAccessKey1Active()));
-        metaInfo.put("is_access_key_2_active", String.valueOf(csvReportEntry.isAccessKey2Active()));
-
-        violationSink.put(
-                new ViolationBuilder()
-                        .withEventId("check-iam-root-user_" + csvReportEntry.getUser())
-                        .withAccountId(jobsProperties.getManagementAccount())
-                        .withRegion(NO_REGION)
-                        .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
-                        .withType(UNSECURED_ROOT_USER)
-                        .withMetaInfo(metaInfo)
-                        .build());
+        violationSink.put(new ViolationBuilder()
+                .withEventId("check-iam-root-user")
+                .withAccountId(jobsProperties.getManagementAccount())
+                .withRegion(NO_REGION)
+                .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
+                .withType(UNSECURED_ROOT_USER)
+                .withMetaInfo(metaInfoList)
+                .build());
     }
 }

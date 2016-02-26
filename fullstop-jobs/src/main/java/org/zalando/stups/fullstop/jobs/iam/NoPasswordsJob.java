@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,9 @@ import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -53,6 +56,8 @@ public class NoPasswordsJob implements FullstopJob {
     public void run() {
         log.info("Running {}", getClass().getSimpleName());
 
+        List<Map<String, String>> metaInfoList = Lists.newArrayList();
+
         for (String accountId : allAccountIds.get()) {
 
             GetCredentialReportResult credentialReportCSV = iamDataSource.getCredentialReportCSV(accountId);
@@ -65,15 +70,30 @@ public class NoPasswordsJob implements FullstopJob {
                     .filter(CSVReportEntry::isPasswordEnabled)
                     .forEach(c -> violationWriter.writeNoPasswordViolation(accountId, c));
 
+
             //check for the root user account
             log.info("Checking account {} for IAM users with mfa, access key", accountId);
             Stream.of(csvReportEntries)
                     .flatMap(Collection::stream)
                     .filter(c -> c.getUser().equals(ROOT_ACCOUNT) || c.getUser().endsWith(ROOT_SUFFIX))
                     .filter(c -> !c.isMfaActive() || c.isAccessKey1Active() || c.isAccessKey2Active())
-                    .forEach(c -> violationWriter.writeRootUserViolation(accountId, c));
+                    .forEach(c -> {
+                        Map<String, String> metaInfo = new HashMap<>();
+                        metaInfo.put("account_id", accountId);
+                        metaInfo.put("user", c.getUser());
+                        metaInfo.put("arn", c.getArn());
+                        metaInfo.put("is_password_enabled", String.valueOf(c.isPasswordEnabled()));
+                        metaInfo.put("is_mfa_active", String.valueOf(c.isMfaActive()));
+                        metaInfo.put("is_access_key_1_active", String.valueOf(c.isAccessKey1Active()));
+                        metaInfo.put("is_access_key_2_active", String.valueOf(c.isAccessKey2Active()));
+
+                        metaInfoList.add(metaInfo);
+                    });
         }
 
+        if (!metaInfoList.isEmpty()){
+            violationWriter.writeRootUserViolation(metaInfoList);
+        }
 
         log.info("Finished {}", getClass().getSimpleName());
     }
