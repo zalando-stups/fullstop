@@ -60,7 +60,7 @@ public class NoPasswordViolationWriter {
 
         violationSink.put(
                 new ViolationBuilder()
-                        .withEventId("check-iam-user_" + csvReportEntry.getUser())
+                        .withEventId("check-iam-root-user_" + csvReportEntry.getUser())
                         .withAccountId(jobsProperties.getManagementAccount())
                         .withRegion(NO_REGION)
                         .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
