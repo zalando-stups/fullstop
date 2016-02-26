@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.jobs.iam;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,7 +51,7 @@ public class NoPasswordViolationWriter {
         log.info("Found IAM root user that has configuration problem");
 
         violationSink.put(new ViolationBuilder()
-                .withEventId("check-iam-root-user")
+                .withEventId("check-iam-root-user-" + DateTime.now().toString("yyyy-MM-dd"))
                 .withAccountId(jobsProperties.getManagementAccount())
                 .withRegion(NO_REGION)
                 .withPluginFullyQualifiedClassName(NoPasswordsJob.class)
