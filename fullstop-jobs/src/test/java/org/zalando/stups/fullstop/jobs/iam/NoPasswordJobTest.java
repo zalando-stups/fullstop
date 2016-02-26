@@ -7,6 +7,8 @@ import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.iam.csv.CSVReportEntry;
 import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
 
+import java.util.List;
+
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
@@ -42,7 +44,7 @@ public class NoPasswordJobTest {
         verify(iamDataSource, times(2)).getCredentialReportCSV(anyString());
         verify(mockCsvParser, times(2)).apply(any());
         verify(violationWriter, times(2)).writeNoPasswordViolation(eq("account01"), any());
-        verify(violationWriter).writeRootUserViolation(eq("account01"), any());
+        verify(violationWriter).writeRootUserViolation(any(List.class));
         verify(violationWriter).writeNoPasswordViolation(eq("account02"), any());
     }
 }
