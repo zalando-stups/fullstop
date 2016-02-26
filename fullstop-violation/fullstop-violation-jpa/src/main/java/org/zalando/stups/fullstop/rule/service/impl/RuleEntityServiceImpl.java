@@ -12,9 +12,9 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.joda.time.DateTimeZone.UTC;
 
 @Service("ruleEntityService")
@@ -46,7 +46,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     @Override
     public RuleEntity update(RuleDTO ruleDTO, Long id) throws NoSuchElementException {
 
-        Optional.ofNullable(ruleEntityRepository.findOne(id)).
+        ofNullable(ruleEntityRepository.findOne(id)).
                 map(this::invalidateRule).orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
 
         return save(ruleDTO);
@@ -57,10 +57,9 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     public RuleEntity findById(Long id) {
         RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
         if (ruleEntity == null) {
-            log.warn("No such RuleEntity found! Id: {}", id);
+            log.info("No such RuleEntity found! Id: {}", id);
             return null;
         }
-
 
         return ruleEntity;
     }
