@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS fullstop_data.rule (
   created_by               TEXT      NOT NULL,
   last_modified            TIMESTAMP,
   last_modified_by         TEXT,
-  version                  BGINT     NOT NULL,
+  version                  BIGINT     NOT NULL,
   FOREIGN KEY (violation_type_entity_id) REFERENCES fullstop_data.violation_type (id)
 );
 
