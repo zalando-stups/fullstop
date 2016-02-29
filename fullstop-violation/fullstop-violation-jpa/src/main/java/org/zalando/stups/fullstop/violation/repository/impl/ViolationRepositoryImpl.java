@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.violation.repository.impl;
 
 import com.mysema.query.jpa.JPQLQuery;
 import com.mysema.query.types.Predicate;
+import com.mysema.query.types.expr.BooleanExpression;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
@@ -40,8 +41,9 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime from, final DateTime to,
-                                                 final Long lastViolation, final Boolean checked, final Integer severity, Boolean auditRelevant,
-                                                 String type, Optional<Boolean> whitelisted, final Pageable pageable) {
+                                                 final Long lastViolation, final Boolean checked, final Integer severity,
+                                                 final Boolean auditRelevant, final String type,
+                                                 final Optional<Boolean> whitelisted, final Pageable pageable) {
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
         QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
@@ -68,9 +70,9 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         if (checked != null) {
             if (checked) {
-                predicates.add(qViolationEntity.comment.isNotEmpty());
-            }
-            else {
+                BooleanExpression resolvedViolation = qViolationEntity.comment.isNotEmpty();
+                predicates.add(resolvedViolation);
+            } else {
                 predicates.add(qViolationEntity.comment.isNull().or(qViolationEntity.comment.isEmpty()));
             }
         }
@@ -88,10 +90,13 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
         }
 
-        if (whitelisted.isPresent() && whitelisted.get()){
-            predicates.add(qViolationEntity.ruleEntity.id.isNotNull());
-        } else {
-            predicates.add(qViolationEntity.ruleEntity.id.isNull());
+        if (whitelisted.isPresent()) {
+            if (whitelisted.get()) {
+                BooleanExpression whitelistedViolations = qViolationEntity.ruleEntity.id.isNotNull();
+                predicates.add(whitelistedViolations);
+            } else {
+                predicates.add(qViolationEntity.ruleEntity.id.isNull());
+            }
         }
 
         final long total = query.where(allOf(predicates)).count();
@@ -138,7 +143,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         fromDate.map(qViolation.created::after).ifPresent(whereClause::add);
         toDate.map(qViolation.created::before).ifPresent(whereClause::add);
-        resolved.map((isResolved)-> isResolved ? qViolation.comment.isNotNull() : qViolation.comment.isNull()).ifPresent(whereClause::add);
+        resolved.map((isResolved) -> isResolved ? qViolation.comment.isNotNull() : qViolation.comment.isNull()).ifPresent(whereClause::add);
 
         if (!whereClause.isEmpty()) {
             query.where(allOf(whereClause));
@@ -150,7 +155,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate, Optional<DateTime> toDate, Optional<Boolean> resolved) {
+    public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate,
+                                                                   Optional<DateTime> toDate, Optional<Boolean> resolved) {
         Assert.hasText(account, "account must not be blank");
 
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
@@ -167,8 +173,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         final Query query = getEntityManager().createNativeQuery(sql);
         query.setParameter("account", account);
-        fromDate.ifPresent((d) ->query.setParameter("from_date",d.toDate(), TIMESTAMP));
-        toDate.ifPresent((d) ->query.setParameter("to_date",d.toDate(), TIMESTAMP));
+        fromDate.ifPresent((d) -> query.setParameter("from_date", d.toDate(), TIMESTAMP));
+        toDate.ifPresent((d) -> query.setParameter("to_date", d.toDate(), TIMESTAMP));
 
         final List<?> results = query.getResultList();
         return results.stream()
