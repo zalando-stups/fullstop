@@ -16,8 +16,10 @@ import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.mockito.Mockito.*;
@@ -104,11 +106,21 @@ public class RuleEntityServiceImplTest {
 
     @Test
     public void testFindByNotExpired() throws Exception {
+        when(ruleEntityRepository.findByExpiryDateAfter(any(DateTime.class))).thenReturn(newArrayList(ruleEntity));
 
+        List<RuleEntity> byNotExpired = ruleEntityServiceImpl.findByNotExpired();
+        assertThat(byNotExpired).hasSize(1);
+
+        verify(ruleEntityRepository).findByExpiryDateAfter(any(DateTime.class));
     }
 
     @Test
     public void testFindAll() throws Exception {
+        when(ruleEntityRepository.findAll()).thenReturn(newArrayList(ruleEntity));
+        List<RuleEntity> ruleEntities = ruleEntityServiceImpl.findAll();
+        assertThat(ruleEntities).hasSize(1);
+
+        verify(ruleEntityRepository).findAll();
 
     }
 
