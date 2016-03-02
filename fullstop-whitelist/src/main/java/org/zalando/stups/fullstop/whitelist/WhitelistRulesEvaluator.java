@@ -73,6 +73,9 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
         return v -> {
             if(v.getMetaInfo() instanceof Map) {
                 Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                if (map == null || map.get("ami_name") == null) {
+                    return false;
+                }
                 return map.get("ami_name").matches(imageNamePattern);
             } else {
                 return false;

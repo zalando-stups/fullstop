@@ -15,7 +15,7 @@ public class RuleControllerProperties {
 
     public List<String> getAllowedTeams() {
 
-        return allowedTeams; //TODO default values?
+        return allowedTeams;
     }
 
     public void setAllowedTeams(final List<String> allowedTeams) {

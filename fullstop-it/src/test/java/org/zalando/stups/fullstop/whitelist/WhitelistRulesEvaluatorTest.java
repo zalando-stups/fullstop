@@ -91,11 +91,21 @@ public class WhitelistRulesEvaluatorTest {
     }
 
     @Test
+    public void testNullMetaInfo() throws Exception {
+        Map<String, String> metainfo = newHashMap();
+        violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
+        ruleEntity.setApplicationVersion("1.0-Snapshot");
+
+        Boolean apply = evaluator.apply(ruleEntity, violationEntity);
+        assertThat(apply).isEqualTo(false);
+    }
+
+    @Test
     public void testRegexStart() throws Exception{
         Map<String, String> metainfo = newHashMap();
         metainfo.put("ami_name", "CD-jenkins");
         violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
-        ruleEntity.setImageName("*jenkins");
+        ruleEntity.setImageName(".+jenkins");
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
 
         assertThat(apply).isEqualTo(true);
@@ -106,7 +116,7 @@ public class WhitelistRulesEvaluatorTest {
         Map<String, String> metainfo = newHashMap();
         metainfo.put("ami_name", "CD-jenkins-machine");
         violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
-        ruleEntity.setImageName("*jenk*");
+        ruleEntity.setImageName(".+jenk.+");
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
 
         assertThat(apply).isEqualTo(true);
@@ -117,7 +127,28 @@ public class WhitelistRulesEvaluatorTest {
         Map<String, String> metainfo = newHashMap();
         metainfo.put("ami_name", "jenkins-machine");
         violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
-        ruleEntity.setImageName("jenkins*");
+        ruleEntity.setImageName("jenkins.+");
+        Boolean apply = evaluator.apply(ruleEntity, violationEntity);
+
+        assertThat(apply).isEqualTo(true);
+    }
+
+    @Test
+    public void testNullRegex() throws Exception{
+        Map<String, String> metainfo = newHashMap();
+        violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
+        ruleEntity.setImageName("jenkins.+");
+        Boolean apply = evaluator.apply(ruleEntity, violationEntity);
+
+        assertThat(apply).isEqualTo(false);
+    }
+
+    @Test
+    public void testComplexRegex() throws Exception{
+        Map<String, String> metainfo = newHashMap();
+        metainfo.put("ami_name", "ELB-1234-ami-taupage");
+        violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null);
+        ruleEntity.setImageName("^.+-(\\d+)*taupage");
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
 
         assertThat(apply).isEqualTo(true);
