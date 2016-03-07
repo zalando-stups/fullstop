@@ -19,13 +19,13 @@ import java.util.Set;
 public interface ViolationRepositoryCustom {
 
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation, Boolean checked,
-            Integer severity, Boolean auditRelevant, String type, Pageable pageable);
+                                          Integer severity, Boolean auditRelevant, String type, Optional<Boolean> whitelisted, Pageable pageable);
 
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);
 
     List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> from,
-                                                      Optional<DateTime> to, Optional<Boolean> resolved);
+                                                      Optional<DateTime> to, Optional<Boolean> resolved, boolean whitelisted);
 
     List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> from,
-                                                      Optional<DateTime> to, Optional<Boolean> resolved);
+                                                      Optional<DateTime> to, Optional<Boolean> resolved, boolean whitelisted);
 }

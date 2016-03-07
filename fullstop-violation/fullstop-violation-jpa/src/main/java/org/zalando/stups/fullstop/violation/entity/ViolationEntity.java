@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.violation.entity;
 
 import org.zalando.stups.fullstop.domain.AbstractModifiableEntity;
+import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -34,10 +35,13 @@ public class ViolationEntity extends AbstractModifiableEntity {
     private String username;
 
     @ManyToOne
+    private RuleEntity ruleEntity;
+
+    @ManyToOne
     private ViolationTypeEntity violationTypeEntity;
 
     public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
-            String comment, String username) {
+                           String comment, String username, RuleEntity ruleEntity) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
@@ -45,6 +49,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.metaInfo = metaInfo;
         this.comment = comment;
         this.username = username;
+        this.ruleEntity = ruleEntity;
     }
 
     public ViolationEntity() {
@@ -121,6 +126,14 @@ public class ViolationEntity extends AbstractModifiableEntity {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public RuleEntity getRuleEntity() {
+        return ruleEntity;
+    }
+
+    public void setRuleEntity(RuleEntity ruleEntity) {
+        this.ruleEntity = ruleEntity;
     }
 
     @Override

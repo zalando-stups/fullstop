@@ -2,7 +2,6 @@ package org.zalando.stups.fullstop.web.controller;
 
 import io.swagger.annotations.*;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -12,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.fullstop.web.api.ForbiddenException;
 import org.zalando.fullstop.web.api.NotFoundException;
@@ -83,7 +82,7 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations after the one with this id")
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,
-            @ApiParam(value = "Include only violations where checked field equals this value")
+            @ApiParam(value = "Include only violations where checked field equals this value (i.e. resolved violations)")
             @RequestParam(value = "checked", required = false)
             final Boolean checked,
             @ApiParam(value = "Include only violations with a certain severity")
@@ -95,6 +94,9 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations with a certain type")
             @RequestParam(value = "type", required = false)
             final String type,
+            @ApiParam(value = "show also whitelisted vioaltions")
+            @RequestParam(value = "whitelisted")
+            final Optional<Boolean> whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
         if (from == null) {
             from = DateTime.now().minusWeeks(1);
@@ -105,7 +107,7 @@ public class ViolationsController {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity, auditRelevant, type, pageable));
+                        checked, severity, auditRelevant, type, whitelisted, pageable));
     }
 
     @ApiOperation(

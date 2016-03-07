@@ -15,8 +15,8 @@ import java.io.IOException;
 
 @Configuration
 @EnableAutoConfiguration
-@EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
-@EntityScan("org.zalando.stups.fullstop.violation")
+@EnableJpaRepositories("org.zalando.stups.fullstop")
+@EntityScan("org.zalando.stups.fullstop")
 @EnableJpaAuditing
 @EnableRetry(proxyTargetClass = true)
 public class EmbeddedPostgresJpaConfig {

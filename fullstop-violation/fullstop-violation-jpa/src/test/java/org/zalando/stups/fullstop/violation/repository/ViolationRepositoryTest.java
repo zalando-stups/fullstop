@@ -63,11 +63,11 @@ public class ViolationRepositoryTest {
         final ViolationTypeEntity type1 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("SOMETHING_WENT_WRONG"));
         final ViolationTypeEntity type2 = violationTypeRepository.saveAndFlush(new ViolationTypeEntity("YOU_SCREWED_UP"));
 
-        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username"), type1);
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username"), type1);
-        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username"), type2);
-        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username"), type1);
-        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username"), type2);
+        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username", null), type1);
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username", null), type1);
+        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username", null), type2);
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username", null), type1);
+        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username", null), type2);
 
         em.flush();
         em.clear();
@@ -82,7 +82,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetAllPage1() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, null, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(5);
@@ -97,7 +97,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetAllPage2() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, null, null, null, null, new PageRequest(1, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, null, null, null, null, Optional.empty(), new PageRequest(1, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(5);
@@ -109,7 +109,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetByAccounts() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(newArrayList("acc2", "acc3"), null, null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(newArrayList("acc2", "acc3"), null, null, null, null, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -123,7 +123,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsSince1() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, vio4.getCreated().plusSeconds(1), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, vio4.getCreated().plusSeconds(1), null, null, null, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(0);
@@ -135,7 +135,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsSince2() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, vio2.getCreated(), null, null, null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, vio2.getCreated(), null, null, null, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -148,7 +148,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetViolationsBeginningFrom() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, vio3.getId(), null, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, vio3.getId(), null, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -161,7 +161,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetCheckedViolations() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, true, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, true, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(2);
@@ -174,7 +174,7 @@ public class ViolationRepositoryTest {
     @Test
     public void testGetUncheckedViolations() throws Exception {
         final Page<ViolationEntity> result = violationRepository
-                .queryViolations(null, null, null, null, false, null, null, null, new PageRequest(0, 3, ASC, "id"));
+                .queryViolations(null, null, null, null, false, null, null, null, Optional.empty(), new PageRequest(0, 3, ASC, "id"));
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(3);
@@ -186,7 +186,7 @@ public class ViolationRepositoryTest {
 
     @Test
     public void testCountViolationsByAccountAndType() throws Exception {
-        final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty());
+        final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty(), false);
         assertThat(result).hasSize(4);
     }
 
@@ -196,7 +196,8 @@ public class ViolationRepositoryTest {
                 "acc1",
                 Optional.of(now().minusDays(1)),
                 Optional.of(now().plusDays(1)),
-                Optional.of(FALSE));
+                Optional.of(FALSE),
+                false);
         assertThat(result).hasSize(1);
     }
 }
