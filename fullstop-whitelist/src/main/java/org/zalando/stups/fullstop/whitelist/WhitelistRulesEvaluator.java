@@ -32,7 +32,7 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
                 .map(WhitelistRulesEvaluator::regionIsEqual)
                 .ifPresent(predicates::add);
 
-        trimOptional(ruleEntity.getViolationTypeId())
+        trimOptional(ruleEntity.getViolationTypeEntityId())
                 .map(WhitelistRulesEvaluator::violationTypeIdIsEqual)
                 .ifPresent(predicates::add);
 

@@ -75,7 +75,7 @@ public class RuleControllerTest {
         ruleDTO.setImageOwner("Peter Lustig");
         ruleDTO.setReason("BAM!");
         ruleDTO.setRegion("eu-west-1");
-        ruleDTO.setViolationTypeEntity("APPLICATION_NOT_PRESENT_IN_KIO");
+        ruleDTO.setViolationTypeEntityId("APPLICATION_NOT_PRESENT_IN_KIO");
 
         ruleEntity = new RuleEntity();
         ruleEntity.setId(1L);
