@@ -25,10 +25,6 @@ public class WhitelistRulesEvaluatorTest {
 
     }
 
-    @After
-    public void tearDown() throws Exception {
-        /*verifyNoMoreInteractions();*/
-    }
 
     @Test
     public void testAccoundID() throws Exception {
