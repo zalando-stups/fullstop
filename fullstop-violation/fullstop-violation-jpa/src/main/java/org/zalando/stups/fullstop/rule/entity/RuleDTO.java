@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 
 public class RuleDTO {
+
     @JsonProperty(value = "account_id")
     private String accountId;
 
@@ -102,8 +103,8 @@ public class RuleDTO {
         return violationTypeEntityId;
     }
 
-    public void setViolationTypeEntity(String violationTypeEntity) {
-        this.violationTypeEntityId = violationTypeEntity;
+    public void setViolationTypeEntityId(String violationTypeEntityId) {
+        this.violationTypeEntityId = violationTypeEntityId;
     }
 
     public Long getVersion() {

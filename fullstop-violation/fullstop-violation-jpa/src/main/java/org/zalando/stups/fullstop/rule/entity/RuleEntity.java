@@ -148,7 +148,7 @@ public class RuleEntity {
         this.expiryDate = expiryDate;
     }
 
-    public String getViolationTypeId() {
+    public String getViolationTypeEntityId() {
         return violationTypeEntityId;
     }
 
