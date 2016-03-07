@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 import org.springframework.util.Assert;
+import org.zalando.stups.fullstop.rule.entity.QRuleEntity;
 import org.zalando.stups.fullstop.violation.entity.*;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
@@ -47,8 +48,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
         QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
+        QRuleEntity qRuleEntity = QRuleEntity.ruleEntity;
 
-        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
+        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity)
+                .leftJoin(qViolationEntity.ruleEntity, qRuleEntity);
 
         final List<Predicate> predicates = newArrayList();
 
@@ -92,10 +95,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         if (whitelisted.isPresent()) {
             if (whitelisted.get()) {
-                BooleanExpression whitelistedViolations = qViolationEntity.ruleEntity.id.isNotNull();
+                BooleanExpression whitelistedViolations = qRuleEntity.isNotNull();
                 predicates.add(whitelistedViolations);
             } else {
-                predicates.add(qViolationEntity.ruleEntity.id.isNull());
+                predicates.add(qRuleEntity.isNull());
             }
         }
 
@@ -128,12 +131,16 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate,
-                                                             Optional<DateTime> toDate, Optional<Boolean> resolved) {
+                                                             Optional<DateTime> toDate, Optional<Boolean> resolved, boolean whitelisted) {
         final QViolationEntity qViolation = new QViolationEntity("v");
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
+        final QRuleEntity qRuleEntity = new QRuleEntity("r");
+
+
 
         final JPQLQuery query = from(qViolation);
         query.join(qViolation.violationTypeEntity, qType);
+        query.leftJoin(qViolation.ruleEntity, qRuleEntity);
 
         final Collection<Predicate> whereClause = newArrayList();
 
@@ -144,10 +151,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         fromDate.map(qViolation.created::after).ifPresent(whereClause::add);
         toDate.map(qViolation.created::before).ifPresent(whereClause::add);
         resolved.map((isResolved) -> isResolved ? qViolation.comment.isNotNull() : qViolation.comment.isNull()).ifPresent(whereClause::add);
+        whereClause.add(whitelisted ? qRuleEntity.isNotNull() : qRuleEntity.isNull());
 
-        if (!whereClause.isEmpty()) {
             query.where(allOf(whereClause));
-        }
+
         query.groupBy(qViolation.accountId, qType.id);
         query.orderBy(qViolation.accountId.asc(), qType.id.asc());
 
@@ -156,7 +163,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
     @Override
     public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate,
-                                                                   Optional<DateTime> toDate, Optional<Boolean> resolved) {
+                                                                   Optional<DateTime> toDate, Optional<Boolean> resolved, boolean whitelisted) {
         Assert.hasText(account, "account must not be blank");
 
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
@@ -168,6 +175,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                 (fromDate.isPresent() ? "AND vio.created >= :from_date " : "") +
                 (toDate.isPresent() ? "AND vio.created <= :to_date " : "") +
                 resolved.map((resolvedViolations) -> "AND vio.comment IS " + (resolvedViolations ? "NOT NULL " : "NULL ")).orElse("") +
+                "AND vio.rule_entity_id IS " + (whitelisted ? "NOT NULL " : "NULL ") +
                 "GROUP BY app.id, ver.id, vio.violation_type_entity_id " +
                 "ORDER BY app.name ASC NULLS LAST, ver.created DESC NULLS LAST, vio.violation_type_entity_id ASC ";
 

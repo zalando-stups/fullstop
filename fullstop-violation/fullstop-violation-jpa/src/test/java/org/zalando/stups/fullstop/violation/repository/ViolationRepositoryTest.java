@@ -186,7 +186,7 @@ public class ViolationRepositoryTest {
 
     @Test
     public void testCountViolationsByAccountAndType() throws Exception {
-        final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty());
+        final List<CountByAccountAndType> result = violationRepository.countByAccountAndType(emptySet(), empty(), empty(), empty(), false);
         assertThat(result).hasSize(4);
     }
 
@@ -196,7 +196,8 @@ public class ViolationRepositoryTest {
                 "acc1",
                 Optional.of(now().minusDays(1)),
                 Optional.of(now().plusDays(1)),
-                Optional.of(FALSE));
+                Optional.of(FALSE),
+                false);
         assertThat(result).hasSize(1);
     }
 }

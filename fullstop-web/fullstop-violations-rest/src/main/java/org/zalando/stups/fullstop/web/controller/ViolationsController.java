@@ -95,7 +95,7 @@ public class ViolationsController {
             @RequestParam(value = "type", required = false)
             final String type,
             @ApiParam(value = "show also whitelisted vioaltions")
-            @RequestParam(value = "whiltelisted", required = false)
+            @RequestParam(value = "whitelisted")
             final Optional<Boolean> whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
         if (from == null) {

@@ -24,8 +24,8 @@ public interface ViolationRepositoryCustom {
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);
 
     List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> from,
-                                                      Optional<DateTime> to, Optional<Boolean> resolved);
+                                                      Optional<DateTime> to, Optional<Boolean> resolved, boolean whitelisted);
 
     List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> from,
-                                                      Optional<DateTime> to, Optional<Boolean> resolved);
+                                                      Optional<DateTime> to, Optional<Boolean> resolved, boolean whitelisted);
 }

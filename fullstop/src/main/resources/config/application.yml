@@ -134,8 +134,7 @@ fullstop:
 
     whitelist:
         # Which teams are allowed to whitelist violations
-        allowed-teams:
-          - 'stups'
+        allowed-teams: "stups" #comma separated, will be overriden by ENV VARS
 
 #
 # OAuth2

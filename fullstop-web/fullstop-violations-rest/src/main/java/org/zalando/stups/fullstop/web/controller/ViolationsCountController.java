@@ -55,8 +55,11 @@ public class ViolationsCountController {
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
             @RequestParam
-            Optional<Boolean> resolved) {
-        return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved);
+            Optional<Boolean> resolved,
+            @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
+            @RequestParam
+            Optional<Boolean> whitelisted){
+        return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved, whitelisted.orElse(false));
     }
 
     @RequestMapping(value = "/{account}", method = GET)
@@ -77,7 +80,10 @@ public class ViolationsCountController {
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
             @RequestParam
-            Optional<Boolean> resolved) {
-        return violationRepository.countByAppVersionAndType(account, from, to, resolved);
+            Optional<Boolean> resolved,
+            @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
+            @RequestParam
+            Optional<Boolean> whitelisted) {
+        return violationRepository.countByAppVersionAndType(account, from, to, resolved, whitelisted.orElse(false));
     }
 }
