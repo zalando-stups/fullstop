@@ -110,7 +110,7 @@ public class RuleController {
 
 
     private void checkPermission(String userId) throws ForbiddenException {
-        Preconditions.checkNotNull(userId);
+        Preconditions.checkNotNull(userId, "userId must not be null!");
         final Set<String> teams = teamOperations.getTeamIdsByUser(userId);
         final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();
 
