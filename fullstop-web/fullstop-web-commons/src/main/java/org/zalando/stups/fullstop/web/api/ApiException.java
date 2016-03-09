@@ -1,4 +1,4 @@
-package org.zalando.fullstop.web.api;
+package org.zalando.stups.fullstop.web.api;
 
 public class ApiException extends Exception {
     private int code;

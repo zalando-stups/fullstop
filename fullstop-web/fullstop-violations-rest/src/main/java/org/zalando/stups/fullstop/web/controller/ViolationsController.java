@@ -13,8 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.fullstop.web.api.ForbiddenException;
-import org.zalando.fullstop.web.api.NotFoundException;
+import org.zalando.stups.fullstop.web.api.ForbiddenException;
+import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -143,10 +143,10 @@ public class ViolationsController {
     }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
-        final List<Account> teams = teamOperations.getTeamsByUser(userId);
+        final List<Account> accounts = teamOperations.getAwsAccountsByUser(userId);
 
-        for (Account team : teams) {
-            if (team.getId().equals(targetAccountId)) {
+        for (Account account : accounts) {
+            if (account.getId().equals(targetAccountId)) {
                 return true;
             }
         }

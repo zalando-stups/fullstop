@@ -7,7 +7,7 @@ import org.springframework.security.web.method.annotation.AuthenticationPrincipa
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.zalando.fullstop.web.controller.ApiExceptionHandler;
+import org.zalando.stups.fullstop.web.controller.ApiExceptionHandler;
 
 import java.util.List;
 

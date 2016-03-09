@@ -35,8 +35,8 @@ public class HystrixTeamOperationsTest {
 
     @Test
     public void testGetTeamsByUser() throws Exception {
-        when(mockDelegate.getTeamsByUser(anyString())).thenReturn(ACCOUNTS);
-        assertThat(hystrixTeamOperations.getTeamsByUser(USER_ID)).isSameAs(ACCOUNTS);
-        verify(mockDelegate).getTeamsByUser(same(USER_ID));
+        when(mockDelegate.getAwsAccountsByUser(anyString())).thenReturn(ACCOUNTS);
+        assertThat(hystrixTeamOperations.getAwsAccountsByUser(USER_ID)).isSameAs(ACCOUNTS);
+        verify(mockDelegate).getAwsAccountsByUser(same(USER_ID));
     }
 }

@@ -30,11 +30,13 @@ import org.zalando.stups.fullstop.teams.TeamOperations;
 import java.util.NoSuchElementException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -86,7 +88,7 @@ public class RuleControllerTest {
         when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
         when(ruleControllerPropertiesMock.getAllowedTeams()).thenReturn(newArrayList("Owner", "OtherTeam"));
-        when(teamOperationsMock.getTeamsByUser(anyString())).thenReturn(newArrayList(
+        when(teamOperationsMock.getAwsAccountsByUser(anyString())).thenReturn(newArrayList(
                 new Account(
                         "Team",
                         "Foo",
@@ -94,6 +96,7 @@ public class RuleControllerTest {
                         "Description",
                         "Owner",
                         false)));
+        when(teamOperationsMock.getTeamIdsByUser(anyString())).thenReturn(newHashSet("Owner", "OtherTeamID"));
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).alwaysDo(print()).build();
 
@@ -105,8 +108,6 @@ public class RuleControllerTest {
     public void tearDown() throws Exception {
 
         verifyNoMoreInteractions(ruleEntityService, teamOperationsMock, ruleControllerPropertiesMock);
-        verify(teamOperationsMock).getTeamsByUser(anyString());
-        verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
 
@@ -118,7 +119,7 @@ public class RuleControllerTest {
         resultActions.andExpect(jsonPath("$[0].id").value(1));
 
         verify(ruleEntityService).findAll();
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
 
@@ -137,7 +138,7 @@ public class RuleControllerTest {
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).save(any(RuleDTO.class));
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
 
@@ -151,7 +152,7 @@ public class RuleControllerTest {
         resultActions.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.account_id").value("1234"));
 
         verify(ruleEntityService).findById(anyLong());
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
@@ -161,10 +162,9 @@ public class RuleControllerTest {
         when(ruleEntityService.findById(anyLong())).thenReturn(null);
 
         ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules/2")).andExpect(status().isNotFound());
-        resultActions.andExpect(content().string("No such Rule! Id: 2"));
 
         verify(ruleEntityService).findById(anyLong());
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
@@ -182,7 +182,7 @@ public class RuleControllerTest {
         resultActions.andExpect(status().isOk());
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
@@ -197,10 +197,9 @@ public class RuleControllerTest {
         String ruleAsJson = objectMapper.writeValueAsString(ruleDTO);
 
         ResultActions resultActions = mockMvc.perform(put("/api/whitelisting-rules/2").contentType(APPLICATION_JSON).content(ruleAsJson));
-        resultActions.andExpect(content().string(MESSAGE));
 
         verify(ruleEntityService).update(any(RuleDTO.class), anyLong());
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
@@ -211,9 +210,8 @@ public class RuleControllerTest {
         when(ruleEntityService.findAll()).thenReturn(newArrayList(ruleEntity));
 
         ResultActions resultActions = mockMvc.perform(get("/api/whitelisting-rules/")).andExpect(status().is4xxClientError());
-        resultActions.andExpect(content().string("You don't have the permission to use this API"));
 
-        verify(teamOperationsMock).getTeamsByUser(anyString());
+        verify(teamOperationsMock).getTeamIdsByUser(anyString());
         verify(ruleControllerPropertiesMock).getAllowedTeams();
 
     }
