@@ -54,18 +54,11 @@ public class RestTemplateTeamOperations implements TeamOperations {
     public Set<String> getTeamIdsByUser(String userId) {
         Preconditions.checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
-        Stream<String> idStream = getTeamsByUser(userId).stream().map(Team::getId);
-
-        Stream<String> ownerStream = getAwsAccountsByUser(userId).stream().map(Account::getOwner);
-
-
-        return Stream.concat(ownerStream, idStream).
+        return getTeamsByUser(userId).stream().map(Team::getId).
                 filter(Objects::nonNull).
                 map(String::trim).
                 filter(string -> !string.isEmpty()).
                 collect(toSet());
-
-
     }
 
     private Set<Team> getTeamsByUser(String userId) {
