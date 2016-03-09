@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.zalando.fullstop.web.controller.ApiExceptionHandler;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -31,7 +30,6 @@ import org.zalando.stups.fullstop.web.model.Violation;
 import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -128,7 +126,6 @@ public class ViolationsControllerTest {
 
         final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439"))
                 .andExpect(status().isNotFound());
-        resultActions.andExpect(content().string("Violation with id: 948439 not found!"));
         verify(violationServiceMock).findOne(948439L);
     }
 
@@ -190,7 +187,7 @@ public class ViolationsControllerTest {
     public void testResolveViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
         when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+        when(mockTeamOperations.getAwsAccountsByUser(anyString())).thenReturn(
                 newArrayList(
                         new Account(
                                 violationResult.getAccountId(),
@@ -212,7 +209,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).findOne(eq(156L));
         verify(violationServiceMock).save(eq(violationResult));
-        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+        verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -234,7 +231,7 @@ public class ViolationsControllerTest {
     @Test
     public void testResolveOtherTeamsViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+        when(mockTeamOperations.getAwsAccountsByUser(anyString())).thenReturn(
                 newArrayList(
                         new Account(
                                 "foo",
@@ -255,7 +252,7 @@ public class ViolationsControllerTest {
                 .andExpect(status().isForbidden());
 
         verify(violationServiceMock).findOne(eq(156L));
-        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+        verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
     }
 
     @Configuration
