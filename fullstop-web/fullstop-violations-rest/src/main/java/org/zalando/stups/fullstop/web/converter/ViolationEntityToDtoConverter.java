@@ -43,6 +43,8 @@ public class ViolationEntityToDtoConverter implements Converter<ViolationEntity,
 
         violation.setUsername(source.getUsername());
 
+        violation.setRuleID(source.getRuleEntity().getId());
+
         Optional.ofNullable(source.getViolationTypeEntity())
                 .map(violationTypeConverter::convert)
                 .ifPresent(violation::setViolationType);

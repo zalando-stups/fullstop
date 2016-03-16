@@ -39,6 +39,8 @@ public class Violation {
 
     private String username = null;
 
+    private Long ruleID = null;
+
     @ApiModelProperty(value = "")
     public Long getId() {
         return id;
@@ -174,6 +176,15 @@ public class Violation {
         this.username = username;
     }
 
+    @ApiModelProperty(value = "")
+    public Long getRuleID() {
+        return ruleID;
+    }
+
+    public void setRuleID(Long ruleID) {
+        this.ruleID = ruleID;
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this)
@@ -187,6 +198,7 @@ public class Violation {
                 .add("instanceId", instanceId)
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationType", violationType)
+                .add("ruleID", ruleID)
                 .add("username", username)
                 .add("created", created)
                 .add("createdBy", createdBy)
