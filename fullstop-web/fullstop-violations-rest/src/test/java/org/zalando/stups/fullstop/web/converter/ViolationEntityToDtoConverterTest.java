@@ -33,7 +33,7 @@ public class ViolationEntityToDtoConverterTest {
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testConvertNullPointer() throws Exception {
         Violation dto = entityToDto.convert(violationEntity);
     }
