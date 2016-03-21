@@ -83,8 +83,8 @@ public class ViolationsController {
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,
             @ApiParam(value = "Include only violations where checked field equals this value (i.e. resolved violations)")
-            @RequestParam(value = "checked", required = false)
-            final Boolean checked,
+            @RequestParam(value = "checked", required = false, defaultValue = "false")
+            final boolean checked,
             @ApiParam(value = "Include only violations with a certain severity")
             @RequestParam(value = "severity", required = false)
             final Integer severity,
@@ -95,8 +95,8 @@ public class ViolationsController {
             @RequestParam(value = "type", required = false)
             final String type,
             @ApiParam(value = "show also whitelisted vioaltions")
-            @RequestParam(value = "whitelisted")
-            final Optional<Boolean> whitelisted,
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            final boolean whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
         if (from == null) {
             from = DateTime.now().minusWeeks(1);

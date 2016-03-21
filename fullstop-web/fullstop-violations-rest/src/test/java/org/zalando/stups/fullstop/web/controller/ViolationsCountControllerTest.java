@@ -24,8 +24,6 @@ import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 import static org.mockito.Mockito.*;
@@ -61,7 +59,7 @@ public class ViolationsCountControllerTest {
 
     @Test
     public void testCountAllByAccountAndType() throws Exception {
-        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), any(), eq(false)))
+        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(true), eq(false)))
                 .thenReturn(newArrayList(
                         new CountByAccountAndType("acc01", "oops", 40),
                         new CountByAccountAndType("acc01", "bla", 10),
@@ -72,7 +70,7 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        verify(mockViolationRepository).countByAccountAndType(eq(emptySet()), eq(empty()), eq(empty()), eq(empty()), eq(false));
+        verify(mockViolationRepository).countByAccountAndType(eq(emptySet()), eq(empty()), eq(empty()), eq(true), eq(false));
     }
 
     @Test
@@ -80,7 +78,7 @@ public class ViolationsCountControllerTest {
         final DateTime from = DateTime.now();
         final DateTime to = DateTime.now();
 
-        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), any(), eq(false)))
+        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(true), eq(false)))
                 .thenReturn(newArrayList(
                         new CountByAccountAndType("acc01", "oops", 40),
                         new CountByAccountAndType("acc01", "bla", 10),
@@ -92,7 +90,7 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        verify(mockViolationRepository).countByAccountAndType(eq(newHashSet("acc01", "acc02")), eq(Optional.of(from)), eq(Optional.of(to)), eq(Optional.of(FALSE)), eq(false));
+        verify(mockViolationRepository).countByAccountAndType(eq(newHashSet("acc01", "acc02")), eq(Optional.of(from)), eq(Optional.of(to)), eq(true), eq(false));
     }
 
     @Test
@@ -100,7 +98,7 @@ public class ViolationsCountControllerTest {
         final DateTime from = DateTime.now();
         final DateTime to = DateTime.now();
 
-        when(mockViolationRepository.countByAppVersionAndType(anyString(), any(), any(), any(), eq(false)))
+        when(mockViolationRepository.countByAppVersionAndType(anyString(), any(), any(), eq(true), eq(false)))
                 .thenReturn(newArrayList(
                         new CountByAppVersionAndType("app1", "1.0", "OOPS", 40),
                         new CountByAppVersionAndType("app1", "2.0", "OOPS", 10),
@@ -112,7 +110,7 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        verify(mockViolationRepository).countByAppVersionAndType(eq("account001"), eq(Optional.of(from)), eq(Optional.of(to)), eq(Optional.of(TRUE)), eq(false));
+        verify(mockViolationRepository).countByAppVersionAndType(eq("account001"), eq(Optional.of(from)), eq(Optional.of(to)), eq(true), eq(false));
 
     }
 
