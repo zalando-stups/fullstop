@@ -161,17 +161,17 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                                                                    Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
         Assert.hasText(account, "account must not be blank");
 
-        String whitelistedOrResolvedPredicate = "";
+        String whitelistedOrResolvedPredicate;
 
         if (whitelisted) {
-            whitelistedOrResolvedPredicate = "AND vio.rule_entity_id IS NOT NULL";
+            whitelistedOrResolvedPredicate = "AND vio.rule_entity_id IS NOT NULL ";
         } else if (resolved) {
-            whitelistedOrResolvedPredicate = "AND vio.comment IS NOT NULL" +
-                    "AND vio.rule_entity_id IS NULL";
+            whitelistedOrResolvedPredicate = "AND vio.comment IS NOT NULL " +
+                    "AND vio.rule_entity_id IS NULL ";
 
         } else {
-            whitelistedOrResolvedPredicate = "AND vio.comment IS NULL" +
-                    "AND vio.rule_entity_id IS NULL";
+            whitelistedOrResolvedPredicate = "AND vio.comment IS NULL " +
+                    "AND vio.rule_entity_id IS NULL ";
         }
 
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +

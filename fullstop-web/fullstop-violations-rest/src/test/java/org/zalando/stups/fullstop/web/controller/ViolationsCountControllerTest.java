@@ -59,7 +59,7 @@ public class ViolationsCountControllerTest {
 
     @Test
     public void testCountAllByAccountAndType() throws Exception {
-        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(true), eq(false)))
+        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(false), eq(false)))
                 .thenReturn(newArrayList(
                         new CountByAccountAndType("acc01", "oops", 40),
                         new CountByAccountAndType("acc01", "bla", 10),
@@ -70,7 +70,7 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        verify(mockViolationRepository).countByAccountAndType(eq(emptySet()), eq(empty()), eq(empty()), eq(true), eq(false));
+        verify(mockViolationRepository).countByAccountAndType(eq(emptySet()), eq(empty()), eq(empty()), eq(false), eq(false));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ViolationsCountControllerTest {
         final DateTime from = DateTime.now();
         final DateTime to = DateTime.now();
 
-        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(true), eq(false)))
+        when(mockViolationRepository.countByAccountAndType(any(), any(), any(), eq(false), eq(false)))
                 .thenReturn(newArrayList(
                         new CountByAccountAndType("acc01", "oops", 40),
                         new CountByAccountAndType("acc01", "bla", 10),
@@ -90,7 +90,7 @@ public class ViolationsCountControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        verify(mockViolationRepository).countByAccountAndType(eq(newHashSet("acc01", "acc02")), eq(Optional.of(from)), eq(Optional.of(to)), eq(true), eq(false));
+        verify(mockViolationRepository).countByAccountAndType(eq(newHashSet("acc01", "acc02")), eq(Optional.of(from)), eq(Optional.of(to)), eq(false), eq(false));
     }
 
     @Test
