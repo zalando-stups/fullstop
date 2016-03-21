@@ -38,14 +38,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.web.test.MatcherHelper.hasSize;
 import static org.zalando.stups.fullstop.web.test.TestDataInitializer.INITIALIZER;
 import static org.zalando.stups.fullstop.web.test.builder.domain.ViolationEntityBuilder.violation;
@@ -131,7 +132,7 @@ public class ViolationsControllerTest {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), anyBoolean(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -144,11 +145,12 @@ public class ViolationsControllerTest {
                 any(DateTime.class),
                 any(DateTime.class),
                 isNull(Long.class),
-                isNull(Boolean.class),
+                anyBoolean(),
                 isNull(Integer.class),
                 isNull(Boolean.class),
                 isNull(String.class),
-                any(), any());
+                anyBoolean(),
+                any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -168,7 +170,8 @@ public class ViolationsControllerTest {
                         any(),
                         any(),
                         any(),
-                        any(), any()))
+                        anyBoolean(),
+                        any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
         ResultActions resultActions = this.mockMvc.perform(
@@ -179,7 +182,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), any(), any());
+                        true), any(), any(), any(), anyBoolean(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 

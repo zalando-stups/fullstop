@@ -148,7 +148,6 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             whereClause.add(qRuleEntity.isNull());
         }
 
-
         query.where(allOf(whereClause));
 
         query.groupBy(qViolation.accountId, qType.id);
@@ -162,6 +161,19 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                                                                    Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
         Assert.hasText(account, "account must not be blank");
 
+        String whitelistedOrResolvedPredicate = "";
+
+        if (whitelisted) {
+            whitelistedOrResolvedPredicate = "AND vio.rule_entity_id IS NOT NULL";
+        } else if (resolved) {
+            whitelistedOrResolvedPredicate = "AND vio.comment IS NOT NULL" +
+                    "AND vio.rule_entity_id IS NULL";
+
+        } else {
+            whitelistedOrResolvedPredicate = "AND vio.comment IS NULL" +
+                    "AND vio.rule_entity_id IS NULL";
+        }
+
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
                 "FROM fullstop_data.violation vio " +
                 "LEFT JOIN fullstop_data.lifecycle l ON l.account_id = vio.account_id AND l.region = vio.region AND l.instance_id = vio.instance_id " +
@@ -170,8 +182,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                 "WHERE vio.account_id = :account " +
                 (fromDate.isPresent() ? "AND vio.created >= :from_date " : "") +
                 (toDate.isPresent() ? "AND vio.created <= :to_date " : "") +
-                "AND vio.comment IS " + (resolved ? "NOT NULL " : "NULL ") +
-                "AND vio.rule_entity_id IS " + (whitelisted ? "NOT NULL " : "NULL ") +
+                whitelistedOrResolvedPredicate +
                 "GROUP BY app.id, ver.id, vio.violation_type_entity_id " +
                 "ORDER BY app.name ASC NULLS LAST, ver.created DESC NULLS LAST, vio.violation_type_entity_id ASC ";
 
