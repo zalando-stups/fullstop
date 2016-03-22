@@ -18,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import org.zalando.stups.fullstop.web.model.ViolationType;
+import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
