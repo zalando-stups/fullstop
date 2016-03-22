@@ -101,7 +101,7 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-api</artifactId>
-            <version>0.1.0-RC-3</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>

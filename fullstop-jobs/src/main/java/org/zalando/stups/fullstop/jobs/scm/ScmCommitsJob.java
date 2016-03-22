@@ -5,10 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.ListCommitsResponse;
-import org.zalando.kontrolletti.resources.Commit;
 import org.zalando.kontrolletti.resources.Repository;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
@@ -26,8 +24,8 @@ import java.util.Optional;
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.zalando.kontrolletti.CommitRangeRequest.Builder.inRepository;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SPEC_LINKS;
 
@@ -64,30 +62,20 @@ public class ScmCommitsJob implements FullstopJob {
     }
 
     private void processApplication(Application app) {
-        lifecycle.findDeployments(app.getId()).forEach(deployment ->
-                Optional.of(app)
-                        .map(Application::getScmUrl)
-                        .filter(StringUtils::isNotBlank)
-                        .map(this::normalizeRepositoryUrl) // TODO is this necessary?
-                        .map(kontrolletti::getRepository)
-                        .flatMap(repo -> findViolationInRepo(repo, deployment))
-                        .ifPresent(violationSink::put));
-    }
-
-    private String normalizeRepositoryUrl(String url) {
         try {
-            return kontrolletti.normalizeRepositoryUrl(url);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == BAD_REQUEST) {
-                log.warn("Failed to normalize url {}. Reason: {}", url, e);
-                return null;
-            } else {
-                throw e;
-            }
+            lifecycle.findDeployments(app.getId()).forEach(deployment ->
+                    Optional.of(app.getScmUrl())
+                            .filter(StringUtils::isNotBlank)
+                            .map(kontrolletti::normalizeRepositoryUrl) // TODO is this necessary?
+                            .map(kontrolletti::getRepository)
+                            .flatMap(repo -> findViolationInRepo(repo, deployment, app))
+                            .ifPresent(violationSink::put));
+        } catch (Exception e) {
+            log.warn("Failed to verify commits in scm repository of " + app, e);
         }
     }
 
-    private Optional<Violation> findViolationInRepo(Repository repository, AccountRegion deployment) {
+    private Optional<Violation> findViolationInRepo(Repository repository, AccountRegion deployment, Application app) {
         final ZonedDateTime yesterdayMidnight = now().minusDays(1).atStartOfDay(UTC);
         final ZonedDateTime todayMidnight = yesterdayMidnight.plusDays(1);
         return Optional.ofNullable(kontrolletti.listCommits(
@@ -95,7 +83,7 @@ public class ScmCommitsJob implements FullstopJob {
                         .fromDate(yesterdayMidnight)
                         .toDate(todayMidnight)
                         .isValid(false)
-                        .perPage(20)
+                        .perPage(10)
                         .build()))
                 .map(ListCommitsResponse::getContent)
                 .filter(list -> !list.isEmpty())
@@ -106,8 +94,11 @@ public class ScmCommitsJob implements FullstopJob {
                         .withEventId(EVENT_ID)
                         .withPluginFullyQualifiedClassName(ScmCommitsJob.class)
                         .withMetaInfo(ImmutableMap.of(
+                                "application_id", app.getId(),
                                 "repository", repository.getUrl(),
-                                "invalid_commits", invalidCommits.stream().map(Commit::getCommitId).collect(joining(", "))))
+                                "invalid_commits", invalidCommits.stream()
+                                        .map(commit -> commit.getCommitId() + " (" + abbreviate(commit.getMessage(), 32) + ")")
+                                        .collect(joining("; "))))
                         .build());
 
     }

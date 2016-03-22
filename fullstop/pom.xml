@@ -190,6 +190,7 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-spring</artifactId>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

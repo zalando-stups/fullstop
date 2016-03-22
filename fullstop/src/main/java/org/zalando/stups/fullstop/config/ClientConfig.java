@@ -9,7 +9,6 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.kontrolletti.KontrollettiOperations;
-import org.zalando.kontrolletti.KontrollettiResponseErrorHandler;
 import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
@@ -71,7 +70,7 @@ public class ClientConfig {
     public KontrollettiOperations kontrollettiOperations() {
         return new HystrixKontrollettiOperations(
                 new RestTemplateKontrollettiOperations(
-                        buildOAuth2RestTemplate("kontrolletti", new KontrollettiResponseErrorHandler()),
+                        buildOAuth2RestTemplate("kontrolletti"),
                         kontrollettiBaseUrl));
     }
 

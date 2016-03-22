@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.yaml.snakeyaml.Yaml;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.Application;
@@ -22,7 +21,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 @Component
@@ -85,6 +83,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
                             .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
                             .withMetaInfo(ImmutableMap.of(
+                                    "application_id", app.getId(),
                                     "deployment_artifact", context.getSource().orElse(""),
                                     "scm_source", new Yaml().dump(scmSource)))
                             .build());
@@ -100,27 +99,22 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
                             .withType(SCM_URL_NOT_MATCH_WITH_KIO)
                             .withMetaInfo(ImmutableMap.of(
-                                    "normalized_scm_source_url",
-                                    normalizedScmSourceUrl,
-                                    "normalized_kio_scm_url",
-                                    normalizedKioScmUrl)).build());
+                                    "application_id", app.getId(),
+                                    "normalized_scm_source_url", normalizedScmSourceUrl,
+                                    "normalized_kio_scm_url", normalizedKioScmUrl)).build());
             return;
         }
 
-        try {
-            kontrollettiOperations.getRepository(normalizedScmSourceUrl);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == NOT_FOUND) {
-                violationSink.put(
-                        context.violation()
-                                .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
-                                .withType(ILLEGAL_SCM_REPOSITORY)
-                                .withMetaInfo(singletonMap("normalized_repository_url", normalizedScmSourceUrl))
-                                .build()
-                );
-            } else {
-                throw e;
-            }
+        if (kontrollettiOperations.getRepository(normalizedScmSourceUrl) == null) {
+            violationSink.put(
+                    context.violation()
+                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                            .withType(ILLEGAL_SCM_REPOSITORY)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", app.getId(),
+                                    "normalized_scm_url", normalizedScmSourceUrl))
+                            .build()
+            );
         }
     }
 }
