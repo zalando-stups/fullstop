@@ -26,6 +26,7 @@ public class ViolationType {
     private DateTime lastModified = null;
 
     private String lastModifiedBy = null;
+    private Integer priority;
 
     @ApiModelProperty(value = "")
     public String getId() {
@@ -61,6 +62,15 @@ public class ViolationType {
 
     public void setIsAuditRelevant(boolean isAuditRelevant) {
         this.isAuditRelevant = isAuditRelevant;
+    }
+
+    @ApiModelProperty(value = "")
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     @ApiModelProperty(value = "")
@@ -116,6 +126,7 @@ public class ViolationType {
                 .add("created", created)
                 .add("version", version)
                 .add("isAuditRelevant", isAuditRelevant)
+                .add("priority", priority)
                 .add("violationSeverity", violationSeverity)
                 .add("helpText", helpText)
                 .add("id", id)
