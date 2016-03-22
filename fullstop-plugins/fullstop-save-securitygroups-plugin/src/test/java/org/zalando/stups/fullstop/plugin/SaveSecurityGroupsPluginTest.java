@@ -35,8 +35,10 @@ public class SaveSecurityGroupsPluginTest {
         when(mockS3Service.listCommonPrefixesS3Objects(any(), any()))
                 .thenReturn(asList(
                         "123456789111/eu-west-1/2015/06/18/i-111124cer11111-2016-01-15T13:03:02.000Z/",
-                        "123456789111/eu-west-1/2015/06/18/i-22222222-2016-01-15T07:07:15.000Z/",
-                        "123456789111/eu-west-1/2015/06/18/i-023d5bf6c26aa18d5-2016-01-15T15:59:54.000Z/"));
+                        "123456789111/eu-west-1/2015/06/18/i-fdsa33fsd-2016-01-15T07:07:15.000Z/",
+                        "123456789111/eu-west-1/2015/06/18/i-fdsafsd-2016-01-15T07:07:15.000Z/",
+                        "123456789111/eu-west-1/2015/06/18/i-023d5bf6c26aa18d5-2016-01-15T15:59:54.000Z/",
+                        "123456789111/eu-west-1/2015/06/18/i-023d5bf6c26aa18d5-2016-01-15T15:59:54.000Zi-fdsafsd-2016-01-15T07:07:15.000Z"));
     }
 
     @After
@@ -49,8 +51,8 @@ public class SaveSecurityGroupsPluginTest {
         plugin.processEvent(cloudTrailEvent);
 
         verify(mockSecurityGroupProvider).getSecurityGroup(eq(singletonList("sg-24051988")), eq(getRegion(EU_WEST_1)), eq("123456789111"));
-        verify(mockS3Service).listCommonPrefixesS3Objects(eq("saved-security-groups"), eq("123456789111/eu-west-1/2015/06/18/"));
-        verify(mockS3Service).putObjectToS3(eq("saved-security-groups"), anyString(), anyString(), any(), any());
+        verify(mockS3Service, times(5)).listCommonPrefixesS3Objects(eq("saved-security-groups"), eq("123456789111/eu-west-1/2015/06/18/"));
+        verify(mockS3Service, times(3)).putObjectToS3(eq("saved-security-groups"), anyString(), anyString(), any(), any());
     }
 
     @Test
