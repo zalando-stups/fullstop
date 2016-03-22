@@ -62,7 +62,7 @@
         "instancesSet": {
           "items": [
             {
-              "instanceId": "i-22222222",
+              "instanceId": "i-023d5bf6c26aa18d5",
               "imageId": "ami-amishppl",
               "instanceState": {
                 "code": 0,

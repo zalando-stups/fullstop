@@ -34,9 +34,9 @@ public class SaveSecurityGroupsPluginTest {
 
         when(mockS3Service.listCommonPrefixesS3Objects(any(), any()))
                 .thenReturn(asList(
-                        "123456789111/eu-west-1/2015/06/18/i-11111111-2016-01-15T13:03:02.000Z/",
+                        "123456789111/eu-west-1/2015/06/18/i-111124cer11111-2016-01-15T13:03:02.000Z/",
                         "123456789111/eu-west-1/2015/06/18/i-22222222-2016-01-15T07:07:15.000Z/",
-                        "123456789111/eu-west-1/2015/06/18/i-33333333-2016-01-15T15:59:54.000Z/"));
+                        "123456789111/eu-west-1/2015/06/18/i-023d5bf6c26aa18d5-2016-01-15T15:59:54.000Z/"));
     }
 
     @After

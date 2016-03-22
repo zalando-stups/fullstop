@@ -93,7 +93,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
+       final String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
 
         List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
@@ -138,8 +138,8 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                 }
             }
 
-            prefix = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
-            writeToS3(securityGroup, prefix, instanceId);
+            String result = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
+            writeToS3(securityGroup, result, instanceId);
         }
     }
 
