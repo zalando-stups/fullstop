@@ -54,12 +54,12 @@ public class ViolationsCountController {
             @DateTimeFormat(iso = DATE_TIME)
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
-            @RequestParam
-            Optional<Boolean> resolved,
+            @RequestParam(value = "resolved",required = false, defaultValue = "false")
+            boolean resolved,
             @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
-            @RequestParam
-            Optional<Boolean> whitelisted){
-        return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved, whitelisted.orElse(false));
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            boolean whitelisted){
+        return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved, whitelisted);
     }
 
     @RequestMapping(value = "/{account}", method = GET)
@@ -79,11 +79,11 @@ public class ViolationsCountController {
             @DateTimeFormat(iso = DATE_TIME)
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
-            @RequestParam
-            Optional<Boolean> resolved,
+            @RequestParam(value = "resolved",required = false, defaultValue = "false")
+            boolean resolved,
             @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
-            @RequestParam
-            Optional<Boolean> whitelisted) {
-        return violationRepository.countByAppVersionAndType(account, from, to, resolved, whitelisted.orElse(false));
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            boolean whitelisted) {
+        return violationRepository.countByAppVersionAndType(account, from, to, resolved, whitelisted);
     }
 }
