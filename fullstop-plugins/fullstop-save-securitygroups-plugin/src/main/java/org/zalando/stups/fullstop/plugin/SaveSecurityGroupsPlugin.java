@@ -77,29 +77,28 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        DateTime instanceLaunchTime;
-        try {
-
-            instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
-        }
-        catch (Exception e) {
-            LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
-            return;
-        }
-
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        if (securityGroup == null){
+        if (securityGroup == null) {
             return;
         }
-
-        String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
-
-        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
         for (String instanceId : instanceIds) {
 
             List<String> instanceBuckets = Lists.newArrayList();
+
+            DateTime instanceLaunchTime;
+            try {
+
+                instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(instanceIds.indexOf(instanceId)));
+            } catch (Exception e) {
+                LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
+                return;
+            }
+
+            final String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
+
+            List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
             for (String s3InstanceObject : s3InstanceObjects) {
                 String s = Paths.get(s3InstanceObject).getFileName().toString();
@@ -121,7 +120,12 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                                 .omitEmptyStrings().split(instanceBucket));
 
                 String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
-                DateTime currentBucketDate = new DateTime(currentBucket.get(2), UTC);
+                DateTime currentBucketDate;
+                try {
+                    currentBucketDate = new DateTime(currentBucket.get(2), UTC);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
 
                 // TODO we should use absolute values
                 if (instanceBucketNameControlElement != null) {
@@ -131,15 +135,14 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                         instanceBucketNameControlElement = currentBucketName;
                         instanceBootTimeControlElement = currentBucketDate;
                     }
-                }
-                else {
+                } else {
                     instanceBucketNameControlElement = currentBucketName;
                     instanceBootTimeControlElement = currentBucketDate;
                 }
             }
 
-            prefix = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
-            writeToS3(securityGroup, prefix, instanceId);
+            String result = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
+            writeToS3(securityGroup, result, instanceId);
         }
     }
 

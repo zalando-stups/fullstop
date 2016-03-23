@@ -10,7 +10,6 @@ import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by mrandi.
@@ -43,9 +42,9 @@ public class ViolationServiceImpl implements ViolationService {
 
     @Override
     public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation,
-                                                 boolean checked, Integer severity, Boolean auditRelevant, String type,
+                                                 boolean checked, Integer severity, final Integer priority, Boolean auditRelevant, String type,
                                                  boolean whitelisted, Pageable pageable) {
-        return violationRepository.queryViolations(accounts, from, to, lastViolation, checked, severity, auditRelevant, type, whitelisted, pageable);
+        return violationRepository.queryViolations(accounts, from, to, lastViolation, checked, severity,priority, auditRelevant, type, whitelisted, pageable);
     }
 
     @Override

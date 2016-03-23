@@ -165,6 +165,7 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-server</artifactId>
+            <version>1.0.14</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>

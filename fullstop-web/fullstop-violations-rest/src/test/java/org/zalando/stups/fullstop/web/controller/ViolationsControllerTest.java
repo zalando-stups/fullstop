@@ -132,7 +132,7 @@ public class ViolationsControllerTest {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), anyBoolean(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), anyBoolean(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -146,6 +146,7 @@ public class ViolationsControllerTest {
                 any(DateTime.class),
                 isNull(Long.class),
                 anyBoolean(),
+                isNull(Integer.class),
                 isNull(Integer.class),
                 isNull(Boolean.class),
                 isNull(String.class),
@@ -170,6 +171,7 @@ public class ViolationsControllerTest {
                         any(),
                         any(),
                         any(),
+                        any(),
                         anyBoolean(),
                         any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
@@ -182,7 +184,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), anyBoolean(), any());
+                        true), any(), any(), any(), any(), anyBoolean(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
