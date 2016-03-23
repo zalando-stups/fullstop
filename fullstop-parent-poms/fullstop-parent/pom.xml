@@ -29,18 +29,18 @@
         <argLine />
         <license.skip>true</license.skip>
 
-        <spring-boot.version>1.3.2.RELEASE</spring-boot.version>
-        <spring-security-oauth2.version>2.0.8.RELEASE</spring-security-oauth2.version>
-        <spring-cloud-starter-hystrix.version>1.0.4.RELEASE</spring-cloud-starter-hystrix.version>
-        <archaius.version>0.7.3</archaius.version>
+        <spring-boot.version>1.3.3.RELEASE</spring-boot.version>
+        <spring-security-oauth2.version>2.0.9.RELEASE</spring-security-oauth2.version>
+        <spring-cloud-starter-hystrix.version>1.0.6.RELEASE</spring-cloud-starter-hystrix.version>
+        <archaius.version>0.7.4</archaius.version>
 
-        <aws-java-sdk.version>1.10.47</aws-java-sdk.version>
+        <aws-java-sdk.version>1.10.62</aws-java-sdk.version>
         <aws-cloudtrail-processing-library.version>1.0.1-ZAL-2</aws-cloudtrail-processing-library.version>
 
-        <joda-time.version>2.9.1</joda-time.version>
+        <joda-time.version>2.9.2</joda-time.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <guava.version>19.0</guava.version>
-        <json-path.version>2.1.0</json-path.version>
+        <json-path.version>2.2.0</json-path.version>
         <javax.el-api.version>2.2.5</javax.el-api.version>
 
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
@@ -50,14 +50,14 @@
 
         <querydsl.version>3.7.0</querydsl.version>
         <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
 
         <stups-spring-oauth2.version>1.0.14</stups-spring-oauth2.version>
-        <spring-boot-zalando-stups-tokens.version>0.9.6</spring-boot-zalando-stups-tokens.version>
-        <tokens.version>0.9.8</tokens.version>
+        <spring-boot-zalando-stups-tokens.version>0.9.10</spring-boot-zalando-stups-tokens.version>
+        <tokens.version>0.9.9</tokens.version>
         <kio-client.version>0.11.0</kio-client.version>
         <pierone-client.version>1.0.0</pierone-client.version>
-        <kontrolletti-client-java.version>0.1.0</kontrolletti-client-java.version>
+        <kontrolletti-client-java.version>0.2.0</kontrolletti-client-java.version>
 
         <assertj-core.version>3.3.0</assertj-core.version>
         <mockito.version>1.10.19</mockito.version>
