@@ -7,5 +7,5 @@ if [ -n "$STATUS" ]; then
     REV="$REV (locally modified)"
 fi
 # finally write hand-crafted JSON to scm-source.json
-echo '{"url": "git:'$URL'", "revision": "'$REV'", "author": "'$USER'", "status": "'$STATUS'"}' > fullstop-testing/it/fullstop/target/scm-source.json
-cp fullstop-testing/it/fullstop/target/scm-source.json fullstop-job-launcher/target/scm-source.json
+echo '{"url": "git:'$URL'", "revision": "'$REV'", "author": "'$USER'", "status": "'$STATUS'"}' > fullstop/target/scm-source.json
+cp fullstop/target/scm-source.json fullstop-job-launcher/target/scm-source.json
