@@ -39,7 +39,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     @Override
     public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime from, final DateTime to,
                                                  final Long lastViolation, final boolean checked, final Integer severity,
-                                                 final Boolean auditRelevant, final String type,
+                                                 final Integer priority, final Boolean auditRelevant, final String type,
                                                  final boolean whitelisted, final Pageable pageable) {
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
@@ -79,6 +79,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         if (severity != null) {
             predicates.add(qViolationTypeEntity.violationSeverity.eq(severity));
+        }
+
+        if (priority != null) {
+            predicates.add(qViolationTypeEntity.priority.eq(priority));
         }
 
         if (auditRelevant != null) {
