@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>12</version>
+        <version>13</version>
         <relativePath/>
     </parent>
 
@@ -165,7 +165,6 @@
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>stups-spring-oauth2-server</artifactId>
-            <version>1.0.14</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
@@ -191,7 +190,11 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>kontrolletti-client-java-spring</artifactId>
-            <version>0.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>kontrolletti-client-java-hystrix</artifactId>
+            <version>${kontrolletti-client-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

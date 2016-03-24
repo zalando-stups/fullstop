@@ -22,7 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
@@ -48,6 +49,7 @@ public class ScmRepositoryPluginTest {
         plugin = new ScmRepositoryPlugin(mockContextProvider, mockKontrollettiOperations, mockViolationSink);
 
         kioApp = new Application();
+        kioApp.setId("hello-world");
         kioApp.setScmUrl("git@github.com:zalando-stups/hello-world.git");
 
         repository = new Repository("https://github.com/zalando-stups/fullstop.git", "github.com", "zalando-stups", "fullstop");
@@ -159,7 +161,7 @@ public class ScmRepositoryPluginTest {
         when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
         when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
         when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
-        when(mockKontrollettiOperations.getRepository(anyString())).thenThrow(new HttpClientErrorException(NOT_FOUND));
+        when(mockKontrollettiOperations.getRepository(anyString())).thenReturn(null);
 
         plugin.process(mockContext);
 
