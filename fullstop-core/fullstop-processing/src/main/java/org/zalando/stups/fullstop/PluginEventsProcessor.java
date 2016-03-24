@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 import java.util.List;
@@ -45,16 +46,14 @@ public class PluginEventsProcessor implements EventsProcessor {
     }
 
     /**
-     * Processes an specific event on specified plugin.
+     * Processes a specific event on specified plugin.
      */
     protected void doProcess(final CloudTrailEvent event, final FullstopPlugin plugin) {
         try {
             plugin.processEvent(event);
-        } catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException | HttpServerErrorException e) {
             log.warn(e.getMessage(), e);
         } catch (Exception e) {
-
-            // can we do more?
             log.error(e.getMessage(), e);
         }
     }

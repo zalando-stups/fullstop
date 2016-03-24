@@ -9,9 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.kontrolletti.KontrollettiOperations;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.pierone.client.PieroneOperations;
-import org.zalando.stups.fullstop.events.UserDataProvider;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.scm.ScmRepositoryPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -38,20 +36,13 @@ public class ScmRepositoryPluginAutoConfigurationTest {
             return mock(ViolationSink.class);
         }
 
-        @Bean KioOperations kioOperations() {
-            return mock(KioOperations.class);
-        }
-
-        @Bean PieroneOperations pieroneOperations() {
-            return mock(PieroneOperations.class);
-        }
-
         @Bean KontrollettiOperations kontrollettiOperations() {
             return mock(KontrollettiOperations.class);
         }
 
-        @Bean UserDataProvider userDataProvider() {
-            return mock(UserDataProvider.class);
+        @Bean
+        EC2InstanceContextProvider ec2InstanceContextProvider() {
+            return mock(EC2InstanceContextProvider.class);
         }
     }
 }
