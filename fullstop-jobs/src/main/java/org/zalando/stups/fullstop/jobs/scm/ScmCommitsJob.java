@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.ListCommitsResponse;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -52,6 +54,10 @@ public class ScmCommitsJob implements FullstopJob {
         this.violationSink = violationSink;
     }
 
+    @Scheduled(
+            fixedRate = 1000 * 60 * 150, // 2.5 hours
+            initialDelay = 1000 * 60 * 10 // 10 minutes
+    )
     @Override
     public void run() {
         kio.listApplications().stream()
@@ -91,7 +97,8 @@ public class ScmCommitsJob implements FullstopJob {
                         .withAccountId(deployment.getAccount())
                         .withRegion(deployment.getRegion())
                         .withType(MISSING_SPEC_LINKS)
-                        .withEventId(EVENT_ID)
+                        // make sure to produce maximum one violation per repository and day
+                        .withEventId(EVENT_ID + "-" + repository.getUrl() + "-" + yesterdayMidnight.format(ISO_LOCAL_DATE))
                         .withPluginFullyQualifiedClassName(ScmCommitsJob.class)
                         .withMetaInfo(ImmutableMap.of(
                                 "application_id", app.getId(),
