@@ -132,6 +132,10 @@ fullstop:
         kontrolletti:
             url: ${FULLSTOP_KONTROLLETTI_URL}
 
+    whitelist:
+        # Which teams are allowed to whitelist violations
+        allowed-teams: "stups" #comma separated, will be overriden by ENV VARS
+
 #
 # OAuth2
 #
@@ -169,3 +173,12 @@ flyway:
     baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
     schemas:
      - "fullstop_data"
+
+hystrix:
+  command:
+    default:
+      # https://github.com/Netflix/Hystrix/wiki/Configuration#CommandExecution
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000

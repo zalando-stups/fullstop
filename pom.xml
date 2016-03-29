@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>10</version>
+        <version>13</version>
         <relativePath/>
     </parent>
 
@@ -42,7 +42,7 @@
         <module>fullstop-aws-support</module>
 
         <module>team-service-api</module>
-        <module>teams-service-client-spring</module>
+        <module>team-service-client-spring</module>
 
 
         <!-- all-plugins -->
@@ -59,6 +59,7 @@
         <module>fullstop-web/fullstop-web-commons</module>
         <module>fullstop-web/fullstop-violations-rest</module>
         <module>fullstop-web/fullstop-timemachine</module>
+        <module>fullstop-web/fullstop-whitelisting-rules</module>
         <module>fullstop-web/fullstop-lifecycle-api</module>
 
 

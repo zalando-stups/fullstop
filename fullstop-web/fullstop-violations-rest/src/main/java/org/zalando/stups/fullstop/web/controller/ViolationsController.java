@@ -2,7 +2,6 @@ package org.zalando.stups.fullstop.web.controller;
 
 import io.swagger.annotations.*;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -12,10 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.fullstop.web.api.ForbiddenException;
-import org.zalando.fullstop.web.api.NotFoundException;
+import org.zalando.stups.fullstop.web.api.ForbiddenException;
+import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -83,18 +82,24 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations after the one with this id")
             @RequestParam(value = "last-violation", required = false)
             final Long lastViolation,
-            @ApiParam(value = "Include only violations where checked field equals this value")
-            @RequestParam(value = "checked", required = false)
-            final Boolean checked,
+            @ApiParam(value = "Include only violations where checked field equals this value (i.e. resolved violations)")
+            @RequestParam(value = "checked", required = false, defaultValue = "false")
+            final boolean checked,
             @ApiParam(value = "Include only violations with a certain severity")
             @RequestParam(value = "severity", required = false)
             final Integer severity,
+            @ApiParam(value = "Include only violations with a certain priority")
+            @RequestParam(value = "priority", required = false)
+            final Integer priority,
             @ApiParam(value = "Include only violations that are audit relevant")
             @RequestParam(value = "audit-relevant", required = false)
             final Boolean auditRelevant,
             @ApiParam(value = "Include only violations with a certain type")
             @RequestParam(value = "type", required = false)
             final String type,
+            @ApiParam(value = "show also whitelisted vioaltions")
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            final boolean whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
         if (from == null) {
             from = DateTime.now().minusWeeks(1);
@@ -105,7 +110,7 @@ public class ViolationsController {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity, auditRelevant, type, pageable));
+                        checked, severity,priority, auditRelevant, type, whitelisted, pageable));
     }
 
     @ApiOperation(
@@ -141,10 +146,10 @@ public class ViolationsController {
     }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
-        final List<Account> teams = teamOperations.getTeamsByUser(userId);
+        final List<Account> accounts = teamOperations.getAwsAccountsByUser(userId);
 
-        for (Account team : teams) {
-            if (team.getId().equals(targetAccountId)) {
+        for (Account account : accounts) {
+            if (account.getId().equals(targetAccountId)) {
                 return true;
             }
         }

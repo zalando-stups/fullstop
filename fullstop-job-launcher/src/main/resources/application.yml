@@ -39,6 +39,8 @@ fullstop:
     clients:
         kio:
             url: ${FULLSTOP_KIO_URL}
+        kontrolletti:
+            url: ${FULLSTOP_KONTROLLETTI_URL}
         teamService:
             url: ${FULLSTOP_TEAM_SERVICE_URL}
 
@@ -51,6 +53,9 @@ tokens:
 
     token-configuration-list:
         - tokenId: kio
+          scopes:
+              - uid
+        - tokenId: kontrolletti
           scopes:
               - uid
         - tokenId: teamService
@@ -72,3 +77,11 @@ flyway:
     baseline-version-as-string: ${FLYWAY_BASELINE_VERSION_AS_STRING:0}
     schemas:
      - "fullstop_data"
+hystrix:
+  command:
+    default:
+      # https://github.com/Netflix/Hystrix/wiki/Configuration#CommandExecution
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000

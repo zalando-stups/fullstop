@@ -118,6 +118,27 @@
                 <artifactId>apt-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-assertions</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packages>
+                        <package>org.zalando.stups.fullstop.violation.entity</package>
+                    </packages>
+                    <excludes>
+                        <!-- exclude querydsl's Q classes -->
+                        <exclude>[a-z0-9.]+Q[A-Z].*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>

@@ -1,12 +1,17 @@
 package org.zalando.stups.fullstop.violation.repository.impl;
 
+import com.google.common.collect.ImmutableSet;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
+import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.QApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.QLifecycleEntity;
 import org.zalando.stups.fullstop.violation.repository.ApplicationRepositoryCustom;
 
 import java.util.Collection;
+import java.util.Set;
+
+import static com.mysema.query.types.Projections.constructor;
 
 public class ApplicationRepositoryImpl extends QueryDslRepositorySupport implements ApplicationRepositoryCustom {
 
@@ -30,5 +35,17 @@ public class ApplicationRepositoryImpl extends QueryDslRepositorySupport impleme
                 .orderBy(qLifecycle.lastModified.max().desc())
                 .limit(1)
                 .singleResult(qApp);
+    }
+
+    @Override
+    public Set<AccountRegion> findDeployments(String applicationId) {
+        final QLifecycleEntity qLifecycle = new QLifecycleEntity("l");
+        final QApplicationEntity qApplication = new QApplicationEntity("a");
+
+        return ImmutableSet.copyOf(from(qLifecycle)
+                .join(qLifecycle.applicationEntity, qApplication)
+                .where(qApplication.name.eq(applicationId))
+                .distinct()
+                .list(constructor(AccountRegion.class, qLifecycle.accountId, qLifecycle.region)));
     }
 }

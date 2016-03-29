@@ -1,7 +1,5 @@
 package org.zalando.fullstop.violation.persist.jpa.config;
 
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.StatelessKieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +9,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.zalando.fullstop.violation.persist.jpa.ViolationJpaPersister;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
+import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
 /**
@@ -36,11 +35,11 @@ public class ViolationJpaPersisterAutoConfiguration {
     private CounterService counterService;
 
     @Autowired
-    private StatelessKieSession kieSession;
+    private WhitelistRules whitelistRules;
 
     @Bean
     public ViolationJpaPersister violationJpaPersister() {
         return new ViolationJpaPersister(eventBus, violationRepository, violationTypeRepository, counterService,
-                kieSession);
+                whitelistRules);
     }
 }

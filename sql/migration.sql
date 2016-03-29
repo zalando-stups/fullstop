@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS fullstop_data.violation_type (
   id                 TEXT   NOT NULL PRIMARY KEY,
   help_text          TEXT,
-  violation_severity TEXT,
+  violation_severity INTEGER,
   is_audit_relevant  BOOLEAN,
   created            TIMESTAMP,
   created_by         TEXT,

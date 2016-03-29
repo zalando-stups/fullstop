@@ -22,12 +22,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.zalando.fullstop.web.controller.ApiExceptionHandler;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.model.Violation;
+import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,14 +38,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.zalando.stups.fullstop.web.test.MatcherHelper.hasSize;
 import static org.zalando.stups.fullstop.web.test.TestDataInitializer.INITIALIZER;
 import static org.zalando.stups.fullstop.web.test.builder.domain.ViolationEntityBuilder.violation;
@@ -126,13 +127,12 @@ public class ViolationsControllerTest {
 
         final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439"))
                 .andExpect(status().isNotFound());
-        resultActions.andExpect(content().string("Violation with id: 948439 not found!"));
         verify(violationServiceMock).findOne(948439L);
     }
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), anyBoolean(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -145,10 +145,12 @@ public class ViolationsControllerTest {
                 any(DateTime.class),
                 any(DateTime.class),
                 isNull(Long.class),
-                isNull(Boolean.class),
+                anyBoolean(),
+                isNull(Integer.class),
                 isNull(Integer.class),
                 isNull(Boolean.class),
                 isNull(String.class),
+                anyBoolean(),
                 any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
@@ -169,6 +171,8 @@ public class ViolationsControllerTest {
                         any(),
                         any(),
                         any(),
+                        any(),
+                        anyBoolean(),
                         any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -180,7 +184,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), any());
+                        true), any(), any(), any(), any(), anyBoolean(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -188,13 +192,15 @@ public class ViolationsControllerTest {
     public void testResolveViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
         when(violationServiceMock.save(eq(violationResult))).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+        when(mockTeamOperations.getAwsAccountsByUser(anyString())).thenReturn(
                 newArrayList(
                         new Account(
                                 violationResult.getAccountId(),
                                 "Foo",
                                 "aws",
-                                "account desc")));
+                                "account desc",
+                                "account",
+                                false)));
 
         violationRequest.setComment("my comment");
 
@@ -208,7 +214,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).findOne(eq(156L));
         verify(violationServiceMock).save(eq(violationResult));
-        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+        verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -230,13 +236,15 @@ public class ViolationsControllerTest {
     @Test
     public void testResolveOtherTeamsViolation() throws Exception {
         when(violationServiceMock.findOne(anyLong())).thenReturn(violationResult);
-        when(mockTeamOperations.getTeamsByUser(anyString())).thenReturn(
+        when(mockTeamOperations.getAwsAccountsByUser(anyString())).thenReturn(
                 newArrayList(
                         new Account(
                                 "foo",
                                 "Foo",
                                 "other_teams_account",
-                                "aws")));
+                                "aws",
+                                "account",
+                                false)));
 
         violationRequest.setComment("my comment");
 
@@ -249,7 +257,7 @@ public class ViolationsControllerTest {
                 .andExpect(status().isForbidden());
 
         verify(violationServiceMock).findOne(eq(156L));
-        verify(mockTeamOperations).getTeamsByUser(eq("test-user"));
+        verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
     }
 
     @Configuration
@@ -278,7 +286,7 @@ public class ViolationsControllerTest {
 
         @Bean
         @SuppressWarnings("unchecked")
-        public Converter<ViolationEntity, Violation> violationConverter(){
+        public Converter<ViolationEntity, Violation> violationConverter() {
             return mock(Converter.class, "violationConverter");
         }
     }

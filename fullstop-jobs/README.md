@@ -2,6 +2,10 @@
 
 Contains modules with background-jobs, not triggered by CloudTrail-Events.
 
+All jobs can be triggered via rest controller, using bean name, here an example:
+
+curl -X POST http://localhost:8080/api/jobs/noPasswordsJob/run
+
 ### FetchEC2Job
 
 Reports unsecured / open endpoints on public EC2 instances.

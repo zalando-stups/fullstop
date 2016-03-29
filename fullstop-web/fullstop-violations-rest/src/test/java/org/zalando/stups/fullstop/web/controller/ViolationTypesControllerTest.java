@@ -18,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
 import org.zalando.stups.fullstop.web.model.ViolationType;
+import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.*;
@@ -56,6 +57,7 @@ public class ViolationTypesControllerTest {
             final ViolationTypeEntity input = (ViolationTypeEntity) invocationOnMock.getArguments()[0];
             final ViolationType result = new ViolationType();
             result.setId(input.getId());
+            result.setPriority(3);
             return result;
         });
     }
@@ -72,7 +74,8 @@ public class ViolationTypesControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value("OOPS"))
-                .andExpect(jsonPath("$[1].id").value("SHIT_HAPPENS"));
+                .andExpect(jsonPath("$[1].id").value("SHIT_HAPPENS"))
+                .andExpect(jsonPath("$[1].priority").value(3));
 
         verify(mockViolationTypeRepository).findAll();
         verify(mockConverter, times(2)).convert(any());

@@ -17,10 +17,10 @@ import org.zalando.stups.fullstop.s3.S3Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
 
@@ -44,13 +44,15 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
     private final SecurityGroupProvider securityGroupProvider;
 
-    @Value("${fullstop.instanceData.bucketName}")
-    private String bucketName;
+    private final String bucketName;
 
     @Autowired
-    public SaveSecurityGroupsPlugin(final SecurityGroupProvider securityGroupProvider, final S3Service s3Writer) {
+    public SaveSecurityGroupsPlugin(final SecurityGroupProvider securityGroupProvider,
+                                    final S3Service s3Writer,
+                                    @Value("${fullstop.instanceData.bucketName}") final String bucketName) {
         this.securityGroupProvider = securityGroupProvider;
         this.s3Writer = s3Writer;
+        this.bucketName = bucketName;
     }
 
     @Override
@@ -75,25 +77,28 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        DateTime instanceLaunchTime;
-        try {
-
-            instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(0));
-        }
-        catch (Exception e) {
-            LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
-            return;
-        }
-
         String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
-        String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
-
-        List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
+        if (securityGroup == null) {
+            return;
+        }
 
         for (String instanceId : instanceIds) {
 
             List<String> instanceBuckets = Lists.newArrayList();
+
+            DateTime instanceLaunchTime;
+            try {
+
+                instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(instanceIds.indexOf(instanceId)));
+            } catch (Exception e) {
+                LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
+                return;
+            }
+
+            final String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
+
+            List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
             for (String s3InstanceObject : s3InstanceObjects) {
                 String s = Paths.get(s3InstanceObject).getFileName().toString();
@@ -115,25 +120,29 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                                 .omitEmptyStrings().split(instanceBucket));
 
                 String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
-                DateTime currentBucketDate = new DateTime(currentBucket.get(2), UTC);
+                DateTime currentBucketDate;
+                try {
+                    currentBucketDate = new DateTime(currentBucket.get(2), UTC);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
 
                 // TODO we should use absolute values
-                if (instanceBucketNameControlElement != null || instanceBootTimeControlElement != null) {
+                if (instanceBucketNameControlElement != null) {
                     if (instanceLaunchTime.getMillis() - currentBucketDate.getMillis()
                             < instanceLaunchTime.getMillis() - instanceBootTimeControlElement.getMillis()) {
 
                         instanceBucketNameControlElement = currentBucketName;
                         instanceBootTimeControlElement = currentBucketDate;
                     }
-                }
-                else {
+                } else {
                     instanceBucketNameControlElement = currentBucketName;
                     instanceBootTimeControlElement = currentBucketDate;
                 }
             }
 
-            prefix = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
-            writeToS3(securityGroup, prefix, instanceId);
+            String result = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
+            writeToS3(securityGroup, result, instanceId);
         }
     }
 
@@ -141,16 +150,13 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
         return securityGroupProvider.getSecurityGroup(securityGroupIds, region, accountId);
     }
 
-    protected List<String> readSecurityGroupIds(final CloudTrailEvent cloudTrailEvent) {
-        return read(cloudTrailEvent, SECURITY_GROUP_IDS_JSON_PATH, true);
-    }
-
     protected void writeToS3(final String content, final String prefix, final String instanceId) {
-        InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(content.length());
+        final byte[] bytes = content.getBytes(UTF_8);
+        final InputStream stream = new ByteArrayInputStream(bytes);
+        final ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(bytes.length);
 
-        String fileName = instanceId + SECURITY_GROUPS + new DateTime(UTC) + JSON;
+        final String fileName = instanceId + SECURITY_GROUPS + new DateTime(UTC) + JSON;
         s3Writer.putObjectToS3(bucketName, fileName, prefix, metadata, stream);
     }
 

@@ -62,6 +62,30 @@ public class TaupageYamlProviderImplTest {
     }
 
     @Test
+    public void testApplyWithTaupageAmiButInvalidYaml() throws Exception {
+        // a yaml list is not a valid taupage format. Map is required.
+        final String yamlData = "- a\n- b\n- c\n";
+
+        when(ec2InstanceContextMock.isTaupageAmi()).thenReturn(Optional.of(true));
+
+        when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
+        when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
+        when(amazonEC2ClientMock.describeInstanceAttribute(any())).thenReturn(new DescribeInstanceAttributeResult().
+                withInstanceAttribute(new InstanceAttribute()
+                        .withUserData(Base64.encodeAsString(yamlData.getBytes()))));
+
+        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+
+        assertThat(result).isEmpty();
+
+
+        verify(ec2InstanceContextMock).isTaupageAmi();
+        verify(ec2InstanceContextMock).getInstanceId();
+        verify(ec2InstanceContextMock).getClient(eq(AmazonEC2Client.class));
+        verify(amazonEC2ClientMock).describeInstanceAttribute(any());
+    }
+
+    @Test
     public void testApplyWithOtherAmi() throws Exception {
         when(ec2InstanceContextMock.isTaupageAmi()).thenReturn(Optional.of(false));
 

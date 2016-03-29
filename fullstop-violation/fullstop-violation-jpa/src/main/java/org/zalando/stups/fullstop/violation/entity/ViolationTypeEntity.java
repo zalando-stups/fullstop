@@ -31,6 +31,8 @@ public class ViolationTypeEntity {
 
     private boolean isAuditRelevant;
 
+    private Integer priority;
+
     @CreatedDate
     @NotNull(groups = { PersistenceOnly.class })
     @Column(nullable = false)
@@ -95,6 +97,14 @@ public class ViolationTypeEntity {
 
     public void setIsAuditRelevant(boolean isAuditRelevant) {
         this.isAuditRelevant = isAuditRelevant;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     public DateTime getCreated() {

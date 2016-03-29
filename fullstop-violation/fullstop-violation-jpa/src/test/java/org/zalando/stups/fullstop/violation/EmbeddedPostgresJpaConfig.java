@@ -8,17 +8,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
-import org.zalando.stups.fullstop.violation.service.impl.ApplicationLifecycleServiceImpl;
+import org.springframework.retry.annotation.EnableRetry;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
 @EnableAutoConfiguration
-@EnableJpaRepositories("org.zalando.stups.fullstop.violation.repository")
-@EntityScan("org.zalando.stups.fullstop.violation")
+@EnableJpaRepositories("org.zalando.stups.fullstop")
+@EntityScan("org.zalando.stups.fullstop")
 @EnableJpaAuditing
+@EnableRetry(proxyTargetClass = true)
 public class EmbeddedPostgresJpaConfig {
 
     @Bean
@@ -34,10 +34,5 @@ public class EmbeddedPostgresJpaConfig {
     @Bean
     AuditorAware<String> auditorAware() {
         return () -> "unit-test";
-    }
-
-    @Bean
-    ApplicationLifecycleService applicationLifecycleService() {
-        return new ApplicationLifecycleServiceImpl();
     }
 }
