@@ -66,6 +66,8 @@ public class ScmCommitsJob implements FullstopJob {
     )
     @Override
     public void run() {
+        log.info("{} started processing", getClass().getSimpleName());
+
         kio.listApplications().stream()
                 .map(ApplicationBase::getId)
                 .map(kio::getApplicationById)
