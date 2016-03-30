@@ -1,240 +1,212 @@
 package org.zalando.stups.fullstop.plugin.scm;
 
-import static java.util.Collections.singletonMap;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.zalando.kontrolletti.KontrollettiOperations;
+import org.zalando.kontrolletti.resources.Repository;
 import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.KioOperations;
-import org.zalando.stups.clients.kio.NotFoundException;
-import org.zalando.stups.pierone.client.PieroneOperations;
-import org.zalando.stups.fullstop.events.UserDataProvider;
-import org.zalando.stups.fullstop.plugin.LocalPluginProcessor;
-import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import java.util.Optional;
+
+import static java.util.Collections.singletonMap;
+import static java.util.Optional.empty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
+import static org.zalando.stups.fullstop.violation.ViolationType.*;
 
 public class ScmRepositoryPluginTest {
 
-    private static final Region EU_WEST_1 = Region.getRegion(Regions.EU_WEST_1);
-
-    private LocalPluginProcessor processor;
-
     private ViolationSink mockViolationSink;
-
-    private KioOperations mockKioOperations;
-
-    private PieroneOperations mockPieroneOperations;
 
     private KontrollettiOperations mockKontrollettiOperations;
 
-    private UserDataProvider mockUserDataProvider;
+    private EC2InstanceContext mockContext;
 
     private Application kioApp;
+    private Repository repository;
+    private ScmRepositoryPlugin plugin;
 
     @Before
     public void setUp() throws Exception {
+        final EC2InstanceContextProvider mockContextProvider = mock(EC2InstanceContextProvider.class);
         mockViolationSink = mock(ViolationSink.class);
-        mockKioOperations = mock(KioOperations.class);
-        mockPieroneOperations = mock(PieroneOperations.class);
         mockKontrollettiOperations = mock(KontrollettiOperations.class);
-        mockUserDataProvider = mock(UserDataProvider.class);
+        mockContext = mock(EC2InstanceContext.class);
 
-        final ScmRepositoryPlugin plugin = new ScmRepositoryPlugin(
-                mockViolationSink,
-                mockKioOperations,
-                mockPieroneOperations,
-                mockKontrollettiOperations,
-                mockUserDataProvider);
-
-        processor = new LocalPluginProcessor(plugin);
+        plugin = new ScmRepositoryPlugin(mockContextProvider, mockKontrollettiOperations, mockViolationSink);
 
         kioApp = new Application();
+        kioApp.setId("hello-world");
         kioApp.setScmUrl("git@github.com:zalando-stups/hello-world.git");
-        kioApp.setTeamId("stups");
+
+        repository = new Repository("https://github.com/zalando-stups/fullstop.git", "github.com", "zalando-stups", "fullstop");
+
+        when(mockContext.violation()).thenReturn(new ViolationBuilder());
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(
                 mockViolationSink,
-                mockKioOperations,
-                mockPieroneOperations,
                 mockKontrollettiOperations,
-                mockUserDataProvider);
+                mockContext);
+    }
+
+    @Test
+    public void testSupportsEventName() throws Exception {
+        assertThat(plugin.supportsEventName().test("RunInstances")).isTrue();
+        assertThat(plugin.supportsEventName().test("StartInstances")).isTrue();
+        assertThat(plugin.supportsEventName().test("TerminateInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("StopInstances")).isFalse();
+        assertThat(plugin.supportsEventName().test("Foobar")).isFalse();
     }
 
     @Test
     public void testProcessEventNoViolation() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
-        when(mockPieroneOperations.getScmSource(anyString(), anyString(), anyString()))
-                .thenReturn(singletonMap("url", "https://github.com/hello-world/fullstop"));
-        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn(
-                "https://github.com/zalando-stups/fullstop.git");
+        final String normalizedUrl = "https://github.com/zalando-stups/fullstop.git";
 
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn(normalizedUrl);
+        when(mockKontrollettiOperations.getRepository(anyString())).thenReturn(repository);
 
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-        verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
+        plugin.process(mockContext);
+
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+        verify(mockKontrollettiOperations).getRepository(eq(normalizedUrl));
     }
 
     @Test
-    public void testProcessEventMissingUserData() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString())).thenReturn(null);
-
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
-
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
+    public void testProcessMissingApp() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(empty());
+        plugin.process(mockContext);
+        verify(mockContext).getKioApplication();
     }
 
     @Test
-    public void testProcessEventMissingUserDataSource() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "application_id", "hello-world"));
+    public void testProcessBlankKioScmUrl() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        kioApp.setScmUrl(" ");
 
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
+        plugin.process(mockContext);
 
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
+        verify(mockContext).getKioApplication();
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(SCM_URL_IS_MISSING_IN_KIO)));
     }
 
     @Test
-    public void testProcessEventIllegalUserDataSource() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "foobar",
-                                "application_id", "hello-world"));
+    public void testProcessMissingScmSource() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(empty());
 
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
+        plugin.process(mockContext);
 
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
     }
 
     @Test
-    public void testProcessEventMissingUserDataAppId() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1"));
+    public void testProcessBlankScmSourceUrl() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(ImmutableMap.of("url", " ", "user", "unittester", "revision", "1a2b3c4d")));
+        when(mockContext.getSource()).thenReturn(empty());
 
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
+        plugin.process(mockContext);
 
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
+        verify(mockContext).getSource();
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)));
     }
 
-    @Test
-    public void testProcessEventMissingKioApp() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenThrow(new NotFoundException());
-
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
-
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-    }
-
-    @Test
-    public void testProcessEventMissingKioScmUrl() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
-        kioApp.setScmUrl("");
-
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
-
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-
-        verify(mockViolationSink).put(any(Violation.class));
-    }
-
-    @Test
-    public void testProcessEventMissingPieroneScmSource() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
-        when(mockPieroneOperations.getScmSource(anyString(), anyString(), anyString())).thenReturn(null);
-
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
-
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-        verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
-    }
-
-    @Test
-    public void testProcessEventMissingPieroneScmSourceUrl() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
-        when(mockPieroneOperations.getScmSource(anyString(), anyString(), anyString()))
-                .thenReturn(singletonMap("url", ""));
-
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
-
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-        verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
-
-        verify(mockViolationSink).put(any(Violation.class));
-    }
 
     @Test
     public void testProcessEventWithDifferentScmUrls() throws Exception {
-        when(mockUserDataProvider.getUserData(anyString(), any(Region.class), anyString()))
-                .thenReturn(
-                        ImmutableMap.of(
-                                "source", "hello-world:0.1",
-                                "application_id", "hello-world"));
-        when(mockKioOperations.getApplicationById(anyString())).thenReturn(kioApp);
-        when(mockPieroneOperations.getScmSource(anyString(), anyString(), anyString()))
-                .thenReturn(singletonMap("url", "https://github.com/hello-world/fullstop"));
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
         when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString()))
                 .thenReturn("https://github.com/zalando-stups/fullstop.git") // first call
                 .thenReturn("https://github.com/stups-zalando/semistop.git"); // second call;
 
-        processor.processEvents(getClass().getResourceAsStream("/run-instance-record.json"));
+        plugin.process(mockContext);
 
-        verify(mockUserDataProvider).getUserData(eq("123456789111"), eq(EU_WEST_1), eq("i-affenbanane"));
-        verify(mockKioOperations).getApplicationById(eq("hello-world"));
-        verify(mockPieroneOperations).getScmSource(eq("stups"), eq("hello-world"), eq("0.1"));
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
         verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(SCM_URL_NOT_MATCH_WITH_KIO)));
+    }
 
-        verify(mockViolationSink).put(any(Violation.class));
+    @Test
+    public void testProcessEventWithIllegalRepository() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
+        when(mockKontrollettiOperations.getRepository(anyString())).thenReturn(null);
+
+        plugin.process(mockContext);
+
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+        verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
+        verify(mockContext).violation();
+        verify(mockViolationSink).put(argThat(hasType(ILLEGAL_SCM_REPOSITORY)));
+    }
+
+    @Test(expected = HttpServerErrorException.class)
+    public void testProcessEventWithKontrollettiServerError() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
+        when(mockKontrollettiOperations.getRepository(anyString())).thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR));
+
+        try {
+            plugin.process(mockContext);
+        } finally {
+            verify(mockContext).getKioApplication();
+            verify(mockContext).getScmSource();
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+            verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
+        }
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void testProcessEventWithKontrollettiBadRequest() throws Exception {
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn("https://github.com/zalando-stups/fullstop.git");
+        when(mockKontrollettiOperations.getRepository(anyString())).thenThrow(new HttpClientErrorException(BAD_REQUEST));
+
+        try {
+            plugin.process(mockContext);
+        } finally {
+            verify(mockContext).getKioApplication();
+            verify(mockContext).getScmSource();
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+            verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+            verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
+        }
     }
 }

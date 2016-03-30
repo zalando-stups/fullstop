@@ -88,6 +88,9 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations with a certain severity")
             @RequestParam(value = "severity", required = false)
             final Integer severity,
+            @ApiParam(value = "Include only violations with a certain priority")
+            @RequestParam(value = "priority", required = false)
+            final Integer priority,
             @ApiParam(value = "Include only violations that are audit relevant")
             @RequestParam(value = "audit-relevant", required = false)
             final Boolean auditRelevant,
@@ -107,7 +110,7 @@ public class ViolationsController {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity, auditRelevant, type, whitelisted, pageable));
+                        checked, severity,priority, auditRelevant, type, whitelisted, pageable));
     }
 
     @ApiOperation(

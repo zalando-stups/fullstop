@@ -11,6 +11,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.yaml.snakeyaml.Yaml;
+import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -22,10 +23,7 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import javax.annotation.Resource;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
@@ -140,5 +138,10 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Override
     public ApplicationEntity findAppByInstanceIds(String accountId, String region, Collection<String> instanceIds) {
         return applicationRepository.findByInstanceIds(accountId, region, instanceIds);
+    }
+
+    @Override
+    public Set<AccountRegion> findDeployments(String applicationId) {
+        return applicationRepository.findDeployments(applicationId);
     }
 }

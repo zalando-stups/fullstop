@@ -19,7 +19,7 @@ import java.util.Set;
 public interface ViolationRepositoryCustom {
 
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation, boolean checked,
-                                          Integer severity, Boolean auditRelevant, String type, boolean whitelisted, Pageable pageable);
+                                          Integer severity, final Integer priority, Boolean auditRelevant, String type, boolean whitelisted, Pageable pageable);
 
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);
 
