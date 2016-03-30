@@ -57,4 +57,6 @@ public class ViolationType {
 
     public static final String UNSECURED_ROOT_USER = "UNSECURED_ROOT_USER";
 
+    public static final String CROSS_ACCOUNT_ROLE = "CROSS_ACCOUNT_ROLE";
+
 }

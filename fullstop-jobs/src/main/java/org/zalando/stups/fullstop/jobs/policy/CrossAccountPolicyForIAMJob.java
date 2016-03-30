@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.jobs.policy;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,8 @@ import java.util.List;
 
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
+import static org.zalando.stups.fullstop.violation.ViolationType.CROSS_ACCOUNT_ROLE;
 
 @Component
 public class CrossAccountPolicyForIAMJob implements FullstopJob {
@@ -65,45 +66,52 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
-        for (String account : allAccountIds.get()) {
-            for (String region : jobsProperties.getWhitelistedRegions()) {
+        for (final String account : allAccountIds.get()) {
+            for (final String region : jobsProperties.getWhitelistedRegions()) {
 
-                AmazonIdentityManagementClient iamClient = clientProvider.getClient(
+                final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
                         AmazonIdentityManagementClient.class,
                         account,
-                        getRegion(
-                                fromName(region)));
+                        getRegion(fromName(region)));
 
-                ListRolesResult listRolesResult = iamClient.listRoles();
+                final ListRolesResult listRolesResult = iamClient.listRoles();
 
-                for (Role role : listRolesResult.getRoles()) {
+                for (final Role role : listRolesResult.getRoles()) {
 
-                    String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+                    final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
 
-                    List<String> principalARNs = JsonPath.read(assumeRolePolicyDocument, ".Statement[].Principal.AWS");
+                    final List<String> principalArns = JsonPath.read(assumeRolePolicyDocument, ".Statement[].Principal.AWS");
 
-                    List<String> crossAccountIds = principalARNs.stream().filter(principalARN -> !principalARN.contains(account)).collect(toList());
+                    final List<String> crossAccountIds = principalArns.stream()
+                            .filter(principalARN -> !principalARN.contains(account))
+                            .collect(toList());
 
                     if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
-                        writeViolation(account, region, singletonMap("", ""), "");
+                        writeViolation(
+                                account,
+                                region,
+                                ImmutableMap.of(
+                                        "RoleArn", role.getArn(),
+                                        "RoleName", role.getRoleName(),
+                                        "arn", crossAccountIds),
+                                role.getRoleId()
+                        );
                     }
                 }
-
-
-                log.info("do something");
             }
         }
 
+        log.info("Completed job {}", getClass().getSimpleName());
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
-        ViolationBuilder violationBuilder = new ViolationBuilder();
-        Violation violation = violationBuilder.withAccountId(account)
+    private void writeViolation(final String account, final String region, final Object metaInfo, final String roleId) {
+        final ViolationBuilder violationBuilder = new ViolationBuilder();
+        final Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(CrossAccountPolicyForIAMJob.class)
-                .withType("no idea!!! change me")
+                .withType(CROSS_ACCOUNT_ROLE)
                 .withMetaInfo(metaInfo)
-                .withInstanceId(instanceId)
+                .withInstanceId(roleId)
                 .withEventId(EVENT_ID).build();
         violationSink.put(violation);
     }
