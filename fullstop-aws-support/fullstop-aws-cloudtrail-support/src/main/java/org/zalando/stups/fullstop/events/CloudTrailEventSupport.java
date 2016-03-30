@@ -17,7 +17,6 @@ import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -45,7 +44,7 @@ public abstract class CloudTrailEventSupport {
 
     public static final String INSTANCE_LAUNCH_TIME = "$.instancesSet.items[*].launchTime";
 
-    private static final String ACCOUNT_ID_SHOULD_NEVER_BE_NULL = "AccountId should never be null";
+    private static final String ACCOUNT_ID_OR_RECIPIENT_SHOULD_NEVER_BE_NULL = "AccountId or RecipientAccountId should never be null";
 
     private static final String USER_IDENTITY_SHOULD_NEVER_BE_NULL = "UserIdentity should never be null";
 
@@ -79,8 +78,8 @@ public abstract class CloudTrailEventSupport {
     public static String getAccountId(final CloudTrailEvent event) {
         CloudTrailEventData eventData = getEventData(event);
         UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
-
-        return checkNotNull(userIdentity.getAccountId(), ACCOUNT_ID_SHOULD_NEVER_BE_NULL);
+        String value = ofNullable(userIdentity.getAccountId()).orElse(eventData.getRecipientAccountId());
+        return checkNotNull(value, ACCOUNT_ID_OR_RECIPIENT_SHOULD_NEVER_BE_NULL);
     }
 
     private static CloudTrailEventData getEventData(CloudTrailEvent event) {
@@ -135,7 +134,7 @@ public abstract class CloudTrailEventSupport {
     }
 
     public static Region getRegion(final CloudTrailEvent cloudTrailEvent) {
-        return Optional.ofNullable(getRegionAsString(cloudTrailEvent))
+        return ofNullable(getRegionAsString(cloudTrailEvent))
                 .map(Regions::fromName)
                 .map(Region::getRegion)
                 .orElseThrow(() -> new IllegalArgumentException("Missing awsRegion in CloudTrailEvent " + cloudTrailEvent));
