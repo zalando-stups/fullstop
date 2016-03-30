@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.zalando.kontrolletti.HystrixKontrollettiOperations;
 import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
@@ -34,6 +35,10 @@ public class ClientConfig {
     @Bean
     KioOperations kioOperations() {
         final StupsOAuth2RestTemplate restTemplate = new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider("kio", accessTokens));
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(4 * 1000);
+        requestFactory.setReadTimeout(4 * 1000);
+        restTemplate.setRequestFactory(requestFactory);
         restTemplate.setErrorHandler(new KioClientResponseErrorHandler());
         return new RestTemplateKioOperations(
                 restTemplate,

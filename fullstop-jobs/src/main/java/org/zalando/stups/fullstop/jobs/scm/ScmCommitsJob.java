@@ -19,6 +19,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 
+import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -54,17 +55,26 @@ public class ScmCommitsJob implements FullstopJob {
         this.violationSink = violationSink;
     }
 
+    @PostConstruct
+    public void init() {
+        log.info("{} initialized", getClass().getSimpleName());
+    }
+
     @Scheduled(
             fixedRate = 1000 * 60 * 150, // 2.5 hours
             initialDelay = 1000 * 60 * 10 // 10 minutes
     )
     @Override
     public void run() {
+        log.info("{} started processing", getClass().getSimpleName());
+
         kio.listApplications().stream()
                 .map(ApplicationBase::getId)
                 .map(kio::getApplicationById)
                 .filter(Application::isActive)
                 .forEach(this::processApplication);
+
+        log.info("{} finished processing", getClass().getSimpleName());
     }
 
     private void processApplication(Application app) {
