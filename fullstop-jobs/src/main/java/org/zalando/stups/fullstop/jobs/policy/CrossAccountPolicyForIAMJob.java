@@ -1,5 +1,9 @@
 package org.zalando.stups.fullstop.jobs.policy;
 
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.ListRolesResult;
+import com.amazonaws.services.identitymanagement.model.Role;
+import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,12 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
+
+import static com.amazonaws.regions.Region.getRegion;
+import static com.amazonaws.regions.Regions.fromName;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class CrossAccountPolicyForIAMJob implements FullstopJob {
@@ -56,7 +66,32 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (String account : allAccountIds.get()) {
-            log.info("do something");
+            for (String region : jobsProperties.getWhitelistedRegions()) {
+
+                AmazonIdentityManagementClient iamClient = clientProvider.getClient(
+                        AmazonIdentityManagementClient.class,
+                        account,
+                        getRegion(
+                                fromName(region)));
+
+                ListRolesResult listRolesResult = iamClient.listRoles();
+
+                for (Role role : listRolesResult.getRoles()) {
+
+                    String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+
+                    List<String> principalARNs = JsonPath.read(assumeRolePolicyDocument, ".Statement[].Principal.AWS");
+
+                    List<String> crossAccountIds = principalARNs.stream().filter(principalARN -> !principalARN.contains(account)).collect(toList());
+
+                    if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
+                        writeViolation(account, region, singletonMap("", ""), "");
+                    }
+                }
+
+
+                log.info("do something");
+            }
         }
 
     }
