@@ -124,32 +124,6 @@ public class ApplicationLifecycleServiceImplTest {
     }
 
     @Test
-    public void testNoOverwrite() throws Exception{
-
-        final LifecycleEntity taupgelifecycleEntity = new LifecycleEntity();
-        taupgelifecycleEntity.setInstanceId(INSTANCE_ID);
-        taupgelifecycleEntity.setAccountId(ACCOUNT_ID);
-        taupgelifecycleEntity.setRegion(REGION);
-        taupgelifecycleEntity.setInstanceBootTime(DateTime.now());
-
-        final LifecycleEntity runlifecycleEntity = new LifecycleEntity();
-        runlifecycleEntity.setInstanceId(INSTANCE_ID);
-        runlifecycleEntity.setAccountId(ACCOUNT_ID);
-        runlifecycleEntity.setRegion(REGION);
-        runlifecycleEntity.setEventType(RUN_INSTANCES);
-
-        final LifecycleEntity terminatelifecycleEntity = new LifecycleEntity();
-        terminatelifecycleEntity.setInstanceId(INSTANCE_ID);
-        terminatelifecycleEntity.setAccountId(ACCOUNT_ID);
-        terminatelifecycleEntity.setRegion(REGION);
-        terminatelifecycleEntity.setEventType(TERMINATE_INSTANCES);
-
-        applicationLifecycleServiceImpl.saveLifecycle(application, version, taupgelifecycleEntity);
-        applicationLifecycleServiceImpl.saveLifecycle(application, version, runlifecycleEntity);
-        applicationLifecycleServiceImpl.saveLifecycle(application, version, terminatelifecycleEntity);
-    }
-
-    @Test
     public void testSaveExistingLifecycle() throws Exception {
         final ApplicationEntity existingApp = new ApplicationEntity(applicationId);
         final VersionEntity existingVersion = new VersionEntity(versionId);
