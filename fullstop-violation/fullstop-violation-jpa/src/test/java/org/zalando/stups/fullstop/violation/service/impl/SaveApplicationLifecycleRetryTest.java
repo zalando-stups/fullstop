@@ -82,7 +82,7 @@ public class SaveApplicationLifecycleRetryTest {
 
         verify(mockApplicationRepository, times(4)).findByName(eq("foobar"));
         verify(mockVersionRepository, times(4)).findByName(eq("1.0"));
-        verify(mockLifecycleRepository, times(4)).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+
         verify(mockLifecycleRepository, times(4)).save(any(LifecycleEntity.class));
     }
 
@@ -96,7 +96,7 @@ public class SaveApplicationLifecycleRetryTest {
         } finally {
             verify(mockApplicationRepository, times(10)).findByName(eq("foobar"));
             verify(mockVersionRepository, times(10)).findByName(eq("1.0"));
-            verify(mockLifecycleRepository, times(10)).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+
             verify(mockLifecycleRepository, times(10)).save(any(LifecycleEntity.class));
         }
     }
@@ -110,7 +110,7 @@ public class SaveApplicationLifecycleRetryTest {
         } finally {
             verify(mockApplicationRepository).findByName(eq("foobar"));
             verify(mockVersionRepository).findByName(eq("1.0"));
-            verify(mockLifecycleRepository).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString());
+
             verify(mockLifecycleRepository).save(any(LifecycleEntity.class));
         }
 
