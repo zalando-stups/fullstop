@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -26,10 +27,11 @@ public class LifecycleController {
         this.lifecycleRepository = lifecycleRepository;
     }
 
-    @RequestMapping(method = GET)
-    @ApiResponses(@ApiResponse(code = 200, message = "The list of all available application lifecycles",
-            response = LifecycleEntity.class, responseContainer = "List"))
-    public List<LifecycleEntity> findAll() {
-        return lifecycleRepository.findAll();
-    }
+
+    @RequestMapping(value = "/app/{name}", method = GET)
+    @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance; Ordered by date",
+    response = LifecycleEntity.class, responseContainer = "List"))
+    public  List<LifecycleEntity> findSorted(@PathVariable("name")
+                                                 final String name) {
+        return lifecycleRepository.findByApplicationName(name); }
 }
