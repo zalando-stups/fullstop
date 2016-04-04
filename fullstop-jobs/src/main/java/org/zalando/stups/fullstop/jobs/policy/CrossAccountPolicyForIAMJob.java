@@ -94,9 +94,9 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
                                 account,
                                 region,
                                 ImmutableMap.of(
-                                        "RoleArn", role.getArn(),
-                                        "RoleName", role.getRoleName(),
-                                        "arn", crossAccountIds),
+                                        "role_arn", role.getArn(),
+                                        "role_name", role.getRoleName(),
+                                        "grantees", crossAccountIds),
                                 role.getRoleId()
                         );
                     }
