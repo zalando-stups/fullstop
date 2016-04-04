@@ -4,10 +4,12 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
@@ -17,9 +19,10 @@ import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
-import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 import static com.amazonaws.regions.Region.getRegion;
@@ -43,19 +46,19 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
     private final JobsProperties jobsProperties;
 
-    private final ViolationService violationService;
+    private final String fullstopJobsManagementAccount;
 
     @Autowired
     public CrossAccountPolicyForIAMJob(final ViolationSink violationSink,
                                        final ClientProvider clientProvider,
                                        final AccountIdSupplier allAccountIds,
                                        final JobsProperties jobsProperties,
-                                       final ViolationService violationService) {
+                                       @Value("${FULLSTOP_JOBS_MANAGEMENT_ACCOUNT}") final String fullstopJobsManagementAccount) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
         this.jobsProperties = jobsProperties;
-        this.violationService = violationService;
+        this.fullstopJobsManagementAccount = fullstopJobsManagementAccount;
     }
 
     @PostConstruct
@@ -63,7 +66,10 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
         log.info("{} initalized", getClass().getSimpleName());
     }
 
-    @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
+    @Scheduled(
+            fixedRate = 1000 * 60 * 150, // 2.5 hours
+            initialDelay = 1000 * 60 * 15 // 15 minutes
+    )
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
@@ -80,10 +86,17 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
                     final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
 
-                    final List<String> principalArns = JsonPath.read(assumeRolePolicyDocument, ".Statement[].Principal.AWS");
+                    List<String> principalArns = Lists.newArrayList();
+                    try {
+                        principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
+                                ".Statement[*].Principal.AWS");
+                    } catch (final UnsupportedEncodingException e) {
+                        log.warn("Could not decode assumeRolePolicyDocument", e);
+                    }
 
                     final List<String> crossAccountIds = principalArns.stream()
                             .filter(principalARN -> !principalARN.contains(account))
+                            .filter(principalARN -> !principalARN.contains(fullstopJobsManagementAccount))
                             .collect(toList());
 
                     if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
