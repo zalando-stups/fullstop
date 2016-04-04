@@ -9,7 +9,6 @@ import com.jayway.jsonpath.JsonPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
@@ -46,19 +45,15 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
     private final JobsProperties jobsProperties;
 
-    private final String fullstopJobsManagementAccount;
-
     @Autowired
     public CrossAccountPolicyForIAMJob(final ViolationSink violationSink,
                                        final ClientProvider clientProvider,
                                        final AccountIdSupplier allAccountIds,
-                                       final JobsProperties jobsProperties,
-                                       @Value("${FULLSTOP_JOBS_MANAGEMENT_ACCOUNT}") final String fullstopJobsManagementAccount) {
+                                       final JobsProperties jobsProperties) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
         this.jobsProperties = jobsProperties;
-        this.fullstopJobsManagementAccount = fullstopJobsManagementAccount;
     }
 
     @PostConstruct
@@ -75,12 +70,7 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
 
-                final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
-                        AmazonIdentityManagementClient.class,
-                        account,
-                        getRegion(fromName(region)));
-
-                final ListRolesResult listRolesResult = iamClient.listRoles();
+                final ListRolesResult listRolesResult = getListRolesResult(account, region);
 
                 for (final Role role : listRolesResult.getRoles()) {
 
@@ -96,7 +86,7 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
                     final List<String> crossAccountIds = principalArns.stream()
                             .filter(principalARN -> !principalARN.contains(account))
-                            .filter(principalARN -> !principalARN.contains(fullstopJobsManagementAccount))
+                            .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
                             .collect(toList());
 
                     if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
@@ -115,6 +105,15 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
         }
 
         log.info("Completed job {}", getClass().getSimpleName());
+    }
+
+    private ListRolesResult getListRolesResult(final String account, final String region) {
+        final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
+                AmazonIdentityManagementClient.class,
+                account,
+                getRegion(fromName(region)));
+
+        return iamClient.listRoles();
     }
 
     private void writeViolation(final String account, final String region, final Object metaInfo, final String roleId) {
