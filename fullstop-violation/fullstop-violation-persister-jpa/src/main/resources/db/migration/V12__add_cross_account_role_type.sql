@@ -10,8 +10,8 @@ INSERT INTO fullstop_data.violation_type (
 VALUES ('CROSS_ACCOUNT_ROLE',
         'Your account has an IAM policy that allows access from another account. Cross account access is should be avoided',
         0,
-        0,
-        '',
+        4,
+        'Cross account role',
         now(),
         '#372',
         0);
