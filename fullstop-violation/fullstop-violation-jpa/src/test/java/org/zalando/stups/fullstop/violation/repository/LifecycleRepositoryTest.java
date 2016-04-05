@@ -1,19 +1,11 @@
 package org.zalando.stups.fullstop.violation.repository;
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -22,9 +14,7 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -137,5 +127,51 @@ public class LifecycleRepositoryTest {
         assertThat(saveLifecycleEntity.getInstanceBootTime()).isEqualTo(now);
         assertThat(lifecycleRepository.findAll()).hasSize(3);
 
+    }
+
+    @Test
+    public void TestFindByAppId() throws Exception{
+        ApplicationEntity app1 = new ApplicationEntity("App1");
+        ApplicationEntity app2 = new ApplicationEntity("App2");
+
+        VersionEntity vers1 = new VersionEntity("1.0");
+        versionRepository.save(vers1);
+        VersionEntity vers2 = new VersionEntity("2.0");
+        versionRepository.save(vers2);
+
+        List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
+        app1.setVersionEntities(versionEntities);
+        applicationRepository.save(app1);
+        app2.setVersionEntities(versionEntities);
+        applicationRepository.save(app2);
+
+        LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
+        lifecycleEntity1.setApplicationEntity(app1);
+        lifecycleEntity1.setVersionEntity(vers1);
+        lifecycleRepository.save(lifecycleEntity1);
+
+        LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
+        lifecycleEntity2.setApplicationEntity(app1);
+        lifecycleEntity2.setVersionEntity(vers2);
+        lifecycleRepository.save(lifecycleEntity2);
+
+        LifecycleEntity lifecycleEntity3 = new LifecycleEntity();
+        lifecycleEntity3.setApplicationEntity(app2);
+        lifecycleEntity3.setVersionEntity(vers1);
+        lifecycleRepository.save(lifecycleEntity3);
+
+        LifecycleEntity lifecycleEntity4 = new LifecycleEntity();
+        lifecycleEntity4.setApplicationEntity(app2);
+        lifecycleEntity4.setVersionEntity(vers2);
+        lifecycleRepository.save(lifecycleEntity4);
+
+        LifecycleEntity lifecycleEntity5 = new LifecycleEntity();
+        lifecycleEntity5.setApplicationEntity(app1);
+        lifecycleEntity5.setVersionEntity(vers2);
+        lifecycleRepository.save(lifecycleEntity5);
+
+        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationName("App1");
+        assertThat(applications).hasSize(3);
+        assertThat(applications.get(1).getVersionEntity().getName()).isEqualTo(applications.get(2).getVersionEntity().getName());
     }
 }

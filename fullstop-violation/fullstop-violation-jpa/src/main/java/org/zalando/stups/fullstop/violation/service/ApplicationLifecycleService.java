@@ -7,6 +7,7 @@ import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,4 +26,6 @@ public interface ApplicationLifecycleService {
     ApplicationEntity findAppByInstanceIds(String accountId, String region, Collection<String> instanceIds);
 
     Set<AccountRegion> findDeployments(String applicationId);
+
+    List<LifecycleEntity> findByApplicationName(String name);
 }

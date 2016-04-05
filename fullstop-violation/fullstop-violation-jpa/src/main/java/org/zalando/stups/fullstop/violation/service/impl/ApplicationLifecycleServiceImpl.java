@@ -57,10 +57,10 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
             include = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class, DataIntegrityViolationException.class})
     @Transactional(REQUIRES_NEW)
     public LifecycleEntity saveLifecycle(final ApplicationEntity applicationEntity, final VersionEntity versionEntity,
-            final LifecycleEntity lifecycleEntity) {
+            final LifecycleEntity lifecycleToSave) {
         Assert.notNull(applicationEntity, "applicationEntity must not be null");
         Assert.notNull(versionEntity, "versionEntity must not be null");
-        Assert.notNull(lifecycleEntity, "lifecycleEntity must not be null");
+        Assert.notNull(lifecycleToSave, "lifecycleToSave must not be null");
 
         ApplicationEntity applicationByName = applicationRepository.findByName(applicationEntity.getName());
         VersionEntity versionByName = versionRepository.findByName(versionEntity.getName());
@@ -79,23 +79,10 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
         }
 
 
-        LifecycleEntity lifecycleByInstanceId =
-                lifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(
-                        lifecycleEntity.getInstanceId(), applicationByName, versionByName, lifecycleEntity.getRegion(), lifecycleEntity.getAccountId());
+        lifecycleToSave.setApplicationEntity(applicationByName);
+        lifecycleToSave.setVersionEntity(versionByName);
 
-        if (lifecycleByInstanceId != null) {
-            lifecycleByInstanceId.setEventDate(lifecycleEntity.getEventDate());
-            lifecycleByInstanceId.setEventType(lifecycleEntity.getEventType());
-            lifecycleByInstanceId.setImageId(lifecycleEntity.getImageId());
-            lifecycleByInstanceId.setImageName(lifecycleEntity.getImageName());
-            lifecycleByInstanceId = lifecycleRepository.save(lifecycleByInstanceId);
-            return lifecycleByInstanceId;
-        }
-
-        lifecycleEntity.setApplicationEntity(applicationByName);
-        lifecycleEntity.setVersionEntity(versionByName);
-
-        return lifecycleRepository.save(lifecycleEntity);
+        return lifecycleRepository.save(lifecycleToSave);
     }
 
     @Override
@@ -143,5 +130,11 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Override
     public Set<AccountRegion> findDeployments(String applicationId) {
         return applicationRepository.findDeployments(applicationId);
+    }
+
+    @Override
+    public List<LifecycleEntity> findByApplicationName(String name) {
+        return lifecycleRepository.findByApplicationName(name);
+
     }
 }

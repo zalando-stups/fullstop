@@ -60,6 +60,8 @@
         <module>fullstop-web/fullstop-violations-rest</module>
         <module>fullstop-web/fullstop-timemachine</module>
         <module>fullstop-web/fullstop-whitelisting-rules</module>
+        <module>fullstop-web/fullstop-lifecycle-api</module>
+
 
         <!-- fullstop container -->
         <module>fullstop</module>

@@ -39,6 +39,8 @@ public class ApplicationLifecycleServiceImplTest {
     private static final String INSTANCE_ID = "i1";
     private static final DateTime INSTANCE_BOOT_TIME = now();
     private static final String USERDATA_PATH = "path/to/the/logs";
+    public static final String RUN_INSTANCES = "RunInstances";
+    public static final String TERMINATE_INSTANCES = "TerminateInstances";
 
     @Autowired
     private ApplicationRepository mockApplicationRepository;
@@ -111,7 +113,6 @@ public class ApplicationLifecycleServiceImplTest {
 
         verify(mockApplicationRepository).findByName(eq(applicationId));
         verify(mockVersionRepository).findByName(eq(versionId));
-        verify(mockLifecycleRepository).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(eq(INSTANCE_ID), eq(application), eq(version), eq(REGION), eq(ACCOUNT_ID));
 
         verify(mockApplicationRepository, times(2)).save(eq(application));
         verify(mockVersionRepository).save(eq(version));
@@ -127,12 +128,9 @@ public class ApplicationLifecycleServiceImplTest {
         final ApplicationEntity existingApp = new ApplicationEntity(applicationId);
         final VersionEntity existingVersion = new VersionEntity(versionId);
         existingApp.getVersionEntities().add(existingVersion);
-        final LifecycleEntity existingLifecycle = new LifecycleEntity();
 
         when(mockApplicationRepository.findByName(eq(applicationId))).thenReturn(existingApp);
         when(mockVersionRepository.findByName(eq(versionId))).thenReturn(existingVersion);
-        when(mockLifecycleRepository.findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(anyString(), any(), any(), anyString(), anyString()))
-                .thenReturn(existingLifecycle);
 
         final LifecycleEntity lifecycle = new LifecycleEntity();
         lifecycle.setInstanceId(INSTANCE_ID);
@@ -146,10 +144,9 @@ public class ApplicationLifecycleServiceImplTest {
 
         verify(mockApplicationRepository).findByName(eq(applicationId));
         verify(mockVersionRepository).findByName(eq(versionId));
-        verify(mockLifecycleRepository).findByInstanceIdAndApplicationEntityAndVersionEntityAndRegionAndAccountId(eq(INSTANCE_ID), eq(application), eq(version), eq(REGION), eq(ACCOUNT_ID));
-        verify(mockLifecycleRepository).save(same(existingLifecycle));
+        verify(mockLifecycleRepository).save(lifecycle);
 
-        Assertions.assertThat(savedLifecycle).isEqualTo(existingLifecycle);
+        Assertions.assertThat(savedLifecycle).isEqualTo(lifecycle);
     }
 
 
