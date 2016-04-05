@@ -13,8 +13,6 @@ import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.any;
@@ -70,8 +68,6 @@ public class CrossAccountPolicyForIAMJobTest {
 
     private ListRolesResult mockListRolesResult;
 
-    private List<String> regions = newArrayList();
-
     private AwsApplications mockAwsApplications;
 
     @Before
@@ -98,8 +94,6 @@ public class CrossAccountPolicyForIAMJobTest {
         mockListRolesResult = new ListRolesResult();
         mockListRolesResult.setRoles(newArrayList(role, role1));
 
-        regions.add(REGION1);
-
         when(clientProviderMock.getClient(any(), any(String.class), any(Region.class))).thenReturn(mockAmazonIdentityManagementClient);
     }
 
@@ -117,7 +111,6 @@ public class CrossAccountPolicyForIAMJobTest {
     @Test
     public void testCheck() throws Exception {
         when(accountIdSupplierMock.get()).thenReturn(newHashSet(ACCOUNT_ID));
-        when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(regions);
         when(jobsPropertiesMock.getManagementAccount()).thenReturn(MANAGEMENT_ACCOUNT);
         when(mockAmazonIdentityManagementClient.listRoles()).thenReturn(mockListRolesResult);
 
@@ -130,7 +123,6 @@ public class CrossAccountPolicyForIAMJobTest {
         crossAccountPolicyForIAMJob.run();
 
         verify(accountIdSupplierMock).get();
-        verify(jobsPropertiesMock, times(1)).getWhitelistedRegions();
         verify(clientProviderMock).getClient(any(), any(String.class), any(Region.class));
         verify(mockAmazonIdentityManagementClient).listRoles();
         verify(jobsPropertiesMock,times(1)).getManagementAccount();
