@@ -131,4 +131,10 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     public Set<AccountRegion> findDeployments(String applicationId) {
         return applicationRepository.findDeployments(applicationId);
     }
+
+    @Override
+    public List<LifecycleEntity> findByApplicationName(String name) {
+        return lifecycleRepository.findByApplicationName(name);
+
+    }
 }
