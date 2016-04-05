@@ -25,7 +25,7 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import static com.amazonaws.regions.Region.getRegion;
-import static com.amazonaws.regions.Regions.fromName;
+import static com.amazonaws.regions.Regions.EU_WEST_1;
 import static java.util.stream.Collectors.toList;
 import static org.zalando.stups.fullstop.violation.ViolationType.CROSS_ACCOUNT_ROLE;
 
@@ -68,38 +68,35 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
-            for (final String region : jobsProperties.getWhitelistedRegions()) {
 
-                final ListRolesResult listRolesResult = getListRolesResult(account, region);
+            final ListRolesResult listRolesResult = getListRolesResult(account);
 
-                for (final Role role : listRolesResult.getRoles()) {
+            for (final Role role : listRolesResult.getRoles()) {
 
-                    final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+                final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
 
-                    List<String> principalArns = Lists.newArrayList();
-                    try {
-                        principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
-                                ".Statement[*].Principal.AWS");
-                    } catch (final UnsupportedEncodingException e) {
-                        log.warn("Could not decode assumeRolePolicyDocument", e);
-                    }
+                List<String> principalArns = Lists.newArrayList();
+                try {
+                    principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
+                            ".Statement[*].Principal.AWS");
+                } catch (final UnsupportedEncodingException e) {
+                    log.warn("Could not decode assumeRolePolicyDocument", e);
+                }
 
-                    final List<String> crossAccountIds = principalArns.stream()
-                            .filter(principalARN -> !principalARN.contains(account))
-                            .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
-                            .collect(toList());
+                final List<String> crossAccountIds = principalArns.stream()
+                        .filter(principalARN -> !principalARN.contains(account))
+                        .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
+                        .collect(toList());
 
-                    if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
-                        writeViolation(
-                                account,
-                                region,
-                                ImmutableMap.of(
-                                        "role_arn", role.getArn(),
-                                        "role_name", role.getRoleName(),
-                                        "grantees", crossAccountIds),
-                                role.getRoleId()
-                        );
-                    }
+                if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
+                    writeViolation(
+                            account,
+                            ImmutableMap.of(
+                                    "role_arn", role.getArn(),
+                                    "role_name", role.getRoleName(),
+                                    "grantees", crossAccountIds),
+                            role.getRoleId()
+                    );
                 }
             }
         }
@@ -107,19 +104,20 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
         log.info("Completed job {}", getClass().getSimpleName());
     }
 
-    private ListRolesResult getListRolesResult(final String account, final String region) {
+    private ListRolesResult getListRolesResult(final String account) {
         final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
                 AmazonIdentityManagementClient.class,
                 account,
-                getRegion(fromName(region)));
+                getRegion(EU_WEST_1)
+        );
 
         return iamClient.listRoles();
     }
 
-    private void writeViolation(final String account, final String region, final Object metaInfo, final String roleId) {
+    private void writeViolation(final String account, final Object metaInfo, final String roleId) {
         final ViolationBuilder violationBuilder = new ViolationBuilder();
         final Violation violation = violationBuilder.withAccountId(account)
-                .withRegion(region)
+                .withRegion(EU_WEST_1.getName())
                 .withPluginFullyQualifiedClassName(CrossAccountPolicyForIAMJob.class)
                 .withType(CROSS_ACCOUNT_ROLE)
                 .withMetaInfo(metaInfo)
