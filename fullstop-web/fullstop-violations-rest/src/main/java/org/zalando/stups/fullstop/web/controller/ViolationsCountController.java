@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponses;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,7 +37,6 @@ public class ViolationsCountController {
     }
 
     @RequestMapping(method = GET)
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ApiResponses(@ApiResponse(code=200, message = "Violation count by account and type",
             response = CountByAccountAndType.class, responseContainer = "List"))
     public List<CountByAccountAndType> countByAccountAndTypes(
@@ -63,7 +61,6 @@ public class ViolationsCountController {
     }
 
     @RequestMapping(value = "/{account}", method = GET)
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ApiResponses(@ApiResponse(code = 200, message = "Violation count of one account by app version and type",
             response = CountByAppVersionAndType.class, responseContainer = "List"))
     public List<CountByAppVersionAndType> countByAppVersionAndType(

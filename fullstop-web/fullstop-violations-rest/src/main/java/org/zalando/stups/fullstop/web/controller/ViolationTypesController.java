@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +39,6 @@ public class ViolationTypesController {
     @RequestMapping(method = GET)
     @ApiResponses(@ApiResponse(code = 200, message = "The list of all available violation types",
             response = ViolationType.class, responseContainer = "List"))
-    @PreAuthorize("#oauth2.hasScope('uid')")
     public List<ViolationType> getAll() {
         return violationTypeRepository.findAll()
                 .stream()

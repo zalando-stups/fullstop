@@ -10,15 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.stups.fullstop.web.api.ForbiddenException;
-import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+import org.zalando.stups.fullstop.web.api.ForbiddenException;
+import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.web.model.Violation;
 
 import java.util.List;
@@ -50,7 +49,6 @@ public class ViolationsController {
             value = "violations", notes = "Get one violation", response = Violation.class
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @RequestMapping(value = "/{id}", method = GET)
     public Violation getViolation(
             @ApiParam(value = "Violation id")
@@ -65,7 +63,6 @@ public class ViolationsController {
             value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @RequestMapping(method = GET)
     public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
@@ -118,7 +115,6 @@ public class ViolationsController {
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation resolved successfully")})
     @RequestMapping(value = "/{id}/resolution", method = POST)
-    @PreAuthorize("#oauth2.hasScope('uid')")
     public Violation resolveViolations(
             @ApiParam(value = "", required = true)
             @PathVariable("id")
