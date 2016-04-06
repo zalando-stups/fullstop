@@ -1,9 +1,8 @@
 package org.zalando.stups.fullstop.web.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,10 +30,13 @@ public class LifecycleController {
 
 
     @RequestMapping(value = "/app/{name}", method = GET)
-    @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date",
-    response = LifecylceDTO.class, responseContainer = "List"))
-    public  List<LifecylceDTO> findByApplicationName(@PathVariable("name")
-                                                 final String name) {
+    @ApiOperation(value = "Shows a list of all rules", response = LifecylceDTO.class, responseContainer = "List",
+            authorizations = {@Authorization(value = "oauth",
+                    scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
+    @PreAuthorize("#oauth2.hasScope('uid')")
+    public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
+                                                    final String name) {
         List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationName(name);
         return mapToDto(lifecycleEntities);
 
