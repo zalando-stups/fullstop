@@ -47,6 +47,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
                 .antMatchers("/api/**").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
+                .antMatchers("/s3/**").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
                 .antMatchers("/webjars/**").permitAll()
                 .antMatchers("/swagger-resources").permitAll()
                 .antMatchers("/api-docs").permitAll();

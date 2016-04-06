@@ -6,17 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.s3.LogType;
 import org.zalando.stups.fullstop.s3.S3Service;
 import org.zalando.stups.fullstop.swagger.model.LogObj;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
+import org.zalando.stups.fullstop.web.api.NotFoundException;
 
 import java.io.IOException;
 
@@ -40,7 +39,6 @@ public class FullstopApi {
     @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Logs saved successfully") })
     @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    @PreAuthorize("#oauth2.hasScope('uid')")
     public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
     @RequestBody final LogObj log) throws NotFoundException {
         saveLog(log);
