@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -45,6 +46,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
                 .logout().disable()
 
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight CORS requests from browsers
                 .antMatchers("/").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
                 .antMatchers("/api/**").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
                 .antMatchers("/s3/**").access("#oauth2.hasUidScopeAndAnyRealm('/employees', '/services')")
