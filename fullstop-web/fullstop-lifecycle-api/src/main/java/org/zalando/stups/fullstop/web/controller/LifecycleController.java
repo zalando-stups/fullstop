@@ -2,7 +2,6 @@ package org.zalando.stups.fullstop.web.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +33,6 @@ public class LifecycleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
-    @PreAuthorize("#oauth2.hasScope('uid')")
     public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
                                                     final String name) {
         List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationName(name);

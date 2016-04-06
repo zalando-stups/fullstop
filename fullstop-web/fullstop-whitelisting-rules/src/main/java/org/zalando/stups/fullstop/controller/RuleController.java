@@ -3,16 +3,15 @@ package org.zalando.stups.fullstop.controller;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.stups.fullstop.web.api.ForbiddenException;
-import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.config.RuleControllerProperties;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.web.api.ForbiddenException;
+import org.zalando.stups.fullstop.web.api.NotFoundException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,7 +43,6 @@ public class RuleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
 
@@ -59,7 +57,6 @@ public class RuleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(CREATED)
     public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
 
@@ -72,7 +69,6 @@ public class RuleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
                                       final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
@@ -88,7 +84,6 @@ public class RuleController {
     @ApiOperation(value = "updates a rule by invalidating it and creating a new rule",
             authorizations = {@Authorization(value = "oauth", scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Updated")})
-    @PreAuthorize("#oauth2.hasScope('uid')")
     @ResponseStatus(OK)
     public RuleEntity updateWhitelisting(@RequestBody RuleDTO ruleDTO,
                                          @PathVariable("id") final Long id,
