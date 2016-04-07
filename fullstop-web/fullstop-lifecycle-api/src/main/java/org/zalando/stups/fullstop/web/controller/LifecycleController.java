@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
@@ -34,8 +35,11 @@ public class LifecycleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
     public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
-                                                    final String name) {
-        List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationName(name);
+                                                    final String name,
+                                                    @ApiParam(value = "Include only applications with with this version")
+                                                    @RequestParam(value = "version", required = false)
+                                                    final String version) {
+        List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version);
         return mapToDto(lifecycleEntities);
 
     }

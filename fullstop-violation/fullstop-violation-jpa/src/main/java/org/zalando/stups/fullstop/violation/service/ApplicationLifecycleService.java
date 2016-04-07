@@ -27,5 +27,5 @@ public interface ApplicationLifecycleService {
 
     Set<AccountRegion> findDeployments(String applicationId);
 
-    List<LifecycleEntity> findByApplicationName(String name);
+    List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version);
 }

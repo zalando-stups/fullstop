@@ -8,4 +8,5 @@ public interface LifecycleRepositoryCustom {
 
     List<LifecycleEntity> findByApplicationName(String id);
 
+    List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version);
 }

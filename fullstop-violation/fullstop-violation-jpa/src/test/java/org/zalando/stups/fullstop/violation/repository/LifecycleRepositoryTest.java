@@ -130,7 +130,7 @@ public class LifecycleRepositoryTest {
     }
 
     @Test
-    public void TestFindByAppId() throws Exception{
+    public void TestFindByAppName() throws Exception{
         ApplicationEntity app1 = new ApplicationEntity("App1");
         ApplicationEntity app2 = new ApplicationEntity("App2");
 
@@ -173,5 +173,34 @@ public class LifecycleRepositoryTest {
         List<LifecycleEntity> applications = lifecycleRepository.findByApplicationName("App1");
         assertThat(applications).hasSize(3);
         assertThat(applications.get(1).getVersionEntity().getName()).isEqualTo(applications.get(2).getVersionEntity().getName());
+    }
+
+    @Test
+    public void TestfindByApplicationNameAndVersion() throws Exception{
+        ApplicationEntity app1 = new ApplicationEntity("App1");
+
+        VersionEntity vers1 = new VersionEntity("1.0");
+        versionRepository.save(vers1);
+        VersionEntity vers2 = new VersionEntity("2.0");
+        versionRepository.save(vers2);
+
+        List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
+        app1.setVersionEntities(versionEntities);
+        applicationRepository.save(app1);
+
+        LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
+        lifecycleEntity1.setApplicationEntity(app1);
+        lifecycleEntity1.setVersionEntity(vers1);
+        lifecycleRepository.save(lifecycleEntity1);
+
+        LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
+        lifecycleEntity2.setApplicationEntity(app1);
+        lifecycleEntity2.setVersionEntity(vers2);
+        lifecycleRepository.save(lifecycleEntity2);
+
+        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0");
+
+        assertThat(applications).hasSize(1);
+        assertThat(applications.get(0).getVersionEntity().getName()).isEqualTo("1.0");
     }
 }

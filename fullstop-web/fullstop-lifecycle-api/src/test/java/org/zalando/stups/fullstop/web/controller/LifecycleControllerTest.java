@@ -40,6 +40,17 @@ public class LifecycleControllerTest {
 
     @Before
     public void setUp() throws Exception {
+        reset(applicationLifecycleServiceMock);
+        mockMvc = MockMvcBuilders.standaloneSetup(new LifecycleController(applicationLifecycleServiceMock)).build();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(applicationLifecycleServiceMock);
+    }
+
+    @Test
+    public void testFindByApplicationName() throws Exception {
         lifecycleEntity1 = new LifecycleEntity();
         lifecycleEntity1.setAccountId("1234");
         lifecycleEntity1.setApplicationEntity(new ApplicationEntity("test"));
@@ -53,24 +64,33 @@ public class LifecycleControllerTest {
         lifecycleEntity2.setCreated(DateTime.now());
         List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1, lifecycleEntity2);
 
-        when(applicationLifecycleServiceMock.findByApplicationName(anyString())).thenReturn(lifecycleEntityList);
+        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new LifecycleController(applicationLifecycleServiceMock)).build();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        verifyNoMoreInteractions(applicationLifecycleServiceMock);
-    }
-
-    @Test
-    public void testFindByApplicationName() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/api/lifecycle/app/test")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$", hasSize(2)));
         resultActions.andExpect(jsonPath("$[0].application").value("test"));
         resultActions.andExpect(jsonPath("$[1].version").value("2.0-SNAP"));
 
-        verify(applicationLifecycleServiceMock).findByApplicationName(anyString());
+        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(anyString(), anyString());
+    }
+
+    @Test
+    public void testFindByApplicationNameAndVersion() throws Exception {
+        lifecycleEntity1 = new LifecycleEntity();
+        lifecycleEntity1.setAccountId("456");
+        lifecycleEntity1.setApplicationEntity(new ApplicationEntity("test"));
+        lifecycleEntity1.setVersionEntity(new VersionEntity("2.0-SNAP"));
+        lifecycleEntity1.setCreated(DateTime.now());
+        List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1);
+
+        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
+
+        ResultActions resultActions = mockMvc.perform(get("/api/lifecycle/app/test?version=2.0-SNAP")).andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$", hasSize(1)));
+        resultActions.andExpect(jsonPath("$[0].application").value("test"));
+        resultActions.andExpect(jsonPath("$[0].version").value("2.0-SNAP"));
+
+        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(anyString(), anyString());
     }
 
     @Configuration
