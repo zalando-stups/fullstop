@@ -10,6 +10,8 @@ import org.zalando.stups.fullstop.violation.repository.LifecycleRepositoryCustom
 
 import java.util.List;
 
+import static org.apache.logging.log4j.util.Strings.isNotEmpty;
+
 public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implements LifecycleRepositoryCustom {
 
 
@@ -28,7 +30,7 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
 
         JPQLQuery queryResult = from(qLifecycleEntity).join(qLifecycleEntity.applicationEntity, qApplicationEntity);
 
-        if (version != null) {
+        if (version != null && isNotEmpty(version)) {
             queryResult.join(qLifecycleEntity.versionEntity, qVersionEntity);
             queryResult.where(qVersionEntity.name.eq(version));
         }
@@ -40,7 +42,7 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
                         qLifecycleEntity.id,
                         qApplicationEntity.id);
 
-        if (version != null) {
+        if (version != null && isNotEmpty(version)) {
             queryResult.groupBy(qVersionEntity.id);
         }
 
