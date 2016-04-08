@@ -134,10 +134,6 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
 
     @Override
     public List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version) {
-        if (version == null) { //TODO allow empty versions?
-            return lifecycleRepository.findByApplicationName(name);
-        }
-
         return lifecycleRepository.findByApplicationNameAndVersion(name, version);
     }
 }

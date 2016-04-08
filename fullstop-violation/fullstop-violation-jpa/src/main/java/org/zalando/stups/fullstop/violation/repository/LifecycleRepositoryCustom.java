@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface LifecycleRepositoryCustom {
 
-    List<LifecycleEntity> findByApplicationName(String id);
 
     List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version);
 }

@@ -170,7 +170,7 @@ public class LifecycleRepositoryTest {
         lifecycleEntity5.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity5);
 
-        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationName("App1");
+        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null);
         assertThat(applications).hasSize(3);
         assertThat(applications.get(1).getVersionEntity().getName()).isEqualTo(applications.get(2).getVersionEntity().getName());
     }

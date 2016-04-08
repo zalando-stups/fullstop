@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.violation.repository.impl;
 
+import com.mysema.query.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.QApplicationEntity;
@@ -16,23 +17,6 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
         super(LifecycleEntity.class);
     }
 
-    @Override
-    public List<LifecycleEntity> findByApplicationName(String name) {
-        final QLifecycleEntity qLifecycleEntity = new QLifecycleEntity("lifecycle");
-        final QApplicationEntity qApplicationEntity = new QApplicationEntity("application");
-
-
-        return from(qLifecycleEntity)
-                .join(qLifecycleEntity.applicationEntity, qApplicationEntity)
-                .where(qApplicationEntity.name.eq(name))
-                .groupBy(qLifecycleEntity.versionEntity)
-                .groupBy(qLifecycleEntity.instanceId)
-                .groupBy(qLifecycleEntity.created)
-                .groupBy(qLifecycleEntity.id)
-                .groupBy(qApplicationEntity.id)
-                .orderBy(qLifecycleEntity.created.asc())
-                .list(new QLifecycleEntity(qLifecycleEntity));
-    }
 
     @Override
     public List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version) {
@@ -42,17 +26,28 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
         final QVersionEntity qVersionEntity = new QVersionEntity("version");
 
 
-        return from(qLifecycleEntity)
-                .join(qLifecycleEntity.applicationEntity, qApplicationEntity)
-                .join(qLifecycleEntity.versionEntity, qVersionEntity)
-                .where(qApplicationEntity.name.eq(name), qVersionEntity.name.eq(version))
-                .groupBy(qLifecycleEntity.versionEntity)
-                .groupBy(qLifecycleEntity.instanceId)
-                .groupBy(qLifecycleEntity.created)
-                .groupBy(qLifecycleEntity.id)
-                .groupBy(qApplicationEntity.id)
-                .groupBy(qVersionEntity.id)
-                .orderBy(qLifecycleEntity.created.asc())
+        JPQLQuery queryResult = from(qLifecycleEntity).join(qLifecycleEntity.applicationEntity, qApplicationEntity);
+
+        if (version != null) {
+            queryResult.join(qLifecycleEntity.versionEntity, qVersionEntity);
+            queryResult.where(qVersionEntity.name.eq(version));
+        }
+
+        queryResult.where(qApplicationEntity.name.eq(name))
+                .groupBy(qLifecycleEntity.versionEntity,
+                        qLifecycleEntity.instanceId,
+                        qLifecycleEntity.created,
+                        qLifecycleEntity.id,
+                        qApplicationEntity.id);
+
+        if (version != null) {
+            queryResult.groupBy(qVersionEntity.id);
+        }
+
+        List<LifecycleEntity> lifecycleEntities = queryResult.orderBy(qLifecycleEntity.created.asc())
                 .list(new QLifecycleEntity(qLifecycleEntity));
+
+        return lifecycleEntities;
+
     }
 }
