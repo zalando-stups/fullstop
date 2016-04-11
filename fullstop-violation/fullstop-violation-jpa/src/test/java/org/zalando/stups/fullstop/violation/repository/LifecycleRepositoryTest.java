@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 /**
  * Created by gkneitschel.
@@ -170,9 +173,11 @@ public class LifecycleRepositoryTest {
         lifecycleEntity5.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity5);
 
-        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null);
+        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null, new PageRequest(0, 4, ASC, "id"));
         assertThat(applications).hasSize(3);
-        assertThat(applications.get(1).getVersionEntity().getName()).isEqualTo(applications.get(2).getVersionEntity().getName());
+        assertThat(applications.getTotalPages()).isEqualTo(1);
+        List<LifecycleEntity> content = applications.getContent();
+        assertThat(content.get(1).getVersionEntity().getName()).isEqualTo(content.get(2).getVersionEntity().getName());
     }
 
     @Test
@@ -198,9 +203,12 @@ public class LifecycleRepositoryTest {
         lifecycleEntity2.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity2);
 
-        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0");
+        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0", new PageRequest(0, 2, ASC, "id"));
 
         assertThat(applications).hasSize(1);
-        assertThat(applications.get(0).getVersionEntity().getName()).isEqualTo("1.0");
+        assertThat(applications.getTotalPages()).isEqualTo(1);
+        List<LifecycleEntity> content = applications.getContent();
+
+        assertThat(content.get(0).getVersionEntity().getName()).isEqualTo("1.0");
     }
 }

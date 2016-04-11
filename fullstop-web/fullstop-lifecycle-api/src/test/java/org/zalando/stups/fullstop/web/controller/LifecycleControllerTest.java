@@ -9,6 +9,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,7 +25,9 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +46,8 @@ public class LifecycleControllerTest {
     @Before
     public void setUp() throws Exception {
         reset(applicationLifecycleServiceMock);
-        mockMvc = MockMvcBuilders.standaloneSetup(new LifecycleController(applicationLifecycleServiceMock)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new LifecycleController(applicationLifecycleServiceMock))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
     }
 
     @After
@@ -64,14 +70,16 @@ public class LifecycleControllerTest {
         lifecycleEntity2.setCreated(DateTime.now());
         List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1, lifecycleEntity2);
 
-        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
+        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(any(), any(), any())).thenReturn(
+                new PageImpl<>(
+                        lifecycleEntityList, new PageRequest(0, 20, ASC, "created"), 50));
 
         ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions")).andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$", hasSize(2)));
-        resultActions.andExpect(jsonPath("$[0].application").value("test"));
-        resultActions.andExpect(jsonPath("$[1].version").value("2.0-SNAP"));
+        resultActions.andExpect(jsonPath("$.content", hasSize(2)));
+        resultActions.andExpect(jsonPath("$.content[0].application").value("test"));
+        resultActions.andExpect(jsonPath("$.content[1].version").value("2.0-SNAP"));
 
-        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(anyString(), anyString());
+        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(any(), any(), any());
     }
 
     @Test
@@ -83,14 +91,16 @@ public class LifecycleControllerTest {
         lifecycleEntity1.setCreated(DateTime.now());
         List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1);
 
-        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
+        when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString(), any())).thenReturn(
+                new PageImpl<>(
+                        lifecycleEntityList, new PageRequest(0, 20, ASC, "created"), 50));
 
         ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions/2.0-SNAP")).andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$", hasSize(1)));
-        resultActions.andExpect(jsonPath("$[0].application").value("test"));
-        resultActions.andExpect(jsonPath("$[0].version").value("2.0-SNAP"));
+        resultActions.andExpect(jsonPath("$.content", hasSize(1)));
+        resultActions.andExpect(jsonPath("$.content[0].application").value("test"));
+        resultActions.andExpect(jsonPath("$.content[0].version").value("2.0-SNAP"));
 
-        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(anyString(), anyString());
+        verify(applicationLifecycleServiceMock).findByApplicationNameAndVersion(anyString(), anyString(), any());
     }
 
     @Configuration

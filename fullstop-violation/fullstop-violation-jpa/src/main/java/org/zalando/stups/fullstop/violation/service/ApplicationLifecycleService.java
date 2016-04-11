@@ -1,6 +1,8 @@
 package org.zalando.stups.fullstop.violation.service;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -27,5 +29,5 @@ public interface ApplicationLifecycleService {
 
     Set<AccountRegion> findDeployments(String applicationId);
 
-    List<LifecycleEntity> findByApplicationNameAndVersion(String name, String version);
+    Page<LifecycleEntity> findByApplicationNameAndVersion(String name, String version, Pageable pageable);
 }

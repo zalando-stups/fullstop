@@ -2,9 +2,13 @@ package org.zalando.stups.fullstop.web.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
@@ -13,6 +17,7 @@ import org.zalando.stups.fullstop.web.model.LifecylceDTO;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -33,9 +38,10 @@ public class LifecycleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
-    public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
-                                                    final String name ){
-        List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null);
+    public Page<LifecylceDTO> findByApplicationName(@PathVariable("name")
+                                                    final String name,
+                                                    @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable){
+        Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null, pageable);
         return mapToDto(lifecycleEntities);
 
     }
@@ -45,16 +51,17 @@ public class LifecycleController {
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
-    public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
+    public Page<LifecylceDTO> findByApplicationName(@PathVariable("name")
                                                     final String name,
                                                     @PathVariable("version")
-                                                    final String version) {
-        List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version);
+                                                    final String version,
+                                                    @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable) {
+        Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version, pageable);
         return mapToDto(lifecycleEntities);
 
     }
 
-    private List<LifecylceDTO> mapToDto(List<LifecycleEntity> lifecycleEntities) {
+    private Page<LifecylceDTO> mapToDto(Page<LifecycleEntity> lifecycleEntities) {
         List<LifecylceDTO> lifecylceDTOList = newArrayList();
 
         for (LifecycleEntity lifecycleEntity : lifecycleEntities) {
@@ -73,7 +80,12 @@ public class LifecycleController {
 
             lifecylceDTOList.add(lifecylceDTO);
         }
+        final PageRequest currentPageRequest = new PageRequest(
+                lifecycleEntities.getNumber(),
+                lifecycleEntities.getSize(),
+                lifecycleEntities.getSort());
 
-        return lifecylceDTOList;
+
+        return new PageImpl<>(lifecylceDTOList, currentPageRequest, lifecycleEntities.getTotalElements());
     }
 }
