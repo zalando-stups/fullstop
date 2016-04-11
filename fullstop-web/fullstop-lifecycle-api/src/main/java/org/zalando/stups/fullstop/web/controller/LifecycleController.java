@@ -17,8 +17,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
-@RequestMapping(value = "/api/lifecycle", produces = APPLICATION_JSON_VALUE)
-@Api(value = "/api/lifecycle", description = "Get the application lifecycle")
+@RequestMapping(value = "/api/lifecycles", produces = APPLICATION_JSON_VALUE)
+@Api(value = "/api/lifecycles", description = "Get the application lifecycle")
 public class LifecycleController {
 
     private ApplicationLifecycleService applicationLifecycleService;
@@ -28,16 +28,26 @@ public class LifecycleController {
         this.applicationLifecycleService = applicationLifecycleService;
     }
 
+    @RequestMapping(value = "/applications/{name}/versions", method = GET)
+    @ApiOperation(value = "Shows a list of all rules", response = LifecylceDTO.class, responseContainer = "List",
+            authorizations = {@Authorization(value = "oauth",
+                    scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
+    public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
+                                                    final String name ){
+        List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null);
+        return mapToDto(lifecycleEntities);
 
-    @RequestMapping(value = "/app/{name}", method = GET)
+    }
+
+    @RequestMapping(value = "/applications/{name}/versions/{version}", method = GET)
     @ApiOperation(value = "Shows a list of all rules", response = LifecylceDTO.class, responseContainer = "List",
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
     public List<LifecylceDTO> findByApplicationName(@PathVariable("name")
                                                     final String name,
-                                                    @ApiParam(value = "Include only applications with with this version")
-                                                    @RequestParam(value = "version", required = false)
+                                                    @PathVariable("version")
                                                     final String version) {
         List<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version);
         return mapToDto(lifecycleEntities);

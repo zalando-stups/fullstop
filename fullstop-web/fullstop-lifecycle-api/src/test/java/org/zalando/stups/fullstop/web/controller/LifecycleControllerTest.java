@@ -66,7 +66,7 @@ public class LifecycleControllerTest {
 
         when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/lifecycle/app/test")).andExpect(status().isOk());
+        ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$", hasSize(2)));
         resultActions.andExpect(jsonPath("$[0].application").value("test"));
         resultActions.andExpect(jsonPath("$[1].version").value("2.0-SNAP"));
@@ -85,7 +85,7 @@ public class LifecycleControllerTest {
 
         when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString())).thenReturn(lifecycleEntityList);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/lifecycle/app/test?version=2.0-SNAP")).andExpect(status().isOk());
+        ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions/2.0-SNAP")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$", hasSize(1)));
         resultActions.andExpect(jsonPath("$[0].application").value("test"));
         resultActions.andExpect(jsonPath("$[0].version").value("2.0-SNAP"));
