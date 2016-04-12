@@ -12,3 +12,7 @@ Reacts on
 EVENT SOURCE = "ec2.amazonaws.com"
 EVENT NAME = "RunInstances"
 ```
+
+Configuration
+-------------
+No configuration needed.
