@@ -8,3 +8,7 @@ It will look for the application id, the application version and the source (doc
 
 Reacts on
 ---------
+```
+EVENT SOURCE = "ec2.amazonaws.com"
+EVENT NAME = "RunInstances"
+```
