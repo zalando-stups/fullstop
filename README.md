@@ -56,6 +56,12 @@ by all other accounts in order to perform this operations.
 In addition to listening on cloudtrail events, Fullstop. runs jobs as well. A list of jobs can be
 found [here](fullstop-jobs).
 
+##Application lifecycle
+Fullstop. also keeps record of your application lifecycles. for more information, see the
+[fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin) and the
+[Application lifecycle API](fullstop-web/fullstop-lifecycle-api)
+
+
 ##Configuration
 
 This environment variables should be set:
