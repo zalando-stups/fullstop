@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 /**
  * Created by gkneitschel.
@@ -130,7 +133,7 @@ public class LifecycleRepositoryTest {
     }
 
     @Test
-    public void TestFindByAppId() throws Exception{
+    public void TestFindByAppName() throws Exception{
         ApplicationEntity app1 = new ApplicationEntity("App1");
         ApplicationEntity app2 = new ApplicationEntity("App2");
 
@@ -170,8 +173,42 @@ public class LifecycleRepositoryTest {
         lifecycleEntity5.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity5);
 
-        List<LifecycleEntity> applications = lifecycleRepository.findByApplicationName("App1");
+        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null, new PageRequest(0, 4, ASC, "id"));
         assertThat(applications).hasSize(3);
-        assertThat(applications.get(1).getVersionEntity().getName()).isEqualTo(applications.get(2).getVersionEntity().getName());
+        assertThat(applications.getTotalPages()).isEqualTo(1);
+        List<LifecycleEntity> content = applications.getContent();
+        assertThat(content.get(1).getVersionEntity().getName()).isEqualTo(content.get(2).getVersionEntity().getName());
+    }
+
+    @Test
+    public void TestfindByApplicationNameAndVersion() throws Exception{
+        ApplicationEntity app1 = new ApplicationEntity("App1");
+
+        VersionEntity vers1 = new VersionEntity("1.0");
+        versionRepository.save(vers1);
+        VersionEntity vers2 = new VersionEntity("2.0");
+        versionRepository.save(vers2);
+
+        List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
+        app1.setVersionEntities(versionEntities);
+        applicationRepository.save(app1);
+
+        LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
+        lifecycleEntity1.setApplicationEntity(app1);
+        lifecycleEntity1.setVersionEntity(vers1);
+        lifecycleRepository.save(lifecycleEntity1);
+
+        LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
+        lifecycleEntity2.setApplicationEntity(app1);
+        lifecycleEntity2.setVersionEntity(vers2);
+        lifecycleRepository.save(lifecycleEntity2);
+
+        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0", new PageRequest(0, 2, ASC, "id"));
+
+        assertThat(applications).hasSize(1);
+        assertThat(applications.getTotalPages()).isEqualTo(1);
+        List<LifecycleEntity> content = applications.getContent();
+
+        assertThat(content.get(0).getVersionEntity().getName()).isEqualTo("1.0");
     }
 }
