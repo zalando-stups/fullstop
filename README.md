@@ -51,6 +51,11 @@ by all other accounts in order to perform this operations.
 * [fullstop-taupage-yaml-plugin] (fullstop-plugins/fullstop-taupage-yaml-plugin)
 * [fullstop-unapproved-services-and-role-plugin] (fullstop-plugins/fullstop-unapproved-services-and-role-plugin)
 
+##Jobs
+
+In addition to listening on cloudtrail events, Fullstop. runs jobs as well. A list of jobs can be
+found [here](fullstop-jobs).
+
 ##Configuration
 
 This environment variables should be set:
