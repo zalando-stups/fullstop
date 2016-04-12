@@ -87,14 +87,6 @@ starting on "yesterday" midnight to "today" midnight. There will be only one vio
 
 The job starts with a delay of 10 minuts and runs every 2.5 hours.
 
-### FetchRedshiftJob
-
-TODO Not yet implemented
-
-### FetchElasticache
-
-TODO Not yet implemented
-
 ## FAQ
 
 ### What is an open endpoint
