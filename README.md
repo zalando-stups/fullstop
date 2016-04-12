@@ -36,15 +36,31 @@ by all other accounts in order to perform this operations.
 
 ##Plugins
 
-* [fullstop-hello-event-plugin](fullstop-plugins/fullstop-hello-event-plugin)
 * [fullstop-ami-plugin](fullstop-plugins/fullstop-ami-plugin)
+* [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
+* [fullstop-application-masterdata-plugin] (fullstop-plugins/fullstop-application-masterdata-plugin)
+* [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
+* [fullstop-hello-event-plugin](fullstop-plugins/fullstop-hello-event-plugin)
 * [fullstop-keypair-plugin](fullstop-plugins/fullstop-keypair-plugin)
 * [fullstop-region-plugin](fullstop-plugins/fullstop-region-plugin)
 * [fullstop-registry-plugin](fullstop-plugins/fullstop-registry-plugin)
+* [fullstop-save-security-group-plugin](fullstop-plugins/fullstop-save-security-group-plugin)
+* [fullstop-scm-repository-plugin] (fullstop-plugins/fullstop-scm-repository-plugin)
+* [fullstop-snapshot-source-plugin] (fullstop-plugins/fullstop-snapshot-source-plugin)
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
-* [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
-* [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
+* [fullstop-taupage-yaml-plugin] (fullstop-plugins/fullstop-taupage-yaml-plugin)
 * [fullstop-unapproved-services-and-role-plugin] (fullstop-plugins/fullstop-unapproved-services-and-role-plugin)
+
+##Jobs
+
+In addition to listening on cloudtrail events, Fullstop. runs jobs as well. A list of jobs can be
+found [here](fullstop-jobs).
+
+##Application lifecycle
+Fullstop. also keeps record of your application lifecycles. for more information, see the
+[fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin) and the
+[Application lifecycle API](fullstop-web/fullstop-lifecycle-api)
+
 
 ##Configuration
 
