@@ -27,42 +27,43 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
 
 
     @Override
-    public Page<LifecycleEntity> findByApplicationNameAndVersion(String name, String version, Pageable pageable) {
+    public Page<LifecycleEntity> findByApplicationNameAndVersion(final String name, final String version, final Pageable pageable) {
 
         final QLifecycleEntity qLifecycleEntity = QLifecycleEntity.lifecycleEntity;
         final QApplicationEntity qApplicationEntity = QApplicationEntity.applicationEntity;
         final QVersionEntity qVersionEntity = QVersionEntity.versionEntity;
 
 
-        JPQLQuery queryResult = from(qLifecycleEntity).join(qLifecycleEntity.applicationEntity, qApplicationEntity);
+        final JPQLQuery query = from(qLifecycleEntity).leftJoin(qLifecycleEntity.applicationEntity, qApplicationEntity);
 
         if (version != null && isNotEmpty(version)) {
-            queryResult.join(qLifecycleEntity.versionEntity, qVersionEntity);
-            queryResult.where(qVersionEntity.name.eq(version));
+            query.join(qLifecycleEntity.versionEntity, qVersionEntity);
+            query.where(qVersionEntity.name.eq(version));
         }
 
-        queryResult.where(qApplicationEntity.name.eq(name))
-                .groupBy(qLifecycleEntity.versionEntity,
-                        qLifecycleEntity.instanceId,
-                        qLifecycleEntity.created,
-                        qLifecycleEntity.id,
-                        qApplicationEntity.id);
+        query.where(qApplicationEntity.name.eq(name));
+
+        final long total = query.count();
+
+        query.groupBy(qLifecycleEntity.versionEntity,
+                qLifecycleEntity.instanceId,
+                qLifecycleEntity.created,
+                qLifecycleEntity.id,
+                qApplicationEntity.id);
 
         if (version != null && isNotEmpty(version)) {
-            queryResult.groupBy(qVersionEntity.id);
+            query.groupBy(qVersionEntity.id);
         }
 
 
-
-        long total = queryResult.count();
         final Sort sort = pageable.getSort();
         final Sort fixedSort = (sort == null || isEmpty(sort)) ? SORT_BY_CREATED : sort;
 
         final PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), fixedSort);
 
-        getQuerydsl().applyPagination(pageRequest, queryResult);
+        getQuerydsl().applyPagination(pageRequest, query);
 
-        final List<LifecycleEntity> lifecycleEntities = total > 0 ? queryResult.list(new QLifecycleEntity(qLifecycleEntity)) : emptyList();
+        final List<LifecycleEntity> lifecycleEntities = total > 0 ? query.list(qLifecycleEntity) : emptyList();
 
         return new PageImpl<>(lifecycleEntities, pageRequest, total);
 

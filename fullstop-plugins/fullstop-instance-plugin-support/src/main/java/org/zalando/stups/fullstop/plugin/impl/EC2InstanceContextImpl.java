@@ -23,6 +23,12 @@ import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUserna
 
 public class EC2InstanceContextImpl implements EC2InstanceContext {
 
+    public static final String INSTANCE_ID_JSON_PATH_EXPRESSION = "$.instanceId";
+    public static final String APPLICATION_ID = "application_id";
+    public static final String APPLICATION_VERSION = "application_version";
+    public static final String SOURCE = "source";
+    public static final String RUNTIME = "runtime";
+
     private final String taupageNamePrefix;
 
     private final List<String> taupageOwners;
@@ -97,7 +103,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public String getInstanceId() {
-        return JsonPath.read(getInstanceJson(), "$.instanceId");
+        return JsonPath.read(getInstanceJson(), INSTANCE_ID_JSON_PATH_EXPRESSION);
     }
 
     @Override
@@ -127,22 +133,22 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        return getTaupageYaml().map(data -> (String) data.get("application_id")).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> data.get("application_version")).map(String::valueOf).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(data -> data.get(APPLICATION_VERSION)).map(String::valueOf).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getSource() {
-        return getTaupageYaml().map(data -> (String) data.get("source")).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(data -> (String) data.get(SOURCE)).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getRuntime() {
-        return getTaupageYaml().map(m -> (String) m.get("runtime")).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(m -> (String) m.get(RUNTIME)).map(StringUtils::trimToNull);
     }
 
     @Override
