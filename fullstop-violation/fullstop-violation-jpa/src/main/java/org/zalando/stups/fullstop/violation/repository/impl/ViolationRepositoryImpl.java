@@ -44,10 +44,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
         QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
-        QRuleEntity qRuleEntity = QRuleEntity.ruleEntity;
 
-        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity)
-                .leftJoin(qViolationEntity.ruleEntity, qRuleEntity);
+        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
 
         final List<Predicate> predicates = newArrayList();
 
@@ -68,13 +66,13 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         }
 
         if (whitelisted) {
-            predicates.add(qRuleEntity.isNotNull());
+            predicates.add(qViolationEntity.ruleEntity.isNotNull());
         } else if (checked) {
             predicates.add(qViolationEntity.comment.isNotNull());
-            predicates.add(qRuleEntity.isNull());
+            predicates.add(qViolationEntity.ruleEntity.isNull());
         } else {
             predicates.add(qViolationEntity.comment.isNull());
-            predicates.add(qRuleEntity.isNull());
+            predicates.add(qViolationEntity.ruleEntity.isNull());
         }
 
         if (severity != null) {
@@ -126,12 +124,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                                                              Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
         final QViolationEntity qViolation = new QViolationEntity("v");
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
-        final QRuleEntity qRuleEntity = new QRuleEntity("r");
 
 
         final JPQLQuery query = from(qViolation);
         query.join(qViolation.violationTypeEntity, qType);
-        query.leftJoin(qViolation.ruleEntity, qRuleEntity);
 
         final Collection<Predicate> whereClause = newArrayList();
 
@@ -143,13 +139,13 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         toDate.map(qViolation.created::before).ifPresent(whereClause::add);
 
         if (whitelisted) {
-            whereClause.add(qRuleEntity.isNotNull());
+            whereClause.add(qViolation.ruleEntity.isNotNull());
         } else if (resolved) {
             whereClause.add(qViolation.comment.isNotNull());
-            whereClause.add(qRuleEntity.isNull());
+            whereClause.add(qViolation.ruleEntity.isNull());
         } else {
             whereClause.add(qViolation.comment.isNull());
-            whereClause.add(qRuleEntity.isNull());
+            whereClause.add(qViolation.ruleEntity.isNull());
         }
 
         query.where(allOf(whereClause));
