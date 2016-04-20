@@ -14,7 +14,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
  * @author mrandi
  */
 @Table(name = "violation", schema = "fullstop_data", uniqueConstraints = @UniqueConstraint(name = "unique_violation", columnNames = {
-        "eventId", "accountId", "region", "violation_type_entity_id" }))
+        "eventId", "accountId", "region", "violation_type_entity_id"}))
 @Entity
 public class ViolationEntity extends AbstractModifiableEntity {
 
@@ -35,13 +35,19 @@ public class ViolationEntity extends AbstractModifiableEntity {
     private String username;
 
     @ManyToOne
+    private ApplicationEntity application;
+
+    @ManyToOne
+    private VersionEntity  applicationVersion;
+
+    @ManyToOne
     private RuleEntity ruleEntity;
 
     @ManyToOne
     private ViolationTypeEntity violationTypeEntity;
 
-    public ViolationEntity(String eventId, String accountId, String region, String instanceId, Object metaInfo,
-                           String comment, String username, RuleEntity ruleEntity) {
+    public ViolationEntity(final String eventId, final String accountId, final String region, final String instanceId, final Object metaInfo,
+                           final String comment, final String username, final ApplicationEntity application, final VersionEntity applicationVersion, final RuleEntity ruleEntity) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
@@ -49,6 +55,8 @@ public class ViolationEntity extends AbstractModifiableEntity {
         this.metaInfo = metaInfo;
         this.comment = comment;
         this.username = username;
+        this.application = application;
+        this.applicationVersion = applicationVersion;
         this.ruleEntity = ruleEntity;
     }
 
@@ -124,7 +132,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -132,8 +140,24 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return ruleEntity;
     }
 
-    public void setRuleEntity(RuleEntity ruleEntity) {
+    public void setRuleEntity(final RuleEntity ruleEntity) {
         this.ruleEntity = ruleEntity;
+    }
+
+    public VersionEntity getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public void setApplicationVersion(final VersionEntity applicationVersion) {
+        this.applicationVersion = applicationVersion;
+    }
+
+    public ApplicationEntity getApplication() {
+        return application;
+    }
+
+    public void setApplication(final ApplicationEntity application) {
+        this.application = application;
     }
 
     @Override
@@ -148,6 +172,9 @@ public class ViolationEntity extends AbstractModifiableEntity {
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("username", username)
                 .add("violationTypeEntity", violationTypeEntity)
+                .add("application", application)
+                .add("applicationVersion", applicationVersion)
                 .toString();
     }
+
 }

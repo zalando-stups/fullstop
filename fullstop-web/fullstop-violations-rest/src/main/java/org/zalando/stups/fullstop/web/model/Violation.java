@@ -41,6 +41,11 @@ public class Violation {
 
     private Long ruleID = null;
 
+    private String applicationId;
+
+    private String applicationVersion;
+
+
     @ApiModelProperty(value = "")
     public Long getId() {
         return id;
@@ -185,6 +190,23 @@ public class Violation {
         this.ruleID = ruleID;
     }
 
+    @ApiModelProperty(value = "")
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    @ApiModelProperty(value = "")
+    public String getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public void setApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
+    }
     @Override
     public String toString() {
         return toStringHelper(this)
@@ -200,6 +222,8 @@ public class Violation {
                 .add("violationType", violationType)
                 .add("ruleID", ruleID)
                 .add("username", username)
+                .add("applicationId", applicationId)
+                .add("applicationVersion", applicationVersion)
                 .add("created", created)
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)
