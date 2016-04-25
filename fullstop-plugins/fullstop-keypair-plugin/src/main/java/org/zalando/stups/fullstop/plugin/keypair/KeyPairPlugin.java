@@ -1,5 +1,7 @@
 package org.zalando.stups.fullstop.plugin.keypair;
 
+import com.amazonaws.services.ec2.model.Image;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
@@ -10,7 +12,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_KEYPAIR;
@@ -38,7 +39,11 @@ public class KeyPairPlugin extends AbstractEC2InstancePlugin {
                         context.violation()
                                 .withType(EC2_WITH_KEYPAIR)
                                 .withPluginFullyQualifiedClassName(KeyPairPlugin.class)
-                                .withMetaInfo(singletonMap("key_name", k))
+                                .withMetaInfo(ImmutableMap.of(
+                                        "key_name", k,
+                                        "ami_owner_id", context.getAmi().map(Image::getOwnerId).orElse(""),
+                                        "ami_id", context.getAmiId().orElse(""),
+                                        "ami_name", context.getAmi().map(Image::getName).orElse("")))
                                 .build()));
     }
 

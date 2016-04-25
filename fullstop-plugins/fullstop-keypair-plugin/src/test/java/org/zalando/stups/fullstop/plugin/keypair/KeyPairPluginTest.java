@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.plugin.keypair;
 
+import com.amazonaws.services.ec2.model.Image;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,11 +10,17 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class KeyPairPluginTest {
 
@@ -48,11 +55,15 @@ public class KeyPairPluginTest {
 
     @Test
     public void testProcessWithKeypair() throws Exception {
+        when(mockContext.getAmiId()).thenReturn(Optional.of("ami-123456"));
+        when(mockContext.getAmi()).thenReturn(Optional.of(new Image().withName("An AMI").withOwnerId("me")));
         when(mockContext.getInstanceJson()).thenReturn("{\"keyName\": \"the-key\"}");
         keyPairPlugin.process(mockContext);
 
         verify(mockContext).getInstanceJson();
         verify(mockContext).violation();
+        verify(mockContext, times(2)).getAmi();
+        verify(mockContext).getAmiId();
         verify(mockViolationSink).put(any(Violation.class));
     }
 
