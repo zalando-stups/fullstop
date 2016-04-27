@@ -7,10 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
-import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
-import org.zalando.stups.fullstop.jobs.common.AwsApplications;
-import org.zalando.stups.fullstop.jobs.common.PortsChecker;
-import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
+import org.zalando.stups.fullstop.jobs.common.*;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
@@ -45,11 +42,13 @@ public class FetchElasticLoadBalancersJobTest {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
-    private List<String> regions = newArrayList();
+    private final List<String> regions = newArrayList();
 
     private AwsApplications mockAwsApplications;
 
     private ViolationService mockViolationService;
+
+    private FetchTaupageYaml fetchTaupageYamlMock;
 
     @Before
     public void setUp() throws Exception {
@@ -62,6 +61,7 @@ public class FetchElasticLoadBalancersJobTest {
         this.mockAwsELBClient = mock(AmazonElasticLoadBalancingClient.class);
         this.mockAwsApplications = mock(AwsApplications.class);
         this.mockViolationService = mock(ViolationService.class);
+        this.fetchTaupageYamlMock = mock(FetchTaupageYaml.class);
 
         final Listener listener = new Listener("HTTPS", 80, 80);
 
@@ -103,7 +103,8 @@ public class FetchElasticLoadBalancersJobTest {
                 securityGroupsChecker,
                 portsChecker,
                 mockAwsApplications,
-                mockViolationService);
+                mockViolationService,
+                fetchTaupageYamlMock);
 
         fetchELBJob.run();
 
