@@ -50,10 +50,56 @@ public class TaupageYamlProviderImplTest {
                 withInstanceAttribute(new InstanceAttribute()
                         .withUserData(Base64.encodeAsString("blub: fdsa".getBytes()))));
 
-        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isPresent();
 
+
+        verify(ec2InstanceContextMock).isTaupageAmi();
+        verify(ec2InstanceContextMock).getInstanceId();
+        verify(ec2InstanceContextMock).getClient(eq(AmazonEC2Client.class));
+        verify(amazonEC2ClientMock).describeInstanceAttribute(any());
+    }
+
+    @Test
+    public void testApplyWithVersionSimilarToNumber() throws Exception {
+        when(ec2InstanceContextMock.isTaupageAmi()).thenReturn(Optional.of(true));
+
+        when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
+        when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
+        when(amazonEC2ClientMock.describeInstanceAttribute(any())).thenReturn(new DescribeInstanceAttributeResult().
+                withInstanceAttribute(new InstanceAttribute()
+                        .withUserData(Base64.encodeAsString("name: fdsa\nversion: !!str 6478e18".getBytes()))));
+
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+
+        assertThat(result).isPresent();
+
+        assertThat(result.get().get("name")).isInstanceOf(String.class);
+        assertThat(result.get().get("version")).isInstanceOf(String.class);
+
+        verify(ec2InstanceContextMock).isTaupageAmi();
+        verify(ec2InstanceContextMock).getInstanceId();
+        verify(ec2InstanceContextMock).getClient(eq(AmazonEC2Client.class));
+        verify(amazonEC2ClientMock).describeInstanceAttribute(any());
+    }
+
+    @Test
+    public void testApplyWithVersionSimilarToNumber1() throws Exception {
+        when(ec2InstanceContextMock.isTaupageAmi()).thenReturn(Optional.of(true));
+
+        when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
+        when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
+        when(amazonEC2ClientMock.describeInstanceAttribute(any())).thenReturn(new DescribeInstanceAttributeResult().
+                withInstanceAttribute(new InstanceAttribute()
+                        .withUserData(Base64.encodeAsString("name: fdsa\nversion: '6478e18'".getBytes()))));
+
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+
+        assertThat(result).isPresent();
+
+        assertThat(result.get().get("name")).isInstanceOf(String.class);
+        assertThat(result.get().get("version")).isInstanceOf(String.class);
 
         verify(ec2InstanceContextMock).isTaupageAmi();
         verify(ec2InstanceContextMock).getInstanceId();
@@ -74,7 +120,7 @@ public class TaupageYamlProviderImplTest {
                 withInstanceAttribute(new InstanceAttribute()
                         .withUserData(Base64.encodeAsString(yamlData.getBytes()))));
 
-        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
@@ -91,7 +137,7 @@ public class TaupageYamlProviderImplTest {
 
         when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
 
-        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
@@ -108,7 +154,7 @@ public class TaupageYamlProviderImplTest {
         when(amazonEC2ClientMock.describeInstanceAttribute(any())).thenThrow(new AmazonClientException("ups..."));
 
 
-        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
@@ -125,7 +171,7 @@ public class TaupageYamlProviderImplTest {
 
         when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
 
-        Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
+        final Optional<Map> result = taupageYamlProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
