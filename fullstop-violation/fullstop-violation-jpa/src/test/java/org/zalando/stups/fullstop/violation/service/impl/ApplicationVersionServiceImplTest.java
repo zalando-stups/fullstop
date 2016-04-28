@@ -16,6 +16,9 @@ import org.zalando.stups.fullstop.violation.repository.ApplicationRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 
+import java.util.List;
+import java.util.Optional;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -61,9 +64,10 @@ public class ApplicationVersionServiceImplTest {
         when(applicationRepositoryMock.findByName(anyString())).thenReturn(null);
         when(applicationRepositoryMock.save(any(ApplicationEntity.class))).thenReturn(applicationEntity);
 
-        final Stack stack = applicationVersionService.saveStack(MY_APP_1, SNAPSHOT);
-        assertThat(stack.getApplicationEntity().getName()).isEqualTo(MY_APP_1);
-        assertThat(stack.getVersionEntity().getName()).isEqualTo(SNAPSHOT);
+        final Optional<Stack> stack = applicationVersionService.saveStack(MY_APP_1, SNAPSHOT);
+        assertThat(stack).isPresent();
+        assertThat(stack.map(Stack::getApplicationEntity).map(ApplicationEntity::getName)).isEqualTo(Optional.of(MY_APP_1));
+        assertThat(stack.map(Stack::getVersionEntity).map(VersionEntity::getName)).isEqualTo(Optional.of(SNAPSHOT));
 
         verify(versionRepositoryMock).findByName(anyString());
         verify(versionRepositoryMock).save(any(VersionEntity.class));
@@ -82,9 +86,12 @@ public class ApplicationVersionServiceImplTest {
         when(applicationRepositoryMock.findByName(anyString())).thenReturn(application);
         when(applicationRepositoryMock.save(any(ApplicationEntity.class))).thenReturn(application);
 
-        final Stack stack = applicationVersionService.saveStack(application.getName(), SNAPSHOT);
+        final Optional<Stack> stack = applicationVersionService.saveStack(application.getName(), SNAPSHOT);
 
-        assertThat(stack.getApplicationEntity().getVersionEntities().size()).isEqualTo(3);
+        assertThat(stack.map(Stack::getApplicationEntity).
+                map(ApplicationEntity::getVersionEntities).
+                map(List::size)).
+                isEqualTo(Optional.of(3));
 
         verify(versionRepositoryMock).findByName(anyString());
         verify(versionRepositoryMock).save(any(VersionEntity.class));

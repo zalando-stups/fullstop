@@ -249,7 +249,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
                 .withInstanceId(canonicalHostedZoneName)
-                .withAccountId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
                 .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                 .build();
         violationSink.put(violation);

@@ -14,6 +14,8 @@ import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
+import java.util.Optional;
+
 
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
@@ -52,13 +54,13 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-        final Stack stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
+        final Optional<Stack> stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
 
         final String violationTypeId = violation.getViolationType();
 
         final ViolationEntity entity = new ViolationEntity();
-        entity.setApplication(stack.getApplicationEntity());
-        entity.setApplicationVersion(stack.getVersionEntity());
+        entity.setApplication(stack.map(Stack::getApplicationEntity).orElse(null));
+        entity.setApplicationVersion(stack.map(Stack::getVersionEntity).orElse(null));
         entity.setAccountId(violation.getAccountId());
         entity.setEventId(violation.getEventId());
         entity.setInstanceId(violation.getInstanceId());

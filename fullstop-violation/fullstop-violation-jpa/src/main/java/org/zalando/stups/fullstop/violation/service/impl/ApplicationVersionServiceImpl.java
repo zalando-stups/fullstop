@@ -11,6 +11,8 @@ import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 
 import javax.transaction.Transactional;
 
+import java.util.Optional;
+
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 @Service
@@ -24,7 +26,12 @@ public class ApplicationVersionServiceImpl implements ApplicationVersionService 
 
     @Override
     @Transactional(REQUIRES_NEW)
-    public Stack saveStack(final String applicationId, final String applicationVersion) {
+    public Optional<Stack> saveStack(final String applicationId, final String applicationVersion) {
+
+        if (applicationId == null || applicationVersion == null) {
+            return Optional.empty();
+        }
+
         VersionEntity version = versionRepository.findByName(applicationId);
         if (version == null) {
             version =  versionRepository.save(new VersionEntity(applicationVersion));
@@ -41,6 +48,6 @@ public class ApplicationVersionServiceImpl implements ApplicationVersionService 
 
         application = applicationRepository.save(application);
 
-        return new Stack(application, version);
+        return Optional.of(new Stack(application, version));
     }
 }
