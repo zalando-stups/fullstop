@@ -15,8 +15,17 @@ public class CacheConfig extends CachingConfigurerSupport {
 
     @Bean
     public CacheManager oneDayTTLCacheManager() {
+        return buildCacheManager("maximumSize=1000,expireAfterWrite=1d");
+    }
+
+    @Bean
+    public CacheManager twoHoursTTLCacheManager() {
+        return buildCacheManager("maximumSize=1000,expireAfterWrite=2h");
+    }
+
+    private static CacheManager buildCacheManager(String spec) {
         final GuavaCacheManager cacheManager = new GuavaCacheManager();
-        cacheManager.setCacheBuilderSpec(parse("maximumSize=1000,expireAfterWrite=1d"));
+        cacheManager.setCacheBuilderSpec(parse(spec));
         return cacheManager;
     }
 

@@ -1,10 +1,12 @@
 package org.zalando.stups.fullstop.jobs.elb;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -20,7 +22,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
-import org.zalando.stups.fullstop.jobs.common.*;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
+import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.EC2InstanceProvider;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
+import org.zalando.stups.fullstop.jobs.common.PortsChecker;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -33,6 +42,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -74,6 +84,10 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private final ViolationService violationService;
 
+    private final AmiDetailsProvider amiDetailsProvider;
+
+    private final EC2InstanceProvider ec2Instance;
+
     @Autowired
     public FetchElasticLoadBalancersJob(ViolationSink violationSink,
                                         ClientProvider clientProvider,
@@ -81,7 +95,9 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                                         @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                                         PortsChecker portsChecker,
                                         AwsApplications awsApplications,
-                                        ViolationService violationService) {
+                                        ViolationService violationService,
+                                        AmiDetailsProvider amiDetailsProvider,
+                                        EC2InstanceProvider ec2Instance) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -90,6 +106,8 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         this.portsChecker = portsChecker;
         this.awsApplications = awsApplications;
         this.violationService = violationService;
+        this.amiDetailsProvider = amiDetailsProvider;
+        this.ec2Instance = ec2Instance;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -141,11 +159,24 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 log.info("Scanning ELBs for {}/{}", account, region);
 
                 try {
+                    final Region awsRegion = getRegion(fromName(region));
 
                     for (LoadBalancerDescription elb : getELBs(account, region)) {
-                        Map<String, Object> metaData = newHashMap();
-                        List<String> errorMessages = newArrayList();
+                        final Map<String, Object> metaData = newHashMap();
+                        final List<String> errorMessages = newArrayList();
                         final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
+
+                        final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
+
+                        instanceIds.stream()
+                                .map(id -> ec2Instance.getById(account, awsRegion, id))
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .map(com.amazonaws.services.ec2.model.Instance::getImageId)
+                                .map(amiId -> amiDetailsProvider.getAmiDetails(account, awsRegion, amiId))
+                                .findFirst()
+                                .ifPresent(metaData::putAll);
+
 
                         if (!elb.getScheme().equals("internet-facing")) {
                             continue;
@@ -166,14 +197,14 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         final Set<String> unsecureGroups = securityGroupsChecker.check(
                                 elb.getSecurityGroups(),
                                 account,
-                                getRegion(fromName(region)));
+                                awsRegion);
                         if (!unsecureGroups.isEmpty()) {
                             metaData.put("unsecuredSecurityGroups", unsecureGroups);
                             errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                         }
 
 
-                        if (metaData.size() > 0) {
+                        if (errorMessages.size() > 0) {
                             metaData.put("errorMessages", errorMessages);
                             writeViolation(account, region, metaData, canonicalHostedZoneName);
 
@@ -181,7 +212,6 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                             continue;
                         }
 
-                        final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
 
                         // skip check for publicly available apps
                         if (awsApplications.isPubliclyAccessible(account, region, instanceIds).orElse(false)) {
@@ -195,10 +225,12 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                                     httpCallResult -> {
                                         log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
                                         if (httpCallResult.isOpen()) {
-                                            final Map<String, Object> md = newHashMap();
-                                            md.put("canonicalHostedZoneName", canonicalHostedZoneName);
-                                            md.put("port", allowedPort);
-                                            md.put("Error", httpCallResult.getMessage());
+                                            final Map<String, Object> md = ImmutableMap.<String, Object>builder()
+                                                    .putAll(metaData)
+                                                    .put("canonicalHostedZoneName", canonicalHostedZoneName)
+                                                    .put("port", allowedPort)
+                                                    .put("Error", httpCallResult.getMessage())
+                                                    .build();
                                             writeViolation(account, region, md, canonicalHostedZoneName);
                                         }
                                     }, ex -> log.warn(ex.getMessage(), ex));

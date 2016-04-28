@@ -8,6 +8,7 @@ import com.amazonaws.services.ec2.model.Filter;
 import com.amazonaws.services.ec2.model.GroupIdentifier;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -173,7 +174,7 @@ public class FetchEC2Job implements FullstopJob {
                                 errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                             }
 
-                            if (metaData.size() > 0) {
+                            if (errorMessages.size() > 0) {
                                 metaData.put("errorMessages", errorMessages);
                                 writeViolation(account, region, metaData, instance.getInstanceId());
 
@@ -199,10 +200,11 @@ public class FetchEC2Job implements FullstopJob {
                                         httpCallResult -> {
                                             log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
                                             if (httpCallResult.isOpen()) {
-                                                Map<String, Object> md = newHashMap();
-                                                md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                                md.put("Port", allowedPort);
-                                                md.put("Error", httpCallResult.getMessage());
+                                                final Map<String, Object> md = ImmutableMap.<String, Object>builder()
+                                                        .putAll(metaData)
+                                                        .put("instancePublicIpAddress", instancePublicIpAddress)
+                                                        .put("Port", allowedPort)
+                                                        .put("Error", httpCallResult.getMessage()).build();
                                                 writeViolation(account, region, md, instance.getInstanceId());
                                             }
                                         }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
