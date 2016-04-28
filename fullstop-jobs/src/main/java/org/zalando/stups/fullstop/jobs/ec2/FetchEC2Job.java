@@ -2,7 +2,12 @@ package org.zalando.stups.fullstop.jobs.ec2;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.GroupIdentifier;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -18,7 +23,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
-import org.zalando.stups.fullstop.jobs.common.*;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
+import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -66,13 +76,17 @@ public class FetchEC2Job implements FullstopJob {
 
     private final ViolationService violationService;
 
+    private final AmiDetailsProvider amiDetailsProvider;
+
     @Autowired
-    public FetchEC2Job(ViolationSink violationSink,
-                       ClientProvider clientProvider,
-                       AccountIdSupplier allAccountIds, final JobsProperties jobsProperties,
-                       @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
-                       AwsApplications awsApplications,
-                       ViolationService violationService) {
+    public FetchEC2Job(final ViolationSink violationSink,
+                       final ClientProvider clientProvider,
+                       final AccountIdSupplier allAccountIds,
+                       final JobsProperties jobsProperties,
+                       final @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
+                       final AwsApplications awsApplications,
+                       final ViolationService violationService,
+                       final AmiDetailsProvider amiDetailsProvider) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -80,6 +94,7 @@ public class FetchEC2Job implements FullstopJob {
         this.securityGroupsChecker = securityGroupsChecker;
         this.awsApplications = awsApplications;
         this.violationService = violationService;
+        this.amiDetailsProvider = amiDetailsProvider;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -141,6 +156,7 @@ public class FetchEC2Job implements FullstopJob {
 
                         for (final Instance instance : reservation.getInstances()) {
                             final Map<String, Object> metaData = newHashMap();
+                            metaData.putAll(amiDetailsProvider.getAmiDetails(account, getRegion(fromName(region)), instance.getImageId()));
                             final List<String> errorMessages = newArrayList();
                             final String instancePublicIpAddress = instance.getPublicIpAddress();
 
@@ -227,8 +243,7 @@ public class FetchEC2Job implements FullstopJob {
         AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
-                getRegion(
-                        fromName(region)));
+                getRegion(fromName(region)));
         DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
         return ec2Client.describeInstances(describeInstancesRequest);
