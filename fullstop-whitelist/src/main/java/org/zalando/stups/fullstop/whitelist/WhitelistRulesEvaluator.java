@@ -95,25 +95,12 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
     }
 
     private static Predicate<ViolationEntity> applicationIdIsEqual(String applicationId) {
-        return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return applicationId.equals(map.get("application_id"));
-            } else {
-                return false;
-            }
-        };
+        return v -> applicationId.equals(v.getApplication().getName());
     }
 
     private static Predicate<ViolationEntity> applicationVersionIsEqual(String applicationVersion) {
-        return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return applicationVersion.equals(map.get("application_version"));
-            } else {
-                return false;
-            }
-        };
+        return v -> applicationVersion.equals(v.getApplicationVersion().getName());
+
     }
 
 

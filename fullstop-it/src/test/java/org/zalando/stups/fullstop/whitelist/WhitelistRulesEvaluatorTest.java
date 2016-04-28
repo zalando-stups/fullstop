@@ -3,6 +3,8 @@ package org.zalando.stups.fullstop.whitelist;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
+import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
+import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
@@ -65,9 +67,8 @@ public class WhitelistRulesEvaluatorTest {
 
     @Test
     public void testApplicationID() throws Exception {
-        Map<String, String> metainfo = newHashMap();
-        metainfo.put("application_id", "myApp");
-        violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null, null, null);
+        violationEntity = new ViolationEntity(null, null, null, null, null, null, null, null, null, null);
+        violationEntity.setApplication(new ApplicationEntity("myApp"));
         ruleEntity.setApplicationId("myApp");
 
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
@@ -76,9 +77,8 @@ public class WhitelistRulesEvaluatorTest {
 
     @Test
     public void testApplicationVersion() throws Exception {
-        Map<String, String> metainfo = newHashMap();
-        metainfo.put("application_version", "1.0-Snapshot");
-        violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null, null, null);
+        violationEntity = new ViolationEntity(null, null, null, null, null, null, null, null, null, null);
+        violationEntity.setApplicationVersion(new VersionEntity("1.0-Snapshot"));
         ruleEntity.setApplicationVersion("1.0-Snapshot");
 
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
@@ -89,7 +89,7 @@ public class WhitelistRulesEvaluatorTest {
     public void testNullMetaInfo() throws Exception {
         Map<String, String> metainfo = newHashMap();
         violationEntity = new ViolationEntity(null, null, null, null, metainfo, null, null, null, null, null);
-        ruleEntity.setApplicationVersion("1.0-Snapshot");
+        ruleEntity.setImageOwner("Peter");
 
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
         assertThat(apply).isEqualTo(false);
@@ -152,9 +152,9 @@ public class WhitelistRulesEvaluatorTest {
     @Test
     public void testComplexMatch() throws Exception{
         Map<String, String> metainfo = newHashMap();
-        metainfo.put("application_version", "1.0-Snapshot");
+        metainfo.put("ami_owner_id", "id-1234");
         violationEntity = new ViolationEntity(null, "700123", "eu-central-6", null, metainfo, null, null, null, null, null);
-        ruleEntity.setApplicationVersion("1.0-Snapshot");
+        ruleEntity.setImageOwner("id-1234");
         ruleEntity.setRegion("eu-central-6");
         ruleEntity.setAccountId("700123");
         Boolean apply = evaluator.apply(ruleEntity, violationEntity);
@@ -165,10 +165,10 @@ public class WhitelistRulesEvaluatorTest {
     @Test
     public void testComplexMatch2() throws Exception{
         Map<String, String> metainfo = newHashMap();
-        metainfo.put("application_id", "myApp");
+        metainfo.put("ami_owner_id", "id-1234");
         violationEntity = new ViolationEntity(null, "700123", "eu-central-6", null, metainfo, null, null, null, null, null);
         violationEntity.setViolationTypeEntity(new ViolationTypeEntity("SOME_ID"));
-        ruleEntity.setApplicationId("myApp");
+        ruleEntity.setImageOwner("id-1234");
         ruleEntity.setRegion("eu-central-6");
         ruleEntity.setAccountId("700123");
         ruleEntity.setViolationTypeEntityId("SOME_ID");

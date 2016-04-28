@@ -4,23 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.zalando.stups.fullstop.violation.Violation;
-import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
-import org.zalando.stups.fullstop.violation.entity.VersionEntity;
+import org.zalando.stups.fullstop.violation.entity.Stack;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
-import org.zalando.stups.fullstop.violation.repository.ApplicationRepository;
-import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
+import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
-import java.util.List;
 
-/**
- * @author jbellmann
- */
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
@@ -33,25 +27,22 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private final ViolationTypeRepository violationTypeRepository;
 
-    private final ApplicationRepository applicationRepository;
-
-    private final VersionRepository versionRepository;
-
     private final CounterService counterService;
 
     private final WhitelistRules whitelistRules;
 
+    private final ApplicationVersionService applicationVersionService;
+
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
                                  final ViolationTypeRepository violationTypeRepository,
                                  final CounterService counterService, final WhitelistRules whitelistRules,
-                                 final ApplicationRepository applicationRepository, final VersionRepository versionRepository) {
+                                 final ApplicationVersionService applicationVersionService) {
         super(eventBus);
         this.violationRepository = violationRepository;
         this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
         this.whitelistRules = whitelistRules;
-        this.applicationRepository = applicationRepository;
-        this.versionRepository = versionRepository;
+        this.applicationVersionService = applicationVersionService;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -61,21 +52,13 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-
-        final ApplicationEntity application = createApplication(violation.getApplicationId());
-        final VersionEntity version = createVersion(violation.getApplicationVersion());
-        final List<VersionEntity> versionEntities = application.getVersionEntities();
-        versionEntities.add(version);
-        application.setVersionEntities(versionEntities);
-        applicationRepository.save(application);
-
-
+        final Stack stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
 
         final String violationTypeId = violation.getViolationType();
 
         final ViolationEntity entity = new ViolationEntity();
-        entity.setApplication(application);
-        entity.setApplicationVersion(version);
+        entity.setApplication(stack.getApplicationEntity());
+        entity.setApplicationVersion(stack.getVersionEntity());
         entity.setAccountId(violation.getAccountId());
         entity.setEventId(violation.getEventId());
         entity.setInstanceId(violation.getInstanceId());
@@ -107,22 +90,6 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
         whitelistRules.execute(entity);
 
         return entity;
-    }
-
-    private VersionEntity createVersion(final String applicationVersion) {
-        final VersionEntity version = versionRepository.findByName(applicationVersion);
-        if (version == null) {
-            return versionRepository.save(new VersionEntity(applicationVersion));
-        }
-        return version;
-    }
-
-    private ApplicationEntity createApplication(final String applicationId) {
-        final ApplicationEntity application = applicationRepository.findByName(applicationId);
-        if (application == null) {
-            return applicationRepository.save(new ApplicationEntity(applicationId));
-        }
-        return application;
     }
 
     @Override
