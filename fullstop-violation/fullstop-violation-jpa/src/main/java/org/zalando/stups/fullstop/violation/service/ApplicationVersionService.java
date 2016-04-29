@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface ApplicationVersionService {
 
-    Optional<Stack> saveStack(String applicationId, String applicationVersion);
+    Stack saveStack(String applicationId, String applicationVersion);
 }

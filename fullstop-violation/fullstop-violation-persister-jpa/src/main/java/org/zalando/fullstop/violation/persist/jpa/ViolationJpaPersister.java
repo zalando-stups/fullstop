@@ -54,13 +54,13 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-        final Optional<Stack> stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
+        final Stack stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
 
         final String violationTypeId = violation.getViolationType();
 
         final ViolationEntity entity = new ViolationEntity();
-        entity.setApplication(stack.map(Stack::getApplicationEntity).orElse(null));
-        entity.setApplicationVersion(stack.map(Stack::getVersionEntity).orElse(null));
+        entity.setApplication(stack.getApplicationEntity());
+        entity.setApplicationVersion(stack.getVersionEntity());
         entity.setAccountId(violation.getAccountId());
         entity.setEventId(violation.getEventId());
         entity.setInstanceId(violation.getInstanceId());
