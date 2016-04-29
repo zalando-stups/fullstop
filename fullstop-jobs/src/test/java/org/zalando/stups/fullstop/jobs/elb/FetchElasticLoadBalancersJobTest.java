@@ -17,6 +17,7 @@ import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.EC2InstanceProvider;
+import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
@@ -62,11 +63,13 @@ public class FetchElasticLoadBalancersJobTest {
 
     private SecurityGroupsChecker securityGroupsChecker;
 
-    private List<String> regions = newArrayList();
+    private final List<String> regions = newArrayList();
 
     private AwsApplications mockAwsApplications;
 
     private ViolationService mockViolationService;
+
+    private FetchTaupageYaml fetchTaupageYamlMock;
 
     private AmiDetailsProvider mockAmiDetailsProvider;
 
@@ -83,6 +86,7 @@ public class FetchElasticLoadBalancersJobTest {
         this.mockAwsELBClient = mock(AmazonElasticLoadBalancingClient.class);
         this.mockAwsApplications = mock(AwsApplications.class);
         this.mockViolationService = mock(ViolationService.class);
+        this.fetchTaupageYamlMock = mock(FetchTaupageYaml.class);
         this.mockAmiDetailsProvider = mock(AmiDetailsProvider.class);
         this.mockEC2InstanceProvider = mock(EC2InstanceProvider.class);
 
@@ -132,6 +136,7 @@ public class FetchElasticLoadBalancersJobTest {
                 portsChecker,
                 mockAwsApplications,
                 mockViolationService,
+                fetchTaupageYamlMock,
                 mockAmiDetailsProvider,
                 mockEC2InstanceProvider);
 

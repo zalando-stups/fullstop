@@ -68,11 +68,11 @@ public class ViolationRepositoryTest {
 
         final RuleEntity rule1 = ruleEntityRepository.saveAndFlush(new RuleEntity());
 
-        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username", null), type1); // -> RESOLVED
-        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username", null), type1); // -> NOT RESOLVED
-        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username", null), type2); // -> RESOLVED
-        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username", rule1), type1); // -> WHITELISTED
-        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username", null), type2); // -> NOT RESOLVED
+        vio1 = save(new ViolationEntity("run01", "acc1", "germany-east-1", "i-1234", metaInfoMap, "a comment", "username", null, null, null), type1); // -> RESOLVED
+        vio2 = save(new ViolationEntity("run02", "acc1", "germany-east-1", "i-5678", metaInfoMap, null, "username", null, null, null), type1); // -> NOT RESOLVED
+        vio3 = save(new ViolationEntity("run03", "acc2", "germany-east-1", "i-1234", null, "no comment ;-)", "username", null, null, null), type2); // -> RESOLVED
+        vio4 = save(new ViolationEntity("run04", "acc3", "germany-east-1", "i-1234", null, null, "username", null, null, rule1), type1); // -> WHITELISTED
+        vio5 = save(new ViolationEntity("run05", "acc3", "germany-east-1", "i-5678", null, null, "username", null, null, null), type2); // -> NOT RESOLVED
 
         //
         // TOTAL:

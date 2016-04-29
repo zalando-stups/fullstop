@@ -1,0 +1,7 @@
+digraph{
+  Plugin -> ViolationBuilder;
+  ViolationBuilder -> DefaultViolation;
+  Violation -> DefaultViolation [label="implements", style="dotted"];
+  DefaultViolation -> ViolationEntity;
+  ViolationEntity -> DB;
+}

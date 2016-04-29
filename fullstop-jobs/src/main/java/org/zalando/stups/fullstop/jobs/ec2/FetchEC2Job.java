@@ -9,6 +9,7 @@ import com.amazonaws.services.ec2.model.GroupIdentifier;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -27,6 +28,7 @@ import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
@@ -42,6 +44,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -56,6 +59,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLI
 public class FetchEC2Job implements FullstopJob {
 
     private static final String EVENT_ID = "checkPublicEC2InstanceJob";
+    public static final String APPLICATION_ID = "application_id";
+    public static final String APPLICATION_VERSION = "application_version";
 
     private final Logger log = LoggerFactory.getLogger(FetchEC2Job.class);
 
@@ -77,6 +82,8 @@ public class FetchEC2Job implements FullstopJob {
 
     private final ViolationService violationService;
 
+    private final FetchTaupageYaml fetchTaupageYaml;
+
     private final AmiDetailsProvider amiDetailsProvider;
 
     @Autowired
@@ -87,6 +94,7 @@ public class FetchEC2Job implements FullstopJob {
                        final @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                        final AwsApplications awsApplications,
                        final ViolationService violationService,
+                       final FetchTaupageYaml fetchTaupageYaml,
                        final AmiDetailsProvider amiDetailsProvider) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
@@ -95,6 +103,7 @@ public class FetchEC2Job implements FullstopJob {
         this.securityGroupsChecker = securityGroupsChecker;
         this.awsApplications = awsApplications;
         this.violationService = violationService;
+        this.fetchTaupageYaml = fetchTaupageYaml;
         this.amiDetailsProvider = amiDetailsProvider;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
@@ -229,24 +238,28 @@ public class FetchEC2Job implements FullstopJob {
         }
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String instanceId) {
-        ViolationBuilder violationBuilder = new ViolationBuilder();
-        Violation violation = violationBuilder.withAccountId(account)
+    private void writeViolation(final String account, final String region, final Object metaInfo, final String instanceId) {
+        final Optional<Map> taupageYaml = fetchTaupageYaml.getTaupageYaml(instanceId, account, region);
+
+        final ViolationBuilder violationBuilder = new ViolationBuilder();
+        final Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchEC2Job.class)
                 .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withInstanceId(instanceId)
+                .withAccountId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                 .withEventId(EVENT_ID).build();
         violationSink.put(violation);
     }
 
-    private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
-        AmazonEC2Client ec2Client = clientProvider.getClient(
+    private DescribeInstancesResult getDescribeEC2Result(final String account, final String region) {
+        final AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
                 getRegion(fromName(region)));
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
         return ec2Client.describeInstances(describeInstancesRequest);
     }

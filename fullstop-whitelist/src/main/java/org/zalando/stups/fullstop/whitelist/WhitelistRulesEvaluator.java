@@ -1,6 +1,8 @@
 package org.zalando.stups.fullstop.whitelist;
 
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
+import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
+import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 
 import java.util.List;
@@ -95,25 +97,19 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
     }
 
     private static Predicate<ViolationEntity> applicationIdIsEqual(String applicationId) {
-        return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return applicationId.equals(map.get("application_id"));
-            } else {
-                return false;
-            }
-        };
+        return v -> applicationId.equals(
+                Optional.ofNullable(
+                        v.getApplication()).
+                        map(ApplicationEntity::getName).
+                        orElse(null));
     }
 
     private static Predicate<ViolationEntity> applicationVersionIsEqual(String applicationVersion) {
-        return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return applicationVersion.equals(map.get("application_version"));
-            } else {
-                return false;
-            }
-        };
+        return v -> applicationVersion.equals(
+                Optional.ofNullable(
+                        v.getApplicationVersion()).
+                        map(VersionEntity::getName).
+                        orElse(null));
     }
 
 

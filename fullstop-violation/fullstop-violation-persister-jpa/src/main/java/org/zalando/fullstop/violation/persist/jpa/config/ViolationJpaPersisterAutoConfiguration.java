@@ -9,6 +9,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.zalando.fullstop.violation.persist.jpa.ViolationJpaPersister;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
+import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
@@ -37,9 +38,12 @@ public class ViolationJpaPersisterAutoConfiguration {
     @Autowired
     private WhitelistRules whitelistRules;
 
+    @Autowired
+    private ApplicationVersionService applicationVersionService;
+
     @Bean
     public ViolationJpaPersister violationJpaPersister() {
         return new ViolationJpaPersister(eventBus, violationRepository, violationTypeRepository, counterService,
-                whitelistRules);
+                whitelistRules, applicationVersionService);
     }
 }

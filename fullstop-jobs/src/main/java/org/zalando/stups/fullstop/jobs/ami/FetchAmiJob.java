@@ -6,6 +6,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -23,6 +25,7 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,6 +42,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_TAUPAG
 public class FetchAmiJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkAmiJob";
+    public static final String APPLICATION_ID = "application_id";
+    public static final String APPLICATION_VERSION = "application_version";
 
     private final String taupageNamePrefix;
 
@@ -54,14 +59,18 @@ public class FetchAmiJob implements FullstopJob {
 
     private final JobsProperties jobsProperties;
 
+    private final FetchTaupageYaml fetchTaupageYaml;
+
     private final ViolationService violationService;
     private static final Splitter TAUPAGE_NAME_SPLITTER = Splitter.on('-');
 
     @Autowired
-    public FetchAmiJob(ViolationSink violationSink,
-                       ClientProvider clientProvider,
-                       AccountIdSupplier allAccountIds, JobsProperties jobsProperties,
-                       ViolationService violationService,
+    public FetchAmiJob(final ViolationSink violationSink,
+                       final ClientProvider clientProvider,
+                       final AccountIdSupplier allAccountIds,
+                       final JobsProperties jobsProperties,
+                       final ViolationService violationService,
+                       final FetchTaupageYaml fetchTaupageYaml,
                        @Value("${FULLSTOP_TAUPAGE_NAME_PREFIX}") final String taupageNamePrefix,
                        @Value("${FULLSTOP_TAUPAGE_OWNERS}") final String taupageOwners) {
         this.violationSink = violationSink;
@@ -70,6 +79,7 @@ public class FetchAmiJob implements FullstopJob {
         this.jobsProperties = jobsProperties;
         this.violationService = violationService;
         this.taupageNamePrefix = taupageNamePrefix;
+        this.fetchTaupageYaml = fetchTaupageYaml;
         this.taupageOwners = Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList());
     }
 
@@ -88,10 +98,10 @@ public class FetchAmiJob implements FullstopJob {
         }
     }
 
-    private void runOn(String account, String region) {
+    private void runOn(final String account, final String region) {
         try {
             log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
-            DescribeInstancesResult describeEC2Result = getDescribeEC2Result(account, region);
+            final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(account, region);
             for (final Reservation reservation : describeEC2Result.getReservations()) {
                 for (final Instance instance : reservation.getInstances()) {
                     if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_TAUPAGE)) {
@@ -113,6 +123,7 @@ public class FetchAmiJob implements FullstopJob {
 
                     final Image image = optionalImage.get();
                     final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
+                    final Optional<Map> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
                     if (optionalExpirationDate.isPresent()) {
                         final LocalDate expirationDate = optionalExpirationDate.get();
                         if (now().isAfter(expirationDate)) {
@@ -123,6 +134,8 @@ public class FetchAmiJob implements FullstopJob {
                                     .withEventId(EVENT_ID)
                                     .withType(OUTDATED_TAUPAGE)
                                     .withInstanceId(instance.getInstanceId())
+                                    .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                                    .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                                     .withMetaInfo(ImmutableMap.of(
                                             "ami_owner_id", image.getOwnerId(),
                                             "ami_id", image.getImageId(),
@@ -145,7 +158,7 @@ public class FetchAmiJob implements FullstopJob {
         }
     }
 
-    private Optional<LocalDate> getExpirationDate(Image image) {
+    private Optional<LocalDate> getExpirationDate(final Image image) {
         // current implementation parse creation date from name + add 60 days support period
         return Optional.ofNullable(image.getName())
                 .filter(name -> !name.isEmpty())
@@ -156,7 +169,7 @@ public class FetchAmiJob implements FullstopJob {
                 .map(creationDate -> creationDate.plusDays(60));
     }
 
-    private DescribeInstancesResult getDescribeEC2Result(String account, String region) {
+    private DescribeInstancesResult getDescribeEC2Result(final String account, final String region) {
         final AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
@@ -164,7 +177,7 @@ public class FetchAmiJob implements FullstopJob {
         return ec2Client.describeInstances(new DescribeInstancesRequest());
     }
 
-    private Optional<Image> getAmiFromEC2Api(String account, String region, final String imageId) {
+    private Optional<Image> getAmiFromEC2Api(final String account, final String region, final String imageId) {
         try {
             final AmazonEC2Client ec2Client = clientProvider.getClient(
                     AmazonEC2Client.class,

@@ -4,17 +4,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.zalando.stups.fullstop.violation.Violation;
+import org.zalando.stups.fullstop.violation.entity.Stack;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import org.zalando.stups.fullstop.violation.reactor.EventBusViolationHandler;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepository;
 import org.zalando.stups.fullstop.violation.repository.ViolationTypeRepository;
+import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
-/**
- * @author jbellmann
- */
+import java.util.Optional;
+
+
 public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private static final String VIOLATIONS_EVENTBUS_QUEUED = "violations.eventbus.queued";
@@ -31,14 +33,18 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
     private final WhitelistRules whitelistRules;
 
+    private final ApplicationVersionService applicationVersionService;
+
     public ViolationJpaPersister(final EventBus eventBus, final ViolationRepository violationRepository,
                                  final ViolationTypeRepository violationTypeRepository,
-                                 final CounterService counterService, final WhitelistRules whitelistRules) {
+                                 final CounterService counterService, final WhitelistRules whitelistRules,
+                                 final ApplicationVersionService applicationVersionService) {
         super(eventBus);
         this.violationRepository = violationRepository;
         this.violationTypeRepository = violationTypeRepository;
         this.counterService = counterService;
         this.whitelistRules = whitelistRules;
+        this.applicationVersionService = applicationVersionService;
     }
 
     protected ViolationEntity buildViolationEntity(final Violation violation) {
@@ -48,10 +54,13 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
             return null;
         }
 
-        String violationTypeId = violation.getViolationType();
+        final Stack stack = applicationVersionService.saveStack(violation.getApplicationId(), violation.getApplicationVersion());
 
-        ViolationEntity entity = new ViolationEntity();
+        final String violationTypeId = violation.getViolationType();
 
+        final ViolationEntity entity = new ViolationEntity();
+        entity.setApplication(stack.getApplicationEntity());
+        entity.setApplicationVersion(stack.getVersionEntity());
         entity.setAccountId(violation.getAccountId());
         entity.setEventId(violation.getEventId());
         entity.setInstanceId(violation.getInstanceId());
@@ -60,19 +69,18 @@ public class ViolationJpaPersister extends EventBusViolationHandler {
 
         entity.setUsername(violation.getUsername());
 
-        ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationTypeId);
+        final ViolationTypeEntity violationTypeEntity = violationTypeRepository.findOne(violationTypeId);
 
         if (violationTypeEntity != null) {
             entity.setViolationTypeEntity(violationTypeEntity);
-        }
-        else {
-            ViolationTypeEntity vte = new ViolationTypeEntity();
+        } else {
+            final ViolationTypeEntity vte = new ViolationTypeEntity();
             vte.setId(violationTypeId);
             vte.setViolationSeverity(0);
             vte.setIsAuditRelevant(false);
             vte.setHelpText("This is only a default message");
 
-            ViolationTypeEntity savedViolationTypeEntity = violationTypeRepository.save(vte);
+            final ViolationTypeEntity savedViolationTypeEntity = violationTypeRepository.save(vte);
 
             entity.setViolationTypeEntity(savedViolationTypeEntity);
         }
