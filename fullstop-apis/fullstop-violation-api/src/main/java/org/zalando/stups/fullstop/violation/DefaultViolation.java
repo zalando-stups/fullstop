@@ -27,8 +27,12 @@ class DefaultViolation implements Violation {
 
     private String username;
 
+    private String applicationId;
+
+    private String applicationVersion;
+
     DefaultViolation(final String eventId, final String accountId, final String region, final String instanceId, final String message,
-            final Object metaInfo, final String comment, final Boolean checked, final String username) {
+            final Object metaInfo, final String comment, final Boolean checked, final String username, final String applicationId, final String applicationVersion) {
         this.eventId = eventId;
         this.accountId = accountId;
         this.region = region;
@@ -37,6 +41,8 @@ class DefaultViolation implements Violation {
         this.comment = comment;
         this.checked = checked;
         this.username = username;
+        this.applicationId =  applicationId;
+        this.applicationVersion = applicationVersion;
     }
 
     DefaultViolation() {
@@ -133,6 +139,24 @@ class DefaultViolation implements Violation {
     }
 
     @Override
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public String setApplicationId(String applicationId) {
+        return this.applicationId = applicationId;
+    }
+
+    @Override
+    public String getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public String setApplicationVersion(String applicationVersion) {
+       return this.applicationVersion = applicationVersion;
+    }
+
+    @Override
     public String toString() {
         return toStringHelper(this)
                 .add("eventId", eventId)
@@ -144,6 +168,8 @@ class DefaultViolation implements Violation {
                 .add("pluginFullyQualifiedClassName", pluginFullyQualifiedClassName)
                 .add("violationType", violationType)
                 .add("username", username)
+                .add("applicationId", applicationId)
+                .add("applicationVersion", applicationVersion)
                 .toString();
     }
 }

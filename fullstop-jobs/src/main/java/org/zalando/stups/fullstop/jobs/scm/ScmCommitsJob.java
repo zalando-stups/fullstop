@@ -110,6 +110,7 @@ public class ScmCommitsJob implements FullstopJob {
                         // make sure to produce maximum one violation per repository and day
                         .withEventId(EVENT_ID + "-" + repository.getUrl() + "-" + yesterdayMidnight.format(ISO_LOCAL_DATE))
                         .withPluginFullyQualifiedClassName(ScmCommitsJob.class)
+                        .withApplicationId(app.getId())
                         .withMetaInfo(ImmutableMap.of(
                                 "application_id", app.getId(),
                                 "repository", repository.getUrl(),

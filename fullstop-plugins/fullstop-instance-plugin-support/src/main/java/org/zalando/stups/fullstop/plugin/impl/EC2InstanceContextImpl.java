@@ -118,7 +118,10 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
                 .withRegion(getRegion().getName())
                 .withEventId(getEventId().toString())
                 .withInstanceId(getInstanceId())
-                .withUsername(getUsernameAsString(getEvent()));
+                .withUsername(getUsernameAsString(getEvent()))
+                .withApplicationId(getApplicationId().orElse(null))
+                .withApplicationVersion(getVersionId().orElse(null));
+
     }
 
     @Override

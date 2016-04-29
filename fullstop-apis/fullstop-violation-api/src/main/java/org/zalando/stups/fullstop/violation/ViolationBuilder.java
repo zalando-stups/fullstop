@@ -20,6 +20,12 @@ public class ViolationBuilder {
 
     private String pluginFullyQualifiedClassName;
 
+    private String applicationId;
+
+    private String applicationVersion;
+
+
+
     public ViolationBuilder() {
     }
 
@@ -34,6 +40,8 @@ public class ViolationBuilder {
         violation.setViolationType(type);
         violation.setUsername(username);
         violation.setPluginFullyQualifiedClassName(pluginFullyQualifiedClassName);
+        violation.setApplicationId(applicationId);
+        violation.setApplicationVersion(applicationVersion);
 
         return violation;
     }
@@ -75,6 +83,18 @@ public class ViolationBuilder {
 
     public ViolationBuilder withUsername(final String username) {
         this.username = username;
+        return this;
+    }
+
+
+    public ViolationBuilder withApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+        return this;
+    }
+
+
+    public ViolationBuilder withApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
         return this;
     }
 }

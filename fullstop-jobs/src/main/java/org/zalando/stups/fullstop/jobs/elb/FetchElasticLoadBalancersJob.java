@@ -5,6 +5,7 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingCli
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -33,6 +34,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -51,6 +53,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLI
 public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkElbJob";
+    public static final String APPLICATION_ID = "application_id";
+    public static final String APPLICATION_VERSION = "application_version";
 
     private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
 
@@ -62,7 +66,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private final JobsProperties jobsProperties;
 
-    private SecurityGroupsChecker securityGroupsChecker;
+    private final SecurityGroupsChecker securityGroupsChecker;
 
     private final PortsChecker portsChecker;
 
@@ -74,14 +78,17 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private final ViolationService violationService;
 
+    private final FetchTaupageYaml fetchTaupageYaml;
+
     @Autowired
-    public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-                                        ClientProvider clientProvider,
-                                        AccountIdSupplier allAccountIds, JobsProperties jobsProperties,
-                                        @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
-                                        PortsChecker portsChecker,
-                                        AwsApplications awsApplications,
-                                        ViolationService violationService) {
+    public FetchElasticLoadBalancersJob(final ViolationSink violationSink,
+                                        final ClientProvider clientProvider,
+                                        final AccountIdSupplier allAccountIds, final JobsProperties jobsProperties,
+                                        @Qualifier("elbSecurityGroupsChecker") final SecurityGroupsChecker securityGroupsChecker,
+                                        final PortsChecker portsChecker,
+                                        final AwsApplications awsApplications,
+                                        final ViolationService violationService,
+                                        final FetchTaupageYaml fetchTaupageYaml) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -90,6 +97,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         this.portsChecker = portsChecker;
         this.awsApplications = awsApplications;
         this.violationService = violationService;
+        this.fetchTaupageYaml = fetchTaupageYaml;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -154,7 +162,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         if (violationService.violationExists(account, region, EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
                             continue;
                         }
-
+                        final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
                         List<Integer> unsecuredPorts = portsChecker.check(elb);
                         if (!unsecuredPorts.isEmpty()) {
                             metaData.put("unsecuredPorts", unsecuredPorts);
@@ -175,13 +183,12 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
                         if (metaData.size() > 0) {
                             metaData.put("errorMessages", errorMessages);
-                            writeViolation(account, region, metaData, canonicalHostedZoneName);
+                            writeViolation(account, region, metaData, canonicalHostedZoneName, instanceIds);
 
                             // skip http response check, as we are already having a violation here
                             continue;
                         }
 
-                        final List<String> instanceIds = elb.getInstances().stream().map(Instance::getInstanceId).collect(toList());
 
                         // skip check for publicly available apps
                         if (awsApplications.isPubliclyAccessible(account, region, instanceIds).orElse(false)) {
@@ -199,7 +206,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                                             md.put("canonicalHostedZoneName", canonicalHostedZoneName);
                                             md.put("port", allowedPort);
                                             md.put("Error", httpCallResult.getMessage());
-                                            writeViolation(account, region, md, canonicalHostedZoneName);
+                                            writeViolation(account, region, md, canonicalHostedZoneName, instanceIds);
                                         }
                                     }, ex -> log.warn(ex.getMessage(), ex));
 
@@ -224,28 +231,39 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String canonicalHostedZoneName) {
-        ViolationBuilder violationBuilder = new ViolationBuilder();
-        Violation violation = violationBuilder.withAccountId(account)
+    private void writeViolation(final String account, final String region, final Object metaInfo, final String canonicalHostedZoneName, final List<String> instanceIds) {
+
+        final Optional<Map> taupageYaml = instanceIds.
+                stream().
+                map(id -> fetchTaupageYaml.getTaupageYaml(id, account, region)).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                findFirst();
+
+
+        final ViolationBuilder violationBuilder = new ViolationBuilder();
+        final Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchElasticLoadBalancersJob.class)
                 .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
                 .withInstanceId(canonicalHostedZoneName)
+                .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                 .build();
         violationSink.put(violation);
     }
 
-    private List<LoadBalancerDescription> getELBs(String account, String region) {
-        AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
+    private List<LoadBalancerDescription> getELBs(final String account, final String region) {
+        final AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
                 AmazonElasticLoadBalancingClient.class,
                 account,
                 getRegion(
                         fromName(region)));
 
 
-        DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
+        final DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
         return elbClient.describeLoadBalancers(
                 describeLoadBalancersRequest).getLoadBalancerDescriptions();
     }

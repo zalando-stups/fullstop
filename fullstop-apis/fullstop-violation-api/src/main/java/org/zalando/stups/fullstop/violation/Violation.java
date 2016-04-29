@@ -25,4 +25,8 @@ public interface Violation {
     Boolean getChecked();
 
     String getInstanceId();
+
+    String getApplicationId();
+
+    String getApplicationVersion();
 }
