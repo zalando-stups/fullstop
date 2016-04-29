@@ -42,16 +42,17 @@ public class ApplicationVersionServiceImplTest {
 
     private ApplicationEntity applicationEntity;
 
+    private VersionEntity versionEntity;
+
     @Before
     public void setUp() throws Exception {
         reset(applicationRepositoryMock, versionRepositoryMock);
 
         applicationEntity = new ApplicationEntity(MY_APP_1);
-        final VersionEntity versionEntity = new VersionEntity(SNAPSHOT);
+        versionEntity = new VersionEntity(SNAPSHOT);
 
 
         when(versionRepositoryMock.findByName(anyString())).thenReturn(null);
-        when(versionRepositoryMock.save(any(VersionEntity.class))).thenReturn(versionEntity);
     }
 
     @After
@@ -63,6 +64,7 @@ public class ApplicationVersionServiceImplTest {
     public void testSaveStack() throws Exception {
         when(applicationRepositoryMock.findByName(anyString())).thenReturn(null);
         when(applicationRepositoryMock.save(any(ApplicationEntity.class))).thenReturn(applicationEntity);
+        when(versionRepositoryMock.save(any(VersionEntity.class))).thenReturn(versionEntity);
 
         final Optional<Stack> stack = applicationVersionService.saveStack(MY_APP_1, SNAPSHOT);
         assertThat(stack).isPresent();
@@ -85,6 +87,7 @@ public class ApplicationVersionServiceImplTest {
 
         when(applicationRepositoryMock.findByName(anyString())).thenReturn(application);
         when(applicationRepositoryMock.save(any(ApplicationEntity.class))).thenReturn(application);
+        when(versionRepositoryMock.save(any(VersionEntity.class))).thenReturn(versionEntity);
 
         final Optional<Stack> stack = applicationVersionService.saveStack(application.getName(), SNAPSHOT);
 
@@ -97,6 +100,21 @@ public class ApplicationVersionServiceImplTest {
         verify(versionRepositoryMock).save(any(VersionEntity.class));
         verify(applicationRepositoryMock).findByName(anyString());
         verify(applicationRepositoryMock).save(any(ApplicationEntity.class));
+    }
+
+    @Test
+    public void testNullVersion() throws Exception {
+        when(applicationRepositoryMock.findByName(anyString())).thenReturn(null);
+        when(applicationRepositoryMock.save(any(ApplicationEntity.class))).thenReturn(applicationEntity);
+
+        final Optional<Stack> stack = applicationVersionService.saveStack(MY_APP_1, null);
+        assertThat(stack).isPresent();
+        assertThat(stack.map(Stack::getApplicationEntity).map(ApplicationEntity::getName)).isEqualTo(Optional.of(MY_APP_1));
+        assertThat(stack.map(Stack::getVersionEntity).map(VersionEntity::getName)).isEqualTo(Optional.empty());
+
+        verify(applicationRepositoryMock).findByName(anyString());
+        verify(applicationRepositoryMock).save(any(ApplicationEntity.class));
+
     }
 
     @Configuration

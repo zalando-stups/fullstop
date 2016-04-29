@@ -28,25 +28,35 @@ public class ApplicationVersionServiceImpl implements ApplicationVersionService 
     @Transactional(REQUIRES_NEW)
     public Optional<Stack> saveStack(final String applicationId, final String applicationVersion) {
 
-        if (applicationId == null || applicationVersion == null) {
+        if (applicationId == null && applicationVersion == null) {
             return Optional.empty();
         }
 
-        VersionEntity version = versionRepository.findByName(applicationId);
-        if (version == null) {
-            version =  versionRepository.save(new VersionEntity(applicationVersion));
+        ApplicationEntity application = null;
+        VersionEntity version = null;
+
+        if (applicationVersion != null) {
+             version = versionRepository.findByName(applicationId);
+            if (version == null) {
+                version =  versionRepository.save(new VersionEntity(applicationVersion));
+            }
         }
 
-        ApplicationEntity application = applicationRepository.findByName(applicationId);
-        if (application == null) {
-            application = new ApplicationEntity(applicationId);
-        }
+        if (applicationId != null) {
+             application = applicationRepository.findByName(applicationId);
 
-        if (!application.getVersionEntities().contains(version)) {
-            application.getVersionEntities().add(version);
-        }
+            if (application == null) {
+                application = new ApplicationEntity(applicationId);
+            }
 
-        application = applicationRepository.save(application);
+            if (applicationVersion != null) {
+                if (!application.getVersionEntities().contains(version)) {
+                    application.getVersionEntities().add(version);
+                }
+
+            }
+            application = applicationRepository.save(application);
+        }
 
         return Optional.of(new Stack(application, version));
     }
