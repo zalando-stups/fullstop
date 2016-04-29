@@ -134,7 +134,7 @@ public class FetchAmiJob implements FullstopJob {
                                     .withEventId(EVENT_ID)
                                     .withType(OUTDATED_TAUPAGE)
                                     .withInstanceId(instance.getInstanceId())
-                                    .withAccountId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                                    .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
                                     .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                                     .withMetaInfo(ImmutableMap.of(
                                             "ami_owner_id", image.getOwnerId(),
