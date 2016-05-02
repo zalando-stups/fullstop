@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.guava.GuavaCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import static com.google.common.cache.CacheBuilderSpec.parse;
 
@@ -19,6 +20,7 @@ public class CacheConfig extends CachingConfigurerSupport {
     }
 
     @Bean
+    @Primary
     public CacheManager twoHoursTTLCacheManager() {
         return buildCacheManager("maximumSize=1000,expireAfterWrite=2h");
     }
