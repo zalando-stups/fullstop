@@ -2,7 +2,13 @@ package org.zalando.stups.fullstop.jobs.ec2;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.GroupIdentifier;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -19,7 +25,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
-import org.zalando.stups.fullstop.jobs.common.*;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
+import org.zalando.stups.fullstop.jobs.common.AwsApplications;
+import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
+import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
+import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -72,14 +84,18 @@ public class FetchEC2Job implements FullstopJob {
 
     private final FetchTaupageYaml fetchTaupageYaml;
 
+    private final AmiDetailsProvider amiDetailsProvider;
+
     @Autowired
     public FetchEC2Job(final ViolationSink violationSink,
                        final ClientProvider clientProvider,
-                       final AccountIdSupplier allAccountIds, final JobsProperties jobsProperties,
-                       @Qualifier("ec2SecurityGroupsChecker") final SecurityGroupsChecker securityGroupsChecker,
+                       final AccountIdSupplier allAccountIds,
+                       final JobsProperties jobsProperties,
+                       final @Qualifier("ec2SecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
                        final AwsApplications awsApplications,
                        final ViolationService violationService,
-                       final FetchTaupageYaml fetchTaupageYaml) {
+                       final FetchTaupageYaml fetchTaupageYaml,
+                       final AmiDetailsProvider amiDetailsProvider) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -88,6 +104,7 @@ public class FetchEC2Job implements FullstopJob {
         this.awsApplications = awsApplications;
         this.violationService = violationService;
         this.fetchTaupageYaml = fetchTaupageYaml;
+        this.amiDetailsProvider = amiDetailsProvider;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -149,6 +166,7 @@ public class FetchEC2Job implements FullstopJob {
 
                         for (final Instance instance : reservation.getInstances()) {
                             final Map<String, Object> metaData = newHashMap();
+                            metaData.putAll(amiDetailsProvider.getAmiDetails(account, getRegion(fromName(region)), instance.getImageId()));
                             final List<String> errorMessages = newArrayList();
                             final String instancePublicIpAddress = instance.getPublicIpAddress();
 
@@ -165,7 +183,7 @@ public class FetchEC2Job implements FullstopJob {
                                 errorMessages.add("Unsecured security group! Only ports 80 and 443 are allowed");
                             }
 
-                            if (metaData.size() > 0) {
+                            if (errorMessages.size() > 0) {
                                 metaData.put("errorMessages", errorMessages);
                                 writeViolation(account, region, metaData, instance.getInstanceId());
 
@@ -191,10 +209,11 @@ public class FetchEC2Job implements FullstopJob {
                                         httpCallResult -> {
                                             log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
                                             if (httpCallResult.isOpen()) {
-                                                Map<String, Object> md = newHashMap();
-                                                md.put("instancePublicIpAddress", instancePublicIpAddress);
-                                                md.put("Port", allowedPort);
-                                                md.put("Error", httpCallResult.getMessage());
+                                                final Map<String, Object> md = ImmutableMap.<String, Object>builder()
+                                                        .putAll(metaData)
+                                                        .put("instancePublicIpAddress", instancePublicIpAddress)
+                                                        .put("Port", allowedPort)
+                                                        .put("Error", httpCallResult.getMessage()).build();
                                                 writeViolation(account, region, md, instance.getInstanceId());
                                             }
                                         }, ex -> log.warn("Could not call " + instancePublicIpAddress, ex));
@@ -239,8 +258,7 @@ public class FetchEC2Job implements FullstopJob {
         final AmazonEC2Client ec2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account,
-                getRegion(
-                        fromName(region)));
+                getRegion(fromName(region)));
         final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
         describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
         return ec2Client.describeInstances(describeInstancesRequest);
