@@ -51,8 +51,8 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withAccountId(final String accoundId) {
-        this.accountId = accoundId;
+    public ViolationBuilder withAccountId(final String accountId) {
+        this.accountId = accountId;
         return this;
     }
 
