@@ -151,14 +151,14 @@ public class FetchEC2Job implements FullstopJob {
     @Scheduled(fixedRate = 300_000, initialDelay = 240_000) // 5 min rate, 4 min delay
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
-        for (String account : allAccountIds.get()) {
-            for (String region : jobsProperties.getWhitelistedRegions()) {
+        for (final String account : allAccountIds.get()) {
+            for (final String region : jobsProperties.getWhitelistedRegions()) {
 
                 try {
 
                     log.info("Scanning public EC2 instances for {}/{}", account, region);
 
-                    DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
+                    final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(
                             account,
                             region);
 
@@ -202,7 +202,7 @@ public class FetchEC2Job implements FullstopJob {
                                     continue;
                                 }
 
-                                HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
+                                final HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
                                 ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                         httpCall);
                                 listenableFuture.addCallback(
@@ -248,7 +248,7 @@ public class FetchEC2Job implements FullstopJob {
                 .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withInstanceId(instanceId)
-                .withAccountId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
                 .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
                 .withEventId(EVENT_ID).build();
         violationSink.put(violation);
