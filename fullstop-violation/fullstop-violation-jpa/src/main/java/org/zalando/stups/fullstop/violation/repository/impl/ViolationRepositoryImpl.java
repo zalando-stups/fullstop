@@ -176,9 +176,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
                 "FROM fullstop_data.violation vio " +
-                "LEFT JOIN fullstop_data.lifecycle l ON l.account_id = vio.account_id AND l.region = vio.region AND l.instance_id = vio.instance_id " +
-                "LEFT JOIN fullstop_data.application app ON app.id = l.application " +
-                "LEFT JOIN fullstop_data.app_version ver ON ver.id = l.application_version " +
+                "LEFT JOIN fullstop_data.application app ON app.id = vio.application_id " +
+                "LEFT JOIN fullstop_data.app_version ver ON ver.id = vio.application_version_id " +
                 "WHERE vio.account_id = :account " +
                 (fromDate.isPresent() ? "AND vio.created >= :from_date " : "") +
                 (toDate.isPresent() ? "AND vio.created <= :to_date " : "") +
