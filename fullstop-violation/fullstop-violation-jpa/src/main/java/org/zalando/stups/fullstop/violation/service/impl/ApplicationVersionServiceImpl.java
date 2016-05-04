@@ -11,8 +11,6 @@ import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 
 import javax.transaction.Transactional;
 
-import java.util.Optional;
-
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 @Service

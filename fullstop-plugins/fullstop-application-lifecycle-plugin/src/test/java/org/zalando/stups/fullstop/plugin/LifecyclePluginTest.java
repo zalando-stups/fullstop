@@ -18,7 +18,6 @@ import java.util.Optional;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 import static org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin.RUN_INSTANCES;

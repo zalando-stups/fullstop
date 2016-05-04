@@ -12,7 +12,6 @@ import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class KioVersionProviderImplTest {

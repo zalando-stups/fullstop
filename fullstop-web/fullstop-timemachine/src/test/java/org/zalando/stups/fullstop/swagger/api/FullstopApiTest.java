@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Date;
 
 import static org.joda.time.DateTimeZone.UTC;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
