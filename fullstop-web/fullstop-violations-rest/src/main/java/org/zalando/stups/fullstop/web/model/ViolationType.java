@@ -17,6 +17,8 @@ public class ViolationType {
 
     private boolean isAuditRelevant;
 
+    private String title;
+
     private Long version = null;
 
     private DateTime created = null;
@@ -63,6 +65,11 @@ public class ViolationType {
     public void setIsAuditRelevant(boolean isAuditRelevant) {
         this.isAuditRelevant = isAuditRelevant;
     }
+
+    @ApiModelProperty(value = "")
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) { this.title = title; }
 
     @ApiModelProperty(value = "")
     public Integer getPriority() {
@@ -118,7 +125,8 @@ public class ViolationType {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return toStringHelper(this)
                 .add("lastModifiedBy", lastModifiedBy)
                 .add("lastModified", lastModified)
@@ -126,6 +134,7 @@ public class ViolationType {
                 .add("created", created)
                 .add("version", version)
                 .add("isAuditRelevant", isAuditRelevant)
+                .add("title", title)
                 .add("priority", priority)
                 .add("violationSeverity", violationSeverity)
                 .add("helpText", helpText)

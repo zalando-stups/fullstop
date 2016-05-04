@@ -31,6 +31,8 @@ public class ViolationTypeEntity {
 
     private boolean isAuditRelevant;
 
+    private String title;
+
     private Integer priority;
 
     @CreatedDate
@@ -99,6 +101,10 @@ public class ViolationTypeEntity {
         this.isAuditRelevant = isAuditRelevant;
     }
 
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) { this.title = title; }
+
     public Integer getPriority() {
         return priority;
     }
@@ -154,6 +160,7 @@ public class ViolationTypeEntity {
                 .add("helpText", helpText)
                 .add("violationSeverity", violationSeverity)
                 .add("isAuditRelevant", isAuditRelevant)
+                .add("title", title)
                 .add("createdBy", createdBy)
                 .add("created", created)
                 .add("lastModifiedBy", lastModifiedBy)
