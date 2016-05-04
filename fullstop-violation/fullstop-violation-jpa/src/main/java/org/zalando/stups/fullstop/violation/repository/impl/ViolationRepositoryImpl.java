@@ -6,7 +6,6 @@ import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 import org.springframework.util.Assert;
-import org.zalando.stups.fullstop.rule.entity.QRuleEntity;
 import org.zalando.stups.fullstop.violation.entity.*;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
@@ -37,13 +36,22 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime from, final DateTime to,
-                                                 final Long lastViolation, final boolean checked, final Integer severity,
-                                                 final Integer priority, final Boolean auditRelevant, final String type,
-                                                 final boolean whitelisted, final Pageable pageable) {
+    public Page<ViolationEntity> queryViolations(final List<String> accounts,
+                                                 final DateTime from,
+                                                 final DateTime to,
+                                                 final Long lastViolation,
+                                                 final boolean checked,
+                                                 final Integer severity,
+                                                 final Integer priority,
+                                                 final Boolean auditRelevant,
+                                                 final List<String> type,
+                                                 final boolean whitelisted,
+                                                 final List<String> applicationNames,
+                                                 final List<String> applicationVersions,
+                                                 final Pageable pageable) {
 
-        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
-        QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
+        final QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+        final QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
 
         final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
 
@@ -89,7 +97,15 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         }
 
         if (type != null) {
-            predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
+            predicates.add(qViolationEntity.violationTypeEntity.id.in(type));
+        }
+
+        if (applicationNames != null) {
+            predicates.add(qViolationEntity.application.name.in(applicationNames));
+        }
+
+        if (applicationVersions != null) {
+            predicates.add(qViolationEntity.applicationVersion.name.in(applicationVersions));
         }
 
         final long total = query.where(allOf(predicates)).count();
@@ -107,7 +123,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType) {
+    public boolean violationExists(final String accountId, final String region, final String eventId, final String instanceId, final String violationType) {
         final QViolationEntity qViolation = new QViolationEntity("v");
 
         return from(qViolation)
@@ -120,8 +136,11 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate,
-                                                             Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
+    public List<CountByAccountAndType> countByAccountAndType(final Set<String> accountIds,
+                                                             final Optional<DateTime> fromDate,
+                                                             final Optional<DateTime> toDate,
+                                                             final boolean resolved,
+                                                             final boolean whitelisted) {
         final QViolationEntity qViolation = new QViolationEntity("v");
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
 
@@ -157,11 +176,11 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate,
-                                                                   Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
+    public List<CountByAppVersionAndType> countByAppVersionAndType(final String account, final Optional<DateTime> fromDate,
+                                                                   final Optional<DateTime> toDate, final boolean resolved, final boolean whitelisted) {
         Assert.hasText(account, "account must not be blank");
 
-        String whitelistedOrResolvedPredicate;
+        final String whitelistedOrResolvedPredicate;
 
         if (whitelisted) {
             whitelistedOrResolvedPredicate = "AND vio.rule_entity_id IS NOT NULL ";

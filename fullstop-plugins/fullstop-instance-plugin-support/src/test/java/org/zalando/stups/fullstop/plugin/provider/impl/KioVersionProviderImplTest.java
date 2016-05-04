@@ -43,7 +43,7 @@ public class KioVersionProviderImplTest {
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
         when(kioOperationsMock.getApplicationVersion(eq(INSTANCE_ID),eq(VERSION_ID))).thenReturn(new Version());
 
-        Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
+        final Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
         assertThat(result).isPresent();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -56,7 +56,7 @@ public class KioVersionProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.empty());
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
 
-        Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
+        final Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -68,7 +68,7 @@ public class KioVersionProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.empty());
 
-        Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
+        final Optional<Version> result = kioVersionProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();

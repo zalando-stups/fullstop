@@ -24,11 +24,11 @@ public class KeyRotationViolationWriter {
     private final ViolationSink violationSink;
 
     @Autowired
-    public KeyRotationViolationWriter(ViolationSink violationSink) {
+    public KeyRotationViolationWriter(final ViolationSink violationSink) {
         this.violationSink = violationSink;
     }
 
-    void writeViolation(String accountId, AccessKeyMetadata accessKey) {
+    void writeViolation(final String accountId, final AccessKeyMetadata accessKey) {
         log.info("Found user {} with expired access key {} in account {}", accessKey.getUserName(), accessKey.getAccessKeyId(), accountId);
         violationSink.put(
                 new ViolationBuilder()
@@ -41,7 +41,7 @@ public class KeyRotationViolationWriter {
                         .build());
     }
 
-    private Map<?, ?> metaMap(AccessKeyMetadata accessKey) {
+    private Map<?, ?> metaMap(final AccessKeyMetadata accessKey) {
         return ImmutableMap.builder()
                 .put("access_key_id", accessKey.getAccessKeyId())
                 .put("user_name", accessKey.getUserName())

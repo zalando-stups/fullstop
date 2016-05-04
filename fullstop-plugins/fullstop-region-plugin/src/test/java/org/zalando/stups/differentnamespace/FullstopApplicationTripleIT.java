@@ -40,13 +40,13 @@ public class FullstopApplicationTripleIT {
                 "us-west-1", "us-east-1",
                 "us-west-2");
 
-        List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
+        final List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
         Assertions.assertThat(plugins).isNotEmpty();
         Assertions.assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
 
-        for (FullstopPlugin plugin : plugins) {
+        for (final FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
     }

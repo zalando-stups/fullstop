@@ -42,7 +42,7 @@ public class CountEventsMetric {
                 return m;
             }
             else {
-                Meter created = metricRegistry.meter(name);
+                final Meter created = metricRegistry.meter(name);
                 meters.put(name, created);
                 return created;
             }

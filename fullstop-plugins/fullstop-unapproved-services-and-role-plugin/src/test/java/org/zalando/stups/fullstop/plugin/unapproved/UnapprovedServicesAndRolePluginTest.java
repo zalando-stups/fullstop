@@ -57,7 +57,7 @@ public class UnapprovedServicesAndRolePluginTest {
                 newArrayList(
                         "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
 
-        boolean result = plugin.supports(event);
+        final boolean result = plugin.supports(event);
         Assertions.assertThat(result).isTrue();
 
         verify(policyTemplatesProviderMock).getPolicyTemplateNames();

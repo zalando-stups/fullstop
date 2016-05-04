@@ -51,7 +51,7 @@ public class PolicyProviderTest {
         try {
             policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
         }
-        catch (RuntimeException e) {
+        catch (final RuntimeException e) {
             assertThat(
                     e.getMessage()
                      .startsWith("Somehow we could not create an AmazonIdentityManagementClient with accountId:"));

@@ -36,22 +36,22 @@ public class KeyRotationJobTest {
         when(mockIAMDataSource.getAccessKeys(eq("account02"), any())).thenReturn(singletonList(upToDate(inactive(new AccessKeyMetadata()))));
     }
 
-    private AccessKeyMetadata expired(AccessKeyMetadata accessKeyMetadata) {
+    private AccessKeyMetadata expired(final AccessKeyMetadata accessKeyMetadata) {
         accessKeyMetadata.setCreateDate(now().minusDays(31).toDate());
         return accessKeyMetadata;
     }
 
-    private AccessKeyMetadata upToDate(AccessKeyMetadata accessKeyMetadata) {
+    private AccessKeyMetadata upToDate(final AccessKeyMetadata accessKeyMetadata) {
         accessKeyMetadata.setCreateDate(new Date());
         return accessKeyMetadata;
     }
 
-    private AccessKeyMetadata inactive(AccessKeyMetadata accessKeyMetadata) {
+    private AccessKeyMetadata inactive(final AccessKeyMetadata accessKeyMetadata) {
         accessKeyMetadata.setStatus("Inactive");
         return accessKeyMetadata;
     }
 
-    private AccessKeyMetadata active(AccessKeyMetadata accessKeyMetadata) {
+    private AccessKeyMetadata active(final AccessKeyMetadata accessKeyMetadata) {
         accessKeyMetadata.setStatus("Active");
         return accessKeyMetadata;
     }

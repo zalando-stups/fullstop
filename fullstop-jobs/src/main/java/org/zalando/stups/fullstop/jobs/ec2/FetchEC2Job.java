@@ -196,14 +196,14 @@ public class FetchEC2Job implements FullstopJob {
                                 continue;
                             }
 
-                            for (Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
+                            for (final Integer allowedPort : jobsProperties.getEc2AllowedPorts()) {
 
                                 if (allowedPort == 22) {
                                     continue;
                                 }
 
                                 final HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
-                                ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
+                                final ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                         httpCall);
                                 listenableFuture.addCallback(
                                         httpCallResult -> {
@@ -225,7 +225,7 @@ public class FetchEC2Job implements FullstopJob {
 
                     }
 
-                } catch (AmazonServiceException a) {
+                } catch (final AmazonServiceException a) {
 
                     if (a.getErrorCode().equals("RequestLimitExceeded")) {
                         log.warn("RequestLimitExceeded for account: {}", account);

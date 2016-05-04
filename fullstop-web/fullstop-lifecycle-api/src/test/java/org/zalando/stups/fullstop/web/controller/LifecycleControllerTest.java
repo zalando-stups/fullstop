@@ -68,13 +68,13 @@ public class LifecycleControllerTest {
         lifecycleEntity2.setApplicationEntity(new ApplicationEntity("test"));
         lifecycleEntity2.setVersionEntity(new VersionEntity("2.0-SNAP"));
         lifecycleEntity2.setCreated(DateTime.now());
-        List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1, lifecycleEntity2);
+        final List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1, lifecycleEntity2);
 
         when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(any(), any(), any())).thenReturn(
                 new PageImpl<>(
                         lifecycleEntityList, new PageRequest(0, 20, ASC, "created"), 50));
 
-        ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions")).andExpect(status().isOk());
+        final ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.content", hasSize(2)));
         resultActions.andExpect(jsonPath("$.content[0].application").value("test"));
         resultActions.andExpect(jsonPath("$.content[1].version").value("2.0-SNAP"));
@@ -89,13 +89,13 @@ public class LifecycleControllerTest {
         lifecycleEntity1.setApplicationEntity(new ApplicationEntity("test"));
         lifecycleEntity1.setVersionEntity(new VersionEntity("2.0-SNAP"));
         lifecycleEntity1.setCreated(DateTime.now());
-        List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1);
+        final List<LifecycleEntity> lifecycleEntityList = Lists.newArrayList(lifecycleEntity1);
 
         when(applicationLifecycleServiceMock.findByApplicationNameAndVersion(anyString(), anyString(), any())).thenReturn(
                 new PageImpl<>(
                         lifecycleEntityList, new PageRequest(0, 20, ASC, "created"), 50));
 
-        ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions/2.0-SNAP")).andExpect(status().isOk());
+        final ResultActions resultActions = mockMvc.perform(get("/api/lifecycles/applications/test/versions/2.0-SNAP")).andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.content", hasSize(1)));
         resultActions.andExpect(jsonPath("$.content[0].application").value("test"));
         resultActions.andExpect(jsonPath("$.content[0].version").value("2.0-SNAP"));

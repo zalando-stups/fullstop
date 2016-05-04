@@ -16,7 +16,7 @@ import java.util.List;
 public class ControllerTestConfig extends WebMvcConfigurerAdapter {
 
     @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+    public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
         argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
     }

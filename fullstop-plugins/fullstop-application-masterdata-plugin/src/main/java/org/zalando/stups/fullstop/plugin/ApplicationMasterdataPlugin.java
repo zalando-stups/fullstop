@@ -38,7 +38,7 @@ public class ApplicationMasterdataPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         final Optional<String> optionalAppId = context.getApplicationId();
         if (!optionalAppId.isPresent()) {
             log.warn("no application id found for {}. Skip execution of ApplicationMasterdataPlugin", context);

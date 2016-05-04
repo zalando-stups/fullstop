@@ -24,7 +24,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
     private String tokenInfoUri;
 
     @Override
-    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+    public void configure(final ResourceServerSecurityConfigurer resources) throws Exception {
         // add support for #oauth2.hasUidScopeAndAnyRealm() expressions
         resources
                 .expressionHandler(new ExtendedOAuth2WebSecurityExpressionHandler());

@@ -44,7 +44,7 @@ public class KioApprovalProviderImplTest {
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
         when(kioOperationsMock.getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID))).thenReturn(newArrayList(new Approval()));
 
-        List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
+        final List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isNotEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -58,7 +58,7 @@ public class KioApprovalProviderImplTest {
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.empty());
 
 
-        List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
+        final List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -70,7 +70,7 @@ public class KioApprovalProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.empty());
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
 
-        List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
+        final List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -83,7 +83,7 @@ public class KioApprovalProviderImplTest {
         when(ec2InstanceContextMock.getVersionId()).thenReturn(Optional.of(VERSION_ID));
         when(kioOperationsMock.getApplicationVersionApprovals(eq(INSTANCE_ID), eq(VERSION_ID))).thenThrow(new NotFoundException());
 
-        List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
+        final List<Approval> result = kioApprovalProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();

@@ -17,17 +17,17 @@ public class Account {
 
     @JsonCreator
     public Account(
-            @JsonProperty("id")
+            @JsonProperty("id") final
             String id,
-            @JsonProperty("name")
+            @JsonProperty("name") final
             String name,
-            @JsonProperty("type")
+            @JsonProperty("type") final
             String type,
-            @JsonProperty("description")
+            @JsonProperty("description") final
             String description,
-            @JsonProperty("owner")
+            @JsonProperty("owner") final
             String owner,
-            @JsonProperty("disabled")
+            @JsonProperty("disabled") final
             boolean disabled) {
         this.id = id;
         this.name = name;
@@ -74,12 +74,12 @@ public class Account {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        Account account = (Account) o;
+        final Account account = (Account) o;
         return Objects.equal(id, account.id) &&
                 Objects.equal(name, account.name) &&
                 Objects.equal(type, account.type) &&

@@ -22,7 +22,7 @@ public class CountEventsPluginTest {
     @Test
     public void invoke() throws InterruptedException {
 
-        CountEventsMetric metric = new CountEventsMetric(metricRegistry);
+        final CountEventsMetric metric = new CountEventsMetric(metricRegistry);
         for (int i = 0; i < 100; i++) {
             if (i % 2 == 0) {
                 metric.markEvent("test2");
@@ -40,9 +40,9 @@ public class CountEventsPluginTest {
 
         @Bean
         public MetricRegistry metricRegistry() {
-            MetricRegistry metricRegistry = new MetricRegistry();
+            final MetricRegistry metricRegistry = new MetricRegistry();
 
-            ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
+            final ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
                                                       .convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start(2, TimeUnit.SECONDS);
 

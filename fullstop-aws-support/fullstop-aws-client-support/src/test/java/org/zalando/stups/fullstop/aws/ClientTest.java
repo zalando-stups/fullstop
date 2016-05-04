@@ -9,10 +9,10 @@ import org.junit.Ignore;
 @Ignore
 public class ClientTest {
 
-    private Region region = Region.getRegion(Regions.EU_CENTRAL_1);
+    private final Region region = Region.getRegion(Regions.EU_CENTRAL_1);
 
     public void createClient() {
-        AmazonEC2Client client = region.createClient(
+        final AmazonEC2Client client = region.createClient(
                 AmazonEC2Client.class,
                 new STSAssumeRoleSessionCredentialsProvider("", ""), null);
     }

@@ -47,7 +47,7 @@ public class AmiIdProviderImplTest {
 
         when(ec2InstanceContextMock.getInstanceJson()).thenReturn("{\"imageId\":\"123\"}");
 
-        Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
+        final Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isPresent();
 
@@ -61,7 +61,7 @@ public class AmiIdProviderImplTest {
         when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
         when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
 
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(INSTANCE_ID);
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(INSTANCE_ID);
         when(amazonEC2ClientMock.describeInstances(eq(describeInstancesRequest)))
                 .thenReturn(new DescribeInstancesResult()
                         .withReservations(newArrayList(
@@ -72,7 +72,7 @@ public class AmiIdProviderImplTest {
                                 ))
                         )));
 
-        Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
+        final Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isPresent();
 
@@ -89,7 +89,7 @@ public class AmiIdProviderImplTest {
         when(ec2InstanceContextMock.getInstanceId()).thenReturn(INSTANCE_ID);
         when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
 
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(INSTANCE_ID);
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(INSTANCE_ID);
         when(amazonEC2ClientMock.describeInstances(eq(describeInstancesRequest)))
                 .thenReturn(new DescribeInstancesResult()
                         .withReservations(newArrayList(
@@ -100,7 +100,7 @@ public class AmiIdProviderImplTest {
                                 ))
                         )));
 
-        Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
+        final Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
@@ -119,7 +119,7 @@ public class AmiIdProviderImplTest {
                 .thenThrow(new AmazonClientException("oops, I did it again... Britney"));
 
 
-        Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
+        final Optional<String> result = amiIdProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 

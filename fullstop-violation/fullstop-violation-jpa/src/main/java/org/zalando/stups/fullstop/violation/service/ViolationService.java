@@ -21,8 +21,9 @@ public interface ViolationService {
     ViolationEntity findOne(Long id);
 
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation, boolean checked,
-                                          Integer severity, final Integer priority, Boolean auditRelevant, String type,
-                                          boolean whitelisted, Pageable pageable);
+                                          Integer severity, final Integer priority, Boolean auditRelevant, List<String> type,
+                                          boolean whitelisted, final List<String> applicationNames,
+                                          final List<String> applicationVersions, Pageable pageable);
 
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationTypeId);
 }

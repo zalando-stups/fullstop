@@ -34,7 +34,7 @@ public class AmiIdProviderImpl implements AmiIdProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, Optional<String>>() {
                 @Override
-                public Optional<String> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public Optional<String> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final Optional<String> amiId = getAmiId(context).map(StringUtils::trimToNull);
                     if (!amiId.isPresent()) {
                         log.warn("No AMI id found for {}", context);
@@ -44,11 +44,11 @@ public class AmiIdProviderImpl implements AmiIdProvider {
             });
 
     @Override
-    public Optional<String> apply(EC2InstanceContext context) {
+    public Optional<String> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 
-    private Optional<String> getAmiId(@Nonnull EC2InstanceContext context) {
+    private Optional<String> getAmiId(@Nonnull final EC2InstanceContext context) {
         final Optional<String> amiId = readAmiIdFromJson(context);
         if (amiId.isPresent()) {
             return amiId;
@@ -57,15 +57,15 @@ public class AmiIdProviderImpl implements AmiIdProvider {
         }
     }
 
-    private Optional<String> readAmiIdFromJson(EC2InstanceContext context) {
+    private Optional<String> readAmiIdFromJson(final EC2InstanceContext context) {
         try {
             return Optional.ofNullable(JsonPath.read(context.getInstanceJson(), IMAGE_ID_JSON_PATH));
-        } catch (JsonPathException ignored) {
+        } catch (final JsonPathException ignored) {
             return empty();
         }
     }
 
-    private Optional<String> getAmiIdFromEC2Api(EC2InstanceContext context) {
+    private Optional<String> getAmiIdFromEC2Api(final EC2InstanceContext context) {
         final String instanceId = context.getInstanceId();
         try {
             return context.getClient(AmazonEC2Client.class)

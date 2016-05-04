@@ -46,34 +46,34 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
-        String eventName = cloudTrailEventData.getEventName();
+        final CloudTrailEventData cloudTrailEventData = event.getEventData();
+        final String eventSource = cloudTrailEventData.getEventSource();
+        final String eventName = cloudTrailEventData.getEventName();
 
         return eventSource.equals(EC2_SOURCE_EVENTS) && eventName.equals(EVENT_NAME);
     }
 
     @Override
     public void processEvent(final CloudTrailEvent event) {
-        List<Filter> SubnetIdFilters = newArrayList();
-        List<String> instanceIds = getInstanceIds(event);
-        AmazonEC2Client amazonEC2Client = cachingClientProvider
+        final List<Filter> SubnetIdFilters = newArrayList();
+        final List<String> instanceIds = getInstanceIds(event);
+        final AmazonEC2Client amazonEC2Client = cachingClientProvider
                 .getClient(
                         AmazonEC2Client.class, event.getEventData().getAccountId(),
                         Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
 
-        List<Reservation> reservations = fetchReservations(amazonEC2Client ,event, instanceIds);
+        final List<Reservation> reservations = fetchReservations(amazonEC2Client ,event, instanceIds);
 
         if (reservations == null || reservations.isEmpty()) {
             return;
         }
 
-        for (Reservation reservation : reservations) {
-            List<Instance> instances = reservation.getInstances();
-            for (Instance instance : instances) {
+        for (final Reservation reservation : reservations) {
+            final List<Instance> instances = reservation.getInstances();
+            for (final Instance instance : instances) {
 
-                List<RouteTable> routeTables = fetchRouteTables(SubnetIdFilters, amazonEC2Client, instance);
+                final List<RouteTable> routeTables = fetchRouteTables(SubnetIdFilters, amazonEC2Client, instance);
 
                 if (routeTables == null || routeTables.size() == 0) {
                     LOG.warn(
@@ -84,8 +84,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
                     return;
                 }
 
-                for (RouteTable routeTable : routeTables) {
-                    List<Route> routes = routeTable.getRoutes();
+                for (final RouteTable routeTable : routeTables) {
+                    final List<Route> routes = routeTable.getRoutes();
                     routes.stream()
                           .filter(
                                   route -> route.getState().equals("active") && route.getNetworkInterfaceId() != null &&
@@ -106,8 +106,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         }
     }
 
-    private List<Reservation> fetchReservations(AmazonEC2Client amazonEC2Client,CloudTrailEvent event, List<String> instanceIds){
-        DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
+    private List<Reservation> fetchReservations(final AmazonEC2Client amazonEC2Client, final CloudTrailEvent event, final List<String> instanceIds){
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
 
 
         DescribeInstancesResult describeInstancesResult = null;
@@ -115,7 +115,7 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
             describeInstancesResult = amazonEC2Client
                     .describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         }
-        catch (AmazonServiceException e) {
+        catch (final AmazonServiceException e) {
 
             LOG.warn("Subnet plugin: {}", e.getErrorMessage());
             return null;
@@ -125,15 +125,15 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
 
     }
 
-    private List<RouteTable> fetchRouteTables(List<Filter> subnetIdFilters, AmazonEC2Client amazonEC2Client,
-            Instance instance) {
+    private List<RouteTable> fetchRouteTables(final List<Filter> subnetIdFilters, final AmazonEC2Client amazonEC2Client,
+                                              final Instance instance) {
         subnetIdFilters.add(
                 new Filter().withName("association.subnet-id")
                             .withValues(instance.getSubnetId())); // filter by subnetId
-        DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest()
+        final DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest()
                 .withFilters(subnetIdFilters);
 
-        DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client
+        final DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client
                 .describeRouteTables(describeRouteTablesRequest);
         return describeRouteTablesResult.getRouteTables();
     }

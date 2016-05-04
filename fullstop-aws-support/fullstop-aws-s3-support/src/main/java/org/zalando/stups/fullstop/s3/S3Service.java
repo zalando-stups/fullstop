@@ -44,9 +44,9 @@ public class S3Service {
             final String logData, final String logType, final String instanceId) throws IOException {
         String fileName = null;
 
-        DateTime dateTime = new DateTime(instanceBootTime, UTC);
+        final DateTime dateTime = new DateTime(instanceBootTime, UTC);
 
-        String keyName = Paths.get(
+        final String keyName = Paths.get(
                 accountId, region, dateTime.toString("YYYY"), dateTime.toString("MM"),
                 dateTime.toString("dd"), instanceId + "-" + dateTime).toString();
 
@@ -65,11 +65,11 @@ public class S3Service {
             break;
         }
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        byte[] decodedLogData = Base64.decode(logData);
+        final ObjectMetadata metadata = new ObjectMetadata();
+        final byte[] decodedLogData = Base64.decode(logData);
         metadata.setContentLength(decodedLogData.length);
 
-        InputStream stream = new ByteArrayInputStream(decodedLogData);
+        final InputStream stream = new ByteArrayInputStream(decodedLogData);
 
         putObjectToS3(bucketName, fileName, keyName, metadata, stream);
 
@@ -85,7 +85,7 @@ public class S3Service {
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
         }
-        catch (AmazonServiceException e) {
+        catch (final AmazonServiceException e) {
             log.error("Could not put object to S3", e);
         }
     }
@@ -116,10 +116,10 @@ public class S3Service {
         return commonPrefixes;
     }
 
-    private static String urlDecode(String url) {
+    private static String urlDecode(final String url) {
         try {
             return URLDecoder.decode(url, UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -139,7 +139,7 @@ public class S3Service {
 
             do {
                 objectListing = s3client.listObjects(listObjectsRequest);
-                for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+                for (final S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
                     if (objectSummary.getKey().equals(prefix)) {
                         continue;
                     }
@@ -150,7 +150,7 @@ public class S3Service {
             } while (objectListing.isTruncated());
 
         }
-        catch (AmazonServiceException e) {
+        catch (final AmazonServiceException e) {
             log.error("Error Message:    " + e.getMessage());
         }
 
@@ -159,15 +159,15 @@ public class S3Service {
 
     public String downloadObject(final String bucketName, final String key) {
 
-        S3Object object = s3client.getObject(new GetObjectRequest(bucketName, key));
+        final S3Object object = s3client.getObject(new GetObjectRequest(bucketName, key));
 
-        InputStream inputStream = object.getObjectContent();
+        final InputStream inputStream = object.getObjectContent();
 
         String result = null;
         try {
             result = IOUtils.toString(inputStream);
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             log.warn("Could not download file for bucket: {}, with key: {}", bucketName, key);
         }
         finally {
@@ -175,7 +175,7 @@ public class S3Service {
                 try {
                     inputStream.close();
                 }
-                catch (IOException ex) {
+                catch (final IOException ex) {
                     log.debug("Ignore failure in closing the Closeable", ex);
                 }
             }

@@ -24,7 +24,7 @@ public class KioVersionProviderImpl implements KioVersionProvider {
 
     private final KioOperations kioOperations;
 
-    public KioVersionProviderImpl(KioOperations kioOperations) {
+    public KioVersionProviderImpl(final KioOperations kioOperations) {
         this.kioOperations = kioOperations;
     }
 
@@ -33,7 +33,7 @@ public class KioVersionProviderImpl implements KioVersionProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, Optional<Version>>() {
                 @Override
-                public Optional<Version> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public Optional<Version> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final Optional<Version> kioVersion = getKioVersion(context);
                     if (!kioVersion.isPresent()) {
                         log.warn("Could not find the version {} in KIO.", context);
@@ -42,14 +42,14 @@ public class KioVersionProviderImpl implements KioVersionProvider {
                 }
             });
 
-    private Optional<Version> getKioVersion(@Nonnull EC2InstanceContext context) {
+    private Optional<Version> getKioVersion(@Nonnull final EC2InstanceContext context) {
         final Optional<String> applicationId = context.getApplicationId();
         final Optional<String> versionId = context.getVersionId();
 
         if (applicationId.isPresent() && versionId.isPresent()) {
             try {
                 return ofNullable(kioOperations.getApplicationVersion(applicationId.get(), versionId.get()));
-            } catch (NotFoundException ignored) {
+            } catch (final NotFoundException ignored) {
                 return empty();
             }
         }
@@ -58,7 +58,7 @@ public class KioVersionProviderImpl implements KioVersionProvider {
     }
 
     @Override
-    public Optional<Version> apply(EC2InstanceContext context) {
+    public Optional<Version> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 

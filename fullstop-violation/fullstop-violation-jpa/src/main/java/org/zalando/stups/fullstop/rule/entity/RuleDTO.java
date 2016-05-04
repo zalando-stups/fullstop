@@ -39,7 +39,7 @@ public class RuleDTO {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -47,7 +47,7 @@ public class RuleDTO {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -55,7 +55,7 @@ public class RuleDTO {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(final String applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -63,7 +63,7 @@ public class RuleDTO {
         return applicationVersion;
     }
 
-    public void setApplicationVersion(String applicationVersion) {
+    public void setApplicationVersion(final String applicationVersion) {
         this.applicationVersion = applicationVersion;
     }
 
@@ -71,7 +71,7 @@ public class RuleDTO {
         return imageName;
     }
 
-    public void setImageName(String imageName) {
+    public void setImageName(final String imageName) {
         this.imageName = imageName;
     }
 
@@ -79,7 +79,7 @@ public class RuleDTO {
         return imageOwner;
     }
 
-    public void setImageOwner(String imageOwner) {
+    public void setImageOwner(final String imageOwner) {
         this.imageOwner = imageOwner;
     }
 
@@ -87,7 +87,7 @@ public class RuleDTO {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(final String reason) {
         this.reason = reason;
     }
 
@@ -95,7 +95,7 @@ public class RuleDTO {
         return expiryDate;
     }
 
-    public void setExpiryDate(DateTime expiryDate) {
+    public void setExpiryDate(final DateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -103,7 +103,7 @@ public class RuleDTO {
         return violationTypeEntityId;
     }
 
-    public void setViolationTypeEntityId(String violationTypeEntityId) {
+    public void setViolationTypeEntityId(final String violationTypeEntityId) {
         this.violationTypeEntityId = violationTypeEntityId;
     }
 
@@ -111,7 +111,7 @@ public class RuleDTO {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 }

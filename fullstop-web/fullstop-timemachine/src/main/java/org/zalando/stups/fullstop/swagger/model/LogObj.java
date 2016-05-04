@@ -89,7 +89,7 @@ public class LogObj {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("class LogObj {\n");
 
         sb.append("  logType: ").append(logType).append("\n");

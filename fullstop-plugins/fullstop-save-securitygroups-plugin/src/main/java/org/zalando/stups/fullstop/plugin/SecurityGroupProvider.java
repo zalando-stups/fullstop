@@ -31,10 +31,10 @@ public class SecurityGroupProvider {
     public String getSecurityGroup(final List<String> securityGroupIds, final Region region, final String accountId) {
 
         DescribeSecurityGroupsResult result = null;
-        ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = new ObjectMapper();
         String securityGroups = null;
 
-        AmazonEC2Client amazonEC2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
+        final AmazonEC2Client amazonEC2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
 
         if (amazonEC2Client == null) {
             throw new RuntimeException(
@@ -44,10 +44,10 @@ public class SecurityGroupProvider {
         } else {
 
             try {
-                DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
+                final DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
                 result = amazonEC2Client.describeSecurityGroups(request);
-            } catch (AmazonServiceException e) {
+            } catch (final AmazonServiceException e) {
                 if (e.getErrorCode().equals(INVALID_GROUP_NOT_FOUND)) {
                     log.warn(e.getMessage());
                 } else {
@@ -58,7 +58,7 @@ public class SecurityGroupProvider {
 
             try {
                 securityGroups = objectMapper.writeValueAsString(result);
-            } catch (JsonProcessingException e) {
+            } catch (final JsonProcessingException e) {
                 log.error(e.getMessage());
                 return null;
             }

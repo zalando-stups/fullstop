@@ -32,7 +32,7 @@ public class PolicyProviderImpl implements PolicyProvider {
 
     @Override public String getPolicy(final String roleName, final Region region, final String accountId) {
 
-        AmazonIdentityManagementClient iamClient = clientProvider
+        final AmazonIdentityManagementClient iamClient = clientProvider
                 .getClient(AmazonIdentityManagementClient.class, accountId, region);
 
         if (iamClient == null) {
@@ -46,10 +46,10 @@ public class PolicyProviderImpl implements PolicyProvider {
 
             String assumeRolePolicyDocument = null;
             try {
-                GetRoleRequest getRoleRequest = new GetRoleRequest();
+                final GetRoleRequest getRoleRequest = new GetRoleRequest();
                 getRoleRequest.setRoleName(roleName);
 
-                GetRoleResult role = iamClient.getRole(getRoleRequest);
+                final GetRoleResult role = iamClient.getRole(getRoleRequest);
 
                 if (role != null && role.getRole() != null && role.getRole().getAssumeRolePolicyDocument() != null) {
                     try {
@@ -57,7 +57,7 @@ public class PolicyProviderImpl implements PolicyProvider {
                                 role.getRole().getAssumeRolePolicyDocument(),
                                 "UTF-8");
                     }
-                    catch (UnsupportedEncodingException e) {
+                    catch (final UnsupportedEncodingException e) {
                         log.warn("Could not decode policy document for role: {}", roleName);
                     }
                 }
@@ -66,7 +66,7 @@ public class PolicyProviderImpl implements PolicyProvider {
                 }
 
             }
-            catch (AmazonClientException e) {
+            catch (final AmazonClientException e) {
                 log.error(e.getMessage());
             }
 

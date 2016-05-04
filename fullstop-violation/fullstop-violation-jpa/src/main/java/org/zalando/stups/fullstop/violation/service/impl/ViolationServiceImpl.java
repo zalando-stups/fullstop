@@ -21,7 +21,7 @@ public class ViolationServiceImpl implements ViolationService {
     private ViolationRepository violationRepository;
 
     @Override
-    public Page<ViolationEntity> findAll(Pageable pageable) {
+    public Page<ViolationEntity> findAll(final Pageable pageable) {
         return violationRepository.findAll(pageable);
     }
 
@@ -31,24 +31,39 @@ public class ViolationServiceImpl implements ViolationService {
     }
 
     @Override
-    public ViolationEntity save(ViolationEntity violation) {
+    public ViolationEntity save(final ViolationEntity violation) {
         return violationRepository.save(violation);
     }
 
     @Override
-    public ViolationEntity findOne(Long id) {
+    public ViolationEntity findOne(final Long id) {
         return violationRepository.findOne(id);
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation,
-                                                 boolean checked, Integer severity, final Integer priority, Boolean auditRelevant, String type,
-                                                 boolean whitelisted, Pageable pageable) {
-        return violationRepository.queryViolations(accounts, from, to, lastViolation, checked, severity,priority, auditRelevant, type, whitelisted, pageable);
+    public Page<ViolationEntity> queryViolations(final List<String> accounts,
+                                                 final DateTime from,
+                                                 final DateTime to,
+                                                 final Long lastViolation,
+                                                 final boolean checked,
+                                                 final Integer severity,
+                                                 final Integer priority,
+                                                 final Boolean auditRelevant,
+                                                 final List<String> type,
+                                                 final boolean whitelisted,
+                                                 final List<String> applicationNames,
+                                                 final List<String> applicationVersions,
+                                                 final Pageable pageable) {
+        return violationRepository.queryViolations(accounts, from, to, lastViolation, checked, severity, priority,
+                auditRelevant, type, whitelisted, applicationNames, applicationVersions, pageable);
     }
 
     @Override
-    public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationTypeId) {
+    public boolean violationExists(final String accountId,
+                                   final String region,
+                                   final String eventId,
+                                   final String instanceId,
+                                   final String violationTypeId) {
         return violationRepository.violationExists(accountId, region, eventId, instanceId, violationTypeId);
     }
 }

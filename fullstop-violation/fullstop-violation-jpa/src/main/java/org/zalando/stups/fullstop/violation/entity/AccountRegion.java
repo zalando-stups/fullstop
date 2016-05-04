@@ -7,7 +7,7 @@ public class AccountRegion {
     private final String account;
     private final String region;
 
-    public AccountRegion(String account, String region) {
+    public AccountRegion(final String account, final String region) {
         this.account = account;
         this.region = region;
     }
@@ -29,10 +29,10 @@ public class AccountRegion {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AccountRegion that = (AccountRegion) o;
+        final AccountRegion that = (AccountRegion) o;
         return Objects.equals(getAccount(), that.getAccount()) &&
                 Objects.equals(getRegion(), that.getRegion());
     }

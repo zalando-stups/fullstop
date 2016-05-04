@@ -25,14 +25,14 @@ public class PluginTest extends AbstractPluginTest {
 
     @Test
     public void testPlugin() {
-        CloudTrailEvent event = getMockedEvent();
+        final CloudTrailEvent event = getMockedEvent();
 
         Assertions.assertThat(plugin.supports(event)).isTrue();
     }
 
     protected CloudTrailEvent getMockedEvent() {
-        CloudTrailEvent event = Mockito.mock(CloudTrailEvent.class);
-        CloudTrailEventData eventData = Mockito.mock(CloudTrailEventData.class);
+        final CloudTrailEvent event = Mockito.mock(CloudTrailEvent.class);
+        final CloudTrailEventData eventData = Mockito.mock(CloudTrailEventData.class);
         Mockito.when(event.getEventData()).thenReturn(eventData);
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(eventData.getEventName()).thenReturn("RunInstances");

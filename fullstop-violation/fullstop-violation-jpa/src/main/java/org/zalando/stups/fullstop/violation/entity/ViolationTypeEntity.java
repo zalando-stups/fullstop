@@ -62,7 +62,7 @@ public class ViolationTypeEntity {
     public ViolationTypeEntity() {
     }
 
-    public ViolationTypeEntity(String id) {
+    public ViolationTypeEntity(final String id) {
         this.id = id;
     }
 
@@ -70,7 +70,7 @@ public class ViolationTypeEntity {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -78,7 +78,7 @@ public class ViolationTypeEntity {
         return helpText;
     }
 
-    public void setHelpText(String helpText) {
+    public void setHelpText(final String helpText) {
         this.helpText = helpText;
     }
 
@@ -87,7 +87,7 @@ public class ViolationTypeEntity {
     }
 
     public void setViolationSeverity(
-            Integer violationSeverity) {
+            final Integer violationSeverity) {
         this.violationSeverity = violationSeverity;
     }
 
@@ -95,7 +95,7 @@ public class ViolationTypeEntity {
         return isAuditRelevant;
     }
 
-    public void setIsAuditRelevant(boolean isAuditRelevant) {
+    public void setIsAuditRelevant(final boolean isAuditRelevant) {
         this.isAuditRelevant = isAuditRelevant;
     }
 
@@ -103,7 +103,7 @@ public class ViolationTypeEntity {
         return priority;
     }
 
-    public void setPriority(Integer priority) {
+    public void setPriority(final Integer priority) {
         this.priority = priority;
     }
 

@@ -39,25 +39,25 @@ public class LifecyclePluginTest {
         applicationLifecycleServiceMock = mock(ApplicationLifecycleService.class);
         contextMock = mock(EC2InstanceContext.class);
 
-        HashMap<Object, Object> value = newHashMap();
+        final HashMap<Object, Object> value = newHashMap();
         value.put("application_id", "test");
         value.put("application_version", "test");
 
         plugin = new LifecyclePlugin(contextProviderMock, applicationLifecycleServiceMock);
 
         //Create an Image
-        Image image = new Image();
+        final Image image = new Image();
         image.setName("Wooza");
-        DescribeImagesResult describeImagesResult = new DescribeImagesResult();
+        final DescribeImagesResult describeImagesResult = new DescribeImagesResult();
         describeImagesResult.setImages(newArrayList(image));
 
         //create an instance
-        Instance instance = new Instance();
+        final Instance instance = new Instance();
         instance.setInstanceId("i-43210");
         instance.setImageId("ami-666");
-        Reservation reservation = new Reservation();
+        final Reservation reservation = new Reservation();
         reservation.setInstances(newArrayList(instance));
-        DescribeInstancesResult describeInstancesResultMock = new DescribeInstancesResult();
+        final DescribeInstancesResult describeInstancesResultMock = new DescribeInstancesResult();
         describeInstancesResultMock.setReservations(newArrayList(reservation));
 
         //Mocked calls

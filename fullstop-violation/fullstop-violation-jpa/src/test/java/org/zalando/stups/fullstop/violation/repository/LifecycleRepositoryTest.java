@@ -75,7 +75,7 @@ public class LifecycleRepositoryTest {
         versionRepository.save(version2);
 
         // Add all versions
-        List<VersionEntity> versionEntities = newArrayList(version1, version2);
+        final List<VersionEntity> versionEntities = newArrayList(version1, version2);
 
         // Build Application1
         application1 = new ApplicationEntity();
@@ -105,27 +105,27 @@ public class LifecycleRepositoryTest {
 
     @Test
     public void testLifecycleHasVersion() throws Exception {
-        LifecycleEntity lce = lifecycleRepository.findOne(savedLifecycleEntity1.getId());
+        final LifecycleEntity lce = lifecycleRepository.findOne(savedLifecycleEntity1.getId());
         assertThat(lce.getVersionEntity().getName()).isEqualTo(savedVersion1.getName());
     }
 
     @Test
     public void testLifecycleHasApplication() throws Exception {
-        LifecycleEntity lce = lifecycleRepository.findOne(savedLifecycleEntity1.getId());
+        final LifecycleEntity lce = lifecycleRepository.findOne(savedLifecycleEntity1.getId());
         assertThat(lce.getApplicationEntity().getId()).isEqualTo(savedApplication1.getId());
     }
 
     @Test
     public void testInstanceBootTime() throws Exception {
-        DateTime now = DateTime.now();
+        final DateTime now = DateTime.now();
 
-        LifecycleEntity lifecycleEntity12 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity12 = new LifecycleEntity();
         lifecycleEntity12.setInstanceBootTime(now);
         lifecycleEntity12.setInstanceId("i-12345");
         lifecycleEntity12.setApplicationEntity(application1);
         lifecycleEntity12.setVersionEntity(version1);
 
-        LifecycleEntity saveLifecycleEntity = lifecycleRepository.save(lifecycleEntity12);
+        final LifecycleEntity saveLifecycleEntity = lifecycleRepository.save(lifecycleEntity12);
 
         assertThat(saveLifecycleEntity.getInstanceBootTime()).isEqualTo(now);
         assertThat(lifecycleRepository.findAll()).hasSize(3);
@@ -134,80 +134,80 @@ public class LifecycleRepositoryTest {
 
     @Test
     public void TestFindByAppName() throws Exception{
-        ApplicationEntity app1 = new ApplicationEntity("App1");
-        ApplicationEntity app2 = new ApplicationEntity("App2");
+        final ApplicationEntity app1 = new ApplicationEntity("App1");
+        final ApplicationEntity app2 = new ApplicationEntity("App2");
 
-        VersionEntity vers1 = new VersionEntity("1.0");
+        final VersionEntity vers1 = new VersionEntity("1.0");
         versionRepository.save(vers1);
-        VersionEntity vers2 = new VersionEntity("2.0");
+        final VersionEntity vers2 = new VersionEntity("2.0");
         versionRepository.save(vers2);
 
-        List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
+        final List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
         app1.setVersionEntities(versionEntities);
         applicationRepository.save(app1);
         app2.setVersionEntities(versionEntities);
         applicationRepository.save(app2);
 
-        LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
         lifecycleEntity1.setApplicationEntity(app1);
         lifecycleEntity1.setVersionEntity(vers1);
         lifecycleRepository.save(lifecycleEntity1);
 
-        LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
         lifecycleEntity2.setApplicationEntity(app1);
         lifecycleEntity2.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity2);
 
-        LifecycleEntity lifecycleEntity3 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity3 = new LifecycleEntity();
         lifecycleEntity3.setApplicationEntity(app2);
         lifecycleEntity3.setVersionEntity(vers1);
         lifecycleRepository.save(lifecycleEntity3);
 
-        LifecycleEntity lifecycleEntity4 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity4 = new LifecycleEntity();
         lifecycleEntity4.setApplicationEntity(app2);
         lifecycleEntity4.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity4);
 
-        LifecycleEntity lifecycleEntity5 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity5 = new LifecycleEntity();
         lifecycleEntity5.setApplicationEntity(app1);
         lifecycleEntity5.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity5);
 
-        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null, new PageRequest(0, 4, ASC, "id"));
+        final Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", null, new PageRequest(0, 4, ASC, "id"));
         assertThat(applications).hasSize(3);
         assertThat(applications.getTotalPages()).isEqualTo(1);
-        List<LifecycleEntity> content = applications.getContent();
+        final List<LifecycleEntity> content = applications.getContent();
         assertThat(content.get(1).getVersionEntity().getName()).isEqualTo(content.get(2).getVersionEntity().getName());
     }
 
     @Test
     public void TestfindByApplicationNameAndVersion() throws Exception{
-        ApplicationEntity app1 = new ApplicationEntity("App1");
+        final ApplicationEntity app1 = new ApplicationEntity("App1");
 
-        VersionEntity vers1 = new VersionEntity("1.0");
+        final VersionEntity vers1 = new VersionEntity("1.0");
         versionRepository.save(vers1);
-        VersionEntity vers2 = new VersionEntity("2.0");
+        final VersionEntity vers2 = new VersionEntity("2.0");
         versionRepository.save(vers2);
 
-        List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
+        final List<VersionEntity> versionEntities = newArrayList(vers1,vers2);
         app1.setVersionEntities(versionEntities);
         applicationRepository.save(app1);
 
-        LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity1 = new LifecycleEntity();
         lifecycleEntity1.setApplicationEntity(app1);
         lifecycleEntity1.setVersionEntity(vers1);
         lifecycleRepository.save(lifecycleEntity1);
 
-        LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
+        final LifecycleEntity lifecycleEntity2 = new LifecycleEntity();
         lifecycleEntity2.setApplicationEntity(app1);
         lifecycleEntity2.setVersionEntity(vers2);
         lifecycleRepository.save(lifecycleEntity2);
 
-        Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0", new PageRequest(0, 2, ASC, "id"));
+        final Page<LifecycleEntity> applications = lifecycleRepository.findByApplicationNameAndVersion("App1", "1.0", new PageRequest(0, 2, ASC, "id"));
 
         assertThat(applications).hasSize(1);
         assertThat(applications.getTotalPages()).isEqualTo(1);
-        List<LifecycleEntity> content = applications.getContent();
+        final List<LifecycleEntity> content = applications.getContent();
 
         assertThat(content.get(0).getVersionEntity().getName()).isEqualTo("1.0");
     }

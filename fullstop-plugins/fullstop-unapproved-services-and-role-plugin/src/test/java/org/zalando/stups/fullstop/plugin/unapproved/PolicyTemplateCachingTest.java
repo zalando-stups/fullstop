@@ -37,7 +37,7 @@ public class PolicyTemplateCachingTest {
     public void testGetS3Objects() throws Exception {
         when(s3ServiceMock.listS3Objects(any(), any())).thenReturn(newArrayList("test", "test"));
 
-        List<String> s3Objects = policyTemplatesProvider.getPolicyTemplateNames();
+        final List<String> s3Objects = policyTemplatesProvider.getPolicyTemplateNames();
 
         assertThat(s3Objects).isNotEmpty();
 

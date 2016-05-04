@@ -38,7 +38,7 @@ public class ApplicationRepositoryImpl extends QueryDslRepositorySupport impleme
     }
 
     @Override
-    public Set<AccountRegion> findDeployments(String applicationId) {
+    public Set<AccountRegion> findDeployments(final String applicationId) {
         final QLifecycleEntity qLifecycle = new QLifecycleEntity("l");
         final QApplicationEntity qApplication = new QApplicationEntity("a");
 

@@ -19,19 +19,19 @@ import java.util.List;
  */
 public class LocalPluginProcessor {
 
-    private PluginEventsProcessor pluginEventProcessor;
+    private final PluginEventsProcessor pluginEventProcessor;
 
     public LocalPluginProcessor(final FullstopPlugin fullstopPlugin) {
         Assert.notNull(fullstopPlugin, "Plugin should never be null");
 
-        List<FullstopPlugin> plugins = Lists.newArrayList();
+        final List<FullstopPlugin> plugins = Lists.newArrayList();
         plugins.add(fullstopPlugin);
-        PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry = SimplePluginRegistry.create(plugins);
+        final PluginRegistry<FullstopPlugin, CloudTrailEvent> pluginRegistry = SimplePluginRegistry.create(plugins);
         pluginEventProcessor = new PluginEventsProcessor(pluginRegistry);
     }
 
     public void processEvents(final InputStream is) throws CallbackException {
-        FileEventReader fer = new FileEventReader(pluginEventProcessor);
+        final FileEventReader fer = new FileEventReader(pluginEventProcessor);
         fer.readEvents(is);
     }
 
