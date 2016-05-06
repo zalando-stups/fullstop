@@ -109,7 +109,7 @@ public class Violation {
         this.comment = comment;
     }
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty(value = "", dataType = "DateTime", example = "2015-05-21T10:24:47.788-02:00")
     public DateTime getCreated() {
         return created;
     }
