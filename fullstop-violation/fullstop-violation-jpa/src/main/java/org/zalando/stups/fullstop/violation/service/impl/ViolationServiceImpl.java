@@ -49,13 +49,13 @@ public class ViolationServiceImpl implements ViolationService {
                                                  final Integer severity,
                                                  final Integer priority,
                                                  final Boolean auditRelevant,
-                                                 final List<String> type,
+                                                 final List<String> types,
                                                  final boolean whitelisted,
-                                                 final List<String> applicationNames,
-                                                 final List<String> applicationVersions,
+                                                 final List<String> applicationIds,
+                                                 final List<String> applicationVersionIds,
                                                  final Pageable pageable) {
         return violationRepository.queryViolations(accounts, from, to, lastViolation, checked, severity, priority,
-                auditRelevant, type, whitelisted, applicationNames, applicationVersions, pageable);
+                auditRelevant, types, whitelisted, applicationIds, applicationVersionIds, pageable);
     }
 
     @Override

@@ -99,13 +99,13 @@ public class ViolationsController {
             @RequestParam(value = "types", required = false)
             List<String> types,
             @ApiParam(value = "Include only violations with a certain application name")
-            @RequestParam(value = "applicationNames", required = false)
-            final List<String> applicationNames,
+            @RequestParam(value = "application-ids", required = false)
+            final List<String> applicationIds,
             @ApiParam(value = "Include only violations with a certain application version")
-            @RequestParam(value = "applicationVersions", required = false)
-            final List<String> applicationVersions,
+            @RequestParam(value = "application-version-ids", required = false)
+            final List<String> applicationVersionIds,
             @ApiParam(value = "show also whitelisted vioaltions")
-            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            @RequestParam(value = "whitelisted", required = false, defaultValue = "false")
             final boolean whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
 
@@ -119,14 +119,14 @@ public class ViolationsController {
 
         if (types != null && !types.isEmpty()) {
             types.add(type);
-        } else {
+        } else if (type != null) {
             types = newArrayList(type);
         }
 
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity,priority, auditRelevant, types, whitelisted,applicationNames,applicationVersions, pageable));
+                        checked, severity, priority, auditRelevant, types, whitelisted, applicationIds, applicationVersionIds, pageable));
     }
 
     @ApiOperation(

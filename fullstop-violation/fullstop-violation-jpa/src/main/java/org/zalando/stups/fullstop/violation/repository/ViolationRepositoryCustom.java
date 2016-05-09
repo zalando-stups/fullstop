@@ -20,8 +20,8 @@ public interface ViolationRepositoryCustom {
 
     Page<ViolationEntity> queryViolations(List<String> accounts, DateTime from, DateTime to, Long lastViolation,
                                           boolean checked, Integer severity, final Integer priority,
-                                          Boolean auditRelevant, List<String> type, boolean whitelisted,
-                                          List<String> applicationNames, List<String> applicationVersions,
+                                          Boolean auditRelevant, List<String> types, boolean whitelisted,
+                                          List<String> applicationIds, List<String> applicationVersionIds,
                                           Pageable pageable);
 
     boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType);

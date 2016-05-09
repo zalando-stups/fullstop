@@ -11,10 +11,7 @@ import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom
 
 import javax.persistence.Query;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,10 +41,10 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                                                  final Integer severity,
                                                  final Integer priority,
                                                  final Boolean auditRelevant,
-                                                 final List<String> type,
+                                                 final List<String> types,
                                                  final boolean whitelisted,
-                                                 final List<String> applicationNames,
-                                                 final List<String> applicationVersions,
+                                                 final List<String> applicationIds,
+                                                 final List<String> applicationVersionIds,
                                                  final Pageable pageable) {
 
         final QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
@@ -96,16 +93,16 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationTypeEntity.isAuditRelevant.eq(auditRelevant));
         }
 
-        if (type != null) {
-            predicates.add(qViolationEntity.violationTypeEntity.id.in(type));
+        if (types != null && !types.isEmpty()) {
+            predicates.add(qViolationEntity.violationTypeEntity.id.in(types));
         }
 
-        if (applicationNames != null) {
-            predicates.add(qViolationEntity.application.name.in(applicationNames));
+        if (applicationIds != null && !applicationIds.isEmpty()) {
+            predicates.add(qViolationEntity.application.name.in(applicationIds));
         }
 
-        if (applicationVersions != null) {
-            predicates.add(qViolationEntity.applicationVersion.name.in(applicationVersions));
+        if (applicationVersionIds != null && !applicationVersionIds.isEmpty()) {
+            predicates.add(qViolationEntity.applicationVersion.name.in(applicationVersionIds));
         }
 
         final long total = query.where(allOf(predicates)).count();
