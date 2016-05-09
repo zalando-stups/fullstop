@@ -14,6 +14,7 @@ public class ViolationTypeEntityToDtoConverter implements Converter<ViolationTyp
         target.setId(source.getId());
         target.setHelpText(source.getHelpText());
         target.setIsAuditRelevant(source.isAuditRelevant());
+        target.setTitle(source.getTitle());
         target.setViolationSeverity(source.getViolationSeverity());
         target.setPriority(source.getPriority());
         target.setCreated(source.getCreated());

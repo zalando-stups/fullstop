@@ -43,7 +43,7 @@ public class Violation {
 
     private String applicationId;
 
-    private String applicationVersion;
+    private String applicationVersionId;
 
 
     @ApiModelProperty(value = "")
@@ -200,12 +200,12 @@ public class Violation {
     }
 
     @ApiModelProperty(value = "")
-    public String getApplicationVersion() {
-        return applicationVersion;
+    public String getApplicationVersionId() {
+        return applicationVersionId;
     }
 
-    public void setApplicationVersion(final String applicationVersion) {
-        this.applicationVersion = applicationVersion;
+    public void setApplicationVersionId(final String applicationVersionId) {
+        this.applicationVersionId = applicationVersionId;
     }
     @Override
     public String toString() {
@@ -223,7 +223,7 @@ public class Violation {
                 .add("ruleID", ruleID)
                 .add("username", username)
                 .add("applicationId", applicationId)
-                .add("applicationVersion", applicationVersion)
+                .add("applicationVersionId", applicationVersionId)
                 .add("created", created)
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)
