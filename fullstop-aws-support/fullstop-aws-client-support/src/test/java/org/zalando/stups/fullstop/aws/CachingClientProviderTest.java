@@ -29,7 +29,7 @@ public class CachingClientProviderTest {
 
     @Test
     public void testCachingClientProvider() throws InterruptedException {
-        AmazonWebServiceClient client = provider.getClient(
+        final AmazonWebServiceClient client = provider.getClient(
                 AmazonEC2Client.class, "",
                 Region.getRegion(Regions.EU_CENTRAL_1));
 
@@ -37,7 +37,7 @@ public class CachingClientProviderTest {
         System.out.println(client.toString());
         for (int i = 0; i < 10; i++) {
 
-            AmazonEC2Client other = provider.getClient(
+            final AmazonEC2Client other = provider.getClient(
                     AmazonEC2Client.class, "",
                     Region.getRegion(Regions.EU_CENTRAL_1));
 

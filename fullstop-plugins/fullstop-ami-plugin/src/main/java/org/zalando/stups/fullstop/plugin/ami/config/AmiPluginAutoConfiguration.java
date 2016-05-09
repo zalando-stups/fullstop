@@ -10,8 +10,8 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 public class AmiPluginAutoConfiguration {
 
     @Bean
-    AmiPlugin amiPlugin(EC2InstanceContextProvider contextProvider,
-                        ViolationSink violationSink) {
+    AmiPlugin amiPlugin(final EC2InstanceContextProvider contextProvider,
+                        final ViolationSink violationSink) {
         return new AmiPlugin(contextProvider, violationSink);
     }
 }

@@ -15,12 +15,12 @@ public abstract class AbstractEC2InstancePlugin extends AbstractFullstopPlugin {
 
     private final EC2InstanceContextProvider context;
 
-    protected AbstractEC2InstancePlugin(EC2InstanceContextProvider context) {
+    protected AbstractEC2InstancePlugin(final EC2InstanceContextProvider context) {
         this.context = context;
     }
 
     @Override
-    public boolean supports(CloudTrailEvent cloudTrailEvent) {
+    public boolean supports(final CloudTrailEvent cloudTrailEvent) {
         return Optional.ofNullable(cloudTrailEvent)
                 .map(CloudTrailEvent::getEventData)
                 .filter(e -> "ec2.amazonaws.com".equals(e.getEventSource()))
@@ -32,7 +32,7 @@ public abstract class AbstractEC2InstancePlugin extends AbstractFullstopPlugin {
     protected abstract Predicate<? super String> supportsEventName();
 
     @Override
-    public void processEvent(CloudTrailEvent event) {
+    public void processEvent(final CloudTrailEvent event) {
         context.instancesIn(event).forEach(this::process);
     }
 

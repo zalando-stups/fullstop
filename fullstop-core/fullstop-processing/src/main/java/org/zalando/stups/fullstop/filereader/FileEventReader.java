@@ -42,11 +42,11 @@ public class FileEventReader {
 
     private final EventsProcessor eventsProcessor;
 
-    private ExceptionHandler exceptionHandler;
+    private final ExceptionHandler exceptionHandler;
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
-    private boolean isEnableRawEventInfo = false;
+    private final boolean isEnableRawEventInfo = false;
 
     public FileEventReader(final EventsProcessor eventsProcessor, final EventFilter eventFilter) {
         this.eventsProcessor = eventsProcessor;
@@ -61,9 +61,9 @@ public class FileEventReader {
 
     public void readEvents(final File file, final CloudTrailLog ctLog) throws CallbackException {
         try {
-            GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
+            final GZIPInputStream gzippedInputStream = new GZIPInputStream(new FileInputStream(file));
 
-            EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
+            final EventSerializer serializer = this.getEventSerializer(gzippedInputStream, ctLog);
 
             this.emitEvents(serializer);
         }
@@ -85,15 +85,15 @@ public class FileEventReader {
      */
     private EventSerializer getEventSerializer(final GZIPInputStream inputStream, final CloudTrailLog ctLog)
             throws IOException {
-        EventSerializer serializer;
+        final EventSerializer serializer;
 
         if (isEnableRawEventInfo) {
-            String logFileContent = new String(LibraryUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
-            JsonParser jsonParser = this.mapper.getFactory().createParser(logFileContent);
+            final String logFileContent = new String(LibraryUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
+            final JsonParser jsonParser = this.mapper.getFactory().createParser(logFileContent);
             serializer = new RawLogDeliveryEventSerializer(logFileContent, ctLog, jsonParser);
         }
         else {
-            JsonParser jsonParser = this.mapper.getFactory().createParser(inputStream);
+            final JsonParser jsonParser = this.mapper.getFactory().createParser(inputStream);
             serializer = new DefaultEventSerializer(ctLog, jsonParser);
         }
 
@@ -101,10 +101,10 @@ public class FileEventReader {
     }
 
     private void emitEvents(final EventSerializer serializer) throws CallbackException, IOException {
-        EventBuffer<CloudTrailEvent> eventBuffer = new EventBuffer<>(10);
+        final EventBuffer<CloudTrailEvent> eventBuffer = new EventBuffer<>(10);
         while (serializer.hasNextEvent()) {
 
-            CloudTrailEvent event = serializer.getNextEvent();
+            final CloudTrailEvent event = serializer.getNextEvent();
 
             if (this.eventFilter.filterEvent(event)) {
                 eventBuffer.addEvent(event);
@@ -120,7 +120,7 @@ public class FileEventReader {
         }
 
         // emit whatever in the buffer as last batch
-        List<CloudTrailEvent> events = eventBuffer.getEvents();
+        final List<CloudTrailEvent> events = eventBuffer.getEvents();
         if (!events.isEmpty()) {
             this.eventsProcessor.process(events);
         }

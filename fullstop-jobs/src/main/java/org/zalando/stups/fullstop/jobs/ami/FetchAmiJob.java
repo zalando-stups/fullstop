@@ -91,8 +91,8 @@ public class FetchAmiJob implements FullstopJob {
     @Scheduled(fixedRate = 60_000 * 60 * 4, initialDelay = -1) // ((1 min * 60) * 4) = 4 hours rate, 0 min delay
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
-        for (String account : allAccountIds.get()) {
-            for (String region : jobsProperties.getWhitelistedRegions()) {
+        for (final String account : allAccountIds.get()) {
+            for (final String region : jobsProperties.getWhitelistedRegions()) {
                 runOn(account, region);
             }
         }

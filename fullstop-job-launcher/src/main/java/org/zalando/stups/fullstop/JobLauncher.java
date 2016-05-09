@@ -14,7 +14,7 @@ import static org.springframework.boot.SpringApplication.run;
 @EnableScheduling
 public class JobLauncher {
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         run(JobLauncher.class, args);
     }
 }

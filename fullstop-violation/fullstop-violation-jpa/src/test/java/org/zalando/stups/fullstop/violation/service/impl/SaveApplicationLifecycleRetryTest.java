@@ -21,8 +21,6 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import javax.persistence.OptimisticLockException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class SaveApplicationLifecycleRetryTest {

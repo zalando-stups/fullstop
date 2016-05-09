@@ -6,7 +6,7 @@ public class CountByAccountAndType {
     private final String type;
     private final long quantity;
 
-    public CountByAccountAndType(String account, String type, long quantity) {
+    public CountByAccountAndType(final String account, final String type, final long quantity) {
         this.account = account;
         this.type = type;
         this.quantity = quantity;

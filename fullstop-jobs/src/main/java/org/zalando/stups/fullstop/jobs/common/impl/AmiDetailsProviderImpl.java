@@ -27,7 +27,7 @@ public class AmiDetailsProviderImpl implements AmiDetailsProvider {
     }
 
     @Override
-    public Map<String, String> getAmiDetails(String accountId, Region region, String amiId) {
+    public Map<String, String> getAmiDetails(final String accountId, final Region region, final String amiId) {
         final ImmutableMap.Builder<String, String> result = ImmutableMap.builder();
         result.put("ami_id", amiId);
 

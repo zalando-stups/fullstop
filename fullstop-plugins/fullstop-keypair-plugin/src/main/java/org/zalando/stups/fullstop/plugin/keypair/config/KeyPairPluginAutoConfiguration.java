@@ -10,7 +10,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 public class KeyPairPluginAutoConfiguration {
 
     @Bean
-    KeyPairPlugin keyPairPlugin(EC2InstanceContextProvider contextProvider, ViolationSink violationSink) {
+    KeyPairPlugin keyPairPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
         return new KeyPairPlugin(contextProvider, violationSink);
     }
 }

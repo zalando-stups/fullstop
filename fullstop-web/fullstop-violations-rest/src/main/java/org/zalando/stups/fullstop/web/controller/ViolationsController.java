@@ -23,6 +23,7 @@ import org.zalando.stups.fullstop.web.model.Violation;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -94,20 +95,38 @@ public class ViolationsController {
             @ApiParam(value = "Include only violations with a certain type")
             @RequestParam(value = "type", required = false)
             final String type,
+            @ApiParam(value = "Include only violations with a certain types")
+            @RequestParam(value = "types", required = false)
+            List<String> types,
+            @ApiParam(value = "Include only violations with a certain application name")
+            @RequestParam(value = "application-ids", required = false)
+            final List<String> applicationIds,
+            @ApiParam(value = "Include only violations with a certain application version")
+            @RequestParam(value = "application-version-ids", required = false)
+            final List<String> applicationVersionIds,
             @ApiParam(value = "show also whitelisted vioaltions")
-            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            @RequestParam(value = "whitelisted", required = false, defaultValue = "false")
             final boolean whitelisted,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
+
         if (from == null) {
             from = DateTime.now().minusWeeks(1);
         }
+
         if (to == null) {
             to = DateTime.now();
         }
+
+        if (types != null && !types.isEmpty()) {
+            types.add(type);
+        } else if (type != null) {
+            types = newArrayList(type);
+        }
+
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity,priority, auditRelevant, type, whitelisted, pageable));
+                        checked, severity, priority, auditRelevant, types, whitelisted, applicationIds, applicationVersionIds, pageable));
     }
 
     @ApiOperation(
@@ -121,7 +140,7 @@ public class ViolationsController {
             final Long id,
             @ApiParam(value = "", required = true)
             @RequestBody final String comment,
-            @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+            @AuthenticationPrincipal(errorOnInvalidType = true) final String userId)
             throws NotFoundException, ForbiddenException {
         final ViolationEntity violation = violationService.findOne(id);
 
@@ -144,7 +163,7 @@ public class ViolationsController {
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
         final List<Account> accounts = teamOperations.getAwsAccountsByUser(userId);
 
-        for (Account account : accounts) {
+        for (final Account account : accounts) {
             if (account.getId().equals(targetAccountId)) {
                 return true;
             }

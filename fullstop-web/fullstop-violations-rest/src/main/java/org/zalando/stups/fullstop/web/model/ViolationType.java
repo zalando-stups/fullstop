@@ -33,7 +33,7 @@ public class ViolationType {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -42,7 +42,7 @@ public class ViolationType {
         return helpText;
     }
 
-    public void setHelpText(String helpText) {
+    public void setHelpText(final String helpText) {
         this.helpText = helpText;
     }
 
@@ -51,7 +51,7 @@ public class ViolationType {
         return violationSeverity;
     }
 
-    public void setViolationSeverity(Integer violationSeverity) {
+    public void setViolationSeverity(final Integer violationSeverity) {
         this.violationSeverity = violationSeverity;
     }
 
@@ -60,7 +60,7 @@ public class ViolationType {
         return isAuditRelevant;
     }
 
-    public void setIsAuditRelevant(boolean isAuditRelevant) {
+    public void setIsAuditRelevant(final boolean isAuditRelevant) {
         this.isAuditRelevant = isAuditRelevant;
     }
 
@@ -69,7 +69,7 @@ public class ViolationType {
         return priority;
     }
 
-    public void setPriority(Integer priority) {
+    public void setPriority(final Integer priority) {
         this.priority = priority;
     }
 
@@ -78,7 +78,7 @@ public class ViolationType {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 
@@ -87,7 +87,7 @@ public class ViolationType {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(final DateTime created) {
         this.created = created;
     }
 
@@ -96,7 +96,7 @@ public class ViolationType {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -105,7 +105,7 @@ public class ViolationType {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(final DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -114,7 +114,7 @@ public class ViolationType {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(String lastModifiedBy) {
+    public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 

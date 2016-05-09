@@ -30,7 +30,7 @@ public class SnapshotSourcePlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         context.getSource()
                 .filter(string -> string.matches(SNAPSHOT_REGEX))
                 .ifPresent(source -> violationSink.put(

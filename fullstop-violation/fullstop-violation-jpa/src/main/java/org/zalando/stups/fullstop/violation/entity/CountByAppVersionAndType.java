@@ -8,7 +8,7 @@ public class CountByAppVersionAndType {
     private final long quantity;
 
 
-    public CountByAppVersionAndType(String application, String version, String type, long quantity) {
+    public CountByAppVersionAndType(final String application, final String version, final String type, final long quantity) {
         this.application = application;
         this.version = version;
         this.type = type;

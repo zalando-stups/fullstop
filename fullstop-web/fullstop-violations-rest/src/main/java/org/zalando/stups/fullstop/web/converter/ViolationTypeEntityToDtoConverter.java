@@ -9,7 +9,7 @@ import org.zalando.stups.fullstop.web.model.ViolationType;
 public class ViolationTypeEntityToDtoConverter implements Converter<ViolationTypeEntity, ViolationType> {
 
     @Override
-    public ViolationType convert(ViolationTypeEntity source) {
+    public ViolationType convert(final ViolationTypeEntity source) {
         final ViolationType target = new ViolationType();
         target.setId(source.getId());
         target.setHelpText(source.getHelpText());

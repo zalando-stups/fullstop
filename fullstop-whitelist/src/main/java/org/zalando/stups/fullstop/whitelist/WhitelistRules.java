@@ -19,16 +19,16 @@ public class WhitelistRules {
         this.ruleEntityService = ruleEntityService;
     }
 
-    public void execute(ViolationEntity violationEntity) {
+    public void execute(final ViolationEntity violationEntity) {
 
         if (violationEntity != null) {
 
-            List<RuleEntity> rules = ruleEntityService.findByNotExpired();
+            final List<RuleEntity> rules = ruleEntityService.findByNotExpired();
             if (rules == null) {
                 return;
             }
 
-            for (RuleEntity rule : rules) {
+            for (final RuleEntity rule : rules) {
 
                 if (whitelistRulesEvaluator.apply(rule, violationEntity)){
                     violationEntity.setRuleEntity(rule);

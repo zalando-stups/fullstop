@@ -47,7 +47,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return eventDate;
     }
 
-    public void setEventDate(DateTime eventDate) {
+    public void setEventDate(final DateTime eventDate) {
         this.eventDate = eventDate;
     }
 
@@ -55,7 +55,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -63,7 +63,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -71,7 +71,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return applicationEntity;
     }
 
-    public void setApplicationEntity(ApplicationEntity applicationEntity) {
+    public void setApplicationEntity(final ApplicationEntity applicationEntity) {
         this.applicationEntity = applicationEntity;
     }
 
@@ -79,7 +79,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return versionEntity;
     }
 
-    public void setVersionEntity(VersionEntity versionEntity) {
+    public void setVersionEntity(final VersionEntity versionEntity) {
         this.versionEntity = versionEntity;
     }
 
@@ -87,7 +87,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return eventType;
     }
 
-    public void setEventType(String eventType) {
+    public void setEventType(final String eventType) {
         this.eventType = eventType;
     }
 
@@ -95,7 +95,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return userdataPath;
     }
 
-    public void setUserdataPath(String userdataPath) {
+    public void setUserdataPath(final String userdataPath) {
         this.userdataPath = userdataPath;
     }
 
@@ -103,7 +103,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return instanceBootTime;
     }
 
-    public void setInstanceBootTime(DateTime instanceBootTime) {
+    public void setInstanceBootTime(final DateTime instanceBootTime) {
         this.instanceBootTime = instanceBootTime;
     }
 
@@ -111,7 +111,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -119,7 +119,7 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return imageId;
     }
 
-    public void setImageId(String imageId) {
+    public void setImageId(final String imageId) {
         this.imageId = imageId;
     }
 
@@ -127,15 +127,15 @@ public class LifecycleEntity extends AbstractModifiableEntity {
         return imageName;
     }
 
-    public void setImageName(String imageName) {
+    public void setImageName(final String imageName) {
         this.imageName = imageName;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LifecycleEntity that = (LifecycleEntity) o;
+        final LifecycleEntity that = (LifecycleEntity) o;
         return Objects.equal(eventDate, that.eventDate) &&
                 Objects.equal(region, that.region) &&
                 Objects.equal(accountId, that.accountId) &&

@@ -35,7 +35,7 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        String source = event.getEventData().getEventSource();
+        final String source = event.getEventData().getEventSource();
         String type = null;
         if (event.getEventData().getEventType() != null) {
             type = event.getEventData().getEventType();
@@ -44,8 +44,8 @@ public class CountEventsPlugin extends AbstractFullstopPlugin {
             type = event.getEventData().getEventName();
         }
 
-        String accountId = CloudTrailEventSupport.getAccountId(event);
-        String counterKey = JOINER.join(source, type, accountId);
+        final String accountId = CloudTrailEventSupport.getAccountId(event);
+        final String counterKey = JOINER.join(source, type, accountId);
         countEventsMetric.markEvent(counterKey);
     }
 

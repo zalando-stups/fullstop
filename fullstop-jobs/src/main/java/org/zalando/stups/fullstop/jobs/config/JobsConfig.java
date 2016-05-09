@@ -16,12 +16,12 @@ public class JobsConfig {
     private JobsProperties jobsProperties;
 
     @Bean
-    public SecurityGroupsChecker elbSecurityGroupsChecker(ClientProvider clientProvider) {
+    public SecurityGroupsChecker elbSecurityGroupsChecker(final ClientProvider clientProvider) {
         return new SecurityGroupsCheckerImpl(clientProvider, securityGroupExposesNotAllowedPorts(jobsProperties.getElbAllowedPorts()));
     }
 
     @Bean
-    public SecurityGroupsChecker ec2SecurityGroupsChecker(ClientProvider clientProvider) {
+    public SecurityGroupsChecker ec2SecurityGroupsChecker(final ClientProvider clientProvider) {
         return new SecurityGroupsCheckerImpl(clientProvider, securityGroupExposesNotAllowedPorts(jobsProperties.getEc2AllowedPorts()));
     }
 }

@@ -17,7 +17,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import java.util.Map;
 
 import static java.util.Optional.of;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
@@ -71,7 +70,7 @@ public class RegionPluginTest {
 
     @Test
     public void testNonWhitelistedRegion() {
-        Map<String, String> taupageYaml = Maps.newHashMap();
+        final Map<String, String> taupageYaml = Maps.newHashMap();
         taupageYaml.put("application_id", "test123");
         taupageYaml.put("application_version", "0.12");
         when(taupageYamlProvider.apply(
@@ -84,8 +83,8 @@ public class RegionPluginTest {
 
     @Test
     public void testWithLocalPluginProcessor() throws CallbackException {
-        RegionPlugin plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);
-        LocalPluginProcessor lpp = new LocalPluginProcessor(plugin);
+        final RegionPlugin plugin = new RegionPlugin(contextProvider, violationSink, regionPluginProperties);
+        final LocalPluginProcessor lpp = new LocalPluginProcessor(plugin);
         lpp.processEvents(getClass().getResourceAsStream("/record-run.json"));
     }
 }

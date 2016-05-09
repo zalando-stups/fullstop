@@ -10,7 +10,7 @@ public class CSVReportEntry {
     private final boolean accessKey1Active;
     private final boolean accessKey2Active;
 
-    public CSVReportEntry(String user, String arn, boolean passwordEnabled, boolean mfaActive, boolean accessKey1Active, boolean accessKey2Active) {
+    public CSVReportEntry(final String user, final String arn, final boolean passwordEnabled, final boolean mfaActive, final boolean accessKey1Active, final boolean accessKey2Active) {
         this.user = user;
         this.arn = arn;
         this.passwordEnabled = passwordEnabled;

@@ -10,7 +10,7 @@ public class RegionPluginPropertiesTest {
 
     @Test
     public void testDefaultRegions() {
-        RegionPluginProperties properties = new RegionPluginProperties();
+        final RegionPluginProperties properties = new RegionPluginProperties();
         Assertions.assertThat(properties.getWhitelistedRegions()).contains("eu-central-1", "eu-west-1");
     }
 }

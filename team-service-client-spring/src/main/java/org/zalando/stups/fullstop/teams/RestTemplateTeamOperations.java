@@ -11,7 +11,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -51,7 +50,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
     }
 
     @Override
-    public Set<String> getTeamIdsByUser(String userId) {
+    public Set<String> getTeamIdsByUser(final String userId) {
         Preconditions.checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
         return getTeamsByUser(userId).stream().map(Team::getId).
@@ -61,7 +60,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
                 collect(toSet());
     }
 
-    private Set<Team> getTeamsByUser(String userId) {
+    private Set<Team> getTeamsByUser(final String userId) {
         final ResponseEntity<Set<Team>> response = restOperations.exchange(
                 get(URI.create(baseUrl + "/api/teams?member=" + userId)).build(), team);
         Preconditions.checkState(response.getStatusCode().is2xxSuccessful(), "getTeamIdsByUser failed: %s", response);
@@ -84,7 +83,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
             return id;
         }
 
-        public void setId(String id) {
+        public void setId(final String id) {
             this.id = id;
         }
     }

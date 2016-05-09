@@ -25,7 +25,7 @@ public class CloudTrailProcessingLibraryProperties {
     }
 
     public Properties getAsProperties() {
-        Properties properties = new Properties();
+        final Properties properties = new Properties();
         properties.putAll(getProperties());
         return properties;
     }

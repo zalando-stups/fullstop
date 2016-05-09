@@ -32,7 +32,7 @@ public class ViolationsCountController {
     private final ViolationRepository violationRepository;
 
     @Autowired
-    public ViolationsCountController(ViolationRepository violationRepository) {
+    public ViolationsCountController(final ViolationRepository violationRepository) {
         this.violationRepository = violationRepository;
     }
 
@@ -41,21 +41,21 @@ public class ViolationsCountController {
             response = CountByAccountAndType.class, responseContainer = "List"))
     public List<CountByAccountAndType> countByAccountAndTypes(
             @ApiParam("a list of account ids for filtering, leave blank to request all accounts")
-            @RequestParam
+            @RequestParam final
             Optional<Set<String>> accounts,
             @ApiParam("include only violations, that have been created after this timestamp")
             @RequestParam
-            @DateTimeFormat(iso = DATE_TIME)
+            @DateTimeFormat(iso = DATE_TIME) final
             Optional<DateTime> from,
             @ApiParam("include only violations, that have been created before this timestamp")
             @RequestParam
-            @DateTimeFormat(iso = DATE_TIME)
+            @DateTimeFormat(iso = DATE_TIME) final
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
-            @RequestParam(value = "resolved",required = false, defaultValue = "false")
+            @RequestParam(value = "resolved",required = false, defaultValue = "false") final
             boolean resolved,
             @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
-            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false") final
             boolean whitelisted){
         return violationRepository.countByAccountAndType(accounts.orElseGet(Collections::emptySet), from, to, resolved, whitelisted);
     }
@@ -65,21 +65,21 @@ public class ViolationsCountController {
             response = CountByAppVersionAndType.class, responseContainer = "List"))
     public List<CountByAppVersionAndType> countByAppVersionAndType(
             @ApiParam("an account id")
-            @PathVariable
+            @PathVariable final
             String account,
             @ApiParam("include only violations, that have been created after this timestamp")
             @RequestParam
-            @DateTimeFormat(iso = DATE_TIME)
+            @DateTimeFormat(iso = DATE_TIME) final
             Optional<DateTime> from,
             @ApiParam("include only violations, that have been created before this timestamp")
             @RequestParam
-            @DateTimeFormat(iso = DATE_TIME)
+            @DateTimeFormat(iso = DATE_TIME) final
             Optional<DateTime> to,
             @ApiParam("count only violations that have been resolved (true), or that are still open (false)")
-            @RequestParam(value = "resolved",required = false, defaultValue = "false")
+            @RequestParam(value = "resolved",required = false, defaultValue = "false") final
             boolean resolved,
             @ApiParam("count only violations that have been whitelisted (true), or that are not whitelisted (false)")
-            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            @RequestParam(value = "whitelisted",required = false, defaultValue = "false") final
             boolean whitelisted) {
         return violationRepository.countByAppVersionAndType(account, from, to, resolved, whitelisted);
     }
