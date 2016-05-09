@@ -45,10 +45,10 @@ public class ScmCommitsJob implements FullstopJob {
 
     @Autowired
     public ScmCommitsJob(
-            KioOperations kio,
-            KontrollettiOperations kontrolletti,
-            ApplicationLifecycleService lifecycle,
-            ViolationSink violationSink) {
+            final KioOperations kio,
+            final KontrollettiOperations kontrolletti,
+            final ApplicationLifecycleService lifecycle,
+            final ViolationSink violationSink) {
         this.kio = kio;
         this.kontrolletti = kontrolletti;
         this.lifecycle = lifecycle;
@@ -77,7 +77,7 @@ public class ScmCommitsJob implements FullstopJob {
         log.info("{} finished processing", getClass().getSimpleName());
     }
 
-    private void processApplication(Application app) {
+    private void processApplication(final Application app) {
         try {
             lifecycle.findDeployments(app.getId()).forEach(deployment ->
                     Optional.of(app.getScmUrl())
@@ -86,12 +86,12 @@ public class ScmCommitsJob implements FullstopJob {
                             .map(kontrolletti::getRepository)
                             .flatMap(repo -> findViolationInRepo(repo, deployment, app))
                             .ifPresent(violationSink::put));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.warn("Failed to verify commits in scm repository of " + app, e);
         }
     }
 
-    private Optional<Violation> findViolationInRepo(Repository repository, AccountRegion deployment, Application app) {
+    private Optional<Violation> findViolationInRepo(final Repository repository, final AccountRegion deployment, final Application app) {
         final ZonedDateTime yesterdayMidnight = now().minusDays(1).atStartOfDay(UTC);
         final ZonedDateTime todayMidnight = yesterdayMidnight.plusDays(1);
         return Optional.ofNullable(kontrolletti.listCommits(

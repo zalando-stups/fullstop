@@ -14,8 +14,6 @@ import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 import org.zalando.stups.fullstop.whitelist.WhitelistRules;
 import reactor.bus.EventBus;
 
-import java.util.Optional;
-
 
 public class ViolationJpaPersister extends EventBusViolationHandler {
 

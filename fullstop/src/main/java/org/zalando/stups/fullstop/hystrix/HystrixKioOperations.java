@@ -24,13 +24,13 @@ public class HystrixKioOperations implements KioOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = {HttpClientErrorException.class, IllegalArgumentException.class})
-    public List<ApplicationBase> listApplications(Optional<ZonedDateTime> modifiedBefore, Optional<ZonedDateTime> modifiedAfter) {
+    public List<ApplicationBase> listApplications(final Optional<ZonedDateTime> modifiedBefore, final Optional<ZonedDateTime> modifiedAfter) {
         return delegate.listApplications(modifiedBefore, modifiedAfter);
     }
 
     @Override
     @HystrixCommand(ignoreExceptions = {HttpClientErrorException.class, IllegalArgumentException.class})
-    public List<ApplicationSearchResult> searchApplications(String query, Optional<ZonedDateTime> modifiedBefore, Optional<ZonedDateTime> modifiedAfter) {
+    public List<ApplicationSearchResult> searchApplications(final String query, final Optional<ZonedDateTime> modifiedBefore, final Optional<ZonedDateTime> modifiedAfter) {
         return delegate.searchApplications(query, modifiedBefore, modifiedAfter);
     }
 
@@ -48,7 +48,7 @@ public class HystrixKioOperations implements KioOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = {NotFoundException.class, HttpClientErrorException.class, IllegalArgumentException.class})
-    public List<String> getApplicationApprovalTypes(String applicationId) {
+    public List<String> getApplicationApprovalTypes(final String applicationId) {
         return delegate.getApplicationApprovalTypes(applicationId);
     }
 
@@ -73,7 +73,7 @@ public class HystrixKioOperations implements KioOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = {NotFoundException.class, HttpClientErrorException.class, IllegalArgumentException.class})
-    public List<Approval> getApplicationVersionApprovals(String applicationId, String versionId) {
+    public List<Approval> getApplicationVersionApprovals(final String applicationId, final String versionId) {
         return delegate.getApplicationVersionApprovals(applicationId, versionId);
     }
 

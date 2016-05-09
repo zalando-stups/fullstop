@@ -27,8 +27,8 @@ public class HttpGetRootCall implements Callable<HttpCallResult> {
 
     private final Integer allowedPort;
 
-    public HttpGetRootCall(CloseableHttpClient httpclient,
-                           String host, Integer allowedPort) {
+    public HttpGetRootCall(final CloseableHttpClient httpclient,
+                           final String host, final Integer allowedPort) {
         this.httpclient = httpclient;
         this.host = host;
         this.allowedPort = allowedPort;
@@ -36,7 +36,7 @@ public class HttpGetRootCall implements Callable<HttpCallResult> {
 
     @Override
     public HttpCallResult call() throws Exception {
-        HttpCallResult callResult = new HttpCallResult(false, "");
+        final HttpCallResult callResult = new HttpCallResult(false, "");
         final String scheme = allowedPort == 443 ? "https" : "http";
         final URI uri = new URIBuilder()
                 .setScheme(scheme)

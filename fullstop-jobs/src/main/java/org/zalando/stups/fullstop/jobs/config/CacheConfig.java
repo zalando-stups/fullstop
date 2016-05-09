@@ -25,7 +25,7 @@ public class CacheConfig extends CachingConfigurerSupport {
         return buildCacheManager("maximumSize=1000,expireAfterWrite=2h");
     }
 
-    private static CacheManager buildCacheManager(String spec) {
+    private static CacheManager buildCacheManager(final String spec) {
         final GuavaCacheManager cacheManager = new GuavaCacheManager();
         cacheManager.setCacheBuilderSpec(parse(spec));
         return cacheManager;

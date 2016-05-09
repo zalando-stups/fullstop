@@ -22,8 +22,8 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
      * @return true if rule matches a violation
      */
     @Override
-    public Boolean apply(RuleEntity ruleEntity, ViolationEntity violationEntity) {
-        List<Predicate<ViolationEntity>> predicates = newArrayList();
+    public Boolean apply(final RuleEntity ruleEntity, final ViolationEntity violationEntity) {
+        final List<Predicate<ViolationEntity>> predicates = newArrayList();
 
 
         trimOptional(ruleEntity.getAccountId())
@@ -54,27 +54,27 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
                 .map(WhitelistRulesEvaluator::applicationVersionIsEqual)
                 .ifPresent(predicates::add);
 
-        Optional<Predicate<ViolationEntity>> whiteListTest = predicates.stream().reduce(Predicate::and);
+        final Optional<Predicate<ViolationEntity>> whiteListTest = predicates.stream().reduce(Predicate::and);
 
         return whiteListTest.isPresent() && whiteListTest.get().test(violationEntity);
     }
 
-    private static Predicate<ViolationEntity> accountIsEqual(String account) {
+    private static Predicate<ViolationEntity> accountIsEqual(final String account) {
         return v -> account.equals(v.getAccountId());
     }
 
-    private static Predicate<ViolationEntity> regionIsEqual(String region) {
+    private static Predicate<ViolationEntity> regionIsEqual(final String region) {
         return v -> region.equals(v.getRegion());
     }
 
-    private static Predicate<ViolationEntity> violationTypeIdIsEqual(String violationTypeId) {
+    private static Predicate<ViolationEntity> violationTypeIdIsEqual(final String violationTypeId) {
         return v -> violationTypeId.equals(v.getViolationTypeEntity().getId());
     }
 
-    private static Predicate<ViolationEntity> imageNameMatches(String imageNamePattern) {
+    private static Predicate<ViolationEntity> imageNameMatches(final String imageNamePattern) {
         return v -> {
             if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                final Map<String,String> map = (Map<String, String>) v.getMetaInfo();
                 if (map == null || map.get("ami_name") == null) {
                     return false;
                 }
@@ -85,10 +85,10 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
         };
     }
 
-    private static Predicate<ViolationEntity> imageOwnerIsEqual(String imageOwner) {
+    private static Predicate<ViolationEntity> imageOwnerIsEqual(final String imageOwner) {
         return v -> {
             if(v.getMetaInfo() instanceof Map) {
-                Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+                final Map<String,String> map = (Map<String, String>) v.getMetaInfo();
                 return imageOwner.equals(map.get("ami_owner_id"));
             } else {
                 return false;
@@ -96,7 +96,7 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
         };
     }
 
-    private static Predicate<ViolationEntity> applicationIdIsEqual(String applicationId) {
+    private static Predicate<ViolationEntity> applicationIdIsEqual(final String applicationId) {
         return v -> applicationId.equals(
                 Optional.ofNullable(
                         v.getApplication()).
@@ -104,7 +104,7 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
                         orElse(null));
     }
 
-    private static Predicate<ViolationEntity> applicationVersionIsEqual(String applicationVersion) {
+    private static Predicate<ViolationEntity> applicationVersionIsEqual(final String applicationVersion) {
         return v -> applicationVersion.equals(
                 Optional.ofNullable(
                         v.getApplicationVersion()).
@@ -113,7 +113,7 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
     }
 
 
-    private static Optional<String> trimOptional(String value) {
+    private static Optional<String> trimOptional(final String value) {
         return Optional.ofNullable(value).map(String::trim).filter(string -> !string.isEmpty());
     }
 

@@ -42,7 +42,7 @@ public class ExamplePluginRegistryTest {
         event = Mockito.mock(CloudTrailEvent.class);
         eventData = Mockito.mock(CloudTrailEventData.class);
 
-        List<FullstopPlugin> plugins = new ArrayList<>();
+        final List<FullstopPlugin> plugins = new ArrayList<>();
         plugins.add(new ExamplePlugin());
         pluginRegistry = SimplePluginRegistry.create(plugins);
     }
@@ -53,7 +53,7 @@ public class ExamplePluginRegistryTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
+        final List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
 
         Assertions.assertThat(pluginsThatSupportsTheEvent).isEmpty();
 
@@ -65,7 +65,7 @@ public class ExamplePluginRegistryTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
+        final List<FullstopPlugin> pluginsThatSupportsTheEvent = this.pluginRegistry.getPluginsFor(event);
 
         Assertions.assertThat(pluginsThatSupportsTheEvent).isNotEmpty();
 
@@ -77,11 +77,11 @@ public class ExamplePluginRegistryTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        PluginEventsProcessor processor = new PluginEventsProcessor(pluginRegistry);
+        final PluginEventsProcessor processor = new PluginEventsProcessor(pluginRegistry);
 
         try {
             processor.process(Lists.newArrayList(event));
-        } catch (CallbackException e) {
+        } catch (final CallbackException e) {
             log.error(e.getMessage(), e);
             Assert.fail();
         }

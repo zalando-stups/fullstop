@@ -9,7 +9,6 @@ import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**

@@ -82,15 +82,15 @@ public class ClientConfig {
                 ::get;
     }
 
-    private static URL toUrl(String urlString) {
+    private static URL toUrl(final String urlString) {
         try {
             return new URL(urlString);
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private PieroneOperations newPieroneOperations(URL baseUrl) {
+    private PieroneOperations newPieroneOperations(final URL baseUrl) {
         return new HystrixSpringPieroneOperations(
                 new RestTemplatePieroneOperations(
                         buildOAuth2RestTemplate("pierone"),

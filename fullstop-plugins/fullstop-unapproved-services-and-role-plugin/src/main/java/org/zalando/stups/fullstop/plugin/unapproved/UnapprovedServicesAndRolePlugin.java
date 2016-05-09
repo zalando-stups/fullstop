@@ -34,7 +34,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     private final PolicyTemplatesProvider policyTemplatesProvider;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider,
@@ -49,8 +49,8 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
+        final CloudTrailEventData cloudTrailEventData = event.getEventData();
+        final String eventSource = cloudTrailEventData.getEventSource();
 
         return eventSource.equals(EVENT_SOURCE)
                 && (unapprovedServicesAndRoleProperties.getEventNames().contains(cloudTrailEventData.getEventName()))
@@ -60,7 +60,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        String roleName = getRoleName(event);
+        final String roleName = getRoleName(event);
 
         if (roleName == null) {
             LOG.info("Could not find roleName for event: {}, {} for account: {} and region: {}",
@@ -71,17 +71,17 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
+        final String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
 
-        String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
+        final String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
 
-        JsonNode policyJson;
-        JsonNode templatePolicyJson;
+        final JsonNode policyJson;
+        final JsonNode templatePolicyJson;
 
         try {
             policyJson = objectMapper.readTree(policy);
             templatePolicyJson = objectMapper.readTree(policyTemplate);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOG.warn("Could not read policy tree! For policy: {} and policy template:  {}", policy, policyTemplate);
             return;
         }

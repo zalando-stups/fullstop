@@ -33,7 +33,7 @@ public class CredentialReportCSVParserImpl implements CredentialReportCSVParser 
             .withAllowMissingColumnNames();
 
     @Override
-    public List<CSVReportEntry> apply(GetCredentialReportResult report) {
+    public List<CSVReportEntry> apply(final GetCredentialReportResult report) {
         Assert.state(Textcsv.toString().equals(report.getReportFormat()), "unknown credential report format: " + report.getReportFormat());
 
         try (final Reader r = new BufferedReader(new InputStreamReader(new ByteBufferBackedInputStream(report.getContent())))) {
@@ -48,12 +48,12 @@ public class CredentialReportCSVParserImpl implements CredentialReportCSVParser 
             Assert.state(headers.containsKey("access_key_2_active"), "Header 'access_key_2_active' not found in CSV");
 
             return stream(parser.spliterator(), false).map(this::toCSVReportEntry).filter(Objects::nonNull).collect(toList());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Could not read csv report", e);
         }
     }
 
-    private CSVReportEntry toCSVReportEntry(CSVRecord record) {
+    private CSVReportEntry toCSVReportEntry(final CSVRecord record) {
         final String user = Optional.ofNullable(record.get("user")).orElse("");
         final String arn = Optional.ofNullable(record.get("arn")).orElse("");
         final Boolean passwordEnabled = Optional.ofNullable(record.get("password_enabled")).map(Boolean::valueOf).orElse(false);

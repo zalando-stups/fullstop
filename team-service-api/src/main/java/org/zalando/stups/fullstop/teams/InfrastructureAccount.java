@@ -12,7 +12,7 @@ public class InfrastructureAccount {
     private final String type;
 
     @JsonCreator
-    public InfrastructureAccount(@JsonProperty("id") String id, @JsonProperty("type") String type) {
+    public InfrastructureAccount(@JsonProperty("id") final String id, @JsonProperty("type") final String type) {
         this.id = id;
         this.type = type;
     }
@@ -34,7 +34,7 @@ public class InfrastructureAccount {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

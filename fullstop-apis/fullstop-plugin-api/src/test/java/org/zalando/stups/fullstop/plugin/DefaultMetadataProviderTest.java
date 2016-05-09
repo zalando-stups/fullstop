@@ -10,9 +10,9 @@ public class DefaultMetadataProviderTest {
 
     @Test
     public void testMetadataProvider() {
-        String pluginDescriptorName = getClass().getName();
-        MetadataProvider provider = new DefaultMetadataProvider(pluginDescriptorName);
-        PluginMetadata metadata = provider.getMetadata();
+        final String pluginDescriptorName = getClass().getName();
+        final MetadataProvider provider = new DefaultMetadataProvider(pluginDescriptorName);
+        final PluginMetadata metadata = provider.getMetadata();
         assertThat(metadata).isNotNull();
         assertThat(metadata.getName()).isNotNull();
         assertThat(metadata.getName()).isNotEmpty();
@@ -25,9 +25,9 @@ public class DefaultMetadataProviderTest {
 
     @Test
     public void testMetadataProviderNotFound() {
-        String pluginDescriptorName = "NotFound";
-        MetadataProvider provider = new DefaultMetadataProvider(pluginDescriptorName);
-        PluginMetadata metadata = provider.getMetadata();
+        final String pluginDescriptorName = "NotFound";
+        final MetadataProvider provider = new DefaultMetadataProvider(pluginDescriptorName);
+        final PluginMetadata metadata = provider.getMetadata();
         assertThat(metadata).isNotNull();
         assertThat(metadata.getName()).isNotNull();
         assertThat(metadata.getName()).isNotEmpty();

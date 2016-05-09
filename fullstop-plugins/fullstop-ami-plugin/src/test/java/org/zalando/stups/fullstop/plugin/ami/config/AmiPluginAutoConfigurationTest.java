@@ -8,7 +8,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.ami.AmiPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;

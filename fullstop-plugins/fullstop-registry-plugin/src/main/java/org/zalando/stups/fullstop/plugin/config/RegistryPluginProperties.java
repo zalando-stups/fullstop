@@ -28,7 +28,7 @@ public class RegistryPluginProperties {
         return mandatoryApprovals;
     }
 
-    public void setMandatoryApprovals(List<String> defaultApprovals) {
+    public void setMandatoryApprovals(final List<String> defaultApprovals) {
         this.mandatoryApprovals = defaultApprovals;
     }
 
@@ -38,7 +38,7 @@ public class RegistryPluginProperties {
         return approvalsFromMany;
     }
 
-    public void setApprovalsFromMany(List<String> approvalsFromMany) {
+    public void setApprovalsFromMany(final List<String> approvalsFromMany) {
         this.approvalsFromMany = approvalsFromMany;
     }
 

@@ -125,17 +125,17 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     }
 
     @Override
-    public ApplicationEntity findAppByInstanceIds(String accountId, String region, Collection<String> instanceIds) {
+    public ApplicationEntity findAppByInstanceIds(final String accountId, final String region, final Collection<String> instanceIds) {
         return applicationRepository.findByInstanceIds(accountId, region, instanceIds);
     }
 
     @Override
-    public Set<AccountRegion> findDeployments(String applicationId) {
+    public Set<AccountRegion> findDeployments(final String applicationId) {
         return applicationRepository.findDeployments(applicationId);
     }
 
     @Override
-    public Page<LifecycleEntity> findByApplicationNameAndVersion(String name, String version, Pageable pageable) {
+    public Page<LifecycleEntity> findByApplicationNameAndVersion(final String name, final String version, final Pageable pageable) {
         return lifecycleRepository.findByApplicationNameAndVersion(name, version, pageable);
     }
 }

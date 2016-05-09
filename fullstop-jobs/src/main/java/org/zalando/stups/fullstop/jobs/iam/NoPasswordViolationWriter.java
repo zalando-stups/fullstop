@@ -29,12 +29,12 @@ public class NoPasswordViolationWriter {
     private final JobsProperties jobsProperties;
 
     @Autowired
-    public NoPasswordViolationWriter(ViolationSink violationSink, JobsProperties jobsProperties) {
+    public NoPasswordViolationWriter(final ViolationSink violationSink, final JobsProperties jobsProperties) {
         this.violationSink = violationSink;
         this.jobsProperties = jobsProperties;
     }
 
-    public void writeNoPasswordViolation(String accountId, CSVReportEntry csvReportEntry) {
+    public void writeNoPasswordViolation(final String accountId, final CSVReportEntry csvReportEntry) {
         log.info("Found IAM user {} that has a password in account {}", csvReportEntry.getUser(), accountId);
         violationSink.put(
                 new ViolationBuilder()
@@ -47,7 +47,7 @@ public class NoPasswordViolationWriter {
                         .build());
     }
 
-    public void writeRootUserViolation(List<Map<String, String>> metaInfoList) {
+    public void writeRootUserViolation(final List<Map<String, String>> metaInfoList) {
         log.info("Found IAM root user that has configuration problem");
 
         violationSink.put(new ViolationBuilder()

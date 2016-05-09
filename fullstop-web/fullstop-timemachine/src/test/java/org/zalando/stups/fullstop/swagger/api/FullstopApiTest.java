@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Date;
 
 import static org.joda.time.DateTimeZone.UTC;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -74,7 +73,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
     }
 
     @Override
-    protected void configure(StandaloneMockMvcBuilder mockMvcBuilder) {
+    protected void configure(final StandaloneMockMvcBuilder mockMvcBuilder) {
         super.configure(mockMvcBuilder);
         mockMvcBuilder.alwaysDo(print());
     }
@@ -96,7 +95,7 @@ public class FullstopApiTest extends RestControllerTestSupport {
                         any(),
                         any())).thenReturn(new LifecycleEntity());
 
-        byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
+        final byte[] bytes = objectMapper.writeValueAsBytes(logObjRequest);
 
         this.mockMvc.perform(
                 post("/api/instance-logs").contentType(APPLICATION_JSON).content(bytes))

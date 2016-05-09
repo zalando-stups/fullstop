@@ -37,7 +37,7 @@ public class SimpleFullstopIT {
     public void pluginRegistryAvailable() throws InterruptedException {
         Assertions.assertThat(pluginRegistry).isNotNull();
 
-        List<FullstopPlugin> listOfPlugins = pluginRegistry.getPlugins();
+        final List<FullstopPlugin> listOfPlugins = pluginRegistry.getPlugins();
 
         // be aware that we have the example-plugin always registered
         Assertions.assertThat(listOfPlugins.size()).isGreaterThanOrEqualTo(1);

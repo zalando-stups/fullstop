@@ -50,7 +50,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         final Optional<Application> optionalKioApp = context.getKioApplication();
         if (!optionalKioApp.isPresent()) {
             log.warn("Missing Kio App for {}. Skip ScmRepositoryPlugin.", context);

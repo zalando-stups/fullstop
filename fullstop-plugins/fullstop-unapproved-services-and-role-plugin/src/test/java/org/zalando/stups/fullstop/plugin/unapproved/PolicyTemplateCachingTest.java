@@ -10,7 +10,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -37,7 +36,7 @@ public class PolicyTemplateCachingTest {
     public void testGetS3Objects() throws Exception {
         when(s3ServiceMock.listS3Objects(any(), any())).thenReturn(newArrayList("test", "test"));
 
-        List<String> s3Objects = policyTemplatesProvider.getPolicyTemplateNames();
+        final List<String> s3Objects = policyTemplatesProvider.getPolicyTemplateNames();
 
         assertThat(s3Objects).isNotEmpty();
 

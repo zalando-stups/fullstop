@@ -51,7 +51,7 @@ public class ViolationSinkIT {
     @Test
     public void handleViolation() throws InterruptedException {
 
-        ViolationBuilder vBuilder = new ViolationBuilder();
+        final ViolationBuilder vBuilder = new ViolationBuilder();
         vBuilder.withPluginFullyQualifiedClassName(ViolationSinkIT.class);
         vBuilder.withAccountId("1234567");
         vBuilder.withEventId(UUID.randomUUID().toString());
@@ -62,7 +62,7 @@ public class ViolationSinkIT {
 
         latch.await(5, TimeUnit.SECONDS);
 
-        int count = handler.getCount();
+        final int count = handler.getCount();
         Assertions.assertThat(count).isGreaterThan(0);
     }
 }

@@ -26,7 +26,7 @@ public class ApplicationEntity extends AbstractModifiableEntity {
     public ApplicationEntity() {
     }
 
-    public ApplicationEntity(String name) {
+    public ApplicationEntity(final String name) {
         this.name = name;
     }
 
@@ -34,7 +34,7 @@ public class ApplicationEntity extends AbstractModifiableEntity {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -48,15 +48,15 @@ public class ApplicationEntity extends AbstractModifiableEntity {
     }
 
     public void setVersionEntities(
-            List<VersionEntity> versionEntities) {
+            final List<VersionEntity> versionEntities) {
         this.versionEntities = versionEntities;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ApplicationEntity that = (ApplicationEntity) o;
+        final ApplicationEntity that = (ApplicationEntity) o;
         return Objects.equals(getName(), that.getName());
     }
 

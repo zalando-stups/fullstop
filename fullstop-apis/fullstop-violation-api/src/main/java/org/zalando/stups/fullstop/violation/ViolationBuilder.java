@@ -30,7 +30,7 @@ public class ViolationBuilder {
     }
 
     public Violation build() {
-        DefaultViolation violation = new DefaultViolation();
+        final DefaultViolation violation = new DefaultViolation();
 
         violation.setEventId(eventId);
         violation.setAccountId(accountId);
@@ -71,12 +71,12 @@ public class ViolationBuilder {
         return this;
     }
 
-    public ViolationBuilder withType(String type) {
+    public ViolationBuilder withType(final String type) {
         this.type = type;
         return this;
     }
 
-    public ViolationBuilder withPluginFullyQualifiedClassName(Class pluginFullyQualifiedClassName) {
+    public ViolationBuilder withPluginFullyQualifiedClassName(final Class pluginFullyQualifiedClassName) {
         this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName.getName();
         return this;
     }
@@ -87,13 +87,13 @@ public class ViolationBuilder {
     }
 
 
-    public ViolationBuilder withApplicationId(String applicationId) {
+    public ViolationBuilder withApplicationId(final String applicationId) {
         this.applicationId = applicationId;
         return this;
     }
 
 
-    public ViolationBuilder withApplicationVersion(String applicationVersion) {
+    public ViolationBuilder withApplicationVersion(final String applicationVersion) {
         this.applicationVersion = applicationVersion;
         return this;
     }

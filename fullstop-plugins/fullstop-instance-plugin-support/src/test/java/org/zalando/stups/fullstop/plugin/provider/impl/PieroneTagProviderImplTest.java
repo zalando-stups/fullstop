@@ -26,7 +26,7 @@ public class PieroneTagProviderImplTest {
 
     @Before
     public void setUp() {
-        Map<String, PieroneOperations> pieroneOperationsMap = newHashMap();
+        final Map<String, PieroneOperations> pieroneOperationsMap = newHashMap();
         pieroneOperationsMock = mock(PieroneOperations.class);
 
         pieroneOperationsMap.put("pierone.example.org", pieroneOperationsMock);
@@ -44,14 +44,14 @@ public class PieroneTagProviderImplTest {
     public void testPieroneTagFound() throws Exception {
         when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("pierone.example.org/team/artifact:tag"));
 
-        Map<String, TagSummary> tagsMap = newHashMap();
-        TagSummary tagSummary = new TagSummary("name", ZonedDateTime.now(), "me");
+        final Map<String, TagSummary> tagsMap = newHashMap();
+        final TagSummary tagSummary = new TagSummary("name", ZonedDateTime.now(), "me");
         tagsMap.put("tag", tagSummary);
 
         when(pieroneOperationsMock.listTags(eq("team"), eq("artifact"))).thenReturn(tagsMap);
 
 
-        Optional<TagSummary> result = pieroneTagProvider.apply(ec2InstanceContextMock);
+        final Optional<TagSummary> result = pieroneTagProvider.apply(ec2InstanceContextMock);
         assertThat(result).isPresent();
 
         verify(ec2InstanceContextMock).getSource();
@@ -62,7 +62,7 @@ public class PieroneTagProviderImplTest {
     public void testPieroneTagNotFound() throws Exception {
         when(ec2InstanceContextMock.getSource()).thenReturn(Optional.of("opensource.example.org/team/artifact:tag"));
 
-        Optional<TagSummary> result = pieroneTagProvider.apply(ec2InstanceContextMock);
+        final Optional<TagSummary> result = pieroneTagProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getSource();

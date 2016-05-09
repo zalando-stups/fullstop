@@ -95,16 +95,16 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
     private final EC2InstanceProvider ec2Instance;
 
     @Autowired
-    public FetchElasticLoadBalancersJob(ViolationSink violationSink,
-                                        ClientProvider clientProvider,
-                                        AccountIdSupplier allAccountIds, JobsProperties jobsProperties,
-                                        @Qualifier("elbSecurityGroupsChecker") SecurityGroupsChecker securityGroupsChecker,
-                                        PortsChecker portsChecker,
-                                        AwsApplications awsApplications,
-                                        ViolationService violationService,
-                                        FetchTaupageYaml fetchTaupageYaml,
-                                        AmiDetailsProvider amiDetailsProvider,
-                                        EC2InstanceProvider ec2Instance) {
+    public FetchElasticLoadBalancersJob(final ViolationSink violationSink,
+                                        final ClientProvider clientProvider,
+                                        final AccountIdSupplier allAccountIds, final JobsProperties jobsProperties,
+                                        @Qualifier("elbSecurityGroupsChecker") final SecurityGroupsChecker securityGroupsChecker,
+                                        final PortsChecker portsChecker,
+                                        final AwsApplications awsApplications,
+                                        final ViolationService violationService,
+                                        final FetchTaupageYaml fetchTaupageYaml,
+                                        final AmiDetailsProvider amiDetailsProvider,
+                                        final EC2InstanceProvider ec2Instance) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -162,14 +162,14 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
     @Scheduled(fixedRate = 300_000, initialDelay = 120_000) // 5 min rate, 2 min delay
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
-        for (String account : allAccountIds.get()) {
-            for (String region : jobsProperties.getWhitelistedRegions()) {
+        for (final String account : allAccountIds.get()) {
+            for (final String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
 
                 try {
                     final Region awsRegion = getRegion(fromName(region));
 
-                    for (LoadBalancerDescription elb : getELBs(account, region)) {
+                    for (final LoadBalancerDescription elb : getELBs(account, region)) {
                         final Map<String, Object> metaData = newHashMap();
                         final List<String> errorMessages = newArrayList();
                         final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
@@ -194,7 +194,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                             continue;
                         }
 
-                        List<Integer> unsecuredPorts = portsChecker.check(elb);
+                        final List<Integer> unsecuredPorts = portsChecker.check(elb);
                         if (!unsecuredPorts.isEmpty()) {
                             metaData.put("unsecuredPorts", unsecuredPorts);
                             errorMessages.add(format("ELB %s listens on insecure ports! Only ports 80 and 443 are allowed",
@@ -226,9 +226,9 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                             continue;
                         }
 
-                        for (Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
-                            HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
-                            ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
+                        for (final Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
+                            final HttpGetRootCall HttpGetRootCall = new HttpGetRootCall(httpclient, canonicalHostedZoneName, allowedPort);
+                            final ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
                             listenableFuture.addCallback(
                                     httpCallResult -> {
                                         log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
@@ -248,7 +248,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
                     }
 
-                } catch (AmazonServiceException a) {
+                } catch (final AmazonServiceException a) {
 
                     if (a.getErrorCode().equals("RequestLimitExceeded")) {
                         log.warn("RequestLimitExceeded for account: {}", account);

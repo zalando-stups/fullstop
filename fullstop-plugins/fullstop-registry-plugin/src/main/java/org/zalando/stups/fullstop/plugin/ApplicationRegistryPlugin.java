@@ -42,7 +42,7 @@ public class ApplicationRegistryPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         final Optional<String> optionalAppId = context.getApplicationId();
         if (!optionalAppId.isPresent()) {
             log.warn("Could not find application_id for {}. Will skip execution of ApplicationRegistryPlugin.", context);
@@ -127,12 +127,12 @@ public class ApplicationRegistryPlugin extends AbstractEC2InstancePlugin {
         // https://github.com/zalando-stups/fullstop/issues/140
         // => code, test and deploy approvals have to be done by at least two different people
         // e.g. four-eyes-principle
-        int approverCount = approvals.stream()
+        final int approverCount = approvals.stream()
                 .filter(relevantApprovalTypes())
                 .map(Approval::getUserId)
                 .collect(toSet())
                 .size();
-        int minApprovals = kioApplication.get().getRequiredApprovers();
+        final int minApprovals = kioApplication.get().getRequiredApprovers();
         if (approverCount < minApprovals)
 
         {

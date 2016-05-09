@@ -28,7 +28,7 @@ public class AmiProviderImpl implements AmiProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, Optional<Image>>() {
                 @Override
-                public Optional<Image> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public Optional<Image> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final Optional<Image> amiName = getAmi(context);
                     if (!amiName.isPresent()) {
                         log.warn("Could not find the AMI for {}", context);
@@ -37,7 +37,7 @@ public class AmiProviderImpl implements AmiProvider {
                 }
             });
 
-    private Optional<Image> getAmi(@Nonnull EC2InstanceContext context) {
+    private Optional<Image> getAmi(@Nonnull final EC2InstanceContext context) {
         final Optional<String> amiId = context.getAmiId();
         try {
             return amiId
@@ -46,14 +46,14 @@ public class AmiProviderImpl implements AmiProvider {
                             .describeImages(new DescribeImagesRequest().withImageIds(id)))
                     .map(DescribeImagesResult::getImages)
                     .flatMap(images -> images.stream().findFirst());
-        } catch (AmazonClientException e) {
+        } catch (final AmazonClientException e) {
             log.warn("Could not get AMI of: " + amiId.get(), e);
             return empty();
         }
     }
 
     @Override
-    public Optional<Image> apply(EC2InstanceContext context) {
+    public Optional<Image> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }

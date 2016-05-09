@@ -44,7 +44,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
-    public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+    public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
 
         checkPermission(userId);
 
@@ -58,7 +58,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
     @ResponseStatus(CREATED)
-    public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+    public RuleEntity addWhitelisting(@RequestBody final RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
 
         checkPermission(userId);
         return ruleEntityService.save(ruleDTO);
@@ -71,9 +71,9 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
-                                      final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
+                                      final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws NotFoundException, ForbiddenException {
         checkPermission(userId);
-        RuleEntity ruleEntity = ruleEntityService.findById(id);
+        final RuleEntity ruleEntity = ruleEntityService.findById(id);
         if (ruleEntity == null) {
             throw new NotFoundException(format("No such Rule! Id: %s", id));
         }
@@ -85,18 +85,18 @@ public class RuleController {
             authorizations = {@Authorization(value = "oauth", scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Updated")})
     @ResponseStatus(OK)
-    public RuleEntity updateWhitelisting(@RequestBody RuleDTO ruleDTO,
+    public RuleEntity updateWhitelisting(@RequestBody final RuleDTO ruleDTO,
                                          @PathVariable("id") final Long id,
-                                         @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+                                         @AuthenticationPrincipal(errorOnInvalidType = true) final String userId)
             throws ForbiddenException, NotFoundException {
 
         checkPermission(userId);
 
-        RuleEntity ruleEntity;
+        final RuleEntity ruleEntity;
 
         try {
             ruleEntity = ruleEntityService.update(ruleDTO, id);
-        } catch (NoSuchElementException e) {
+        } catch (final NoSuchElementException e) {
             throw new NotFoundException(e.getMessage());
         }
 
@@ -104,7 +104,7 @@ public class RuleController {
     }
 
 
-    private void checkPermission(String userId) throws ForbiddenException {
+    private void checkPermission(final String userId) throws ForbiddenException {
         Preconditions.checkNotNull(userId, "userId must not be null!");
         final Set<String> teams = teamOperations.getTeamIdsByUser(userId);
         final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();

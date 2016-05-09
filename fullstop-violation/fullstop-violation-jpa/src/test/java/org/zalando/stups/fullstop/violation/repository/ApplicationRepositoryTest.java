@@ -112,29 +112,29 @@ public class ApplicationRepositoryTest {
 
     @Test
     public void testVersionsAreSaved() throws Exception {
-        ApplicationEntity one = applicationRepository.findOne(application.getId());
+        final ApplicationEntity one = applicationRepository.findOne(application.getId());
         assertThat(one.getVersionEntities()).isNotEmpty();
     }
 
     @Test
     public void testManyToMany() throws IOException {
-        List<ApplicationEntity> applications = applicationRepository.findAll();
+        final List<ApplicationEntity> applications = applicationRepository.findAll();
         assertThat(applications).isNotNull();
         assertThat(applications).isNotEmpty();
     }
 
     @Test
     public void testAppHasMultipleVersions() throws Exception {
-        ApplicationEntity application = applicationRepository.findOne(this.application.getId());
-        List<VersionEntity> appVersions = application.getVersionEntities();
+        final ApplicationEntity application = applicationRepository.findOne(this.application.getId());
+        final List<VersionEntity> appVersions = application.getVersionEntities();
         assertThat(appVersions.size()).isEqualTo(2);
     }
 
     @Test
     public void testVersionsHaveSameApp() throws Exception {
-        List<VersionEntity> versionEntities = versionRepository.findAll();
-        List<ApplicationEntity> apps1 = versionEntities.get(0).getApplicationEntities();
-        List<ApplicationEntity> apps2 = versionEntities.get(1).getApplicationEntities();
+        final List<VersionEntity> versionEntities = versionRepository.findAll();
+        final List<ApplicationEntity> apps1 = versionEntities.get(0).getApplicationEntities();
+        final List<ApplicationEntity> apps2 = versionEntities.get(1).getApplicationEntities();
         assertThat(apps1.get(0)).isEqualTo(apps2.get(0));
     }
 

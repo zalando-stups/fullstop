@@ -40,7 +40,7 @@ public class PluginEventsProcessor implements EventsProcessor {
      * @see #doProcess(CloudTrailEvent, FullstopPlugin)
      */
     protected void doProcess(final CloudTrailEvent event) {
-        for (FullstopPlugin plugin : getPluginsForEvent(event)) {
+        for (final FullstopPlugin plugin : getPluginsForEvent(event)) {
             doProcess(event, plugin);
         }
     }
@@ -53,7 +53,7 @@ public class PluginEventsProcessor implements EventsProcessor {
             plugin.processEvent(event);
         } catch (HystrixRuntimeException | HttpServerErrorException e) {
             log.warn(e.getMessage(), e);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error(e.getMessage(), e);
         }
     }

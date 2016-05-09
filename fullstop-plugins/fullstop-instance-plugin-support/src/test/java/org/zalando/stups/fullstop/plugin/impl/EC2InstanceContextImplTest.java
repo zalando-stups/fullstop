@@ -22,12 +22,12 @@ public class EC2InstanceContextImplTest {
     private Map<String, Double> USER_DATA;
     private TaupageYamlProvider taupageYamlProviderMock;
     private CloudTrailEvent eventMock;
-    private String instanceJsonMock = "";
+    private final String instanceJsonMock = "";
     private ClientProvider clientProviderMock;
     private AmiIdProvider amiIdProviderMock;
     private AmiProvider amiProviderMock;
-    private String taupageNamePrefixMock = "";
-    private List<String> taupageOwnersMock = Lists.newArrayList("");
+    private final String taupageNamePrefixMock = "";
+    private final List<String> taupageOwnersMock = Lists.newArrayList("");
     private KioApplicationProvider kioApplicationProviderMock;
     private KioVersionProvider kioVersionProviderMock;
     private KioApprovalProvider kioApprovalProviderMock;
@@ -60,11 +60,11 @@ public class EC2InstanceContextImplTest {
         USER_DATA.put("application_version", 10.0);
 
         when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(USER_DATA));
-        EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
+        final EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
                 eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
                 taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock, kioVersionProviderMock, kioApprovalProviderMock,
                 pieroneTagProviderMock, scmSourceProviderMock);
-        Optional<String> versionId = ec2InstanceContext.getVersionId();
+        final Optional<String> versionId = ec2InstanceContext.getVersionId();
         assertThat(versionId).isPresent();
         assertThat(versionId.get()).isExactlyInstanceOf(String.class);
         assertThat(versionId.get()).isEqualTo("10.0");
@@ -75,11 +75,11 @@ public class EC2InstanceContextImplTest {
         USER_DATA.put("application_version", null);
 
         when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(USER_DATA));
-        EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
+        final EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
                 eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
                 taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock, kioVersionProviderMock, kioApprovalProviderMock,
                 pieroneTagProviderMock, scmSourceProviderMock);
-        Optional<String> versionId = ec2InstanceContext.getVersionId();
+        final Optional<String> versionId = ec2InstanceContext.getVersionId();
         assertThat(versionId).isEmpty();
     }
 }

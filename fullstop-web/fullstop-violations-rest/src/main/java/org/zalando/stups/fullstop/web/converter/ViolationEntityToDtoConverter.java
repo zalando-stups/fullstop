@@ -16,13 +16,13 @@ public class ViolationEntityToDtoConverter implements Converter<ViolationEntity,
     private final Converter<ViolationTypeEntity, ViolationType> violationTypeConverter;
 
     @Autowired
-    public ViolationEntityToDtoConverter(Converter<ViolationTypeEntity, ViolationType> violationTypeConverter) {
+    public ViolationEntityToDtoConverter(final Converter<ViolationTypeEntity, ViolationType> violationTypeConverter) {
         this.violationTypeConverter = violationTypeConverter;
     }
 
     @Override
-    public Violation convert(ViolationEntity source) {
-        Violation violation = new Violation();
+    public Violation convert(final ViolationEntity source) {
+        final Violation violation = new Violation();
 
         violation.setId(source.getId());
         violation.setVersion(source.getVersion());

@@ -32,7 +32,7 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
     private final Logger log = getLogger(getClass());
 
     @Autowired
-    public FetchTaupageYamlImpl(ClientProvider clientProvider) {
+    public FetchTaupageYamlImpl(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
@@ -58,7 +58,7 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
                     .filter(data -> data instanceof Map) // everything else is obviously no valid taupage format
                     .map(data -> (Map) data);
 
-        } catch (AmazonClientException e) {
+        } catch (final AmazonClientException e) {
             log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
             return empty();
         } catch (ScannerException | ParserException | IllegalArgumentException s) {

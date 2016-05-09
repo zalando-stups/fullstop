@@ -10,7 +10,6 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.unapproved.impl.PolicyProviderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,7 +50,7 @@ public class PolicyProviderTest {
         try {
             policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
         }
-        catch (RuntimeException e) {
+        catch (final RuntimeException e) {
             assertThat(
                     e.getMessage()
                      .startsWith("Somehow we could not create an AmazonIdentityManagementClient with accountId:"));
