@@ -48,7 +48,7 @@ public class ViolationEntityToDtoConverter implements Converter<ViolationEntity,
         }
 
         if (source.getApplicationVersion() != null) {
-            violation.setApplicationVersion(source.getApplicationVersion().getName());
+            violation.setApplicationVersionId(source.getApplicationVersion().getName());
         }
 
 
