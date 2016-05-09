@@ -40,7 +40,7 @@ public class RuleEntityServiceImplTest {
     public void setUp() throws Exception {
         reset(ruleEntityRepository);
 
-        ruleEntity = mock(RuleEntity.class);
+        ruleEntity = new RuleEntity();
         ruleEntity.setId(1L);
         ruleEntity.setAccountId("1234");
     }
@@ -126,15 +126,14 @@ public class RuleEntityServiceImplTest {
 
     @Test
     public void testExpireSuccessfully() throws Exception {
-        final DateTime now = DateTime.now();
-        ruleEntity.setExpiryDate(now);
-        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+        final RuleEntity re = mock(RuleEntity.class);
+        when(re.getExpiryDate()).thenReturn(DateTime.now().plusDays(2));
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(re);
 
-        final DateTime expiryDate = DateTime.now().plusDays(1);
-        ruleEntityServiceImpl.expire(1L, expiryDate);
+        ruleEntityServiceImpl.expire(1L, DateTime.now().plusDays(1));
 
         verify(ruleEntityRepository).findOne(anyLong());
-        verify(ruleEntityRepository).save(ruleEntity);
+        verify(ruleEntityRepository).save(re);
     }
 
     @Test
@@ -143,8 +142,8 @@ public class RuleEntityServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testExpireFails() throws Exception {
-        final DateTime now = DateTime.now();
+    public void testExpireExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().plusDays(1);
         ruleEntity.setExpiryDate(now);
         when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
 
@@ -154,7 +153,20 @@ public class RuleEntityServiceImplTest {
         } finally {
             verify(ruleEntityRepository).findOne(anyLong());
         }
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireOldExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().minusDays(1);
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().plusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
     }
 
     @Configuration

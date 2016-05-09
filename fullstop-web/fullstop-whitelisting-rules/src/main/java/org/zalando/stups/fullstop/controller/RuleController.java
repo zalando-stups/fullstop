@@ -120,7 +120,7 @@ public class RuleController {
 
         checkPermission(userId);
 
-        final DateTime assertedExpiryDate = ofNullable(expiryDate).orElse(DateTime.now());
+        final DateTime assertedExpiryDate = ofNullable(expiryDate).orElse(DateTime.now().plusMinutes(1));
 
         try {
             ruleEntityService.expire(id, assertedExpiryDate);
