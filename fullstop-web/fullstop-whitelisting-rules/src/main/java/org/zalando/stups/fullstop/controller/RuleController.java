@@ -2,7 +2,9 @@ package org.zalando.stups.fullstop.controller;
 
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.*;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.config.RuleControllerProperties;
@@ -18,8 +20,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static java.util.Optional.ofNullable;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -29,7 +32,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class RuleController {
 
     @Autowired
-    RuleEntityService ruleEntityService;
+    private RuleEntityService ruleEntityService;
 
     @Autowired
     private TeamOperations teamOperations;
@@ -103,13 +106,35 @@ public class RuleController {
         return ruleEntity;
     }
 
+    @RequestMapping(value = "/{id}", method = DELETE)
+    @ApiOperation(value = "Sets a new expiry date on a rule. If there is no given expiry date, it defaults to now() and the rule is invalid immediately",
+            authorizations = {@Authorization(value = "oauth", scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiResponses(value = {@ApiResponse(code = 204, message = "Deleted")})
+    @ResponseStatus(NO_CONTENT)
+    public void expireWhitelistRule(@PathVariable("id") final Long id,
+                                   @RequestParam(value = "expiryDate", required = false)
+                                   @DateTimeFormat(iso = DATE_TIME)
+                                   final DateTime expiryDate,
+                                   @AuthenticationPrincipal(errorOnInvalidType = true) final String userId)
+            throws ForbiddenException, NotFoundException {
+
+        checkPermission(userId);
+
+        final DateTime assertedExpiryDate = ofNullable(expiryDate).orElse(DateTime.now());
+
+        try {
+            ruleEntityService.expire(id, assertedExpiryDate);
+        } catch (NoSuchElementException | IllegalArgumentException ex) {
+            throw new NotFoundException(ex.getMessage());
+        }
+    }
 
     private void checkPermission(String userId) throws ForbiddenException {
         Preconditions.checkNotNull(userId, "userId must not be null!");
         final Set<String> teams = teamOperations.getTeamIdsByUser(userId);
         final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();
 
-        if (allowedTeams.stream().noneMatch(teams::contains)){
+        if (allowedTeams.stream().noneMatch(teams::contains)) {
             throw new ForbiddenException(format("%s has no permission! Found Teams: %s; required teams %s", userId, teams, allowedTeams));
         }
     }

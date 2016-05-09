@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.rule.service;
 
+import org.joda.time.DateTime;
 import org.zalando.stups.fullstop.rule.entity.RuleDTO;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 
@@ -17,4 +18,6 @@ public interface RuleEntityService {
     List<RuleEntity> findByNotExpired();
 
     List<RuleEntity> findAll();
+
+    void expire(Long id, DateTime expiryDate) throws NoSuchElementException, IllegalArgumentException;
 }

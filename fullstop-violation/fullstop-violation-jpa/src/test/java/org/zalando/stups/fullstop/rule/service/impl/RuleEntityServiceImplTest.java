@@ -40,7 +40,7 @@ public class RuleEntityServiceImplTest {
     public void setUp() throws Exception {
         reset(ruleEntityRepository);
 
-        ruleEntity = new RuleEntity();
+        ruleEntity = mock(RuleEntity.class);
         ruleEntity.setId(1L);
         ruleEntity.setAccountId("1234");
     }
@@ -121,6 +121,39 @@ public class RuleEntityServiceImplTest {
         assertThat(ruleEntities).hasSize(1);
 
         verify(ruleEntityRepository).findAll();
+
+    }
+
+    @Test
+    public void testExpireSuccessfully() throws Exception {
+        final DateTime now = DateTime.now();
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        final DateTime expiryDate = DateTime.now().plusDays(1);
+        ruleEntityServiceImpl.expire(1L, expiryDate);
+
+        verify(ruleEntityRepository).findOne(anyLong());
+        verify(ruleEntityRepository).save(ruleEntity);
+    }
+
+    @Test
+    public void testExpireWithNull() throws Exception {
+        ruleEntityServiceImpl.expire(1L, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireFails() throws Exception {
+        final DateTime now = DateTime.now();
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().minusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
 
     }
 

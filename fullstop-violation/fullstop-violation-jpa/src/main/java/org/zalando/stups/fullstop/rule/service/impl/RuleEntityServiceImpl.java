@@ -74,8 +74,25 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         return ruleEntityRepository.findAll();
     }
 
+    @Override
+    public void expire(final Long id, final DateTime newExpiryDate) throws NoSuchElementException {
+        if (newExpiryDate != null) {
+            final RuleEntity entity = ofNullable(ruleEntityRepository.findOne(id))
+                    .orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
+            if (newExpiryDate.isAfter(entity.getExpiryDate())) {
+                invalidateRule(entity, newExpiryDate);
+            } else {
+                throw new IllegalArgumentException(format("New expiry date lies in the past: %s old: %s", newExpiryDate, entity.getExpiryDate()));
+            }
+        }
+    }
+
     private RuleEntity invalidateRule(RuleEntity ruleEntity) {
-        ruleEntity.setExpiryDate(DateTime.now());
+        return invalidateRule(ruleEntity, DateTime.now());
+    }
+
+    private RuleEntity invalidateRule(final RuleEntity ruleEntity, final DateTime expiryDate) {
+        ruleEntity.setExpiryDate(expiryDate);
         return ruleEntityRepository.save(ruleEntity);
     }
 
