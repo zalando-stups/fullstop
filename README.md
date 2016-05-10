@@ -61,7 +61,11 @@ Fullstop. also keeps record of your application lifecycles. for more information
 [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin) and the
 [Application lifecycle API](fullstop-web/fullstop-lifecycle-api)
 
+##Information sources
 
+Fullstop uses different source to gather information.
+
+![information-sources](docs/information_sources.png)
 ##Configuration
 
 This environment variables should be set:
