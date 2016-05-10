@@ -16,22 +16,22 @@ public abstract class EventBusViolationHandler implements SmartLifecycle {
 
     private volatile boolean running;
 
-    private Object selector = "/violations";
+    private final Object selector = "/violations";
 
-    private EventBus eventBus;
+    private final EventBus eventBus;
 
     private Registration reg;
 
-    public EventBusViolationHandler(EventBus eventBus) {
+    public EventBusViolationHandler(final EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
-    protected void handleEvent(Event<?> event) {
+    protected void handleEvent(final Event<?> event) {
         handleUnwrappedEvent(event.getData());
     }
 
-    protected void handleUnwrappedEvent(Object data) {
-        Violation violation = Violation.class.cast(data);
+    protected void handleUnwrappedEvent(final Object data) {
+        final Violation violation = Violation.class.cast(data);
         handleViolation(violation);
     }
 

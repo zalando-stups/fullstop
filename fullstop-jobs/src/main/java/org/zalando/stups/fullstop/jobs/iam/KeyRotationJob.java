@@ -28,7 +28,7 @@ public class KeyRotationJob implements FullstopJob {
     private final AccountIdSupplier allAccountIds;
 
     @Autowired
-    public KeyRotationJob(final IdentityManagementDataSource iamDataSource, KeyRotationViolationWriter violationWriter, JobsProperties properties, AccountIdSupplier allAccountIds) {
+    public KeyRotationJob(final IdentityManagementDataSource iamDataSource, final KeyRotationViolationWriter violationWriter, final JobsProperties properties, final AccountIdSupplier allAccountIds) {
         this.violationWriter = violationWriter;
         this.iamDataSource = iamDataSource;
         this.properties = properties;

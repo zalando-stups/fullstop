@@ -17,32 +17,32 @@ public class CloudTrailEventSupportTest {
 
     @Test
     public void getInstanceIdsTest() {
-        List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/responseElements.json"));
+        final List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/responseElements.json"));
         assertThat(instanceIds).isNotEmpty();
     }
 
     @Test
     public void getInstancesTest() {
-        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/responseElements.json");
-        List<String> instances = getInstances(cloudTrailEvent);
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/responseElements.json");
+        final List<String> instances = getInstances(cloudTrailEvent);
         assertThat(instances).isNotEmpty();
     }
 
     @Test(expected = NullPointerException.class)
     public void getInstanceIdsNullEvent() {
-        List<String> instanceIds = getInstanceIds(null);
+        final List<String> instanceIds = getInstanceIds(null);
         assertThat(instanceIds).isNotEmpty();
     }
 
     @Test(expected = NullPointerException.class)
     public void getInstanceIdsNullEventData() {
-        List<String> instanceIds = getInstanceIds(new CloudTrailEvent(null, null));
+        final List<String> instanceIds = getInstanceIds(new CloudTrailEvent(null, null));
         assertThat(instanceIds).isNotEmpty();
     }
 
     @Test
     public void testNullResponseElementsAmis() {
-        List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/empty-responseElements.json"));
+        final List<String> instanceIds = getInstanceIds(createCloudTrailEvent("/empty-responseElements.json"));
         assertThat(instanceIds).isEmpty();
     }
 

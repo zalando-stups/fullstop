@@ -34,11 +34,6 @@ import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -132,7 +127,7 @@ public class ViolationsControllerTest {
 
     @Test
     public void testViolations() throws Exception {
-        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), anyBoolean(), any())).thenReturn(
+        when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), anyBoolean(), any(), any(), any())).thenReturn(
                 new PageImpl<>(
                         newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
@@ -149,8 +144,10 @@ public class ViolationsControllerTest {
                 isNull(Integer.class),
                 isNull(Integer.class),
                 isNull(Boolean.class),
-                isNull(String.class),
+                any(List.class),
                 anyBoolean(),
+                isNull(List.class),
+                isNull(List.class),
                 any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
@@ -158,8 +155,8 @@ public class ViolationsControllerTest {
     @Test
     public void testViolationsWithParams() throws Exception {
 
-        DateTime dateTime = new DateTime(UTC);
-        long lastViolation = 0L;
+        final DateTime dateTime = new DateTime(UTC);
+        final long lastViolation = 0L;
 
         when(
                 violationServiceMock.queryViolations(
@@ -173,10 +170,12 @@ public class ViolationsControllerTest {
                         any(),
                         any(),
                         anyBoolean(),
+                        any(),
+                        any(),
                         any()))
                 .thenReturn(new PageImpl<>(newArrayList(violationResult), new PageRequest(0, 20, ASC, "id"), 50));
 
-        ResultActions resultActions = this.mockMvc.perform(
+        final ResultActions resultActions = this.mockMvc.perform(
                 get("/api/violations?accounts=123&checked=true&last-violation=0&since=" + dateTime))
                 .andExpect(status().isOk());
 
@@ -184,7 +183,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), any(), anyBoolean(), any());
+                        true), any(), any(), any(), anyList(), anyBoolean(), anyList(),anyList(), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 
@@ -204,9 +203,9 @@ public class ViolationsControllerTest {
 
         violationRequest.setComment("my comment");
 
-        String message = "test";
+        final String message = "test";
 
-        byte[] bytes = objectMapper.writeValueAsBytes(message);
+        final byte[] bytes = objectMapper.writeValueAsBytes(message);
 
         this.mockMvc.perform(
                 post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))
@@ -222,9 +221,9 @@ public class ViolationsControllerTest {
     public void testResolveUnknownViolation() throws Exception {
         when(violationServiceMock.findOne(any(Long.class))).thenReturn(null);
 
-        String message = "test";
+        final String message = "test";
 
-        byte[] bytes = objectMapper.writeValueAsBytes(message);
+        final byte[] bytes = objectMapper.writeValueAsBytes(message);
 
         this.mockMvc.perform(
                 post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))
@@ -248,9 +247,9 @@ public class ViolationsControllerTest {
 
         violationRequest.setComment("my comment");
 
-        String message = "test";
+        final String message = "test";
 
-        byte[] bytes = objectMapper.writeValueAsBytes(message);
+        final byte[] bytes = objectMapper.writeValueAsBytes(message);
 
         this.mockMvc.perform(
                 post("/api/violations/156/resolution").contentType(APPLICATION_JSON).content(bytes))

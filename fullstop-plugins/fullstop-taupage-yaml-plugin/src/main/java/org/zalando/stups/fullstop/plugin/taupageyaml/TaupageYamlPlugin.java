@@ -30,7 +30,7 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         if (context.isTaupageAmi().orElse(false)) {
             if (!context.getTaupageYaml().isPresent()) {
                 violationSink.put(

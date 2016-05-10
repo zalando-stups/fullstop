@@ -18,13 +18,13 @@ public class HystrixTeamOperations implements TeamOperations {
 
     @Override
     @HystrixCommand(ignoreExceptions = {HttpClientErrorException.class, IllegalArgumentException.class})
-    public List<Account> getAwsAccountsByUser(String userId) {
+    public List<Account> getAwsAccountsByUser(final String userId) {
         return delegate.getAwsAccountsByUser(userId);
     }
 
     @Override
     @HystrixCommand(ignoreExceptions = {HttpClientErrorException.class, IllegalArgumentException.class})
-    public Set<String> getTeamIdsByUser(String userId) {
+    public Set<String> getTeamIdsByUser(final String userId) {
         return delegate.getTeamIdsByUser(userId);
     }
 

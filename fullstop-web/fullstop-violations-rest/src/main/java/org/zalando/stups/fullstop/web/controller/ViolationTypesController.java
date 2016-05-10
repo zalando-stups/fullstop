@@ -28,7 +28,7 @@ public class ViolationTypesController {
     private final Converter<ViolationTypeEntity, ViolationType> entityToDto;
 
     @Autowired
-    public ViolationTypesController(ViolationTypeRepository violationTypeRepository, Converter<ViolationTypeEntity, ViolationType> entityToDto) {
+    public ViolationTypesController(final ViolationTypeRepository violationTypeRepository, final Converter<ViolationTypeEntity, ViolationType> entityToDto) {
         Assert.notNull(violationTypeRepository, "violationTypeRepository must not be null");
         Assert.notNull(entityToDto, "entityToDto converter must not be null");
 

@@ -52,10 +52,10 @@ public class RuleEntityServiceImplTest {
 
     @Test
     public void testSave() throws Exception {
-        RuleDTO ruleDTO = new RuleDTO();
+        final RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("1234");
         when(ruleEntityRepository.save(any(RuleEntity.class))).then(AdditionalAnswers.returnsFirstArg());
-        RuleEntity savedRuleEntity = ruleEntityServiceImpl.save(ruleDTO);
+        final RuleEntity savedRuleEntity = ruleEntityServiceImpl.save(ruleDTO);
 
         assertThat(savedRuleEntity.getAccountId()).isEqualTo("1234");
         assertThat(savedRuleEntity.getExpiryDate()).isEqualTo(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
@@ -66,12 +66,12 @@ public class RuleEntityServiceImplTest {
 
     @Test
     public void testUpdate() throws Exception {
-        RuleDTO ruleDTO = new RuleDTO();
+        final RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("5678");
         when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
         when(ruleEntityRepository.save(any(RuleEntity.class))).then(AdditionalAnswers.returnsFirstArg());
 
-        RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
+        final RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
         assertThat(updatedRule.getAccountId()).isEqualToIgnoringCase("5678");
         assertThat(updatedRule.getExpiryDate()).isEqualByComparingTo(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
 
@@ -81,12 +81,12 @@ public class RuleEntityServiceImplTest {
 
     @Test(expected = NoSuchElementException.class)
     public void testUpdateFails() throws Exception {
-        RuleDTO ruleDTO = new RuleDTO();
+        final RuleDTO ruleDTO = new RuleDTO();
         ruleDTO.setAccountId("5678");
         when(ruleEntityRepository.findOne(anyLong())).thenReturn(null);
         try {
 
-            RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
+            final RuleEntity updatedRule = ruleEntityServiceImpl.update(ruleDTO, 1L);
         } finally {
 
             verify(ruleEntityRepository).findOne(anyLong());
@@ -98,7 +98,7 @@ public class RuleEntityServiceImplTest {
     public void testFindByIdFails() throws Exception {
         when(ruleEntityRepository.findOne(anyLong())).thenReturn(null);
 
-        RuleEntity updatedRule = ruleEntityServiceImpl.findById(1L);
+        final RuleEntity updatedRule = ruleEntityServiceImpl.findById(1L);
         assertThat(updatedRule).isEqualTo(null);
 
         verify(ruleEntityRepository).findOne(anyLong());
@@ -108,7 +108,7 @@ public class RuleEntityServiceImplTest {
     public void testFindByNotExpired() throws Exception {
         when(ruleEntityRepository.findByExpiryDateAfter(any(DateTime.class))).thenReturn(newArrayList(ruleEntity));
 
-        List<RuleEntity> byNotExpired = ruleEntityServiceImpl.findByNotExpired();
+        final List<RuleEntity> byNotExpired = ruleEntityServiceImpl.findByNotExpired();
         assertThat(byNotExpired).hasSize(1);
 
         verify(ruleEntityRepository).findByExpiryDateAfter(any(DateTime.class));
@@ -117,11 +117,56 @@ public class RuleEntityServiceImplTest {
     @Test
     public void testFindAll() throws Exception {
         when(ruleEntityRepository.findAll()).thenReturn(newArrayList(ruleEntity));
-        List<RuleEntity> ruleEntities = ruleEntityServiceImpl.findAll();
+        final List<RuleEntity> ruleEntities = ruleEntityServiceImpl.findAll();
         assertThat(ruleEntities).hasSize(1);
 
         verify(ruleEntityRepository).findAll();
 
+    }
+
+    @Test
+    public void testExpireSuccessfully() throws Exception {
+        final RuleEntity re = mock(RuleEntity.class);
+        when(re.getExpiryDate()).thenReturn(DateTime.now().plusDays(2));
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(re);
+
+        ruleEntityServiceImpl.expire(1L, DateTime.now().plusDays(1));
+
+        verify(ruleEntityRepository).findOne(anyLong());
+        verify(ruleEntityRepository).save(re);
+    }
+
+    @Test
+    public void testExpireWithNull() throws Exception {
+        ruleEntityServiceImpl.expire(1L, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().plusDays(1);
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().minusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireOldExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().minusDays(1);
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().plusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
     }
 
     @Configuration

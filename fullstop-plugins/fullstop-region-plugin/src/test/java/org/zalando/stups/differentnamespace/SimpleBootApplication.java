@@ -25,7 +25,7 @@ public class SimpleBootApplication {
 
     @PostConstruct
     public void init() {
-        List<String> whitelistedRegions = regionPluginProperties.getWhitelistedRegions();
+        final List<String> whitelistedRegions = regionPluginProperties.getWhitelistedRegions();
 
         System.out.println(whitelistedRegions.toString());
     }

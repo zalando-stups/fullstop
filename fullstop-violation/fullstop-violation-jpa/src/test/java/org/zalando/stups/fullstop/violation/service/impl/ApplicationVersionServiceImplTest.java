@@ -16,13 +16,8 @@ import org.zalando.stups.fullstop.violation.repository.ApplicationRepository;
 import org.zalando.stups.fullstop.violation.repository.VersionRepository;
 import org.zalando.stups.fullstop.violation.service.ApplicationVersionService;
 
-import java.util.List;
-import java.util.Optional;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)

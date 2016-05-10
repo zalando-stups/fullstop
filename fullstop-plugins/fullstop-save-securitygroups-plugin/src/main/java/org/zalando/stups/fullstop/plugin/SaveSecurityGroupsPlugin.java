@@ -57,9 +57,9 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
 
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData cloudTrailEventData = event.getEventData();
-        String eventSource = cloudTrailEventData.getEventSource();
-        String eventName = cloudTrailEventData.getEventName();
+        final CloudTrailEventData cloudTrailEventData = event.getEventData();
+        final String eventSource = cloudTrailEventData.getEventSource();
+        final String eventName = cloudTrailEventData.getEventName();
 
         return EC2_SOURCE_EVENTS.equals(eventSource) && EVENT_NAME.equals(eventName);
     }
@@ -67,41 +67,41 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        List<String> securityGroupIds = readSecurityGroupIds(event);
+        final List<String> securityGroupIds = readSecurityGroupIds(event);
 
-        Region region = getRegion(event);
-        String accountId = getAccountId(event);
-        List<String> instanceIds = getInstanceIds(event);
+        final Region region = getRegion(event);
+        final String accountId = getAccountId(event);
+        final List<String> instanceIds = getInstanceIds(event);
         if (instanceIds.isEmpty()) {
             LOG.warn("No instanceIds for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
             return;
         }
 
-        String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
+        final String securityGroup = getSecurityGroup(securityGroupIds, region, accountId);
 
         if (securityGroup == null) {
             return;
         }
 
-        for (String instanceId : instanceIds) {
+        for (final String instanceId : instanceIds) {
 
-            List<String> instanceBuckets = Lists.newArrayList();
+            final List<String> instanceBuckets = Lists.newArrayList();
 
-            DateTime instanceLaunchTime;
+            final DateTime instanceLaunchTime;
             try {
 
                 instanceLaunchTime = new DateTime(getInstanceLaunchTime(event).get(instanceIds.indexOf(instanceId)));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.warn("No 'launchTime' for event : {}, skip processing", CloudTrailEventSupport.getEventId(event));
                 return;
             }
 
             final String prefix = PrefixBuilder.build(accountId, region.getName(), instanceLaunchTime);
 
-            List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
+            final List<String> s3InstanceObjects = listS3Objects(bucketName, prefix);
 
-            for (String s3InstanceObject : s3InstanceObjects) {
-                String s = Paths.get(s3InstanceObject).getFileName().toString();
+            for (final String s3InstanceObject : s3InstanceObjects) {
+                final String s = Paths.get(s3InstanceObject).getFileName().toString();
                 if (s.startsWith(instanceId)) {
                     instanceBuckets.add(s);
                 }
@@ -114,16 +114,16 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
             String instanceBucketNameControlElement = null;
             DateTime instanceBootTimeControlElement = null;
 
-            for (String instanceBucket : instanceBuckets) {
-                List<String> currentBucket = Lists.newArrayList(
+            for (final String instanceBucket : instanceBuckets) {
+                final List<String> currentBucket = Lists.newArrayList(
                         Splitter.on('-').limit(3).trimResults()
                                 .omitEmptyStrings().split(instanceBucket));
 
-                String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
-                DateTime currentBucketDate;
+                final String currentBucketName = currentBucket.get(0) + "-" + currentBucket.get(1);
+                final DateTime currentBucketDate;
                 try {
                     currentBucketDate = new DateTime(currentBucket.get(2), UTC);
-                } catch (IllegalArgumentException e) {
+                } catch (final IllegalArgumentException e) {
                     continue;
                 }
 
@@ -141,7 +141,7 @@ public class SaveSecurityGroupsPlugin extends AbstractFullstopPlugin {
                 }
             }
 
-            String result = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
+            final String result = prefix + instanceBucketNameControlElement + "-" + instanceBootTimeControlElement;
             writeToS3(securityGroup, result, instanceId);
         }
     }

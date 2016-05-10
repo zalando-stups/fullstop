@@ -16,10 +16,10 @@ public class ViolationEntityToDtoConverterTest {
     public static final String COMMENT = "cc";
     public static final RuleEntity RULE_ENTITY = null;
 
-    private ViolationEntity violationEntity = new ViolationEntity();
+    private final ViolationEntity violationEntity = new ViolationEntity();
 
 
-    private Converter<ViolationEntity, Violation> entityToDto = new ViolationEntityToDtoConverter(new ViolationTypeEntityToDtoConverter());
+    private final Converter<ViolationEntity, Violation> entityToDto = new ViolationEntityToDtoConverter(new ViolationTypeEntityToDtoConverter());
 
     @Before
     public void setUp() throws Exception {
@@ -35,15 +35,15 @@ public class ViolationEntityToDtoConverterTest {
 
     @Test
     public void testConvertNullPointer() throws Exception {
-        Violation dto = entityToDto.convert(violationEntity);
+        final Violation dto = entityToDto.convert(violationEntity);
     }
 
     @Test
     public void testConvert() throws Exception {
-        RuleEntity ruleEntity = new RuleEntity();
+        final RuleEntity ruleEntity = new RuleEntity();
         ruleEntity.setId(1L);
         violationEntity.setRuleEntity(ruleEntity);
-        Violation dto = entityToDto.convert(violationEntity);
+        final Violation dto = entityToDto.convert(violationEntity);
 
         assertThat(dto.getAccountId()).isEqualTo(ACCOUNT_ID);
         assertThat(dto.getComment()).isEqualTo(COMMENT);

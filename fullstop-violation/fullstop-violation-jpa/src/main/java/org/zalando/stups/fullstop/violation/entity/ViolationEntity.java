@@ -67,7 +67,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return eventId;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(final String eventId) {
         this.eventId = eventId;
     }
 
@@ -91,7 +91,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -107,7 +107,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -115,7 +115,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
         return pluginFullyQualifiedClassName;
     }
 
-    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+    public void setPluginFullyQualifiedClassName(final String pluginFullyQualifiedClassName) {
         this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
     }
 
@@ -124,7 +124,7 @@ public class ViolationEntity extends AbstractModifiableEntity {
     }
 
     public void setViolationTypeEntity(
-            ViolationTypeEntity violationTypeEntity) {
+            final ViolationTypeEntity violationTypeEntity) {
         this.violationTypeEntity = violationTypeEntity;
     }
 

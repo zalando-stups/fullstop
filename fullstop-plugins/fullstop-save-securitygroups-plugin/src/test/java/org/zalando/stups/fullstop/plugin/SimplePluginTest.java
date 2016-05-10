@@ -11,12 +11,12 @@ public class SimplePluginTest {
 
     @Test
     public void createCloudTrailEvent() {
-        SecurityGroupProvider provider = mock(SecurityGroupProvider.class);
-        S3Service writer = mock(S3Service.class);
+        final SecurityGroupProvider provider = mock(SecurityGroupProvider.class);
+        final S3Service writer = mock(S3Service.class);
 
         // we expect RunInstance and ec2 as source not, autoscaling
         final SaveSecurityGroupsPlugin plugin = new SaveSecurityGroupsPlugin(provider, writer, "test");
-        boolean result = plugin.supports(TestCloudTrailEventSerializer.createCloudTrailEvent("/record.json"));
+        final boolean result = plugin.supports(TestCloudTrailEventSerializer.createCloudTrailEvent("/record.json"));
         Assertions.assertThat(result).isFalse();
     }
 }

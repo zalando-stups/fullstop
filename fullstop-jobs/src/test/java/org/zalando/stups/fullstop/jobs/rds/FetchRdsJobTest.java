@@ -17,7 +17,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class FetchRdsJobTest {
@@ -43,12 +42,12 @@ public class FetchRdsJobTest {
         when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(newArrayList("eu-west-1"));
 
         // Dbinstances
-        Endpoint endpoint = new Endpoint();
+        final Endpoint endpoint = new Endpoint();
         endpoint.setAddress("aws.db.cn");
-        DBInstance dbInstance1 = new DBInstance();
+        final DBInstance dbInstance1 = new DBInstance();
         dbInstance1.setPubliclyAccessible(true);
         dbInstance1.setEndpoint(endpoint);
-        DBInstance dbInstance2 = new DBInstance();
+        final DBInstance dbInstance2 = new DBInstance();
         dbInstance2.setPubliclyAccessible(false);
         dbInstance2.setEndpoint(endpoint);
         describeDBInstancesResultMock = new DescribeDBInstancesResult();
@@ -66,7 +65,7 @@ public class FetchRdsJobTest {
 
     @Test
     public void testCheck() throws Exception {
-        FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
+        final FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
         when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
         fetchRdsJob.run();
 

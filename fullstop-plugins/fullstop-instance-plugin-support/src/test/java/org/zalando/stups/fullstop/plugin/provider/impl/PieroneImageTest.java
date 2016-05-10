@@ -29,7 +29,7 @@ public class PieroneImageTest {
 
     @Test
     public void testTryParse() throws Exception {
-        Optional<PieroneImage> result = PieroneImage.tryParse(get(REPOSITORY, TEAM, ARTIFACT).toString()+":"+TAG);
+        final Optional<PieroneImage> result = PieroneImage.tryParse(get(REPOSITORY, TEAM, ARTIFACT).toString()+":"+TAG);
 
         assertThat(result).isPresent();
 

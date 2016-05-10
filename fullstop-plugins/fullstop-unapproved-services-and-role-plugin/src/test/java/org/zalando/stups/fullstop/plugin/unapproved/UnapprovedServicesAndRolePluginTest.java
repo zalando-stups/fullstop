@@ -10,7 +10,6 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
@@ -57,7 +56,7 @@ public class UnapprovedServicesAndRolePluginTest {
                 newArrayList(
                         "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"));
 
-        boolean result = plugin.supports(event);
+        final boolean result = plugin.supports(event);
         Assertions.assertThat(result).isTrue();
 
         verify(policyTemplatesProviderMock).getPolicyTemplateNames();

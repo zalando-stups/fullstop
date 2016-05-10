@@ -41,7 +41,7 @@ public class KioApplicationProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
         when(kioOperationsMock.getApplicationById(eq(INSTANCE_ID))).thenReturn(new Application());
 
-        Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
+        final Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
         assertThat(result).isPresent();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -53,7 +53,7 @@ public class KioApplicationProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
         when(kioOperationsMock.getApplicationById(eq(INSTANCE_ID))).thenReturn(null);
 
-        Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
+        final Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -65,7 +65,7 @@ public class KioApplicationProviderImplTest {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.of(INSTANCE_ID));
         when(kioOperationsMock.getApplicationById(eq(INSTANCE_ID))).thenThrow(new NotFoundException());
 
-        Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
+        final Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();
@@ -76,7 +76,7 @@ public class KioApplicationProviderImplTest {
     public void testApplicationNotFound() throws Exception {
         when(ec2InstanceContextMock.getApplicationId()).thenReturn(Optional.empty());
 
-        Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
+        final Optional<Application> result = kioApplicationProvider.apply(ec2InstanceContextMock);
         assertThat(result).isEmpty();
 
         verify(ec2InstanceContextMock).getApplicationId();

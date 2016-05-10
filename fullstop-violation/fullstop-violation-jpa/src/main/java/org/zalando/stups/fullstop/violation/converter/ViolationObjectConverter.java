@@ -15,7 +15,7 @@ import java.util.Collections;
 @Converter(autoApply = true)
 public class ViolationObjectConverter implements AttributeConverter<Object, String> {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -27,7 +27,7 @@ public class ViolationObjectConverter implements AttributeConverter<Object, Stri
 
         try {
             return objectMapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             logger.info("Could not parse object metadata: {}. The value will be converted as string. Reason: {}", obj, e);
             return obj.toString();
         }
@@ -38,7 +38,7 @@ public class ViolationObjectConverter implements AttributeConverter<Object, Stri
         if (StringUtils.hasText(value)) {
             try {
                 return objectMapper.readValue(value, JsonNode.class);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.info("Could not parse value metadata: {}. The value will be converted as map. Reason: {}", value, e);
                 return Collections.singletonMap("data", value);
             }

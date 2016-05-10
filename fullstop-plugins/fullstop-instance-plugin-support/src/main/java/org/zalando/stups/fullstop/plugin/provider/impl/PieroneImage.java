@@ -15,14 +15,14 @@ public class PieroneImage {
     private final String artifact;
     private final String tag;
 
-    public PieroneImage(String repository, String team, String artifact, String tag) {
+    public PieroneImage(final String repository, final String team, final String artifact, final String tag) {
         this.repository = repository;
         this.team = team;
         this.artifact = artifact;
         this.tag = tag;
     }
 
-    public static Optional<PieroneImage> tryParse(String source) {
+    public static Optional<PieroneImage> tryParse(final String source) {
         return Optional.ofNullable(source)
                 .map(DOCKER_SOURCE_PATTERN::matcher)
                 .filter(Matcher::matches)

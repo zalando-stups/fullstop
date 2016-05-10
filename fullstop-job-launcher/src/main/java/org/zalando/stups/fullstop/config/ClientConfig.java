@@ -35,7 +35,7 @@ public class ClientConfig {
     @Bean
     KioOperations kioOperations() {
         final StupsOAuth2RestTemplate restTemplate = new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider("kio", accessTokens));
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        final HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setConnectTimeout(4 * 1000);
         requestFactory.setReadTimeout(4 * 1000);
         restTemplate.setRequestFactory(requestFactory);

@@ -34,7 +34,7 @@ public class ExamplePluginTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        ExamplePlugin plugin = new ExamplePlugin();
+        final ExamplePlugin plugin = new ExamplePlugin();
 
         Assertions.assertThat(plugin.supports(event)).isFalse();
 
@@ -46,10 +46,10 @@ public class ExamplePluginTest {
         Mockito.when(eventData.getEventSource()).thenReturn("ec2.amazonaws.com");
         Mockito.when(event.getEventData()).thenReturn(eventData);
 
-        ExamplePlugin plugin = new ExamplePlugin();
+        final ExamplePlugin plugin = new ExamplePlugin();
         Assertions.assertThat(plugin.supports(event)).isTrue();
 
-        PluginMetadata metadata = plugin.getMetadata();
+        final PluginMetadata metadata = plugin.getMetadata();
         assertThat(metadata).isNotNull();
         assertThat(metadata.getName()).isNotNull();
         assertThat(metadata.getName()).isNotEmpty();

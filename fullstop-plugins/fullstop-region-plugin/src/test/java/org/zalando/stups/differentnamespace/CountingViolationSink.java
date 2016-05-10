@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CountingViolationSink implements ViolationSink {
 
-    private AtomicInteger counter = new AtomicInteger();
+    private final AtomicInteger counter = new AtomicInteger();
 
     @Override
     public void put(final Violation violation) {

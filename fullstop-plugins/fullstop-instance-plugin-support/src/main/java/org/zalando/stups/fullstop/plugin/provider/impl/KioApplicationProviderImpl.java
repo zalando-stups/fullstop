@@ -23,7 +23,7 @@ public class KioApplicationProviderImpl implements KioApplicationProvider {
 
     private final KioOperations kioOperations;
 
-    public KioApplicationProviderImpl(KioOperations kioOperations) {
+    public KioApplicationProviderImpl(final KioOperations kioOperations) {
         this.kioOperations = kioOperations;
     }
 
@@ -32,7 +32,7 @@ public class KioApplicationProviderImpl implements KioApplicationProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, Optional<Application>>() {
                 @Override
-                public Optional<Application> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public Optional<Application> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final Optional<Application> kioApplication = getKioApplication(context);
                     if (!kioApplication.isPresent()) {
                         log.warn("Could not find the application {} in KIO.", context);
@@ -41,7 +41,7 @@ public class KioApplicationProviderImpl implements KioApplicationProvider {
                 }
             });
 
-    private Optional<Application> getKioApplication(@Nonnull EC2InstanceContext context) {
+    private Optional<Application> getKioApplication(@Nonnull final EC2InstanceContext context) {
         try {
             return context.getApplicationId().map(kioOperations::getApplicationById);
         } catch (final NotFoundException ignored) {
@@ -50,7 +50,7 @@ public class KioApplicationProviderImpl implements KioApplicationProvider {
     }
 
     @Override
-    public Optional<Application> apply(EC2InstanceContext context) {
+    public Optional<Application> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 

@@ -27,29 +27,29 @@ public class UserDataProvider {
 
     public Map getUserData(final String accountId, final String region, final String instanceId)
             throws AmazonServiceException {
-        Region awsRegion = Region.getRegion(Regions.fromName(region));
+        final Region awsRegion = Region.getRegion(Regions.fromName(region));
         return getUserData(accountId, awsRegion, instanceId);
     }
 
     public Map getUserData(final String accountId, final Region region, final String instanceId)
             throws AmazonServiceException {
-        AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
+        final AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
 
-        DescribeInstanceAttributeRequest describeInstanceAttributeRequest = new DescribeInstanceAttributeRequest();
+        final DescribeInstanceAttributeRequest describeInstanceAttributeRequest = new DescribeInstanceAttributeRequest();
         describeInstanceAttributeRequest.setInstanceId(instanceId);
         describeInstanceAttributeRequest.setAttribute(USER_DATA);
 
-        DescribeInstanceAttributeResult describeInstanceAttributeResult;
+        final DescribeInstanceAttributeResult describeInstanceAttributeResult;
         describeInstanceAttributeResult = ec2Client.describeInstanceAttribute(describeInstanceAttributeRequest);
 
-        String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
+        final String userData = describeInstanceAttributeResult.getInstanceAttribute().getUserData();
 
         if (userData == null) {
             return null;
         }
 
-        byte[] bytesUserData = Base64.decode(userData);
-        String decodedUserData = new String(bytesUserData);
+        final byte[] bytesUserData = Base64.decode(userData);
+        final String decodedUserData = new String(bytesUserData);
 
         final Object yamlData = new Yaml().load(decodedUserData);
 

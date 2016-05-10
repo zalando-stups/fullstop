@@ -15,7 +15,7 @@ public class SimpleDemonstrationViolationHandler extends EventBusViolationHandle
 
     private final Logger log = LoggerFactory.getLogger(SimpleDemonstrationViolationHandler.class);
 
-    private AtomicInteger counter = new AtomicInteger();
+    private final AtomicInteger counter = new AtomicInteger();
 
     public SimpleDemonstrationViolationHandler(final EventBus eventBus) {
         super(eventBus);

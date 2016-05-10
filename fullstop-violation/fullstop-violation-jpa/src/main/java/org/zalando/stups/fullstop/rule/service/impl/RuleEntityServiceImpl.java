@@ -27,15 +27,15 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
 
     @Override
-    public RuleEntity save(RuleDTO ruleDTO) {
+    public RuleEntity save(final RuleDTO ruleDTO) {
 
         if (ruleDTO.getExpiryDate() == null) {
             ruleDTO.setExpiryDate(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
         }
 
-        RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
+        final RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
 
-        RuleEntity entity = ruleEntityRepository.save(ruleEntity);
+        final RuleEntity entity = ruleEntityRepository.save(ruleEntity);
 
         log.info("New Whitelisting Rule created {}", ruleEntity);
 
@@ -44,7 +44,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity update(RuleDTO ruleDTO, Long id) throws NoSuchElementException {
+    public RuleEntity update(final RuleDTO ruleDTO, final Long id) throws NoSuchElementException {
 
         ofNullable(ruleEntityRepository.findOne(id)).
                 map(this::invalidateRule).orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
@@ -54,8 +54,8 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity findById(Long id) {
-        RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
+    public RuleEntity findById(final Long id) {
+        final RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
         if (ruleEntity == null) {
             log.info("No such RuleEntity found! Id: {}", id);
             return null;
@@ -74,13 +74,31 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         return ruleEntityRepository.findAll();
     }
 
-    private RuleEntity invalidateRule(RuleEntity ruleEntity) {
-        ruleEntity.setExpiryDate(DateTime.now());
+    @Override
+    public void expire(final Long id, final DateTime newExpiryDate) throws NoSuchElementException {
+        if (newExpiryDate != null) {
+            final RuleEntity entity = ofNullable(ruleEntityRepository.findOne(id))
+                    .orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
+            final DateTime now = DateTime.now();
+            if (newExpiryDate.isAfter(now) && entity.getExpiryDate().isAfter(now)) {
+                invalidateRule(entity, newExpiryDate);
+            } else {
+                throw new IllegalArgumentException(format("Expiry dates lie in the past: new: %s old: %s", newExpiryDate, entity.getExpiryDate()));
+            }
+        }
+    }
+
+    private RuleEntity invalidateRule(final RuleEntity ruleEntity) {
+        return invalidateRule(ruleEntity, DateTime.now());
+    }
+
+    private RuleEntity invalidateRule(final RuleEntity ruleEntity, final DateTime expiryDate) {
+        ruleEntity.setExpiryDate(expiryDate);
         return ruleEntityRepository.save(ruleEntity);
     }
 
-    private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO) {
-        RuleEntity ruleEntity = new RuleEntity();
+    private RuleEntity mapDtoToRuleEntity(final RuleDTO ruleDTO) {
+        final RuleEntity ruleEntity = new RuleEntity();
         ruleEntity.setAccountId(ruleDTO.getAccountId());
         ruleEntity.setRegion(ruleDTO.getRegion());
         ruleEntity.setApplicationId(ruleDTO.getApplicationId());

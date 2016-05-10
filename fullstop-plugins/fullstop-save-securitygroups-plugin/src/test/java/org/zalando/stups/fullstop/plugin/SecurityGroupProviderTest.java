@@ -20,7 +20,7 @@ public class SecurityGroupProviderTest {
     private ClientProvider clientProviderMock;
     private SecurityGroupProvider securityGroupProvider;
     private AmazonEC2Client amazonEC2ClientMock;
-    private static Region REGION = Region.getRegion(Regions.EU_WEST_1);
+    private static final Region REGION = Region.getRegion(Regions.EU_WEST_1);
 
     @Before
     public void setUp() throws Exception {
@@ -48,14 +48,14 @@ public class SecurityGroupProviderTest {
 
     @Test
     public void testAmazonException(){
-        AmazonServiceException amazonServiceException = new AmazonServiceException("");
+        final AmazonServiceException amazonServiceException = new AmazonServiceException("");
         amazonServiceException.setErrorCode("InvalidGroup.NotFound");
 
         when(clientProviderMock.getClient(any(), anyString(), any(Region.class))).thenReturn(amazonEC2ClientMock);
         when(amazonEC2ClientMock.describeSecurityGroups(any(DescribeSecurityGroupsRequest.class))).thenThrow(amazonServiceException);
 
         securityGroupProvider = new SecurityGroupProvider(clientProviderMock);
-        String securityGroup = securityGroupProvider.getSecurityGroup(Lists.newArrayList("sg.1234"), REGION, "9876");
+        final String securityGroup = securityGroupProvider.getSecurityGroup(Lists.newArrayList("sg.1234"), REGION, "9876");
 
         Assertions.assertThat(securityGroup).isEqualTo(null);
 
@@ -66,14 +66,14 @@ public class SecurityGroupProviderTest {
 
     @Test
     public void testJsonException(){
-        DescribeSecurityGroupsResult mockResult = spy(new DescribeSecurityGroupsResult());
+        final DescribeSecurityGroupsResult mockResult = spy(new DescribeSecurityGroupsResult());
 
         when(clientProviderMock.getClient(any(), anyString(), any(Region.class))).thenReturn(amazonEC2ClientMock);
         when(mockResult.getSecurityGroups()).thenThrow(new IllegalStateException());
         when(amazonEC2ClientMock.describeSecurityGroups(any(DescribeSecurityGroupsRequest.class))).thenReturn(mockResult);
 
         securityGroupProvider = new SecurityGroupProvider(clientProviderMock);
-        String securityGroup = securityGroupProvider.getSecurityGroup(Lists.newArrayList("sg.1234"), REGION, "9876");
+        final String securityGroup = securityGroupProvider.getSecurityGroup(Lists.newArrayList("sg.1234"), REGION, "9876");
 
         Assertions.assertThat(securityGroup).isEqualTo(null);
 

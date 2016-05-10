@@ -26,7 +26,7 @@ public class RegisteredPluginLogger {
     public void logRegisteredPlugins() {
         log.info("---- REGISTERED PLUGINS START----");
 
-        for (FullstopPlugin p : this.fullstopPluginRegistry.getPlugins()) {
+        for (final FullstopPlugin p : this.fullstopPluginRegistry.getPlugins()) {
             log.info(p.getMetadata().toString());
         }
 

@@ -39,7 +39,7 @@ public abstract class RestControllerTestSupport {
         mockMvcBuilder.setCustomArgumentResolvers(mockMvcCustomArgumentResolvers());
         mockMvcBuilder.setMessageConverters(mockMvcMessageConverters());
 
-        DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+        final DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
         mockMvcBuilder.setConversionService(conversionService);
     }
 

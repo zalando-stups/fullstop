@@ -29,7 +29,7 @@ public class EC2InstanceContextConfig {
 
     @ConditionalOnMissingBean
     @Bean
-    EC2InstanceContextProvider contextProvider(ClientProvider clientProvider,
+    EC2InstanceContextProvider contextProvider(final ClientProvider clientProvider,
                                                @Value("${fullstop.plugins.ami.taupageNamePrefix}") final String taupageNamePrefix,
                                                @Value("${fullstop.plugins.ami.taupageOwners}") final String taupageOwners) {
         return new EC2InstanceContextProviderImpl(

@@ -40,7 +40,7 @@ public class NoPasswordsJob implements FullstopJob {
 
     @Autowired
     public NoPasswordsJob(final IdentityManagementDataSource iamDataSource,
-                          final NoPasswordViolationWriter violationWriter, AccountIdSupplier allAccountIds, CredentialReportCSVParser csvParser) {
+                          final NoPasswordViolationWriter violationWriter, final AccountIdSupplier allAccountIds, final CredentialReportCSVParser csvParser) {
         this.iamDataSource = iamDataSource;
         this.violationWriter = violationWriter;
         this.allAccountIds = allAccountIds;
@@ -56,12 +56,12 @@ public class NoPasswordsJob implements FullstopJob {
     public void run() {
         log.info("Running {}", getClass().getSimpleName());
 
-        List<Map<String, String>> metaInfoList = Lists.newArrayList();
+        final List<Map<String, String>> metaInfoList = Lists.newArrayList();
 
-        for (String accountId : allAccountIds.get()) {
+        for (final String accountId : allAccountIds.get()) {
 
-            GetCredentialReportResult credentialReportCSV = iamDataSource.getCredentialReportCSV(accountId);
-            List<CSVReportEntry> csvReportEntries = csvParser.apply(credentialReportCSV);
+            final GetCredentialReportResult credentialReportCSV = iamDataSource.getCredentialReportCSV(accountId);
+            final List<CSVReportEntry> csvReportEntries = csvParser.apply(credentialReportCSV);
 
             //check for all users
             log.info("Checking account {} for IAM users with passwords", accountId);
@@ -78,7 +78,7 @@ public class NoPasswordsJob implements FullstopJob {
                     .filter(c -> c.getUser().equals(ROOT_ACCOUNT) || c.getUser().endsWith(ROOT_SUFFIX))
                     .filter(c -> !c.isMfaActive() || c.isAccessKey1Active() || c.isAccessKey2Active())
                     .forEach(c -> {
-                        Map<String, String> metaInfo = new HashMap<>();
+                        final Map<String, String> metaInfo = new HashMap<>();
                         metaInfo.put("account_id", accountId);
                         metaInfo.put("user", c.getUser());
                         metaInfo.put("arn", c.getArn());

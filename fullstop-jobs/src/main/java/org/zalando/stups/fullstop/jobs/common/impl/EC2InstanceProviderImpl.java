@@ -18,12 +18,12 @@ public class EC2InstanceProviderImpl implements EC2InstanceProvider {
     private final ClientProvider clientProvider;
 
     @Autowired
-    public EC2InstanceProviderImpl(ClientProvider clientProvider) {
+    public EC2InstanceProviderImpl(final ClientProvider clientProvider) {
         this.clientProvider = clientProvider;
     }
 
     @Override
-    public Optional<Instance> getById(String accountId, Region region, String instanceId) {
+    public Optional<Instance> getById(final String accountId, final Region region, final String instanceId) {
         return clientProvider.getClient(AmazonEC2Client.class, accountId, region)
                 .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
                 .getReservations().stream()
