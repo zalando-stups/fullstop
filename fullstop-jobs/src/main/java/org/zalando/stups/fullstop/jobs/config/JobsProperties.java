@@ -28,11 +28,11 @@ public class JobsProperties {
         return allowedPorts;
     }
 
-    public void setWhitelistedRegions(List<String> whitelistedRegions) {
+    public void setWhitelistedRegions(final List<String> whitelistedRegions) {
         this.whitelistedRegions = whitelistedRegions;
     }
 
-    public void setAllowedPorts(Set<Integer> allowedPorts) {
+    public void setAllowedPorts(final Set<Integer> allowedPorts) {
         this.allowedPorts = allowedPorts;
     }
 
@@ -40,7 +40,7 @@ public class JobsProperties {
         return elbAllowedPorts;
     }
 
-    public void setElbAllowedPorts(Set<Integer> elbAllowedPorts) {
+    public void setElbAllowedPorts(final Set<Integer> elbAllowedPorts) {
         this.elbAllowedPorts = elbAllowedPorts;
     }
 
@@ -48,7 +48,7 @@ public class JobsProperties {
         return ec2AllowedPorts;
     }
 
-    public void setEc2AllowedPorts(Set<Integer> ec2AllowedPorts) {
+    public void setEc2AllowedPorts(final Set<Integer> ec2AllowedPorts) {
         this.ec2AllowedPorts = ec2AllowedPorts;
     }
 
@@ -56,7 +56,7 @@ public class JobsProperties {
         return accessKeysExpireAfterDays;
     }
 
-    public void setAccessKeysExpireAfterDays(int accessKeysExpireAfterDays) {
+    public void setAccessKeysExpireAfterDays(final int accessKeysExpireAfterDays) {
         this.accessKeysExpireAfterDays = accessKeysExpireAfterDays;
     }
 
@@ -64,7 +64,7 @@ public class JobsProperties {
         return managementAccount;
     }
 
-    public void setManagementAccount(String managementAccount) {
+    public void setManagementAccount(final String managementAccount) {
         this.managementAccount = managementAccount;
     }
 }

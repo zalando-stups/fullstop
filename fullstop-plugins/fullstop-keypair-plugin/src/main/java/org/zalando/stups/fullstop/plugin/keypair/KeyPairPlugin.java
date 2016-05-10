@@ -20,7 +20,7 @@ public class KeyPairPlugin extends AbstractEC2InstancePlugin {
 
     private final ViolationSink violationSink;
 
-    public KeyPairPlugin(EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
+    public KeyPairPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
         super(contextProvider);
         this.violationSink = violationSink;
     }
@@ -33,7 +33,7 @@ public class KeyPairPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         getKeyName(context).ifPresent(
                 k -> violationSink.put(
                         context.violation()
@@ -47,10 +47,10 @@ public class KeyPairPlugin extends AbstractEC2InstancePlugin {
                                 .build()));
     }
 
-    private Optional<String> getKeyName(EC2InstanceContext context) {
+    private Optional<String> getKeyName(final EC2InstanceContext context) {
         try {
             return Optional.ofNullable(trimToNull(JsonPath.read(context.getInstanceJson(), "$.keyName")));
-        } catch (JsonPathException ignored) {
+        } catch (final JsonPathException ignored) {
             return Optional.empty();
         }
     }

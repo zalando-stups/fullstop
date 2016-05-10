@@ -23,7 +23,7 @@ public class LifecyclePlugin extends AbstractEC2InstancePlugin {
 
     private final Logger log = getLogger(getClass());
 
-    private ApplicationLifecycleService applicationLifecycleService;
+    private final ApplicationLifecycleService applicationLifecycleService;
 
     @Autowired
     public LifecyclePlugin(final EC2InstanceContextProvider contextProvider,
@@ -41,7 +41,7 @@ public class LifecyclePlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         final LifecycleEntity lifecycleEntity = new LifecycleEntity();
         lifecycleEntity.setEventType(context.getEventName());
         lifecycleEntity.setEventDate(getLifecycleDate(context));

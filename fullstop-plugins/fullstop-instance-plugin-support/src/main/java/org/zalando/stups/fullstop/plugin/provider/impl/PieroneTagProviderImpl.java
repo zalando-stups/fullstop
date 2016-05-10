@@ -24,14 +24,14 @@ public class PieroneTagProviderImpl implements PieroneTagProvider {
 
     private final LoadingCache<String, Optional<TagSummary>> cache;
 
-    public PieroneTagProviderImpl(Function<String, PieroneOperations> pieroneOperationsProvider) {
+    public PieroneTagProviderImpl(final Function<String, PieroneOperations> pieroneOperationsProvider) {
         this.pieroneOperationsProvider = pieroneOperationsProvider;
         this.cache = CacheBuilder.newBuilder()
                 .maximumSize(100)
                 .expireAfterAccess(5, MINUTES)
                 .build(new CacheLoader<String, Optional<TagSummary>>() {
             @Override
-            public Optional<TagSummary> load(@Nonnull String source) throws Exception {
+            public Optional<TagSummary> load(@Nonnull final String source) throws Exception {
                 final Optional<TagSummary> result = tagForSource(source);
                 if (!result.isPresent()) {
                     log.warn("Could not find tag '{}' in Pierone", source);
@@ -42,17 +42,17 @@ public class PieroneTagProviderImpl implements PieroneTagProvider {
     }
 
     @Override
-    public Optional<TagSummary> apply(EC2InstanceContext context) {
+    public Optional<TagSummary> apply(final EC2InstanceContext context) {
         return context.getSource().flatMap(cache::getUnchecked);
     }
 
-    private Optional<TagSummary> tagForSource(@Nonnull String source) {
+    private Optional<TagSummary> tagForSource(@Nonnull final String source) {
         return Optional.of(source)
                 .flatMap(PieroneImage::tryParse)
                 .flatMap(this::loadTag);
     }
 
-    private Optional<TagSummary> loadTag(PieroneImage image) {
+    private Optional<TagSummary> loadTag(final PieroneImage image) {
         return Optional.ofNullable(pieroneOperationsProvider.apply(image.getRepository()))
                 .map(client -> client.listTags(image.getTeam(), image.getArtifact()))
                 .map(result -> result.get(image.getTag()));

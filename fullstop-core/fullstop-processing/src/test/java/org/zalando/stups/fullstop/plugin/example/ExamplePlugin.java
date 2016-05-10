@@ -40,10 +40,10 @@ public class ExamplePlugin implements FullstopPlugin {
      */
     @Override
     public boolean supports(final CloudTrailEvent event) {
-        CloudTrailEventData eventData = event.getEventData();
+        final CloudTrailEventData eventData = event.getEventData();
 
-        String eventSource = eventData.getEventSource();
-        String eventName = eventData.getEventName();
+        final String eventSource = eventData.getEventSource();
+        final String eventName = eventData.getEventName();
 
         return eventSource.equals(EC2_EVENTS) && eventName.startsWith(DELETE);
     }
@@ -53,18 +53,18 @@ public class ExamplePlugin implements FullstopPlugin {
     // command for account id and client type -> generate new credentials
     public void processEvent(final CloudTrailEvent event) {
 
-        String parameters = event.getEventData().getRequestParameters();
-        String instanceId = getFromParameters(parameters);
+        final String parameters = event.getEventData().getRequestParameters();
+        final String instanceId = getFromParameters(parameters);
 
-        AmazonEC2Client client = getClientForAccount(
+        final AmazonEC2Client client = getClientForAccount(
                 event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
-        DescribeInstancesRequest request = new DescribeInstancesRequest();
+        final DescribeInstancesRequest request = new DescribeInstancesRequest();
         request.setInstanceIds(Collections.singleton(instanceId));
 
         // try
-        DescribeInstancesResult result = client.describeInstances(request);
+        final DescribeInstancesResult result = client.describeInstances(request);
         // catch credentials are old
         // throw new my coole exception ( account id, CLIENTTYPE.EC2, exception) -> this will trigger hystrix
 
@@ -72,21 +72,21 @@ public class ExamplePlugin implements FullstopPlugin {
     }
 
     private AmazonEC2Client getClientForAccount(final String accountId, final Region region) {
-        AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
+        final AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
 
-        AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn(
+        final AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn(
                 "arn:aws:iam::ACCOUNT_ID:role/fullstop-role")
                                                                  .withDurationSeconds(3600).withRoleSessionName(
                         "fullstop-role");
 
-        AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
+        final AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
 
-        BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(
+        final BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(
                 assumeResult.getCredentials()
                             .getAccessKeyId(), assumeResult.getCredentials().getSecretAccessKey(),
                 assumeResult.getCredentials().getSessionToken());
 
-        AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);
+        final AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);
         amazonEC2Client.setRegion(region);
 
         return amazonEC2Client;

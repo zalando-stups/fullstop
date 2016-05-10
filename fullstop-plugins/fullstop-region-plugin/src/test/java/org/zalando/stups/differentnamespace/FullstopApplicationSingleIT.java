@@ -42,13 +42,13 @@ public class FullstopApplicationSingleIT {
 
         assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
 
-        List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
+        final List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
         assertThat(plugins).isNotEmpty();
         assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-us-west.json");
 
-        for (FullstopPlugin plugin : plugins) {
+        for (final FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
 
@@ -60,13 +60,13 @@ public class FullstopApplicationSingleIT {
 
         assertThat(regionPluginProperties.getWhitelistedRegions()).containsOnly("us-west-1");
 
-        List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
+        final List<FullstopPlugin> plugins = pluginRegistry.getPlugins();
         assertThat(plugins).isNotEmpty();
         assertThat(plugins).contains(regionPlugin);
 
-        CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-eu-central.json");
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/run-instance-eu-central.json");
 
-        for (FullstopPlugin plugin : plugins) {
+        for (final FullstopPlugin plugin : plugins) {
             plugin.processEvent(cloudTrailEvent);
         }
 

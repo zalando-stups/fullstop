@@ -9,13 +9,13 @@ public class NullToStringTest {
 
     @Test(expected = NullPointerException.class)
     public void test() {
-        Object x = null;
+        final Object x = null;
         x.toString();
     }
 
     @Test
     public void listExpand() {
-        List<String> testList = Lists.newArrayList("one", "two");
+        final List<String> testList = Lists.newArrayList("one", "two");
         System.out.println(testList);
     }
 }

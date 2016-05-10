@@ -27,10 +27,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @Api(value = "/api/lifecycles", description = "Get the application lifecycle")
 public class LifecycleController {
 
-    private ApplicationLifecycleService applicationLifecycleService;
+    private final ApplicationLifecycleService applicationLifecycleService;
 
     @Autowired
-    public LifecycleController(ApplicationLifecycleService applicationLifecycleService) {
+    public LifecycleController(final ApplicationLifecycleService applicationLifecycleService) {
         this.applicationLifecycleService = applicationLifecycleService;
     }
 
@@ -53,7 +53,7 @@ public class LifecycleController {
                                                     final String name,
                                                     @ApiIgnore
                                                     @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable) {
-        Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null, pageable);
+        final Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null, pageable);
         return mapToDto(lifecycleEntities);
 
     }
@@ -79,16 +79,16 @@ public class LifecycleController {
                                                     final String version,
                                                     @ApiIgnore
                                                     @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable) {
-        Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version, pageable);
+        final Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version, pageable);
         return mapToDto(lifecycleEntities);
 
     }
 
-    private Page<LifecylceDTO> mapToDto(Page<LifecycleEntity> lifecycleEntities) {
-        List<LifecylceDTO> lifecylceDTOList = newArrayList();
+    private Page<LifecylceDTO> mapToDto(final Page<LifecycleEntity> lifecycleEntities) {
+        final List<LifecylceDTO> lifecylceDTOList = newArrayList();
 
-        for (LifecycleEntity lifecycleEntity : lifecycleEntities) {
-            LifecylceDTO lifecylceDTO = new LifecylceDTO();
+        for (final LifecycleEntity lifecycleEntity : lifecycleEntities) {
+            final LifecylceDTO lifecylceDTO = new LifecylceDTO();
 
             lifecylceDTO.setApplication(lifecycleEntity.getApplicationEntity().getName());
             lifecylceDTO.setCreated(lifecycleEntity.getCreated());

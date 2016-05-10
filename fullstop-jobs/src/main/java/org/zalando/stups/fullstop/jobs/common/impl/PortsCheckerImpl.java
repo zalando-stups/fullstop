@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class PortsCheckerImpl implements PortsChecker {
     JobsProperties jobsProperties = new JobsProperties();
 
-    @Override public List<Integer> check(LoadBalancerDescription loadBalancerDescription) {
+    @Override public List<Integer> check(final LoadBalancerDescription loadBalancerDescription) {
 
         return loadBalancerDescription.getListenerDescriptions()
                                       .stream()

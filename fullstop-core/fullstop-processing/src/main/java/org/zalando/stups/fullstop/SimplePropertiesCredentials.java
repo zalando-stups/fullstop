@@ -25,8 +25,8 @@ public class SimplePropertiesCredentials implements AWSCredentialsProvider {
                             + ") doesn't contain the expected properties 'accessKey' " + "and 'secretKey'.");
         }
 
-        String accessKey = accountProperties.getProperty("accessKey");
-        String secretKey = accountProperties.getProperty("secretKey");
+        final String accessKey = accountProperties.getProperty("accessKey");
+        final String secretKey = accountProperties.getProperty("secretKey");
         awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
     }

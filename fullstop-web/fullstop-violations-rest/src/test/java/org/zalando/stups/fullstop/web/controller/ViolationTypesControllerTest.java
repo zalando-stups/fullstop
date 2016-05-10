@@ -86,7 +86,7 @@ public class ViolationTypesControllerTest {
     static class TestConfig {
 
         @Bean
-        ViolationTypesController violationTypesController(ViolationTypeRepository violationTypeRepository, Converter<ViolationTypeEntity, ViolationType> converter) {
+        ViolationTypesController violationTypesController(final ViolationTypeRepository violationTypeRepository, final Converter<ViolationTypeEntity, ViolationType> converter) {
             return new ViolationTypesController(violationTypeRepository, converter);
         }
 

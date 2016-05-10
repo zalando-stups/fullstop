@@ -24,7 +24,7 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
 
     private final KioOperations kioOperations;
 
-    public KioApprovalProviderImpl(KioOperations kioOperations) {
+    public KioApprovalProviderImpl(final KioOperations kioOperations) {
         this.kioOperations = kioOperations;
     }
 
@@ -33,7 +33,7 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, List<Approval>>() {
                 @Override
-                public List<Approval> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public List<Approval> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final List<Approval> kioApproval = getKioApproval(context);
                     if (kioApproval == null || kioApproval.isEmpty()) {
                         log.warn("Could not find the Approval {} in KIO.", context);
@@ -42,14 +42,14 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
                 }
             });
 
-    private List<Approval> getKioApproval(@Nonnull EC2InstanceContext context) {
+    private List<Approval> getKioApproval(@Nonnull final EC2InstanceContext context) {
         final Optional<String> applicationId = context.getApplicationId();
         final Optional<String> applicationVersion = context.getVersionId();
 
         if (applicationId.isPresent() && applicationVersion.isPresent()) {
             try {
                 return kioOperations.getApplicationVersionApprovals(applicationId.get(), applicationVersion.get());
-            } catch (NotFoundException ignored) {
+            } catch (final NotFoundException ignored) {
                 return emptyList();
             }
         }
@@ -58,7 +58,7 @@ public class KioApprovalProviderImpl implements KioApprovalProvider {
     }
 
     @Override
-    public List<Approval> apply(EC2InstanceContext context) {
+    public List<Approval> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }

@@ -3,7 +3,6 @@ package org.zalando.stups.fullstop.plugin;
 import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.violation.ViolationType.EC2_WITH_KEYPAIR;
 import static org.zalando.stups.fullstop.violation.ViolationType.WRONG_REGION;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 

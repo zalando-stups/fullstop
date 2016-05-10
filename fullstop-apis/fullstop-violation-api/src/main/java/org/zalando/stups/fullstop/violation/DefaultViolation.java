@@ -80,7 +80,7 @@ class DefaultViolation implements Violation {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -116,7 +116,7 @@ class DefaultViolation implements Violation {
         return violationType;
     }
 
-    public void setViolationType(String violationType) {
+    public void setViolationType(final String violationType) {
         this.violationType = violationType;
     }
 
@@ -125,7 +125,7 @@ class DefaultViolation implements Violation {
         return pluginFullyQualifiedClassName;
     }
 
-    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+    public void setPluginFullyQualifiedClassName(final String pluginFullyQualifiedClassName) {
         this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
     }
 
@@ -134,7 +134,7 @@ class DefaultViolation implements Violation {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -143,7 +143,7 @@ class DefaultViolation implements Violation {
         return applicationId;
     }
 
-    public String setApplicationId(String applicationId) {
+    public String setApplicationId(final String applicationId) {
         return this.applicationId = applicationId;
     }
 
@@ -152,7 +152,7 @@ class DefaultViolation implements Violation {
         return applicationVersion;
     }
 
-    public String setApplicationVersion(String applicationVersion) {
+    public String setApplicationVersion(final String applicationVersion) {
        return this.applicationVersion = applicationVersion;
     }
 

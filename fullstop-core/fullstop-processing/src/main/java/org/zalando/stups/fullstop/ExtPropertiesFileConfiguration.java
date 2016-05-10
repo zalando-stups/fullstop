@@ -47,7 +47,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
      * "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/AWSCredentialsProvider.html" >AWS
      * credentials provider</a> used to obtain credentials.
      */
-    private AWSCredentialsProvider awsCredentialsProvider;
+    private final AWSCredentialsProvider awsCredentialsProvider;
 
     /**
      * The SQS Queue URL used to receive events.
@@ -116,8 +116,8 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
         this.sqsUrl = prop.getProperty(SQS_URL);
         LibraryUtils.checkArgumentNotNull(this.sqsUrl, "Cannot find SQS URL in properties file.");
 
-        String accessKey = prop.getProperty(ACCESS_KEY);
-        String secretKey = prop.getProperty(SECRET_KEY);
+        final String accessKey = prop.getProperty(ACCESS_KEY);
+        final String secretKey = prop.getProperty(SECRET_KEY);
 
         if (accessKey != null && secretKey != null) {
             this.awsCredentialsProvider = new SimplePropertiesCredentials(prop);
@@ -141,7 +141,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
     public static ExtPropertiesFileConfiguration fromClasspath(final String propertiesFile) {
 
         // load properties from configuration properties file
-        Properties prop = ExtPropertiesFileConfiguration.loadProperty(propertiesFile);
+        final Properties prop = ExtPropertiesFileConfiguration.loadProperty(propertiesFile);
         return new ExtPropertiesFileConfiguration(prop);
     }
 
@@ -153,13 +153,13 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
      * containing the properties set in the file.
      */
     protected static Properties loadProperty(final String propertiesFile) {
-        Properties prop = new Properties();
+        final Properties prop = new Properties();
         try {
-            InputStream in = ExtPropertiesFileConfiguration.class.getResourceAsStream(propertiesFile);
+            final InputStream in = ExtPropertiesFileConfiguration.class.getResourceAsStream(propertiesFile);
             prop.load(in);
             in.close();
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             throw new IllegalStateException("Cannot load property file at " + propertiesFile, e);
         }
 
@@ -255,7 +255,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
      * @return an integer representation of the value associated with the property name.
      */
     private int getIntProperty(final Properties prop, final String name) {
-        String propertyValue = prop.getProperty(name);
+        final String propertyValue = prop.getProperty(name);
         return Integer.parseInt(propertyValue);
     }
 
@@ -267,7 +267,7 @@ public class ExtPropertiesFileConfiguration implements ProcessingConfiguration {
      * @return a boolean representation of the value associated with the property name.
      */
     private Boolean getBooleanProperty(final Properties prop, final String name) {
-        String propertyValue = prop.getProperty(name);
+        final String propertyValue = prop.getProperty(name);
         return Boolean.parseBoolean(propertyValue);
     }
 

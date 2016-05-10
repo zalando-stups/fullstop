@@ -43,7 +43,7 @@ public class Violation {
 
     private String applicationId;
 
-    private String applicationVersion;
+    private String applicationVersionId;
 
 
     @ApiModelProperty(value = "")
@@ -51,7 +51,7 @@ public class Violation {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -60,7 +60,7 @@ public class Violation {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 
@@ -69,7 +69,7 @@ public class Violation {
         return eventId;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(final String eventId) {
         this.eventId = eventId;
     }
 
@@ -78,7 +78,7 @@ public class Violation {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -87,7 +87,7 @@ public class Violation {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -96,7 +96,7 @@ public class Violation {
         return metaInfo;
     }
 
-    public void setMetaInfo(Object metaInfo) {
+    public void setMetaInfo(final Object metaInfo) {
         this.metaInfo = metaInfo;
     }
 
@@ -105,7 +105,7 @@ public class Violation {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -114,7 +114,7 @@ public class Violation {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(final DateTime created) {
         this.created = created;
     }
 
@@ -123,7 +123,7 @@ public class Violation {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -132,7 +132,7 @@ public class Violation {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(final DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -141,7 +141,7 @@ public class Violation {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(String lastModifiedBy) {
+    public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
@@ -150,7 +150,7 @@ public class Violation {
         return pluginFullyQualifiedClassName;
     }
 
-    public void setPluginFullyQualifiedClassName(String pluginFullyQualifiedClassName) {
+    public void setPluginFullyQualifiedClassName(final String pluginFullyQualifiedClassName) {
         this.pluginFullyQualifiedClassName = pluginFullyQualifiedClassName;
     }
 
@@ -159,7 +159,7 @@ public class Violation {
         return violationType;
     }
 
-    public void setViolationType(ViolationType violationType) {
+    public void setViolationType(final ViolationType violationType) {
         this.violationType = violationType;
     }
 
@@ -168,7 +168,7 @@ public class Violation {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -177,7 +177,7 @@ public class Violation {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -186,7 +186,7 @@ public class Violation {
         return ruleID;
     }
 
-    public void setRuleID(Long ruleID) {
+    public void setRuleID(final Long ruleID) {
         this.ruleID = ruleID;
     }
 
@@ -195,17 +195,17 @@ public class Violation {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(final String applicationId) {
         this.applicationId = applicationId;
     }
 
     @ApiModelProperty(value = "")
-    public String getApplicationVersion() {
-        return applicationVersion;
+    public String getApplicationVersionId() {
+        return applicationVersionId;
     }
 
-    public void setApplicationVersion(String applicationVersion) {
-        this.applicationVersion = applicationVersion;
+    public void setApplicationVersionId(final String applicationVersionId) {
+        this.applicationVersionId = applicationVersionId;
     }
     @Override
     public String toString() {
@@ -223,7 +223,7 @@ public class Violation {
                 .add("ruleID", ruleID)
                 .add("username", username)
                 .add("applicationId", applicationId)
-                .add("applicationVersion", applicationVersion)
+                .add("applicationVersionId", applicationVersionId)
                 .add("created", created)
                 .add("createdBy", createdBy)
                 .add("lastModified", lastModified)

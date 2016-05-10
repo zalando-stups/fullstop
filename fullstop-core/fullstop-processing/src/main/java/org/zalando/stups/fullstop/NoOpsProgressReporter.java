@@ -9,11 +9,11 @@ import com.amazonaws.services.cloudtrail.processinglibrary.progress.ProgressStat
 public class NoOpsProgressReporter implements ProgressReporter {
 
     @Override
-    public Object reportStart(ProgressStatus status) {
+    public Object reportStart(final ProgressStatus status) {
         return null;
     }
 
     @Override
-    public void reportEnd(ProgressStatus status, Object object) {
+    public void reportEnd(final ProgressStatus status, final Object object) {
     }
 }

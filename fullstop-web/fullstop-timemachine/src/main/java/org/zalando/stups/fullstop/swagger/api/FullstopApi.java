@@ -61,12 +61,12 @@ public class FullstopApi {
             log.info("Saving S3 logs with userdatapath: {}", userdataPath);
 
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             log.error(e.getMessage(), e);
         }
 
         if (instanceLog.getLogType() == LogType.USER_DATA) {
-            LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
+            final LifecycleEntity lifecycleEntity = applicationLifecycleService.saveInstanceLogLifecycle(
                     instanceLog.getInstanceId(),
                     new DateTime(instanceLog.getInstanceBootTime(), UTC),
                     userdataPath,

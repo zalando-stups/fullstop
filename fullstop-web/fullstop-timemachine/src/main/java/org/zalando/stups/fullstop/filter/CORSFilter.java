@@ -15,9 +15,9 @@ import java.io.IOException;
  */
 @Component
 public class CORSFilter implements Filter {
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+    public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain)
             throws IOException, ServletException {
-        HttpServletResponse response = (HttpServletResponse) res;
+        final HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         response.setHeader("Access-Control-Max-Age", "3600");
@@ -25,7 +25,7 @@ public class CORSFilter implements Filter {
         chain.doFilter(req, res);
     }
 
-    public void init(FilterConfig filterConfig) {
+    public void init(final FilterConfig filterConfig) {
     }
 
     public void destroy() {

@@ -57,8 +57,8 @@ public class ApplicationLifecycleServiceImplTest {
 
     private ApplicationEntity helloWorldApplication;
 
-    private String applicationId = "fullstop";
-    private String versionId = "1.0";
+    private final String applicationId = "fullstop";
+    private final String versionId = "1.0";
     private LifecycleEntity lifecycle;
     private ApplicationEntity application;
     private VersionEntity version;
@@ -152,7 +152,7 @@ public class ApplicationLifecycleServiceImplTest {
 
     @Test
     public void testSaveInstanceLogs() throws Exception {
-        String userdata = encodeToBase64(
+        final String userdata = encodeToBase64(
                 "#taupage-ami-config\n"
                         + "application_id: '" + applicationId + "'\n"
                         + "application_version: '" + versionId + "'\n"
@@ -174,7 +174,7 @@ public class ApplicationLifecycleServiceImplTest {
 
     @Test
     public void testSaveInstanceLogsMissingAppId() throws Exception {
-        String userdata = encodeToBase64(
+        final String userdata = encodeToBase64(
                 "#taupage-ami-config\n"
                         + "application_version: '" + versionId + "'\n"
                         + "environment:\n"
@@ -186,7 +186,7 @@ public class ApplicationLifecycleServiceImplTest {
 
     @Test
     public void testSaveInstanceLogsMissingAppVersion() throws Exception {
-        String userdata = encodeToBase64(
+        final String userdata = encodeToBase64(
                 "#taupage-ami-config\n"
                         + "application_id: '" + applicationId + "'\n"
                         + "environment:\n"
@@ -205,7 +205,7 @@ public class ApplicationLifecycleServiceImplTest {
         verify(mockApplicationRepository).findByInstanceIds(eq(ACCOUNT_ID), eq(REGION), eq(INSTANCE_IDS));
     }
 
-    private static String encodeToBase64(String toEncode) {
+    private static String encodeToBase64(final String toEncode) {
         return Base64.getEncoder().encodeToString(
                 (toEncode).getBytes());
     }

@@ -36,7 +36,7 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
             .maximumSize(100)
             .build(new CacheLoader<EC2InstanceContext, Optional<Map>>() {
                 @Override
-                public Optional<Map> load(@Nonnull EC2InstanceContext context) throws Exception {
+                public Optional<Map> load(@Nonnull final EC2InstanceContext context) throws Exception {
                     final Optional<Map> taupageYaml = getTaupageYaml(context);
                     if (!taupageYaml.isPresent()) {
                         log.warn("Could not find the Taupage YAML for {}", context);
@@ -45,14 +45,14 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
                 }
             });
 
-    private Optional<Map> getTaupageYaml(@Nonnull EC2InstanceContext context) {
+    private Optional<Map> getTaupageYaml(@Nonnull final EC2InstanceContext context) {
 
         if (context.isTaupageAmi().orElse(false)) {
 
             final String instanceId = context.getInstanceId();
 
             try {
-                DescribeInstanceAttributeResult response = context.getClient(AmazonEC2Client.class)
+                final DescribeInstanceAttributeResult response = context.getClient(AmazonEC2Client.class)
                         .describeInstanceAttribute(
                                 new DescribeInstanceAttributeRequest()
                                         .withInstanceId(instanceId)
@@ -69,7 +69,7 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
                         .filter(data -> data instanceof Map) // everything else is obviously no valid taupage format
                         .map(data -> (Map) data);
 
-            } catch (AmazonClientException e) {
+            } catch (final AmazonClientException e) {
                 log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
                 return empty();
             } catch (ScannerException | ParserException | IllegalArgumentException s)   {
@@ -84,7 +84,7 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
     }
 
     @Override
-    public Optional<Map> apply(EC2InstanceContext context) {
+    public Optional<Map> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }

@@ -32,7 +32,7 @@ public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
 
     private LoadingCache<String, String> cache = null;
 
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
     private List<String> policyTemplateNames;
 
@@ -44,10 +44,10 @@ public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
 
     @Scheduled(initialDelay = 2 * 1000, fixedDelay = 60 * 60 * 1000)
     private void fetchFromS3() {
-        List<String> results = newArrayList();
-        List<String> listS3Objects = s3Service.listS3Objects(bucketName, prefix);
+        final List<String> results = newArrayList();
+        final List<String> listS3Objects = s3Service.listS3Objects(bucketName, prefix);
 
-        for (String listS3Object : listS3Objects) {
+        for (final String listS3Object : listS3Objects) {
             results.add(Files.getNameWithoutExtension(listS3Object));
         }
 
@@ -75,9 +75,9 @@ public class S3PolicyTemplatesProvider implements PolicyTemplatesProvider {
                     public String load(final String roleName) throws Exception {
                         logger.debug("CacheLoader active for role : {}", roleName);
 
-                        String key = prefix + roleName + ".json";
+                        final String key = prefix + roleName + ".json";
 
-                        String result = s3Service.downloadObject(bucketName, key);
+                        final String result = s3Service.downloadObject(bucketName, key);
                         if (result == null) {
                             throw new RuntimeException("Could not download key:" + key);
                         }

@@ -14,7 +14,7 @@ public final class ViolationMatchers {
     public static Matcher<Violation> hasType(final String expectedType) {
         return new TypeSafeDiagnosingMatcher<Violation>() {
             @Override
-            protected boolean matchesSafely(Violation violation, Description mismatchDescription) {
+            protected boolean matchesSafely(final Violation violation, final Description mismatchDescription) {
                 final String actualType = violation.getViolationType();
                 if (!Objects.equals(actualType, expectedType)) {
                     mismatchDescription.appendText("type was ").appendValue(actualType);
@@ -25,7 +25,7 @@ public final class ViolationMatchers {
             }
 
             @Override
-            public void describeTo(Description description) {
+            public void describeTo(final Description description) {
                 description.appendText("violation of type ").appendValue(expectedType);
             }
         };

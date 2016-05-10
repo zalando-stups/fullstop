@@ -17,11 +17,11 @@ public class SimplePluginTest {
     public void simplePluginTest() throws CallbackException {
 
         // set up your plugin
-        ViolationSink violationSink = Mockito.mock(ViolationSink.class);
-        SimplePlugin sp = new SimplePlugin(violationSink);
+        final ViolationSink violationSink = Mockito.mock(ViolationSink.class);
+        final SimplePlugin sp = new SimplePlugin(violationSink);
 
         // setup the processor with your plugin
-        LocalPluginProcessor lpp = new LocalPluginProcessor(sp);
+        final LocalPluginProcessor lpp = new LocalPluginProcessor(sp);
 
         // run processing with file from classpath
         lpp.processEvents(getClass().getResourceAsStream("/record.json"));
