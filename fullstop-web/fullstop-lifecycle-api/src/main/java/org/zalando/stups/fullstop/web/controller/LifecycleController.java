@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import org.zalando.stups.fullstop.web.model.LifecylceDTO;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -37,10 +38,21 @@ public class LifecycleController {
     @ApiOperation(value = "Shows a list of all rules", response = LifecylceDTO.class, responseContainer = "List",
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+                    value = "Number of records per page."),
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                    value = "Sorting criteria in the format: \"property,[asc|desc]\". " +
+                            "Default sort order is ascending. " +
+                            "Multiple sort criteria are supported.")
+    })
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
     public Page<LifecylceDTO> findByApplicationName(@PathVariable("name")
                                                     final String name,
-                                                    @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable){
+                                                    @ApiIgnore
+                                                    @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable) {
         Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, null, pageable);
         return mapToDto(lifecycleEntities);
 
@@ -50,11 +62,22 @@ public class LifecycleController {
     @ApiOperation(value = "Shows a list of all rules", response = LifecylceDTO.class, responseContainer = "List",
             authorizations = {@Authorization(value = "oauth",
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+                    value = "Number of records per page."),
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                    value = "Sorting criteria in the format: \"property,[asc|desc]\". " +
+                            "Default sort order is ascending. " +
+                            "Multiple sort criteria are supported.")
+    })
     @ApiResponses(@ApiResponse(code = 200, message = "the list of violations grouped by version, instance, created; Ordered by date"))
     public Page<LifecylceDTO> findByApplicationName(@PathVariable("name")
                                                     final String name,
                                                     @PathVariable("version")
                                                     final String version,
+                                                    @ApiIgnore
                                                     @PageableDefault(page = 0, size = 10, sort = "created", direction = ASC) final Pageable pageable) {
         Page<LifecycleEntity> lifecycleEntities = applicationLifecycleService.findByApplicationNameAndVersion(name, version, pageable);
         return mapToDto(lifecycleEntities);

@@ -19,6 +19,7 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.api.ForbiddenException;
 import org.zalando.stups.fullstop.web.api.NotFoundException;
 import org.zalando.stups.fullstop.web.model.Violation;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,16 +64,32 @@ public class ViolationsController {
             value = "violations", notes = "Get all violations", response = Violation.class, responseContainer = "List"
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "List of all violations")})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "from", dataType = "date-time", paramType = "query",
+                    value = "Include only violations that happened after this point in time. " +
+                            "Example: \"2015-05-21T10:24:47.788-02:00\""),
+            @ApiImplicitParam(name = "to", dataType = "date-time", paramType = "query",
+                    value = "Include only violations that happened up to this point in time. " +
+                            "Example: \"2015-05-21T10:24:47.788-02:00\""),
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+                    value = "Number of records per page."),
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                    value = "Sorting criteria in the format: \"property,[asc|desc]\". " +
+                            "Default sort order is ascending. " +
+                            "Multiple sort criteria are supported.")
+    })
     @RequestMapping(method = GET)
     public Page<Violation> violations(
             @ApiParam(value = "Include only violations in these accounts")
             @RequestParam(value = "accounts", required = false)
             final List<String> accounts,
-            @ApiParam(value = "Include only violations that happened after this point in time")
+            @ApiIgnore
             @RequestParam(value = "from", required = false)
             @DateTimeFormat(iso = DATE_TIME)
             DateTime from,
-            @ApiParam(value = "Include only violations that happened up to this point in time")
+            @ApiIgnore
             @RequestParam(value = "to", required = false)
             @DateTimeFormat(iso = DATE_TIME)
             DateTime to,
@@ -95,9 +112,11 @@ public class ViolationsController {
             @RequestParam(value = "type", required = false)
             final String type,
             @ApiParam(value = "show also whitelisted vioaltions")
-            @RequestParam(value = "whitelisted",required = false, defaultValue = "false")
+            @RequestParam(value = "whitelisted", required = false, defaultValue = "false")
             final boolean whitelisted,
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
+            @ApiIgnore
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable)
+            throws NotFoundException {
         if (from == null) {
             from = DateTime.now().minusWeeks(1);
         }
@@ -107,7 +126,7 @@ public class ViolationsController {
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity,priority, auditRelevant, type, whitelisted, pageable));
+                        checked, severity, priority, auditRelevant, type, whitelisted, pageable));
     }
 
     @ApiOperation(
@@ -121,7 +140,7 @@ public class ViolationsController {
             final Long id,
             @ApiParam(value = "", required = true)
             @RequestBody final String comment,
-            @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+            @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
             throws NotFoundException, ForbiddenException {
         final ViolationEntity violation = violationService.findOne(id);
 

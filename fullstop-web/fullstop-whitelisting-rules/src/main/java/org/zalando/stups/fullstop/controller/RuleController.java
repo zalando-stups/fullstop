@@ -12,6 +12,7 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.web.api.ForbiddenException;
 import org.zalando.stups.fullstop.web.api.NotFoundException;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,7 +45,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
-    public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+    public List<RuleEntity> showWhitelistings(@ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
 
         checkPermission(userId);
 
@@ -58,7 +59,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
     @ResponseStatus(CREATED)
-    public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
+    public RuleEntity addWhitelisting(@RequestBody RuleDTO ruleDTO, @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws ForbiddenException {
 
         checkPermission(userId);
         return ruleEntityService.save(ruleDTO);
@@ -71,7 +72,7 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
-                                      final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
+                                      final Long id, @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) String userId) throws NotFoundException, ForbiddenException {
         checkPermission(userId);
         RuleEntity ruleEntity = ruleEntityService.findById(id);
         if (ruleEntity == null) {
@@ -87,7 +88,7 @@ public class RuleController {
     @ResponseStatus(OK)
     public RuleEntity updateWhitelisting(@RequestBody RuleDTO ruleDTO,
                                          @PathVariable("id") final Long id,
-                                         @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
+                                         @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) String userId)
             throws ForbiddenException, NotFoundException {
 
         checkPermission(userId);
@@ -109,7 +110,7 @@ public class RuleController {
         final Set<String> teams = teamOperations.getTeamIdsByUser(userId);
         final List<String> allowedTeams = ruleControllerProperties.getAllowedTeams();
 
-        if (allowedTeams.stream().noneMatch(teams::contains)){
+        if (allowedTeams.stream().noneMatch(teams::contains)) {
             throw new ForbiddenException(format("%s has no permission! Found Teams: %s; required teams %s", userId, teams, allowedTeams));
         }
     }
