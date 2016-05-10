@@ -88,7 +88,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         }
     }
 
-    private RuleEntity invalidateRule(RuleEntity ruleEntity) {
+    private RuleEntity invalidateRule(final RuleEntity ruleEntity) {
         return invalidateRule(ruleEntity, DateTime.now());
     }
 
