@@ -124,6 +124,51 @@ public class RuleEntityServiceImplTest {
 
     }
 
+    @Test
+    public void testExpireSuccessfully() throws Exception {
+        final RuleEntity re = mock(RuleEntity.class);
+        when(re.getExpiryDate()).thenReturn(DateTime.now().plusDays(2));
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(re);
+
+        ruleEntityServiceImpl.expire(1L, DateTime.now().plusDays(1));
+
+        verify(ruleEntityRepository).findOne(anyLong());
+        verify(ruleEntityRepository).save(re);
+    }
+
+    @Test
+    public void testExpireWithNull() throws Exception {
+        ruleEntityServiceImpl.expire(1L, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().plusDays(1);
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().minusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireOldExpiryDateInPast() throws Exception {
+        final DateTime now = DateTime.now().minusDays(1);
+        ruleEntity.setExpiryDate(now);
+        when(ruleEntityRepository.findOne(anyLong())).thenReturn(ruleEntity);
+
+        try {
+            final DateTime expiryDate = DateTime.now().plusDays(1);
+            ruleEntityServiceImpl.expire(1L, expiryDate);
+        } finally {
+            verify(ruleEntityRepository).findOne(anyLong());
+        }
+    }
+
     @Configuration
     static class TestConfig {
 
