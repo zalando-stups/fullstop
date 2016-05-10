@@ -15,7 +15,7 @@ public class AwsCloudTrailProcessingExecutorContainer implements SmartLifecycle 
     private final AWSCloudTrailProcessingExecutor executor;
 
     @Autowired
-    private FullstopContainerProperties fullstopContainerProperties = new FullstopContainerProperties();
+    private final FullstopContainerProperties fullstopContainerProperties = new FullstopContainerProperties();
 
     private volatile boolean running = false;
 

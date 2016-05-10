@@ -20,7 +20,7 @@ public class DockerRegistryPlugin extends AbstractEC2InstancePlugin {
 
     private final ViolationSink violationSink;
 
-    public DockerRegistryPlugin(EC2InstanceContextProvider contextProvider, ViolationSink violationSink) {
+    public DockerRegistryPlugin(final EC2InstanceContextProvider contextProvider, final ViolationSink violationSink) {
         super(contextProvider);
         this.violationSink = violationSink;
     }
@@ -31,7 +31,7 @@ public class DockerRegistryPlugin extends AbstractEC2InstancePlugin {
     }
 
     @Override
-    protected void process(EC2InstanceContext context) {
+    protected void process(final EC2InstanceContext context) {
         if (!context.getRuntime().filter(isEqual("Docker")).isPresent()) {
             log.info("Unknown or missing Taupage runtime for {}. Skip DockerRegistryPlugin", context);
             return;

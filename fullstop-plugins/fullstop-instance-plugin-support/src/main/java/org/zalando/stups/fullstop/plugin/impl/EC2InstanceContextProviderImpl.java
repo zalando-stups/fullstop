@@ -69,7 +69,7 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
     }
 
     @Override
-    public List<EC2InstanceContext> instancesIn(CloudTrailEvent event) {
+    public List<EC2InstanceContext> instancesIn(final CloudTrailEvent event) {
         return cache.getUnchecked(event);
     }
 }

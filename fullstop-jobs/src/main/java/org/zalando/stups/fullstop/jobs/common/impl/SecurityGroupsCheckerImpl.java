@@ -23,22 +23,22 @@ public class SecurityGroupsCheckerImpl implements SecurityGroupsChecker {
     private final ClientProvider clientProvider;
     private final Predicate<? super SecurityGroup> predicate;
 
-    public SecurityGroupsCheckerImpl(ClientProvider clientProvider, Predicate<? super SecurityGroup> predicate) {
+    public SecurityGroupsCheckerImpl(final ClientProvider clientProvider, final Predicate<? super SecurityGroup> predicate) {
         this.clientProvider = clientProvider;
         this.predicate = predicate;
     }
 
     @Override
-    public Set<String> check(Collection<String> groupIds, String account, Region region) {
-        DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
+    public Set<String> check(final Collection<String> groupIds, final String account, final Region region) {
+        final DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
         describeSecurityGroupsRequest.setGroupIds(groupIds);
-        AmazonEC2Client amazonEC2Client = clientProvider.getClient(
+        final AmazonEC2Client amazonEC2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account, region);
-        DescribeSecurityGroupsResult describeSecurityGroupsResult = amazonEC2Client.describeSecurityGroups(
+        final DescribeSecurityGroupsResult describeSecurityGroupsResult = amazonEC2Client.describeSecurityGroups(
                 describeSecurityGroupsRequest);
 
-        List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
+        final List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
         return securityGroups.stream().filter(predicate).map(SecurityGroup::getGroupId).collect(toSet());
     }
 }

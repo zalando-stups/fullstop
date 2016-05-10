@@ -80,7 +80,7 @@ public class RuleEntity {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -88,7 +88,7 @@ public class RuleEntity {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -96,7 +96,7 @@ public class RuleEntity {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -104,7 +104,7 @@ public class RuleEntity {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(final String applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -112,7 +112,7 @@ public class RuleEntity {
         return applicationVersion;
     }
 
-    public void setApplicationVersion(String applicationVersion) {
+    public void setApplicationVersion(final String applicationVersion) {
         this.applicationVersion = applicationVersion;
     }
 
@@ -120,7 +120,7 @@ public class RuleEntity {
         return imageName;
     }
 
-    public void setImageName(String imageName) {
+    public void setImageName(final String imageName) {
         this.imageName = imageName;
     }
 
@@ -128,7 +128,7 @@ public class RuleEntity {
         return imageOwner;
     }
 
-    public void setImageOwner(String imageOwner) {
+    public void setImageOwner(final String imageOwner) {
         this.imageOwner = imageOwner;
     }
 
@@ -136,7 +136,7 @@ public class RuleEntity {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(final String reason) {
         this.reason = reason;
     }
 
@@ -144,7 +144,7 @@ public class RuleEntity {
         return expiryDate;
     }
 
-    public void setExpiryDate(DateTime expiryDate) {
+    public void setExpiryDate(final DateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -152,7 +152,7 @@ public class RuleEntity {
         return violationTypeEntityId;
     }
 
-    public void setViolationTypeEntityId(String violationTypeEntityId) {
+    public void setViolationTypeEntityId(final String violationTypeEntityId) {
         this.violationTypeEntityId = violationTypeEntityId;
     }
 
@@ -160,7 +160,7 @@ public class RuleEntity {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(final DateTime created) {
         this.created = created;
     }
 
@@ -168,7 +168,7 @@ public class RuleEntity {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -176,7 +176,7 @@ public class RuleEntity {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(final DateTime lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -184,7 +184,7 @@ public class RuleEntity {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(String lastModifiedBy) {
+    public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
@@ -192,7 +192,7 @@ public class RuleEntity {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 

@@ -35,11 +35,11 @@ public class TestAsyncIT {
 
     private final Logger log = LoggerFactory.getLogger(TestAsyncIT.class);
 
-    private Set<Integer> allowedPorts = newHashSet(443, 80);
+    private final Set<Integer> allowedPorts = newHashSet(443, 80);
 
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
-    private RequestConfig config = RequestConfig.custom()
+    private final RequestConfig config = RequestConfig.custom()
             .setConnectionRequestTimeout(1000)
             .setConnectTimeout(1000)
             .setSocketTimeout(1000)
@@ -82,7 +82,7 @@ public class TestAsyncIT {
             log.error(e.getMessage(), e);
         }
 
-        List<String> addresses = newArrayList(
+        final List<String> addresses = newArrayList(
                 "www.google.de", "www.google.it", "www.google.com",
                 "www.google.de", "www.google.it", "www.google.com",
                 "www.google.de", "www.google.it", "www.google.com",
@@ -114,21 +114,21 @@ public class TestAsyncIT {
                 "www.google.de", "www.google.it", "www.google.com",
                 "www.google.de", "www.google.it", "www.google.com");
 
-        for (String address : addresses) {
+        for (final String address : addresses) {
 
-            for (Integer allowedPort : allowedPorts) {
+            for (final Integer allowedPort : allowedPorts) {
 
-                HttpCall httpCall = new HttpCall(httpclient, address, allowedPort);
-                ListenableFuture<Void> listenableFuture = threadPoolTaskExecutor.submitListenable(httpCall);
+                final HttpCall httpCall = new HttpCall(httpclient, address, allowedPort);
+                final ListenableFuture<Void> listenableFuture = threadPoolTaskExecutor.submitListenable(httpCall);
                 listenableFuture.addCallback(
                         new SuccessCallback<Void>() {
                             @Override
-                            public void onSuccess(Void result) {
+                            public void onSuccess(final Void result) {
                                 log.info("address: {} and port: {}", address, allowedPort);
                             }
                         }, new FailureCallback() {
                             @Override
-                            public void onFailure(Throwable ex) {
+                            public void onFailure(final Throwable ex) {
                                 log.warn(ex.getMessage(), ex);
                             }
                         });
@@ -152,7 +152,7 @@ public class TestAsyncIT {
 
         private final Integer allowedPort;
 
-        public HttpCall(CloseableHttpClient httpclient, String address, Integer allowedPort) {
+        public HttpCall(final CloseableHttpClient httpclient, final String address, final Integer allowedPort) {
             this.httpclient = httpclient;
             this.address = address;
             this.allowedPort = allowedPort;
@@ -162,20 +162,20 @@ public class TestAsyncIT {
         public Void call() throws Exception {
             log.info("Thread: {}", Thread.currentThread().getId());
 
-            String scheme = allowedPort == 443 ? "https" : "http";
+            final String scheme = allowedPort == 443 ? "https" : "http";
 
             try {
-                URI http = new URIBuilder().setScheme(scheme)
+                final URI http = new URIBuilder().setScheme(scheme)
                         .setHost(address)
                         .setPort(allowedPort)
                         .build();
-                HttpGet httpget = new HttpGet(http);
+                final HttpGet httpget = new HttpGet(http);
                 try (CloseableHttpResponse response = httpclient.execute(httpget)) {
 
 
                     if (response != null) {
                         String location = "";
-                        for (Header header : response.getAllHeaders()) {
+                        for (final Header header : response.getAllHeaders()) {
                             if (header.getName().equals("Location")) {
                                 location = header.getValue();
                             }
@@ -192,10 +192,10 @@ public class TestAsyncIT {
                         }
 
                     }
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     log.error(e.getMessage());
                 }
-            } catch (URISyntaxException e) {
+            } catch (final URISyntaxException e) {
                 log.error(e.getMessage());
             }
             return null;

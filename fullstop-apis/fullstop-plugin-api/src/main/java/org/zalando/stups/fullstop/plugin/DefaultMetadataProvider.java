@@ -27,24 +27,24 @@ public class DefaultMetadataProvider implements MetadataProvider {
 
     @Override
     public PluginMetadata getMetadata() {
-        String name = pluginDescriptorName;
-        String version = readVersion();
+        final String name = pluginDescriptorName;
+        final String version = readVersion();
         return new SimplePluginMetadata(name, version);
     }
 
     protected String readVersion() {
         try {
-            Properties properties = new Properties();
+            final Properties properties = new Properties();
             properties.load(getClass().getResourceAsStream(META_INF_FULLSTOP + getPluginDescriptorName()));
 
-            Object version = properties.get(PROPERTY_NAME);
+            final Object version = properties.get(PROPERTY_NAME);
             if (version != null) {
                 return version.toString();
             }
 
             return UNDEFINED;
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             return UNDEFINED;
         }
     }

@@ -35,7 +35,7 @@ public class S3Controller {
 
     private final CloudTrailProcessingLibraryProperties cloudTrailProcessingLibraryProperties;
 
-    private PluginEventsProcessor pluginEventsProcessor;
+    private final PluginEventsProcessor pluginEventsProcessor;
 
     @Value("${fullstop.logging.dir}")
     private String fullstopLoggingDir;
@@ -52,13 +52,13 @@ public class S3Controller {
 
         log.info("Reading fullstop directory here: {}", fullstopLoggingDir);
 
-        File directory = new File(fullstopLoggingDir);
+        final File directory = new File(fullstopLoggingDir);
 
-        File[] files;
+        final File[] files;
 
         try {
             files = directory.listFiles();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new FileNotFoundException("You should download the file before read these.");
         }
 
@@ -66,10 +66,10 @@ public class S3Controller {
             throw new FileNotFoundException("Directory is empty");
         }
 
-        for (File file : files) {
+        for (final File file : files) {
             log.info("Process file: {}", file.getAbsolutePath());
 
-            FileEventReader reader = new FileEventReader(pluginEventsProcessor);
+            final FileEventReader reader = new FileEventReader(pluginEventsProcessor);
             reader.readEvents(file, null);
         }
     }
@@ -82,19 +82,19 @@ public class S3Controller {
         try {
             log.info("Creating fullstop directory here: {}", fullstopLoggingDir);
 
-            boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
-        } catch (SecurityException e) {
+            final boolean mkdirs = new File(fullstopLoggingDir).mkdirs();
+        } catch (final SecurityException e) {
             // do nothing
         }
 
-        AmazonS3Client amazonS3Client = new AmazonS3Client();
+        final AmazonS3Client amazonS3Client = new AmazonS3Client();
         amazonS3Client.setRegion(
                 Region.getRegion(
                         Regions.fromName(
                                 (String) cloudTrailProcessingLibraryProperties.getAsProperties()
                                         .get(S3_REGION_KEY))));
 
-        ListObjectsRequest listObjectsRequest =
+        final ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest().withBucketName(bucket) //
                         .withPrefix(location)   //
                         .withMaxKeys(page);
@@ -110,14 +110,14 @@ public class S3Controller {
 
         }
 
-        for (S3ObjectSummary s3ObjectSummary : s3ObjectSummaries) {
-            String bucketName = s3ObjectSummary.getBucketName();
-            String key = s3ObjectSummary.getKey();
+        for (final S3ObjectSummary s3ObjectSummary : s3ObjectSummaries) {
+            final String bucketName = s3ObjectSummary.getBucketName();
+            final String key = s3ObjectSummary.getKey();
 
-            S3Object object = amazonS3Client.getObject(new GetObjectRequest(bucketName, key));
-            InputStream inputStream = object.getObjectContent();
+            final S3Object object = amazonS3Client.getObject(new GetObjectRequest(bucketName, key));
+            final InputStream inputStream = object.getObjectContent();
 
-            File file = new File(
+            final File file = new File(
                     fullstopLoggingDir,
                     object.getBucketName() + object.getObjectMetadata().getETag() + JSON_GZ);
 
@@ -129,8 +129,8 @@ public class S3Controller {
 
     private void copyInputStreamToFile(final InputStream in, final File file) {
         try {
-            OutputStream out = new FileOutputStream(file);
-            byte[] buf = new byte[1024];
+            final OutputStream out = new FileOutputStream(file);
+            final byte[] buf = new byte[1024];
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
@@ -138,7 +138,7 @@ public class S3Controller {
 
             out.close();
             in.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.warn(e.getMessage(), e);
         }
     }

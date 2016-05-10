@@ -6,16 +6,12 @@ import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 import org.springframework.util.Assert;
-import org.zalando.stups.fullstop.rule.entity.QRuleEntity;
 import org.zalando.stups.fullstop.violation.entity.*;
 import org.zalando.stups.fullstop.violation.repository.ViolationRepositoryCustom;
 
 import javax.persistence.Query;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
@@ -37,13 +33,22 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public Page<ViolationEntity> queryViolations(final List<String> accounts, final DateTime from, final DateTime to,
-                                                 final Long lastViolation, final boolean checked, final Integer severity,
-                                                 final Integer priority, final Boolean auditRelevant, final String type,
-                                                 final boolean whitelisted, final Pageable pageable) {
+    public Page<ViolationEntity> queryViolations(final List<String> accounts,
+                                                 final DateTime from,
+                                                 final DateTime to,
+                                                 final Long lastViolation,
+                                                 final boolean checked,
+                                                 final Integer severity,
+                                                 final Integer priority,
+                                                 final Boolean auditRelevant,
+                                                 final List<String> types,
+                                                 final boolean whitelisted,
+                                                 final List<String> applicationIds,
+                                                 final List<String> applicationVersionIds,
+                                                 final Pageable pageable) {
 
-        QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
-        QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
+        final QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
+        final QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
 
         final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
 
@@ -88,8 +93,16 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationTypeEntity.isAuditRelevant.eq(auditRelevant));
         }
 
-        if (type != null) {
-            predicates.add(qViolationEntity.violationTypeEntity.id.eq(type));
+        if (types != null && !types.isEmpty()) {
+            predicates.add(qViolationEntity.violationTypeEntity.id.in(types));
+        }
+
+        if (applicationIds != null && !applicationIds.isEmpty()) {
+            predicates.add(qViolationEntity.application.name.in(applicationIds));
+        }
+
+        if (applicationVersionIds != null && !applicationVersionIds.isEmpty()) {
+            predicates.add(qViolationEntity.applicationVersion.name.in(applicationVersionIds));
         }
 
         final long total = query.where(allOf(predicates)).count();
@@ -107,7 +120,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public boolean violationExists(String accountId, String region, String eventId, String instanceId, String violationType) {
+    public boolean violationExists(final String accountId, final String region, final String eventId, final String instanceId, final String violationType) {
         final QViolationEntity qViolation = new QViolationEntity("v");
 
         return from(qViolation)
@@ -120,8 +133,11 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAccountAndType> countByAccountAndType(Set<String> accountIds, Optional<DateTime> fromDate,
-                                                             Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
+    public List<CountByAccountAndType> countByAccountAndType(final Set<String> accountIds,
+                                                             final Optional<DateTime> fromDate,
+                                                             final Optional<DateTime> toDate,
+                                                             final boolean resolved,
+                                                             final boolean whitelisted) {
         final QViolationEntity qViolation = new QViolationEntity("v");
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
 
@@ -157,11 +173,11 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
     }
 
     @Override
-    public List<CountByAppVersionAndType> countByAppVersionAndType(String account, Optional<DateTime> fromDate,
-                                                                   Optional<DateTime> toDate, boolean resolved, boolean whitelisted) {
+    public List<CountByAppVersionAndType> countByAppVersionAndType(final String account, final Optional<DateTime> fromDate,
+                                                                   final Optional<DateTime> toDate, final boolean resolved, final boolean whitelisted) {
         Assert.hasText(account, "account must not be blank");
 
-        String whitelistedOrResolvedPredicate;
+        final String whitelistedOrResolvedPredicate;
 
         if (whitelisted) {
             whitelistedOrResolvedPredicate = "AND vio.rule_entity_id IS NOT NULL ";
@@ -176,9 +192,8 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
 
         final String sql = "SELECT app.name AS application, ver.name AS version, vio.violation_type_entity_id AS type, count(DISTINCT vio.id) AS quantity " +
                 "FROM fullstop_data.violation vio " +
-                "LEFT JOIN fullstop_data.lifecycle l ON l.account_id = vio.account_id AND l.region = vio.region AND l.instance_id = vio.instance_id " +
-                "LEFT JOIN fullstop_data.application app ON app.id = l.application " +
-                "LEFT JOIN fullstop_data.app_version ver ON ver.id = l.application_version " +
+                "LEFT JOIN fullstop_data.application app ON app.id = vio.application_id " +
+                "LEFT JOIN fullstop_data.app_version ver ON ver.id = vio.application_version_id " +
                 "WHERE vio.account_id = :account " +
                 (fromDate.isPresent() ? "AND vio.created >= :from_date " : "") +
                 (toDate.isPresent() ? "AND vio.created <= :to_date " : "") +

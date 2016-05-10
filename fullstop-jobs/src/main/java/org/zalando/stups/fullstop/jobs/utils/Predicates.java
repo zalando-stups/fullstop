@@ -13,11 +13,11 @@ public final class Predicates {
     private Predicates() {
     }
 
-    public static Predicate<SecurityGroup> securityGroupExposesNotAllowedPorts(Set<Integer> allowedPorts) {
+    public static Predicate<SecurityGroup> securityGroupExposesNotAllowedPorts(final Set<Integer> allowedPorts) {
 
         return securityGroup -> {
 
-            for (IpPermission rule : securityGroup.getIpPermissions()) {
+            for (final IpPermission rule : securityGroup.getIpPermissions()) {
                 if (opensUnallowedPorts(rule, allowedPorts) && hasExternalSource(rule)) {
                     return true;
                 }
@@ -26,7 +26,7 @@ public final class Predicates {
         };
     }
 
-    private static boolean hasExternalSource(IpPermission rule) {
+    private static boolean hasExternalSource(final IpPermission rule) {
         for (final String ipRange : rule.getIpRanges()) {
             if (!(ipRange.startsWith("sg-") || ipRange.startsWith("172.31"))) {
                 return true;
@@ -37,7 +37,7 @@ public final class Predicates {
     }
 
     @SuppressWarnings("RedundantIfStatement")
-    private static boolean opensUnallowedPorts(IpPermission rule, Set<Integer> allowedPorts) {
+    private static boolean opensUnallowedPorts(final IpPermission rule, final Set<Integer> allowedPorts) {
         final Integer fromPort = rule.getFromPort();
         final Integer toPort = rule.getToPort();
 

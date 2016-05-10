@@ -124,7 +124,7 @@ public class ViolationsCountControllerTest {
         }
 
         @Bean
-        ViolationsCountController violationsCountController(ViolationRepository violationRepository) {
+        ViolationsCountController violationsCountController(final ViolationRepository violationRepository) {
             return new ViolationsCountController(violationRepository);
         }
     }

@@ -21,7 +21,7 @@ public class PluginTest {
 
     @Test
     public void testCreation() {
-        CloudTrailEvent event = Mockito.mock(CloudTrailEvent.class);
+        final CloudTrailEvent event = Mockito.mock(CloudTrailEvent.class);
 
         // plugin supports all events
         Assertions.assertThat(plugin.supports(event)).isTrue();

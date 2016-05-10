@@ -15,7 +15,6 @@ import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AmiProviderImplTest {
@@ -48,7 +47,7 @@ public class AmiProviderImplTest {
         when(ec2InstanceContextMock.getAmiId()).thenReturn(Optional.of(AMI_ID));
         when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
+        final DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
         when(amazonEC2ClientMock.describeImages(eq(describeImagesRequest)))
                 .thenReturn(new DescribeImagesResult()
                         .withImages(newArrayList(new Image()
@@ -57,7 +56,7 @@ public class AmiProviderImplTest {
                         )
                 );
 
-        Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
+        final Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isPresent();
 
@@ -72,11 +71,11 @@ public class AmiProviderImplTest {
         when(ec2InstanceContextMock.getAmiId()).thenReturn(Optional.of(AMI_ID));
         when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
+        final DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
         when(amazonEC2ClientMock.describeImages(eq(describeImagesRequest)))
                 .thenReturn(null);
 
-        Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
+        final Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 
@@ -91,11 +90,11 @@ public class AmiProviderImplTest {
         when(ec2InstanceContextMock.getAmiId()).thenReturn(Optional.of(AMI_ID));
         when(ec2InstanceContextMock.getClient(eq(AmazonEC2Client.class))).thenReturn(amazonEC2ClientMock);
 
-        DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
+        final DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(AMI_ID);
         when(amazonEC2ClientMock.describeImages(eq(describeImagesRequest)))
                 .thenThrow(new AmazonClientException("oops, I did it again... Britney"));
 
-        Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
+        final Optional<Image> result = amiProvider.apply(ec2InstanceContextMock);
 
         assertThat(result).isEmpty();
 

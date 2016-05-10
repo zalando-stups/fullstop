@@ -27,15 +27,15 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
 
     @Override
-    public RuleEntity save(RuleDTO ruleDTO) {
+    public RuleEntity save(final RuleDTO ruleDTO) {
 
         if (ruleDTO.getExpiryDate() == null) {
             ruleDTO.setExpiryDate(new DateTime(9999, 1, 1, 0, 0, 0, UTC));
         }
 
-        RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
+        final RuleEntity ruleEntity = mapDtoToRuleEntity(ruleDTO);
 
-        RuleEntity entity = ruleEntityRepository.save(ruleEntity);
+        final RuleEntity entity = ruleEntityRepository.save(ruleEntity);
 
         log.info("New Whitelisting Rule created {}", ruleEntity);
 
@@ -44,7 +44,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity update(RuleDTO ruleDTO, Long id) throws NoSuchElementException {
+    public RuleEntity update(final RuleDTO ruleDTO, final Long id) throws NoSuchElementException {
 
         ofNullable(ruleEntityRepository.findOne(id)).
                 map(this::invalidateRule).orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
@@ -54,8 +54,8 @@ public class RuleEntityServiceImpl implements RuleEntityService {
     }
 
     @Override
-    public RuleEntity findById(Long id) {
-        RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
+    public RuleEntity findById(final Long id) {
+        final RuleEntity ruleEntity = ruleEntityRepository.findOne(id);
         if (ruleEntity == null) {
             log.info("No such RuleEntity found! Id: {}", id);
             return null;
@@ -97,8 +97,8 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         return ruleEntityRepository.save(ruleEntity);
     }
 
-    private RuleEntity mapDtoToRuleEntity(RuleDTO ruleDTO) {
-        RuleEntity ruleEntity = new RuleEntity();
+    private RuleEntity mapDtoToRuleEntity(final RuleDTO ruleDTO) {
+        final RuleEntity ruleEntity = new RuleEntity();
         ruleEntity.setAccountId(ruleDTO.getAccountId());
         ruleEntity.setRegion(ruleDTO.getRegion());
         ruleEntity.setApplicationId(ruleDTO.getApplicationId());

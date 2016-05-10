@@ -31,7 +31,7 @@ public class ScmSourceProviderImpl implements ScmSourceProvider {
                 .expireAfterAccess(5, MINUTES)
                 .build(new CacheLoader<String, Optional<Map<String, String>>>() {
             @Override
-            public Optional<Map<String, String>> load(@Nonnull String source) throws Exception {
+            public Optional<Map<String, String>> load(@Nonnull final String source) throws Exception {
                 final Optional<Map<String, String>> result = scmSourceFor(source);
                 if (!result.isPresent()) {
                     log.warn("Could not find scm source '{}' in Pierone", source);
@@ -42,17 +42,17 @@ public class ScmSourceProviderImpl implements ScmSourceProvider {
     }
 
     @Override
-    public Optional<Map<String, String>> apply(EC2InstanceContext context) {
+    public Optional<Map<String, String>> apply(final EC2InstanceContext context) {
         return context.getSource().flatMap(cache::getUnchecked);
     }
 
-    private Optional<Map<String, String>> scmSourceFor(String source) {
+    private Optional<Map<String, String>> scmSourceFor(final String source) {
         return Optional.of(source)
                 .flatMap(PieroneImage::tryParse)
                 .flatMap(this::loadScmSource);
     }
 
-    private Optional<Map<String, String>> loadScmSource(PieroneImage image) {
+    private Optional<Map<String, String>> loadScmSource(final PieroneImage image) {
         return Optional.ofNullable(image)
                 .map(PieroneImage::getRepository)
                 .map(pieroneOperationsProvider)

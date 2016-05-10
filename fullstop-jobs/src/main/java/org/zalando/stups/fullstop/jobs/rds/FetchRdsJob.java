@@ -43,9 +43,9 @@ public class FetchRdsJob implements FullstopJob {
     private final ViolationSink violationSink;
 
     @Autowired
-    public FetchRdsJob(AccountIdSupplier allAccountIds, ClientProvider clientProvider,
-                       JobsProperties jobsProperties,
-                       ViolationSink violationSink) {
+    public FetchRdsJob(final AccountIdSupplier allAccountIds, final ClientProvider clientProvider,
+                       final JobsProperties jobsProperties,
+                       final ViolationSink violationSink) {
         this.allAccountIds = allAccountIds;
         this.clientProvider = clientProvider;
         this.jobsProperties = jobsProperties;
@@ -60,10 +60,10 @@ public class FetchRdsJob implements FullstopJob {
     @Scheduled(fixedRate = 300_000)
     public void run() {
         for (final String accountId : allAccountIds.get()) {
-            Map<String, Object> metadata = newHashMap();
-            for (String region : jobsProperties.getWhitelistedRegions()) {
+            final Map<String, Object> metadata = newHashMap();
+            for (final String region : jobsProperties.getWhitelistedRegions()) {
                 try {
-                    DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
+                    final DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
 
                     describeDBInstancesResult.getDBInstances().stream()
                             .filter(DBInstance::getPubliclyAccessible)
@@ -75,7 +75,7 @@ public class FetchRdsJob implements FullstopJob {
 
                             });
 
-                } catch (AmazonServiceException a) {
+                } catch (final AmazonServiceException a) {
 
                     if (a.getErrorCode().equals("RequestLimitExceeded")) {
                         log.warn("RequestLimitExceeded for account: {}", accountId);
@@ -88,9 +88,9 @@ public class FetchRdsJob implements FullstopJob {
         }
     }
 
-    private void writeViolation(String account, String region, Object metaInfo, String rdsEndpoint) {
-        ViolationBuilder violationBuilder = new ViolationBuilder();
-        Violation violation = violationBuilder.withAccountId(account)
+    private void writeViolation(final String account, final String region, final Object metaInfo, final String rdsEndpoint) {
+        final ViolationBuilder violationBuilder = new ViolationBuilder();
+        final Violation violation = violationBuilder.withAccountId(account)
                 .withRegion(region)
                 .withPluginFullyQualifiedClassName(FetchRdsJob.class)
                 .withType(UNSECURED_PUBLIC_ENDPOINT)
@@ -101,11 +101,11 @@ public class FetchRdsJob implements FullstopJob {
         violationSink.put(violation);
     }
 
-    private DescribeDBInstancesResult getRds(String accountId, String region) {
-        DescribeDBInstancesRequest describeDBInstancesRequest = new DescribeDBInstancesRequest();
-        DescribeDBInstancesResult describeDBInstancesResult;
+    private DescribeDBInstancesResult getRds(final String accountId, final String region) {
+        final DescribeDBInstancesRequest describeDBInstancesRequest = new DescribeDBInstancesRequest();
+        final DescribeDBInstancesResult describeDBInstancesResult;
 
-        AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
+        final AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
                 Region.getRegion(Regions.fromName(region)));
         describeDBInstancesResult = amazonRDSClient.describeDBInstances(describeDBInstancesRequest);
 

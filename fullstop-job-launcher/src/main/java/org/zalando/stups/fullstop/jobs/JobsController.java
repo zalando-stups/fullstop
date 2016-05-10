@@ -27,7 +27,7 @@ public class JobsController {
     private final ExecutorService executor = newSingleThreadExecutor();
 
     @Autowired
-    public JobsController(Map<String, FullstopJob> jobBeans) {
+    public JobsController(final Map<String, FullstopJob> jobBeans) {
         this.jobBeans = jobBeans;
     }
 
@@ -37,7 +37,7 @@ public class JobsController {
     }
 
     @RequestMapping(value = "/{name}/run", method = POST)
-    public ResponseEntity<Void> runJob(@PathVariable String name) {
+    public ResponseEntity<Void> runJob(@PathVariable final String name) {
         final FullstopJob job = jobBeans.get(name);
         if (job == null) {
             return new ResponseEntity<>(NOT_FOUND);

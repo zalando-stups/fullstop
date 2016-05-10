@@ -30,17 +30,17 @@ class IdentityManagementDataSource {
         this.clientProvider = clientProvider;
     }
 
-    List<User> getUsers(String accountId) {
+    List<User> getUsers(final String accountId) {
         return getIAMClient(accountId).listUsers().getUsers();
     }
 
-    List<AccessKeyMetadata> getAccessKeys(String accountId, String userName) {
+    List<AccessKeyMetadata> getAccessKeys(final String accountId, final String userName) {
         final ListAccessKeysRequest request = new ListAccessKeysRequest();
         request.setUserName(userName);
         return getIAMClient(accountId).listAccessKeys(request).getAccessKeyMetadata();
     }
 
-    GetCredentialReportResult getCredentialReportCSV(String accountId) {
+    GetCredentialReportResult getCredentialReportCSV(final String accountId) {
         final AmazonIdentityManagementClient client = getIAMClient(accountId);
 
         GenerateCredentialReportResult generationReport;
@@ -50,7 +50,7 @@ class IdentityManagementDataSource {
             log.debug("Poll credentials report for account {}", accountId);
             try {
                 MILLISECONDS.sleep(RETRY_TIMEOUT_MILLIS * i);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new RuntimeException("Could not pull credentials report", e);
             }
             generationReport = client.generateCredentialReport();
@@ -61,7 +61,7 @@ class IdentityManagementDataSource {
         return client.getCredentialReport();
     }
 
-    private AmazonIdentityManagementClient getIAMClient(String accountId) {
+    private AmazonIdentityManagementClient getIAMClient(final String accountId) {
         return clientProvider.getClient(AmazonIdentityManagementClient.class, accountId, Region.getRegion(EU_WEST_1));
     }
 }

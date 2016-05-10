@@ -24,29 +24,29 @@ public class ViolationObjectConverterTest {
 
     @Test
     public void testConvertToDatabaseColumn() throws Exception {
-        Object obj = singletonMap("test","this is a test");
-        String result = violationObjectConverter.convertToDatabaseColumn(obj);
+        final Object obj = singletonMap("test","this is a test");
+        final String result = violationObjectConverter.convertToDatabaseColumn(obj);
         assertThat(result).isEqualTo("{\"test\":\"this is a test\"}");
     }
 
     @Test
     public void testConvertToEntityAttribute() throws Exception {
-        String value = "{\"test\":\"this is a test\"}";
-        Object result = violationObjectConverter.convertToEntityAttribute(value);
+        final String value = "{\"test\":\"this is a test\"}";
+        final Object result = violationObjectConverter.convertToEntityAttribute(value);
         assertThat(result).isEqualTo(objectMapper.readValue("{\"test\":\"this is a test\"}", JsonNode.class));
     }
 
     @Test
     public void testConvertToDatabaseColumnNull() throws Exception {
-        Object obj = null;
-        String result = violationObjectConverter.convertToDatabaseColumn(obj);
+        final Object obj = null;
+        final String result = violationObjectConverter.convertToDatabaseColumn(obj);
         assertThat(result).isNull();
     }
 
     @Test
     public void testConvertToEntityAttributeEmpty() throws Exception {
-        String value = "";
-        Object result = violationObjectConverter.convertToEntityAttribute(value);
+        final String value = "";
+        final Object result = violationObjectConverter.convertToEntityAttribute(value);
         assertThat(result).isNull();
     }
 

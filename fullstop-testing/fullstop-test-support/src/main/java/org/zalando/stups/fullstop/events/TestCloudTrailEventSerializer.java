@@ -19,7 +19,7 @@ public class TestCloudTrailEventSerializer extends AbstractEventSerializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public TestCloudTrailEventSerializer(JsonParser parser) throws IOException {
+    public TestCloudTrailEventSerializer(final JsonParser parser) throws IOException {
         super(parser);
 
         // this initializes the AbstractEventSerializer
@@ -36,12 +36,12 @@ public class TestCloudTrailEventSerializer extends AbstractEventSerializer {
         }
     }
 
-    private static JsonParser getParser(String resource) throws IOException, URISyntaxException {
+    private static JsonParser getParser(final String resource) throws IOException, URISyntaxException {
         return OBJECT_MAPPER.getFactory().createParser(readAllBytes(get(TestCloudTrailEventSerializer.class.getResource(resource).toURI())));
     }
 
     @Override
-    public CloudTrailEventMetadata getMetadata(int charStart, int charEnd) {
+    public CloudTrailEventMetadata getMetadata(final int charStart, final int charEnd) {
         return null;
     }
 }

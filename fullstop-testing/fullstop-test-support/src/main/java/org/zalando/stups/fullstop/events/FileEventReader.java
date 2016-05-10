@@ -15,7 +15,7 @@ public class FileEventReader {
 
     private final EventsProcessor eventsProcessor;
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     public FileEventReader(final EventsProcessor eventsProcessor) {
         this.eventsProcessor = eventsProcessor;
@@ -25,7 +25,7 @@ public class FileEventReader {
     public void readEvents(final InputStream is) throws CallbackException {
         try (final TestCloudTrailEventSerializer serializer = new TestCloudTrailEventSerializer(mapper.getFactory().createParser(is))) {
             this.emitEvents(serializer);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -33,7 +33,7 @@ public class FileEventReader {
     protected void emitEvents(final EventSerializer serializer) throws CallbackException, IOException {
         final EventBuffer<CloudTrailEvent> eventBuffer = new EventBuffer<>(10);
         while (serializer.hasNextEvent()) {
-            CloudTrailEvent event = serializer.getNextEvent();
+            final CloudTrailEvent event = serializer.getNextEvent();
             eventBuffer.addEvent(event);
             if (eventBuffer.isBufferFull()) {
                 this.eventsProcessor.process(eventBuffer.getEvents());
@@ -41,7 +41,7 @@ public class FileEventReader {
         }
 
         // emit whatever in the buffer as last batch
-        List<CloudTrailEvent> events = eventBuffer.getEvents();
+        final List<CloudTrailEvent> events = eventBuffer.getEvents();
         if (!events.isEmpty()) {
             this.eventsProcessor.process(events);
         }

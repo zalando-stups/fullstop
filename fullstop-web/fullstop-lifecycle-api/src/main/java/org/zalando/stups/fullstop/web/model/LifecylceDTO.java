@@ -18,7 +18,7 @@ public class LifecylceDTO {
         return application;
     }
 
-    public void setApplication(String application) {
+    public void setApplication(final String application) {
         this.application = application;
     }
 
@@ -26,7 +26,7 @@ public class LifecylceDTO {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(final String version) {
         this.version = version;
     }
 
@@ -34,7 +34,7 @@ public class LifecylceDTO {
         return eventDate;
     }
 
-    public void setEventDate(DateTime eventDate) {
+    public void setEventDate(final DateTime eventDate) {
         this.eventDate = eventDate;
     }
 
@@ -42,7 +42,7 @@ public class LifecylceDTO {
         return imageID;
     }
 
-    public void setImageID(String imageID) {
+    public void setImageID(final String imageID) {
         this.imageID = imageID;
     }
 
@@ -50,7 +50,7 @@ public class LifecylceDTO {
         return imageName;
     }
 
-    public void setImageName(String imageName) {
+    public void setImageName(final String imageName) {
         this.imageName = imageName;
     }
 
@@ -58,7 +58,7 @@ public class LifecylceDTO {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(final String region) {
         this.region = region;
     }
 
@@ -66,7 +66,7 @@ public class LifecylceDTO {
         return instanceBootTime;
     }
 
-    public void setInstanceBootTime(DateTime instanceBootTime) {
+    public void setInstanceBootTime(final DateTime instanceBootTime) {
         this.instanceBootTime = instanceBootTime;
     }
 
@@ -74,7 +74,7 @@ public class LifecylceDTO {
         return eventType;
     }
 
-    public void setEventType(String eventType) {
+    public void setEventType(final String eventType) {
         this.eventType = eventType;
     }
 
@@ -82,7 +82,7 @@ public class LifecylceDTO {
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    public void setInstanceId(final String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -90,7 +90,7 @@ public class LifecylceDTO {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(final DateTime created) {
         this.created = created;
     }
 }

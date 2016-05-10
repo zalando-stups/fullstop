@@ -107,7 +107,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public <T extends AmazonWebServiceClient> T getClient(Class<T> type) {
+    public <T extends AmazonWebServiceClient> T getClient(final Class<T> type) {
         return clientProvider.getClient(type, getAccountId(), getRegion());
     }
 
@@ -208,7 +208,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final EC2InstanceContextImpl that = (EC2InstanceContextImpl) o;

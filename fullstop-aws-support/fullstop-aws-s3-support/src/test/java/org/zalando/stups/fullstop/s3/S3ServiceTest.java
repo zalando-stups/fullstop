@@ -23,7 +23,7 @@ public class S3ServiceTest {
 
     @Test
     public void testS3ServiceListObject() {
-        List<String> result = service.listCommonPrefixesS3Objects(
+        final List<String> result = service.listCommonPrefixesS3Objects(
                 "an-s3-bucket",
                 "111222333444/eu-west-1/2016/01/15/");
         log.info("{}", result);

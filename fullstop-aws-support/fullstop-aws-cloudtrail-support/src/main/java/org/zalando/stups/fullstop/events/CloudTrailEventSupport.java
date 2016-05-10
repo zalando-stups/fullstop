@@ -58,9 +58,9 @@ public abstract class CloudTrailEventSupport {
      */
     public static List<String> getInstanceIds(final CloudTrailEvent event) {
 
-        CloudTrailEventData eventData = getEventData(event);
+        final CloudTrailEventData eventData = getEventData(event);
 
-        String responseElements = eventData.getResponseElements();
+        final String responseElements = eventData.getResponseElements();
         if (isNullOrEmpty(responseElements)) {
             return newArrayList();
         }
@@ -76,9 +76,9 @@ public abstract class CloudTrailEventSupport {
      * Extracts the 'accountId'.
      */
     public static String getAccountId(final CloudTrailEvent event) {
-        CloudTrailEventData eventData = getEventData(event);
-        UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
-        String value = ofNullable(userIdentity.getAccountId()).orElse(eventData.getRecipientAccountId());
+        final CloudTrailEventData eventData = getEventData(event);
+        final UserIdentity userIdentity = checkNotNull(eventData.getUserIdentity(), USER_IDENTITY_SHOULD_NEVER_BE_NULL);
+        final String value = ofNullable(userIdentity.getAccountId()).orElse(eventData.getRecipientAccountId());
         return checkNotNull(value, ACCOUNT_ID_OR_RECIPIENT_SHOULD_NEVER_BE_NULL);
     }
 
@@ -101,7 +101,7 @@ public abstract class CloudTrailEventSupport {
 
         try {
             return JsonPath.read(responseElements, pattern);
-        } catch (PathNotFoundException e) {
+        } catch (final PathNotFoundException e) {
             if (emptyListOnNullOrEmptyResponse) {
                 return emptyList();
             } else {
@@ -126,9 +126,9 @@ public abstract class CloudTrailEventSupport {
     public static List<String> getInstanceLaunchTime(CloudTrailEvent cloudTrailEvent) {
         cloudTrailEvent = checkNotNull(cloudTrailEvent, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        CloudTrailEventData eventData = getEventData(cloudTrailEvent);
+        final CloudTrailEventData eventData = getEventData(cloudTrailEvent);
 
-        String responseElements = eventData.getResponseElements();
+        final String responseElements = eventData.getResponseElements();
 
         return JsonPath.read(responseElements, INSTANCE_LAUNCH_TIME);
     }
@@ -144,7 +144,7 @@ public abstract class CloudTrailEventSupport {
         return event.getEventData().getAwsRegion();
     }
 
-    public static ViolationBuilder violationFor(CloudTrailEvent cloudTrailEvent) {
+    public static ViolationBuilder violationFor(final CloudTrailEvent cloudTrailEvent) {
         return new ViolationBuilder()
                 .withEventId(getEventId(cloudTrailEvent))
                 .withAccountId(getAccountId(cloudTrailEvent))
@@ -152,7 +152,7 @@ public abstract class CloudTrailEventSupport {
                 .withUsername(getUsernameAsString(cloudTrailEvent));
     }
 
-    public static String getUsernameAsString(CloudTrailEvent cloudTrailEvent) {
+    public static String getUsernameAsString(final CloudTrailEvent cloudTrailEvent) {
 
         return ofNullable(cloudTrailEvent)
                 .map(CloudTrailEvent::getEventData)
@@ -161,20 +161,20 @@ public abstract class CloudTrailEventSupport {
                 .orElse(null);
     }
 
-    public static List<String> getInstances(CloudTrailEvent event) {
-        CloudTrailEventData eventData = getEventData(event);
-        ObjectMapper mapper = new ObjectMapper();
-        List<String> instances = newArrayList();
-        String responseElements = eventData.getResponseElements();
+    public static List<String> getInstances(final CloudTrailEvent event) {
+        final CloudTrailEventData eventData = getEventData(event);
+        final ObjectMapper mapper = new ObjectMapper();
+        final List<String> instances = newArrayList();
+        final String responseElements = eventData.getResponseElements();
         if (isNullOrEmpty(responseElements)) {
             return newArrayList();
         }
 
-        JSONArray items = JsonPath.read(responseElements, INSTANCE_JSON_PATH);
-        for (Object item : items) {
+        final JSONArray items = JsonPath.read(responseElements, INSTANCE_JSON_PATH);
+        for (final Object item : items) {
             try {
                 instances.add(mapper.writeValueAsString(item));
-            } catch (JsonProcessingException e) {
+            } catch (final JsonProcessingException e) {
                 LOG.warn(e.getMessage(), e);
             }
         }
@@ -182,7 +182,7 @@ public abstract class CloudTrailEventSupport {
         return instances;
     }
 
-    public static DateTime getRunInstanceTime(String instance) {
+    public static DateTime getRunInstanceTime(final String instance) {
         return new DateTime((Long) JsonPath.read(instance, RUN_INSTANCE_DATE_JSON_PATH));
     }
 
@@ -190,7 +190,7 @@ public abstract class CloudTrailEventSupport {
 
         event = checkNotNull(event, CLOUD_TRAIL_EVENT_SHOULD_NEVER_BE_NULL);
 
-        Date eventTime = event.getEventData().getEventTime();
+        final Date eventTime = event.getEventData().getEventTime();
 
         return new DateTime(eventTime);
     }

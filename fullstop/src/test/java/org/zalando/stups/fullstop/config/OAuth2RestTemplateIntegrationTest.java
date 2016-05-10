@@ -62,11 +62,11 @@ public class OAuth2RestTemplateIntegrationTest {
     }
 
     private static class PassThroughErrorHandler implements ResponseErrorHandler {
-        @Override public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
+        @Override public boolean hasError(final ClientHttpResponse clientHttpResponse) throws IOException {
             return false;
         }
 
-        @Override public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
+        @Override public void handleError(final ClientHttpResponse clientHttpResponse) throws IOException {
 
         }
     }
