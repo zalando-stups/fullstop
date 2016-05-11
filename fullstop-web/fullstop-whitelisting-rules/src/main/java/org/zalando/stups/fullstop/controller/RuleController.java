@@ -14,6 +14,7 @@ import org.zalando.stups.fullstop.rule.service.RuleEntityService;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.fullstop.web.api.ForbiddenException;
 import org.zalando.stups.fullstop.web.api.NotFoundException;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,7 +48,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})}) // TODO only valid rules?
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
-    public List<RuleEntity> showWhitelistings(@AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
+    public List<RuleEntity> showWhitelistings(@ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
 
         checkPermission(userId);
 
@@ -61,7 +62,7 @@ public class RuleController {
                     scopes = {@AuthorizationScope(scope = "uid", description = "")})})
     @ApiResponses(value = {@ApiResponse(code = 201, message = "New rule saved successfully")})
     @ResponseStatus(CREATED)
-    public RuleEntity addWhitelisting(@RequestBody final RuleDTO ruleDTO, @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
+    public RuleEntity addWhitelisting(@RequestBody final RuleDTO ruleDTO,  @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws ForbiddenException {
 
         checkPermission(userId);
         return ruleEntityService.save(ruleDTO);
@@ -74,7 +75,7 @@ public class RuleController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "There you go")})
     @ResponseStatus(OK)
     public RuleEntity getWhitelisting(@PathVariable("id")
-                                      final Long id, @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws NotFoundException, ForbiddenException {
+                                      final Long id, @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) final String userId) throws NotFoundException, ForbiddenException {
         checkPermission(userId);
         final RuleEntity ruleEntity = ruleEntityService.findById(id);
         if (ruleEntity == null) {
@@ -90,7 +91,7 @@ public class RuleController {
     @ResponseStatus(OK)
     public RuleEntity updateWhitelisting(@RequestBody final RuleDTO ruleDTO,
                                          @PathVariable("id") final Long id,
-                                         @AuthenticationPrincipal(errorOnInvalidType = true) final String userId)
+                                         @ApiIgnore @AuthenticationPrincipal(errorOnInvalidType = true) final String userId)
             throws ForbiddenException, NotFoundException {
 
         checkPermission(userId);
