@@ -12,6 +12,7 @@
         <Logger name="org.springframework.boot.actuate.audit.listener.AuditListener" level="warn" />
         <Logger name="springfox.documentation" level="warn" />
         <Logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="OFF" />
+        <Logger name="org.apache.catalina.connector.ClientAbortException" level="OFF" />
 
         <Root level="info">
             <AppenderRef ref="Console"/>
