@@ -76,7 +76,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
         }
 
         final Map<String, String> scmSource = optionalScmSource.get();
-        final String scmSourceUrl = scmSource.get(URL);
+        String scmSourceUrl = scmSource.get(URL);
         if (isBlank(scmSourceUrl)) {
             violationSink.put(
                     context.violation()
@@ -89,7 +89,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .build());
             return;
         }
-
+        scmSourceUrl = scmSourceUrl.startsWith("git:") ? scmSourceUrl.replaceFirst("git:", "") : scmSourceUrl;
         final String normalizedKioScmUrl = kontrollettiOperations.normalizeRepositoryUrl(kioScmUrl);
         final String normalizedScmSourceUrl = kontrollettiOperations.normalizeRepositoryUrl(scmSourceUrl);
 

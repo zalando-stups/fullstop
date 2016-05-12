@@ -207,4 +207,23 @@ public class ScmRepositoryPluginTest {
             verify(mockKontrollettiOperations).getRepository(eq("https://github.com/zalando-stups/fullstop.git"));
         }
     }
+
+    @Test
+    public void testProcessBadScmSourceUrl() throws Exception {
+        final String normalizedUrl = "https://github.com/zalando-stups/fullstop.git";
+
+        when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(singletonMap("url", "git:https://github.com/hello-world/fullstop")));
+        when(mockKontrollettiOperations.normalizeRepositoryUrl(anyString())).thenReturn(normalizedUrl);
+        when(mockKontrollettiOperations.getRepository(anyString())).thenReturn(repository);
+
+        plugin.process(mockContext);
+
+        verify(mockContext).getKioApplication();
+        verify(mockContext).getScmSource();
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("https://github.com/hello-world/fullstop"));
+        verify(mockKontrollettiOperations).normalizeRepositoryUrl(eq("git@github.com:zalando-stups/hello-world.git"));
+        verify(mockKontrollettiOperations).getRepository(eq(normalizedUrl));
+
+    }
 }
