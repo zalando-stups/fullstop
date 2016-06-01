@@ -1,5 +1,12 @@
 approvals:
-  minimum: 1
-  from:
-    orgs:
-      - zalando
+  groups:
+    zalando:
+      minimum: 2
+      from:
+        orgs:
+          - "zalando"
+
+  # Allow last committer / PR creator to approve as well.
+  # This will probably become the default in zappr.
+  ignore: none
+
