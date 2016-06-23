@@ -80,7 +80,7 @@ public class ScmCommitsJob implements FullstopJob {
     private void processApplication(final Application app) {
         try {
             lifecycle.findDeployments(app.getId()).forEach(deployment ->
-                    Optional.of(app.getScmUrl())
+                    Optional.ofNullable(app.getScmUrl())
                             .filter(StringUtils::isNotBlank)
                             .map(kontrolletti::normalizeRepositoryUrl) // TODO is this necessary?
                             .map(kontrolletti::getRepository)
