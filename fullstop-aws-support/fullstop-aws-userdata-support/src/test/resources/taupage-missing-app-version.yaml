@@ -1,0 +1,15 @@
+#taupage-ami-config
+application_id: fullstop
+application_logrotate_interval: hourly
+application_logrotate_rotate: 4
+application_logrotate_size: 10M
+environment:
+  FOO: bar
+health_check_path: /health
+health_check_timeout_seconds: 120
+hystrix: :7979/hystrix.stream
+mint_bucket: mint-bucket-0815
+ports:
+  8080: 8080
+runtime: Docker
+source: registry.opensource.zalan.do/stups/fullstop:5

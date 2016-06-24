@@ -7,6 +7,7 @@ import com.amazonaws.services.ec2.model.Image;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.Approval;
 import org.zalando.stups.clients.kio.Version;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.pierone.client.TagSummary;
 
@@ -57,7 +58,7 @@ public interface EC2InstanceContext {
 
     Optional<Boolean> isTaupageAmi();
 
-    Optional<Map> getTaupageYaml();
+    Optional<TaupageYaml> getTaupageYaml();
 
     Optional<TagSummary> getPieroneTag();
 

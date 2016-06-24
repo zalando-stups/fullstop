@@ -9,18 +9,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 
-import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class FetchTaupageYamlImplTest {
 
-    public static final String INSTANCE_ID = "i-1234";
-    public static final String ACCOUNT = "798969";
-    public static final String REGION = "eu-west-1";
+    private static final String INSTANCE_ID = "i-1234";
+    private static final String ACCOUNT = "798969";
+    private static final String REGION = "eu-west-1";
 
     private AmazonEC2Client amazonEC2ClientMock;
     private ClientProvider clientProviderMock;
@@ -47,7 +53,7 @@ public class FetchTaupageYamlImplTest {
                         .withUserData(Base64.encodeAsString("blub: fdsa".getBytes()))));
         final FetchTaupageYaml fetchTaupageYaml = new FetchTaupageYamlImpl(clientProviderMock);
 
-        final Optional<Map> result = fetchTaupageYaml.getTaupageYaml(INSTANCE_ID, ACCOUNT, REGION);
+        final Optional<TaupageYaml> result = fetchTaupageYaml.getTaupageYaml(INSTANCE_ID, ACCOUNT, REGION);
 
         assertThat(result).isPresent();
 
@@ -65,7 +71,7 @@ public class FetchTaupageYamlImplTest {
 
         final FetchTaupageYaml fetchTaupageYaml = new FetchTaupageYamlImpl(clientProviderMock);
 
-        final Optional<Map> result = fetchTaupageYaml.getTaupageYaml(INSTANCE_ID, ACCOUNT, REGION);
+        final Optional<TaupageYaml> result = fetchTaupageYaml.getTaupageYaml(INSTANCE_ID, ACCOUNT, REGION);
 
         assertThat(result).isEmpty();
 

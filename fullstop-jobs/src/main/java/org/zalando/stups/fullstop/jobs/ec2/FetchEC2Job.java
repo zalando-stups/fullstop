@@ -33,6 +33,7 @@ import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -59,8 +60,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLI
 public class FetchEC2Job implements FullstopJob {
 
     private static final String EVENT_ID = "checkPublicEC2InstanceJob";
-    public static final String APPLICATION_ID = "application_id";
-    public static final String APPLICATION_VERSION = "application_version";
 
     private final Logger log = LoggerFactory.getLogger(FetchEC2Job.class);
 
@@ -239,7 +238,7 @@ public class FetchEC2Job implements FullstopJob {
     }
 
     private void writeViolation(final String account, final String region, final Object metaInfo, final String instanceId) {
-        final Optional<Map> taupageYaml = fetchTaupageYaml.getTaupageYaml(instanceId, account, region);
+        final Optional<TaupageYaml> taupageYaml = fetchTaupageYaml.getTaupageYaml(instanceId, account, region);
 
         final ViolationBuilder violationBuilder = new ViolationBuilder();
         final Violation violation = violationBuilder.withAccountId(account)
@@ -248,8 +247,8 @@ public class FetchEC2Job implements FullstopJob {
                 .withType(UNSECURED_PUBLIC_ENDPOINT)
                 .withMetaInfo(metaInfo)
                 .withInstanceId(instanceId)
-                .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
-                .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationId(taupageYaml.map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationVersion(taupageYaml.map(TaupageYaml::getApplicationVersion).map(StringUtils::trimToNull).orElse(null))
                 .withEventId(EVENT_ID).build();
         violationSink.put(violation);
     }

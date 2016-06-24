@@ -12,22 +12,30 @@ import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
-import org.zalando.stups.fullstop.plugin.provider.*;
+import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
+import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
+import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.pierone.client.TagSummary;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getUsernameAsString;
 
-public class EC2InstanceContextImpl implements EC2InstanceContext {
+class EC2InstanceContextImpl implements EC2InstanceContext {
 
-    public static final String INSTANCE_ID_JSON_PATH_EXPRESSION = "$.instanceId";
-    public static final String APPLICATION_ID = "application_id";
-    public static final String APPLICATION_VERSION = "application_version";
-    public static final String SOURCE = "source";
-    public static final String RUNTIME = "runtime";
+    private static final String INSTANCE_ID_JSON_PATH_EXPRESSION = "$.instanceId";
 
     private final String taupageNamePrefix;
 
@@ -62,7 +70,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final ScmSourceProvider scmSourceProvider;
 
-    public EC2InstanceContextImpl(
+    EC2InstanceContextImpl(
             final CloudTrailEvent event,
             final String instanceJson,
             final ClientProvider clientProvider,
@@ -136,22 +144,22 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
 
     @Override
     public Optional<String> getApplicationId() {
-        return getTaupageYaml().map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getVersionId() {
-        return getTaupageYaml().map(data -> data.get(APPLICATION_VERSION)).map(String::valueOf).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(TaupageYaml::getApplicationVersion).map(String::valueOf).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getSource() {
-        return getTaupageYaml().map(data -> (String) data.get(SOURCE)).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(TaupageYaml::getSource).map(StringUtils::trimToNull);
     }
 
     @Override
     public Optional<String> getRuntime() {
-        return getTaupageYaml().map(m -> (String) m.get(RUNTIME)).map(StringUtils::trimToNull);
+        return getTaupageYaml().map(TaupageYaml::getRuntime).map(StringUtils::trimToNull);
     }
 
     @Override
@@ -188,7 +196,7 @@ public class EC2InstanceContextImpl implements EC2InstanceContext {
     }
 
     @Override
-    public Optional<Map> getTaupageYaml() {
+    public Optional<TaupageYaml> getTaupageYaml() {
         return taupageYamlProvider.apply(this);
     }
 

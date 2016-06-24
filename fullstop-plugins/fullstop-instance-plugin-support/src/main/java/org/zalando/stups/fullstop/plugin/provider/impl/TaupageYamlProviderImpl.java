@@ -10,34 +10,33 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.parser.ParserException;
 import org.yaml.snakeyaml.scanner.ScannerException;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
+import org.zalando.stups.fullstop.taupage.TaupageYamlUtil;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class TaupageYamlProviderImpl implements TaupageYamlProvider {
 
-    public static final String USER_DATA = "userData";
+    private static final String USER_DATA = "userData";
 
     private final Logger log = getLogger(getClass());
 
-    private final LoadingCache<EC2InstanceContext, Optional<Map>> cache = CacheBuilder.newBuilder()
+    private final LoadingCache<EC2InstanceContext, Optional<TaupageYaml>> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(1, MINUTES)
             .maximumSize(100)
-            .build(new CacheLoader<EC2InstanceContext, Optional<Map>>() {
+            .build(new CacheLoader<EC2InstanceContext, Optional<TaupageYaml>>() {
                 @Override
-                public Optional<Map> load(@Nonnull final EC2InstanceContext context) throws Exception {
-                    final Optional<Map> taupageYaml = getTaupageYaml(context);
+                public Optional<TaupageYaml> load(@Nonnull final EC2InstanceContext context) throws Exception {
+                    final Optional<TaupageYaml> taupageYaml = getTaupageYaml(context);
                     if (!taupageYaml.isPresent()) {
                         log.warn("Could not find the Taupage YAML for {}", context);
                     }
@@ -45,29 +44,22 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
                 }
             });
 
-    private Optional<Map> getTaupageYaml(@Nonnull final EC2InstanceContext context) {
+    private Optional<TaupageYaml> getTaupageYaml(@Nonnull final EC2InstanceContext context) {
 
         if (context.isTaupageAmi().orElse(false)) {
 
             final String instanceId = context.getInstanceId();
 
             try {
-                final DescribeInstanceAttributeResult response = context.getClient(AmazonEC2Client.class)
-                        .describeInstanceAttribute(
-                                new DescribeInstanceAttributeRequest()
-                                        .withInstanceId(instanceId)
-                                        .withAttribute(USER_DATA));
-
-                final Yaml yaml = new Yaml();
-
-                return ofNullable(response)
+                return Optional.of(context.getClient(AmazonEC2Client.class))
+                        .map(client -> client.describeInstanceAttribute(new DescribeInstanceAttributeRequest()
+                                .withInstanceId(instanceId)
+                                .withAttribute(USER_DATA)))
                         .map(DescribeInstanceAttributeResult::getInstanceAttribute)
                         .map(InstanceAttribute::getUserData)
                         .map(Base64::decode)
                         .map(String::new)
-                        .map(yaml::load)
-                        .filter(data -> data instanceof Map) // everything else is obviously no valid taupage format
-                        .map(data -> (Map) data);
+                        .map(TaupageYamlUtil::parseTaupageYaml);
 
             } catch (final AmazonClientException e) {
                 log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
@@ -84,7 +76,7 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
     }
 
     @Override
-    public Optional<Map> apply(final EC2InstanceContext context) {
+    public Optional<TaupageYaml> apply(final EC2InstanceContext context) {
         return cache.getUnchecked(context);
     }
 }
