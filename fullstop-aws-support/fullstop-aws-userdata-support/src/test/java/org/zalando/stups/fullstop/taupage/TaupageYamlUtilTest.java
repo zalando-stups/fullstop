@@ -27,6 +27,18 @@ public class TaupageYamlUtilTest {
         assertThat(taupageYaml.getApplicationVersion()).isNull();
     }
 
+    @Test
+    public void testParseEmptyYaml() throws Exception {
+        final TaupageYaml taupageYaml = TaupageYamlUtil.parseTaupageYaml("");
+        assertThat(taupageYaml).isNull();
+    }
+
+    @Test
+    public void testParseInvalidYaml() throws Exception {
+        final TaupageYaml taupageYaml = TaupageYamlUtil.parseTaupageYaml("'foo'");
+        assertThat(taupageYaml).isNull();
+    }
+
     private static String loadContent(String classPathResourceName) throws IOException {
         return IOUtils.toString(new ClassPathResource(classPathResourceName).getInputStream(), UTF_8);
     }
