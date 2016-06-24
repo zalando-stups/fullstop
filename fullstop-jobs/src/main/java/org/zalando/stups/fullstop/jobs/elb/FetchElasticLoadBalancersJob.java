@@ -33,6 +33,7 @@ import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -63,8 +64,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLI
 public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkElbJob";
-    public static final String APPLICATION_ID = "application_id";
-    public static final String APPLICATION_VERSION = "application_version";
 
     private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
 
@@ -266,7 +265,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private void writeViolation(final String account, final String region, final Object metaInfo, final String canonicalHostedZoneName, final List<String> instanceIds) {
 
-        final Optional<Map> taupageYaml = instanceIds.
+        final Optional<TaupageYaml> taupageYaml = instanceIds.
                 stream().
                 map(id -> fetchTaupageYaml.getTaupageYaml(id, account, region)).
                 filter(Optional::isPresent).
@@ -282,8 +281,8 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 .withMetaInfo(metaInfo)
                 .withEventId(EVENT_ID)
                 .withInstanceId(canonicalHostedZoneName)
-                .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
-                .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationId(taupageYaml.map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull).orElse(null))
+                .withApplicationVersion(taupageYaml.map(TaupageYaml::getApplicationVersion).map(StringUtils::trimToNull).orElse(null))
                 .build();
         violationSink.put(violation);
     }

@@ -3,7 +3,13 @@ package org.zalando.stups.fullstop.jobs.ami;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Image;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +24,7 @@ import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
@@ -25,7 +32,6 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,8 +48,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_TAUPAG
 public class FetchAmiJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkAmiJob";
-    public static final String APPLICATION_ID = "application_id";
-    public static final String APPLICATION_VERSION = "application_version";
 
     private final String taupageNamePrefix;
 
@@ -123,7 +127,7 @@ public class FetchAmiJob implements FullstopJob {
 
                     final Image image = optionalImage.get();
                     final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
-                    final Optional<Map> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
+                    final Optional<TaupageYaml> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
                     if (optionalExpirationDate.isPresent()) {
                         final LocalDate expirationDate = optionalExpirationDate.get();
                         if (now().isAfter(expirationDate)) {
@@ -134,8 +138,8 @@ public class FetchAmiJob implements FullstopJob {
                                     .withEventId(EVENT_ID)
                                     .withType(OUTDATED_TAUPAGE)
                                     .withInstanceId(instance.getInstanceId())
-                                    .withApplicationId(taupageYaml.map(data -> (String) data.get(APPLICATION_ID)).map(StringUtils::trimToNull).orElse(null))
-                                    .withApplicationVersion(taupageYaml.map(data -> (String) data.get(APPLICATION_VERSION)).map(StringUtils::trimToNull).orElse(null))
+                                    .withApplicationId(taupageYaml.map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull).orElse(null))
+                                    .withApplicationVersion(taupageYaml.map(TaupageYaml::getApplicationVersion).map(StringUtils::trimToNull).orElse(null))
                                     .withMetaInfo(ImmutableMap.of(
                                             "ami_owner_id", image.getOwnerId(),
                                             "ami_id", image.getImageId(),

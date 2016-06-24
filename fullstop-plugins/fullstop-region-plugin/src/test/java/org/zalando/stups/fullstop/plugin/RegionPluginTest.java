@@ -2,22 +2,32 @@ package org.zalando.stups.fullstop.plugin;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.exceptions.CallbackException;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.*;
+import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
+import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
+import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.SystemOutViolationSink;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.Map;
-
 import static java.util.Optional.of;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
 /**
@@ -70,9 +80,7 @@ public class RegionPluginTest {
 
     @Test
     public void testNonWhitelistedRegion() {
-        final Map<String, String> taupageYaml = Maps.newHashMap();
-        taupageYaml.put("application_id", "test123");
-        taupageYaml.put("application_version", "0.12");
+        final TaupageYaml taupageYaml = new TaupageYaml("test123", "0.12", "Docker", "stups/fullstop:0:12");
         when(taupageYamlProvider.apply(
                 contextProvider.instancesIn(createCloudTrailEvent("/run-instance-us-west.json")).get(0))).
                 thenReturn(of(taupageYaml));

@@ -17,6 +17,7 @@
         <fullstop-plugin-api.version>1.2.0-SNAPSHOT</fullstop-plugin-api.version>
         <fullstop-violation-api.version>1.2.0-SNAPSHOT</fullstop-violation-api.version>
         <fullstop-aws-client-support.version>1.2.0-SNAPSHOT</fullstop-aws-client-support.version>
+        <fullstop-aws-userdata-support.version>1.2.0-SNAPSHOT</fullstop-aws-userdata-support.version>
         <fullstop-violation.version>1.2.0-SNAPSHOT</fullstop-violation.version>
         <team-service-api.version>1.2.0-SNAPSHOT</team-service-api.version>
     </properties>
@@ -42,6 +43,12 @@
             <artifactId>fullstop-aws-client-support</artifactId>
             <version>${fullstop-aws-client-support.version}</version>
         </dependency>
+        <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>fullstop-aws-userdata-support</artifactId>
+        <version>${fullstop-aws-userdata-support.version}</version>
+    </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

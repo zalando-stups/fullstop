@@ -12,7 +12,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.yaml.snakeyaml.Yaml;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
+import org.zalando.stups.fullstop.taupage.TaupageYamlUtil;
 import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -25,7 +26,10 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import javax.annotation.Resource;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
@@ -35,7 +39,7 @@ import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 @Service(ApplicationLifecycleServiceImpl.BEAN_NAME)
 public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleService {
 
-    protected static final String BEAN_NAME = "applicationLifecycleService";
+    static final String BEAN_NAME = "applicationLifecycleService";
 
     private final Base64.Decoder base64Decoder = Base64.getMimeDecoder();
 
@@ -90,22 +94,17 @@ public class ApplicationLifecycleServiceImpl implements ApplicationLifecycleServ
     @Override
     public LifecycleEntity saveInstanceLogLifecycle(final String instanceId, final DateTime instanceBootTime,
             final String userdataPath, final String region, final String logData, final String accountId) {
-        final Yaml yaml = new Yaml();
-        final Optional<Map> taupageYaml = Optional.ofNullable(logData)
+        final Optional<TaupageYaml> taupageYaml = Optional.ofNullable(logData)
                 .map(base64Decoder::decode)
                 .map(String::new)
-                .map(yaml::load)
-                .filter(data -> data instanceof Map)
-                .map(map -> (Map) map);
+                .map(TaupageYamlUtil::parseTaupageYaml);
 
         final Optional<ApplicationEntity> application = taupageYaml
-                .map(yamlMap -> yamlMap.get("application_id"))
-                .map(String::valueOf)
+                .map(TaupageYaml::getApplicationId)
                 .map(ApplicationEntity::new);
 
         final Optional<VersionEntity> version = taupageYaml
-                .map(yamlMap -> yamlMap.get("application_version"))
-                .map(String::valueOf)
+                .map(TaupageYaml::getApplicationVersion)
                 .map(VersionEntity::new);
 
         if (application.isPresent() && version.isPresent()) {

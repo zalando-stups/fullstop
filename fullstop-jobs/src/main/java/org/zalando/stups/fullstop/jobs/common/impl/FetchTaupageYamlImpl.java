@@ -11,13 +11,13 @@ import com.amazonaws.util.Base64;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.parser.ParserException;
 import org.yaml.snakeyaml.scanner.ScannerException;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
+import org.zalando.stups.fullstop.taupage.TaupageYamlUtil;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -27,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class FetchTaupageYamlImpl implements FetchTaupageYaml {
 
-    public static final String USER_DATA = "userData";
+    private static final String USER_DATA = "userData";
     private final ClientProvider clientProvider;
     private final Logger log = getLogger(getClass());
 
@@ -37,7 +37,7 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
     }
 
     @Override
-    public Optional<Map> getTaupageYaml(final String instanceId, final String account, final String region) {
+    public Optional<TaupageYaml> getTaupageYaml(final String instanceId, final String account, final String region) {
         final AmazonEC2Client client = clientProvider.getClient(AmazonEC2Client.class,
                 account,
                 Region.getRegion(Regions.fromName(region)));
@@ -48,15 +48,13 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
                             .withInstanceId(instanceId)
                             .withAttribute(USER_DATA));
 
-            final Yaml yaml = new Yaml();
+
             return ofNullable(response)
                     .map(DescribeInstanceAttributeResult::getInstanceAttribute)
                     .map(InstanceAttribute::getUserData)
                     .map(Base64::decode)
                     .map(String::new)
-                    .map(yaml::load)
-                    .filter(data -> data instanceof Map) // everything else is obviously no valid taupage format
-                    .map(data -> (Map) data);
+                    .map(TaupageYamlUtil::parseTaupageYaml);
 
         } catch (final AmazonClientException e) {
             log.warn("Could not get Taupage YAML for instance: " + instanceId, e);

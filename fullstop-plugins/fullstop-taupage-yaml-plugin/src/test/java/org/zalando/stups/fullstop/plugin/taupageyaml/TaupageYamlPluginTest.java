@@ -1,6 +1,16 @@
 package org.zalando.stups.fullstop.plugin.taupageyaml;
 
-import static com.google.common.collect.Maps.newHashMap;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
+import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
+import org.zalando.stups.fullstop.taupage.TaupageYaml;
+import org.zalando.stups.fullstop.violation.ViolationBuilder;
+import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -12,16 +22,6 @@ import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICA
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_VERSION_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
-
-import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
-import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
-import org.zalando.stups.fullstop.violation.ViolationBuilder;
-import org.zalando.stups.fullstop.violation.ViolationSink;
 
 public class TaupageYamlPluginTest {
 
@@ -58,7 +58,7 @@ public class TaupageYamlPluginTest {
     @Test
     public void testProcessNoViolations() throws Exception {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
-        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(newHashMap()));
+        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
         when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
         when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
         when(mockContext.getSource()).thenReturn(Optional.of("source"));
@@ -106,7 +106,7 @@ public class TaupageYamlPluginTest {
     @Test
     public void testProcessMissingAppIdViolation() throws Exception {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
-        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(newHashMap()));
+        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
         when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
         when(mockContext.getSource()).thenReturn(Optional.of("source"));
 
@@ -127,7 +127,7 @@ public class TaupageYamlPluginTest {
     public void testProcessMissingAppVersionViolation() throws Exception {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
         when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
-        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(newHashMap()));
+        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
         when(mockContext.getSource()).thenReturn(Optional.of("source"));
 
         when(mockContext.getVersionId()).thenReturn(Optional.empty());
@@ -147,7 +147,7 @@ public class TaupageYamlPluginTest {
     public void testProcessMissingSourceViolation() throws Exception {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
         when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
-        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(newHashMap()));
+        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
         when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
 
         when(mockContext.getSource()).thenReturn(Optional.empty());
