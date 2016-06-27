@@ -10,11 +10,7 @@ import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +36,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,7 +68,7 @@ public class FetchEC2Job implements FullstopJob {
 
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
-    private final CloseableHttpClient httpclient;
+    private final CloseableHttpClient httpClient;
 
     private final AwsApplications awsApplications;
 
@@ -94,7 +87,8 @@ public class FetchEC2Job implements FullstopJob {
                        final AwsApplications awsApplications,
                        final ViolationService violationService,
                        final FetchTaupageYaml fetchTaupageYaml,
-                       final AmiDetailsProvider amiDetailsProvider) {
+                       final AmiDetailsProvider amiDetailsProvider,
+                       final CloseableHttpClient httpClient) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -104,6 +98,7 @@ public class FetchEC2Job implements FullstopJob {
         this.violationService = violationService;
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.amiDetailsProvider = amiDetailsProvider;
+        this.httpClient = httpClient;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -115,31 +110,6 @@ public class FetchEC2Job implements FullstopJob {
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
         threadPoolTaskExecutor.afterPropertiesSet();
-
-        try {
-            final RequestConfig config = RequestConfig.custom()
-                    .setConnectionRequestTimeout(1000)
-                    .setConnectTimeout(1000)
-                    .setSocketTimeout(1000)
-                    .build();
-            httpclient = HttpClientBuilder.create()
-                    .disableAuthCaching()
-                    .disableAutomaticRetries()
-                    .disableConnectionState()
-                    .disableCookieManagement()
-                    .disableRedirectHandling()
-                    .setDefaultRequestConfig(config)
-                    .setHostnameVerifier(new AllowAllHostnameVerifier())
-                    .setSslcontext(
-                            new SSLContextBuilder()
-                                    .loadTrustMaterial(
-                                            null,
-                                            (arrayX509Certificate, value) -> true)
-                                    .build())
-                    .build();
-        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            throw new IllegalStateException("Could not initialize httpClient", e);
-        }
     }
 
     @PostConstruct
@@ -201,7 +171,7 @@ public class FetchEC2Job implements FullstopJob {
                                     continue;
                                 }
 
-                                final HttpGetRootCall httpCall = new HttpGetRootCall(httpclient, instancePublicIpAddress, allowedPort);
+                                final HttpGetRootCall httpCall = new HttpGetRootCall(httpClient, instancePublicIpAddress, allowedPort);
                                 final ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(
                                         httpCall);
                                 listenableFuture.addCallback(

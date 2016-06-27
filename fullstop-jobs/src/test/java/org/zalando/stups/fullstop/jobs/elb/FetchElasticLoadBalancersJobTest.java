@@ -9,6 +9,7 @@ import com.amazonaws.services.elasticloadbalancing.model.Listener;
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import com.google.common.collect.ImmutableMap;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,7 +139,8 @@ public class FetchElasticLoadBalancersJobTest {
                 mockViolationService,
                 fetchTaupageYamlMock,
                 mockAmiDetailsProvider,
-                mockEC2InstanceProvider);
+                mockEC2InstanceProvider,
+                mock(CloseableHttpClient.class));
 
         fetchELBJob.run();
 
