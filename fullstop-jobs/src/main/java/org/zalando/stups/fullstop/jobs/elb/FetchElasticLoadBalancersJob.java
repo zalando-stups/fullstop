@@ -8,11 +8,7 @@ import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +36,6 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,7 +96,8 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                                         final ViolationService violationService,
                                         final FetchTaupageYaml fetchTaupageYaml,
                                         final AmiDetailsProvider amiDetailsProvider,
-                                        final EC2InstanceProvider ec2Instance) {
+                                        final EC2InstanceProvider ec2Instance,
+                                        final CloseableHttpClient httpClient) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -115,6 +109,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.amiDetailsProvider = amiDetailsProvider;
         this.ec2Instance = ec2Instance;
+        this.httpclient = httpClient;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -126,31 +121,6 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
         threadPoolTaskExecutor.afterPropertiesSet();
-
-        final RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(1000)
-                .setConnectTimeout(1000)
-                .setSocketTimeout(1000)
-                .build();
-        try {
-            httpclient = HttpClientBuilder.create()
-                    .disableAuthCaching()
-                    .disableAutomaticRetries()
-                    .disableConnectionState()
-                    .disableCookieManagement()
-                    .disableRedirectHandling()
-                    .setDefaultRequestConfig(requestConfig)
-                    .setHostnameVerifier(new AllowAllHostnameVerifier())
-                    .setSslcontext(
-                            new SSLContextBuilder()
-                                    .loadTrustMaterial(
-                                            null,
-                                            (arrayX509Certificate, value) -> true)
-                                    .build())
-                    .build();
-        } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            throw new IllegalStateException("Could not initialize httpClient", e);
-        }
     }
 
     @PostConstruct
