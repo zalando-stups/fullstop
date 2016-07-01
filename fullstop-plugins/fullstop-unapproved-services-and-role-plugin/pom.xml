@@ -62,7 +62,11 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>zjsonpatch</artifactId>
+            <version>0.2.3</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
