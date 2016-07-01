@@ -4,7 +4,9 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
+import io.fabric8.zjsonpatch.JsonDiff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,9 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
 
-import static java.util.Collections.singletonMap;
-import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.*;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
+import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.MODIFIED_ROLE_OR_SERVICE;
 
 @Component
@@ -35,6 +38,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     private final PolicyTemplatesProvider policyTemplatesProvider;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonNode emptyArray;
 
     @Autowired
     public UnapprovedServicesAndRolePlugin(final PolicyProvider policyProvider,
@@ -45,6 +49,12 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
         this.violationSink = violationSink;
         this.policyTemplatesProvider = policyTemplatesProvider;
         this.unapprovedServicesAndRoleProperties = unapprovedServicesAndRoleProperties;
+
+        try {
+            this.emptyArray = objectMapper.readTree("[]");
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -86,12 +96,16 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        if (!policyJson.equals(templatePolicyJson)) {
+        final JsonNode diff = JsonDiff.asJson(templatePolicyJson, policyJson);
+
+        if (!diff.equals(emptyArray)) {
             violationSink.put(
                     violationFor(event)
                             .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
                             .withType(MODIFIED_ROLE_OR_SERVICE)
-                            .withMetaInfo(singletonMap("role_name", roleName))
+                            .withMetaInfo(ImmutableMap.of(
+                                    "role_name", roleName,
+                                    "diff", diff))
                             .build());
 
         }
