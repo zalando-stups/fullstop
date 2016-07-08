@@ -1,12 +1,9 @@
 package org.zalando.stups.fullstop.plugin.unapproved.impl;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
-import com.amazonaws.services.identitymanagement.model.GetRoleResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.amazonaws.services.identitymanagement.model.GetRolePolicyRequest;
+import com.amazonaws.services.identitymanagement.model.GetRolePolicyResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.zalando.stups.fullstop.aws.ClientProvider;
@@ -14,14 +11,10 @@ import org.zalando.stups.fullstop.plugin.unapproved.PolicyProvider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Optional;
 
-/**
- * @author mrandi
- */
 @Service
 public class PolicyProviderImpl implements PolicyProvider {
-
-    private final Logger log = LoggerFactory.getLogger(PolicyProviderImpl.class);
 
     private final ClientProvider clientProvider;
 
@@ -30,48 +23,24 @@ public class PolicyProviderImpl implements PolicyProvider {
         this.clientProvider = clientProvider;
     }
 
-    @Override public String getPolicy(final String roleName, final Region region, final String accountId) {
-
+    @Override
+    public String getPolicy(final String roleName, final Region region, final String accountId) {
         final AmazonIdentityManagementClient iamClient = clientProvider
                 .getClient(AmazonIdentityManagementClient.class, accountId, region);
 
-        if (iamClient == null) {
-            throw new RuntimeException(
-                    String.format(
-                            "Somehow we could not create an AmazonIdentityManagementClient with accountId: %s and region: %s",
-                            accountId,
-                            region.toString()));
-        }
-        else {
+        // assuming that there is an inline policy with the same name as the role itself
+        return Optional.of(new GetRolePolicyRequest().withRoleName(roleName).withPolicyName(roleName))
+                .map(iamClient::getRolePolicy)
+                .map(GetRolePolicyResult::getPolicyDocument)
+                .map(PolicyProviderImpl::urlDecode)
+                .orElse(null);
+    }
 
-            String assumeRolePolicyDocument = null;
-            try {
-                final GetRoleRequest getRoleRequest = new GetRoleRequest();
-                getRoleRequest.setRoleName(roleName);
-
-                final GetRoleResult role = iamClient.getRole(getRoleRequest);
-
-                if (role != null && role.getRole() != null && role.getRole().getAssumeRolePolicyDocument() != null) {
-                    try {
-                        assumeRolePolicyDocument = URLDecoder.decode(
-                                role.getRole().getAssumeRolePolicyDocument(),
-                                "UTF-8");
-                    }
-                    catch (final UnsupportedEncodingException e) {
-                        log.warn("Could not decode policy document for role: {}", roleName);
-                    }
-                }
-                else {
-                    return null;
-                }
-
-            }
-            catch (final AmazonClientException e) {
-                log.error(e.getMessage());
-            }
-
-            return assumeRolePolicyDocument;
-
+    private static String urlDecode(String input) {
+        try {
+            return URLDecoder.decode(input, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
         }
     }
 
