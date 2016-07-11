@@ -128,6 +128,7 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
                             .withMetaInfo(ImmutableMap
                                     .builder()
                                     .put("role_name", roleName)
+                                    .put("error_messages", errorMessages)
                                     .put("attached_policy_names", attachedPolicyNames)
                                     .put("inline_policy_names", inlinePolicyNames)
                                     .put("expected_inline_policy_names", expectedInlinePolicyNames)
