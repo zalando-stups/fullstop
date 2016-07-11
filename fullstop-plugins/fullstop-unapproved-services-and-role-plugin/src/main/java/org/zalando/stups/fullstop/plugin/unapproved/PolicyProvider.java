@@ -6,5 +6,6 @@ import com.amazonaws.regions.Region;
  * Created by mrandi.
  */
 public interface PolicyProvider {
-    String getPolicy(String roleName, Region region, String accountId);
+
+    RolePolicies getRolePolicies(String roleName, Region region, String accountId);
 }

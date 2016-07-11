@@ -1,61 +1,80 @@
 package org.zalando.stups.fullstop.plugin.unapproved;
 
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.AttachedPolicy;
+import com.amazonaws.services.identitymanagement.model.GetRolePolicyResult;
+import com.amazonaws.services.identitymanagement.model.ListAttachedRolePoliciesResult;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.unapproved.impl.PolicyProviderImpl;
 
+import static com.amazonaws.regions.Regions.US_EAST_1;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-/**
- * Created by mrandi.
- */
 public class PolicyProviderTest {
 
-    private ClientProvider clientProviderMock;
+    private AmazonIdentityManagementClient clientMock;
 
     private PolicyProvider policyProvider;
 
     @Before
     public void setUp() throws Exception {
-        clientProviderMock = mock(ClientProvider.class);
+        clientMock = mock(AmazonIdentityManagementClient.class);
+
+        final ClientProvider clientProviderMock = mock(ClientProvider.class);
+        when(clientProviderMock.getClient(any(), any(), any())).thenReturn(clientMock);
+
         policyProvider = new PolicyProviderImpl(clientProviderMock);
+
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(clientProviderMock);
+        verifyNoMoreInteractions(clientMock);
     }
 
     @Test
-    public void testGetPolicy() throws Exception {
+    public void testGetRolePolicies() throws Exception {
+        when(clientMock.listAttachedRolePolicies(any()))
+                .thenReturn(new ListAttachedRolePoliciesResult().withAttachedPolicies(
+                        new AttachedPolicy().withPolicyName("bar1"),
+                        new AttachedPolicy().withPolicyName("bar2")));
+        when(clientMock.listRolePolicies(any()))
+                .thenReturn(new ListRolePoliciesResult().withPolicyNames("foo", "bar"));
+        when(clientMock.getRolePolicy(any()))
+                .thenReturn(new GetRolePolicyResult().withPolicyDocument("%7B%22hello%22%3A%22world%22%7D"));
 
-        when(clientProviderMock.getClient(any(), any(), any())).thenReturn(new AmazonIdentityManagementClient());
+        final RolePolicies rolePolicies = policyProvider.getRolePolicies("foo", Region.getRegion(US_EAST_1), "123456789012");
+        assertThat(rolePolicies).isNotNull();
+        assertThat(rolePolicies.getAttachedPolicyNames()).containsOnly("bar1", "bar2");
+        assertThat(rolePolicies.getInlinePolicyNames()).containsOnly("foo", "bar");
+        assertThat(rolePolicies.getMainPolicy()).isEqualTo("{\"hello\":\"world\"}");
 
-        policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
-
-        verify(clientProviderMock).getClient(any(), any(), any());
+        verify(clientMock).listAttachedRolePolicies(any());
+        verify(clientMock).listRolePolicies(any());
+        verify(clientMock).getRolePolicy(any());
     }
 
     @Test
-    public void testGetPolicyException() throws Exception {
+    public void testGetRolePoliciesWhenMainPolicyIsMissing() throws Exception {
+        when(clientMock.listAttachedRolePolicies(any())).thenReturn(new ListAttachedRolePoliciesResult());
+        when(clientMock.listRolePolicies(any())).thenReturn(new ListRolePoliciesResult());
 
-        when(clientProviderMock.getClient(any(), any(), any())).thenReturn(null);
+        final RolePolicies rolePolicies = policyProvider.getRolePolicies("foo", Region.getRegion(US_EAST_1), "123456789012");
+        assertThat(rolePolicies).isNotNull();
+        assertThat(rolePolicies.getAttachedPolicyNames()).isEmpty();
+        assertThat(rolePolicies.getInlinePolicyNames()).isEmpty();
 
-        try {
-            policyProvider.getPolicy("test", Region.getRegion(Regions.AP_SOUTHEAST_2), "test");
-        }
-        catch (final RuntimeException e) {
-            assertThat(
-                    e.getMessage()
-                     .startsWith("Somehow we could not create an AmazonIdentityManagementClient with accountId:"));
-        }
-
-        verify(clientProviderMock).getClient(any(), any(), any());
+        verify(clientMock).listAttachedRolePolicies(any());
+        verify(clientMock).listRolePolicies(any());
     }
 }

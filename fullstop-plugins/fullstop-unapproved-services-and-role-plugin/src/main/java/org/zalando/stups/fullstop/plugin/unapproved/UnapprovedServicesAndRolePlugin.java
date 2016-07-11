@@ -16,7 +16,12 @@ import org.zalando.stups.fullstop.plugin.unapproved.config.UnapprovedServicesAnd
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getAccountId;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.getRegion;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
@@ -81,9 +86,21 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        final String policy = policyProvider.getPolicy(roleName, getRegion(event), getAccountId(event));
-
+        final List<String> errorMessages = newArrayList();
+        final RolePolicies rolePolicies = policyProvider.getRolePolicies(roleName, getRegion(event), getAccountId(event));
+        final Set<String> attachedPolicyNames = rolePolicies.getAttachedPolicyNames();
+        final Set<String> inlinePolicyNames = rolePolicies.getInlinePolicyNames();
+        final Set<String> expectedInlinePolicyNames = Collections.singleton(roleName);
         final String policyTemplate = policyTemplatesProvider.getPolicyTemplate(roleName);
+        final String policy = rolePolicies.getMainPolicy();
+
+        if (!attachedPolicyNames.isEmpty()) {
+            errorMessages.add("You MUST not attach additional policies to this role!");
+        }
+
+        if (!Objects.equals(inlinePolicyNames, expectedInlinePolicyNames)) {
+            errorMessages.add("You MUST not change the inline policies of this role");
+        }
 
         final JsonNode policyJson;
         final JsonNode templatePolicyJson;
@@ -96,18 +113,28 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
             return;
         }
 
-        final JsonNode diff = JsonDiff.asJson(templatePolicyJson, policyJson);
+        final JsonNode templateToPolicyDiff = JsonDiff.asJson(templatePolicyJson, policyJson);
+        final JsonNode policyToTemplateDiff = JsonDiff.asJson(policyJson, templatePolicyJson);
 
-        if (!diff.equals(emptyArray)) {
+        if (!templateToPolicyDiff.equals(emptyArray)) {
+            errorMessages.add("You MUST not change the main policy document! See diffs for details.");
+        }
+
+        if (!errorMessages.isEmpty()) {
             violationSink.put(
                     violationFor(event)
                             .withPluginFullyQualifiedClassName(UnapprovedServicesAndRolePlugin.class)
                             .withType(MODIFIED_ROLE_OR_SERVICE)
-                            .withMetaInfo(ImmutableMap.of(
-                                    "role_name", roleName,
-                                    "diff", diff))
+                            .withMetaInfo(ImmutableMap
+                                    .builder()
+                                    .put("role_name", roleName)
+                                    .put("attached_policy_names", attachedPolicyNames)
+                                    .put("inline_policy_names", inlinePolicyNames)
+                                    .put("expected_inline_policy_names", expectedInlinePolicyNames)
+                                    .put("template_to_policy_diff", templateToPolicyDiff)
+                                    .put("policy_to_template_diff", policyToTemplateDiff)
+                                    .build())
                             .build());
-
         }
 
     }
