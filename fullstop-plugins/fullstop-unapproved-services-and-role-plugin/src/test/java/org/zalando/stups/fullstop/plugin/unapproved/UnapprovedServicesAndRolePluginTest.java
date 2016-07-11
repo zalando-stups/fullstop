@@ -12,7 +12,11 @@ import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -74,28 +78,56 @@ public class UnapprovedServicesAndRolePluginTest {
     }
 
     @Test
-    public void testProcessEvent() throws Exception {
-
-        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn("{\"eventVersion\": \"1\"}");
+    public void testProcessEventWithPolicyDiff() throws Exception {
+        final RolePolicies rolePolicies = new RolePolicies(emptySet(), singleton("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), "{\"eventVersion\": \"1\"}");
+        when(policyProviderMock.getRolePolicies(any(), any(), any())).thenReturn(rolePolicies);
         when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn("{\"eventVersion\": \"2\"}");
 
         plugin.processEvent(event);
 
-        verify(policyProviderMock).getPolicy(any(), any(), any());
+        verify(policyProviderMock).getRolePolicies(eq("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), any(), any());
         verify(policyTemplatesProviderMock).getPolicyTemplate(any());
         verify(violationSinkMock).put(any(Violation.class));
-
     }
 
     @Test
-    public void testProcessEvent2() throws Exception {
+    public void testProcessEventWithAdditionalAttachedPolicy() throws Exception {
+        final String policy = "{\"eventVersion\": \"2\"}";
+        final RolePolicies rolePolicies = new RolePolicies(singleton("foo"), singleton("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), policy);
+        when(policyProviderMock.getRolePolicies(any(), any(), any())).thenReturn(rolePolicies);
+        when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn(policy);
 
-        when(policyProviderMock.getPolicy(any(), any(), any())).thenReturn(POLICY_1);
+        plugin.processEvent(event);
+
+        verify(policyProviderMock).getRolePolicies(eq("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), any(), any());
+        verify(policyTemplatesProviderMock).getPolicyTemplate(any());
+        verify(violationSinkMock).put(any(Violation.class));
+    }
+
+    @Test
+    public void testProcessEventWithChangedInlinePolicies() throws Exception {
+        final String policy = "{\"eventVersion\": \"2\"}";
+        final RolePolicies rolePolicies = new RolePolicies(emptySet(), newHashSet("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ", "another-policy"), policy);
+        when(policyProviderMock.getRolePolicies(any(), any(), any())).thenReturn(rolePolicies);
+        when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn(policy);
+
+        plugin.processEvent(event);
+
+        verify(policyProviderMock).getRolePolicies(eq("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), any(), any());
+        verify(policyTemplatesProviderMock).getPolicyTemplate(any());
+        verify(violationSinkMock).put(any(Violation.class));
+    }
+
+
+    @Test
+    public void testProcessEventNoViolation() throws Exception {
+        final RolePolicies rolePolicies = new RolePolicies(emptySet(), singleton("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), POLICY_1);
+        when(policyProviderMock.getRolePolicies(any(), any(), any())).thenReturn(rolePolicies);
         when(policyTemplatesProviderMock.getPolicyTemplate(any())).thenReturn(POLICY_2);
 
         plugin.processEvent(event);
 
-        verify(policyProviderMock).getPolicy(any(), any(), any());
+        verify(policyProviderMock).getRolePolicies(eq("mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ"), any(), any());
         verify(policyTemplatesProviderMock).getPolicyTemplate(any());
     }
 
@@ -109,5 +141,14 @@ public class UnapprovedServicesAndRolePluginTest {
         final JsonNode diff = JsonDiff.asJson(policy1, policy2);
 
         assertThat(diff).isEqualTo(om.readTree("[]"));
+    }
+
+    @Test
+    public void testJsonArrayDiff() throws Exception {
+        final ObjectMapper om = new ObjectMapper();
+        final JsonNode policy1 = om.readTree("{\"foo\":[\"a\", \"b\", \"c\"]}");
+        final JsonNode policy2 = om.readTree("{\"foo\":[\"c\", \"d\", \"e\"]}");
+        System.out.println(JsonDiff.asJson(policy1, policy2));
+        System.out.println(JsonDiff.asJson(policy2, policy1));
     }
 }
