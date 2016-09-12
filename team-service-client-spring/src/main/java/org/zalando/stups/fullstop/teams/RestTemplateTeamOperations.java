@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.teams;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Preconditions;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
     }
 
     @Override
+    @Cacheable(cacheNames = "aws-accounts-by-user", cacheManager = "oneMinuteTTLCacheManager")
     public List<Account> getAwsAccountsByUser(final String userId) {
         Preconditions.checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
@@ -50,6 +52,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
     }
 
     @Override
+    @Cacheable(cacheNames = "team-ids-by-user", cacheManager = "oneMinuteTTLCacheManager")
     public Set<String> getTeamIdsByUser(final String userId) {
         Preconditions.checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
@@ -68,6 +71,7 @@ public class RestTemplateTeamOperations implements TeamOperations {
     }
 
     @Override
+    @Cacheable(cacheNames = "active-aws-accounts", cacheManager = "oneMinuteTTLCacheManager")
     public List<Account> getActiveAccounts() {
         final ResponseEntity<List<Account>> response = restOperations.exchange(
                 get(URI.create(baseUrl + "/api/accounts/aws")).build(), accountType);
