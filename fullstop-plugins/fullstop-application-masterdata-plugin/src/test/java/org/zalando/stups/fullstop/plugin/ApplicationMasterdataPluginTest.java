@@ -11,9 +11,15 @@ import java.util.Optional;
 
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
-import static org.zalando.stups.fullstop.violation.ViolationType.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.APPLICATION_NOT_PRESENT_IN_KIO;
+import static org.zalando.stups.fullstop.violation.ViolationType.SPEC_URL_IS_MISSING_IN_KIO;
 
 public class ApplicationMasterdataPluginTest {
 
@@ -76,7 +82,6 @@ public class ApplicationMasterdataPluginTest {
     public void testMissingUrl() throws Exception {
         when(mockContext.getApplicationId()).thenReturn(Optional.of("my-app"));
         when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
-        kioApp.setSpecificationType(null);
         kioApp.setSpecificationUrl(" ");
 
         plugin.process(mockContext);
@@ -84,7 +89,6 @@ public class ApplicationMasterdataPluginTest {
         verify(mockContext).getApplicationId();
         verify(mockContext).getKioApplication();
         verify(mockContext, times(2)).violation();
-        verify(mockViolationSink).put(argThat(hasType(SPEC_TYPE_IS_MISSING_IN_KIO)));
         verify(mockViolationSink).put(argThat(hasType(SPEC_URL_IS_MISSING_IN_KIO)));
     }
 
@@ -92,7 +96,6 @@ public class ApplicationMasterdataPluginTest {
     public void testHappyCase() throws Exception {
         when(mockContext.getApplicationId()).thenReturn(Optional.of("my-app"));
         when(mockContext.getKioApplication()).thenReturn(Optional.of(kioApp));
-        kioApp.setSpecificationType("Github Issues");
         kioApp.setSpecificationUrl("https://github.com/zalando-stups/fullstop/issues");
 
         plugin.process(mockContext);

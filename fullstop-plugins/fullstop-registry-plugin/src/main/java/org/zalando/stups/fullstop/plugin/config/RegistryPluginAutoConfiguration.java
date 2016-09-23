@@ -9,15 +9,13 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 @Configuration
-@EnableConfigurationProperties({ RegistryPluginProperties.class })
 public class RegistryPluginAutoConfiguration {
 
     @Bean
     ApplicationRegistryPlugin registryPlugin(
             final EC2InstanceContextProvider contextProvider,
-            final ViolationSink violationSink,
-            final RegistryPluginProperties registryPluginProperties) {
-        return new ApplicationRegistryPlugin(contextProvider, violationSink, registryPluginProperties);
+            final ViolationSink violationSink) {
+        return new ApplicationRegistryPlugin(contextProvider, violationSink);
     }
 
     @Bean
