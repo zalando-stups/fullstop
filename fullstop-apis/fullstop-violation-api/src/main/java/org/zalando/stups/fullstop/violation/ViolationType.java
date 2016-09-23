@@ -63,4 +63,6 @@ public class ViolationType {
 
     public static final String CROSS_ACCOUNT_ROLE = "CROSS_ACCOUNT_ROLE";
 
+    public static final String ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY = "ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY";
+
 }
