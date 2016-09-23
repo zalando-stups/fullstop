@@ -88,7 +88,7 @@ public class ApplicationMasterdataPluginTest {
 
         verify(mockContext).getApplicationId();
         verify(mockContext).getKioApplication();
-        verify(mockContext, times(2)).violation();
+        verify(mockContext).violation();
         verify(mockViolationSink).put(argThat(hasType(SPEC_URL_IS_MISSING_IN_KIO)));
     }
 
