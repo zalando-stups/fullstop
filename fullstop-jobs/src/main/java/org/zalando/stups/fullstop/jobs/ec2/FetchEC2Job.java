@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
@@ -228,8 +229,9 @@ public class FetchEC2Job implements FullstopJob {
                 AmazonEC2Client.class,
                 account,
                 getRegion(fromName(region)));
-        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
-        describeInstancesRequest.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
-        return ec2Client.describeInstances(describeInstancesRequest);
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest()
+                .withFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
+        return AwsRequestUtil.performRequest(
+                () -> ec2Client.describeInstances(describeInstancesRequest));
     }
 }

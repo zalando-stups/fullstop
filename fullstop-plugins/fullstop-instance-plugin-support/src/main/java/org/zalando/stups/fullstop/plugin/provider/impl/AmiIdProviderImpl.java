@@ -12,6 +12,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 
@@ -68,8 +69,9 @@ public class AmiIdProviderImpl implements AmiIdProvider {
     private Optional<String> getAmiIdFromEC2Api(final EC2InstanceContext context) {
         final String instanceId = context.getInstanceId();
         try {
-            return context.getClient(AmazonEC2Client.class)
-                    .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
+            final AmazonEC2Client ec2Client = context.getClient(AmazonEC2Client.class);
+            final DescribeInstancesRequest request = new DescribeInstancesRequest().withInstanceIds(instanceId);
+            return AwsRequestUtil.performRequest(() -> ec2Client.describeInstances(request))
                     .getReservations()
                     .stream()
                     .map(Reservation::getInstances)

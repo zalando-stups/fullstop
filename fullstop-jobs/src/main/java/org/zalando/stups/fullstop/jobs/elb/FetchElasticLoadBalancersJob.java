@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
@@ -266,7 +267,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
 
         final DescribeLoadBalancersRequest describeLoadBalancersRequest = new DescribeLoadBalancersRequest();
-        return elbClient.describeLoadBalancers(
-                describeLoadBalancersRequest).getLoadBalancerDescriptions();
+        return AwsRequestUtil.performRequest(() -> elbClient.describeLoadBalancers(describeLoadBalancersRequest))
+                .getLoadBalancerDescriptions();
     }
 }

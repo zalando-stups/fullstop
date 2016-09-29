@@ -11,6 +11,7 @@ import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.unapproved.PolicyProvider;
 import org.zalando.stups.fullstop.plugin.unapproved.RolePolicies;
@@ -48,7 +49,7 @@ public class PolicyProviderImpl implements PolicyProvider {
 
     private String fetchMainPolicy(String roleName, AmazonIdentityManagementClient iamClient) {
         return Optional.of(new GetRolePolicyRequest().withRoleName(roleName).withPolicyName(roleName))
-                .map(iamClient::getRolePolicy)
+                .map((request) -> AwsRequestUtil.performRequest(() -> iamClient.getRolePolicy(request)))
                 .map(GetRolePolicyResult::getPolicyDocument)
                 .map(PolicyProviderImpl::urlDecode)
                 .orElse(EMPTY_JSON);
@@ -56,7 +57,7 @@ public class PolicyProviderImpl implements PolicyProvider {
 
     private Set<String> fetchInlinePolicyNames(String roleName, AmazonIdentityManagementClient iamClient) {
         return Optional.of(new ListRolePoliciesRequest().withRoleName(roleName))
-                .map(iamClient::listRolePolicies)
+                .map((request) -> AwsRequestUtil.performRequest(() -> iamClient.listRolePolicies(request)))
                 .map(ListRolePoliciesResult::getPolicyNames)
                 .map(nameList -> nameList.stream().collect(toSet()))
                 .orElseGet(Collections::emptySet);
@@ -64,7 +65,7 @@ public class PolicyProviderImpl implements PolicyProvider {
 
     private Set<String> fetchAttachedPolicyNames(String roleName, AmazonIdentityManagementClient iamClient) {
         return Optional.of(new ListAttachedRolePoliciesRequest().withRoleName(roleName))
-                .map(iamClient::listAttachedRolePolicies)
+                .map((request) -> AwsRequestUtil.performRequest(() -> iamClient.listAttachedRolePolicies(request)))
                 .map(ListAttachedRolePoliciesResult::getAttachedPolicies)
                 .map(attachedPolicies -> attachedPolicies.stream().map(AttachedPolicy::getPolicyName).collect(toSet()))
                 .orElseGet(Collections::emptySet);

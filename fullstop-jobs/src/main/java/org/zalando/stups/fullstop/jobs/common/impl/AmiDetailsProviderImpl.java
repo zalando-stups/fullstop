@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
 
@@ -35,7 +36,7 @@ public class AmiDetailsProviderImpl implements AmiDetailsProvider {
 
         final AmazonEC2Client ec2 = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
         final Optional<Image> ami = Optional.ofNullable(new DescribeImagesRequest().withImageIds(amiId))
-                .map(ec2::describeImages)
+                .map(request -> AwsRequestUtil.performRequest(() -> ec2.describeImages(request)))
                 .map(DescribeImagesResult::getImages)
                 .map(List::stream)
                 .flatMap(Stream::findFirst);
