@@ -105,53 +105,24 @@ public class FetchAmiJob implements FullstopJob {
     private void runOn(final String account, final String region) {
         try {
             log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
-            final DescribeInstancesResult describeEC2Result = getDescribeEC2Result(account, region);
-            for (final Reservation reservation : describeEC2Result.getReservations()) {
-                for (final Instance instance : reservation.getInstances()) {
-                    if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_TAUPAGE)) {
-                        continue;
-                    }
+            final AmazonEC2Client ec2Client = clientProvider.getClient(
+                    AmazonEC2Client.class,
+                    account,
+                    getRegion(fromName(region)));
+            Optional<String> nextToken = empty();
+            do {
+                final DescribeInstancesRequest request = new DescribeInstancesRequest();
+                nextToken.ifPresent(request::setNextToken);
 
-                    final Optional<Image> optionalImage = getAmiFromEC2Api(account, region, instance.getImageId());
-                    final Optional<Boolean> isTaupageAmi = optionalImage
-                            .filter(img -> img.getName().startsWith(taupageNamePrefix))
-                            .map(Image::getOwnerId)
-                            .map(taupageOwners::contains);
+                final DescribeInstancesResult result = ec2Client.describeInstances(request);
+                nextToken = Optional.ofNullable(result.getNextToken());
 
-                    // will not check for all non taupage ami
-                    // or images with taupage as name but created from another owner
-                    if (!isTaupageAmi.orElse(false)) {
-                        continue;
-                    }
-
-
-                    final Image image = optionalImage.get();
-                    final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
-                    final Optional<TaupageYaml> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
-                    if (optionalExpirationDate.isPresent()) {
-                        final LocalDate expirationDate = optionalExpirationDate.get();
-                        if (now().isAfter(expirationDate)) {
-                            violationSink.put(new ViolationBuilder()
-                                    .withAccountId(account)
-                                    .withRegion(region)
-                                    .withPluginFullyQualifiedClassName(FetchAmiJob.class)
-                                    .withEventId(EVENT_ID)
-                                    .withType(OUTDATED_TAUPAGE)
-                                    .withInstanceId(instance.getInstanceId())
-                                    .withApplicationId(taupageYaml.map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull).orElse(null))
-                                    .withApplicationVersion(taupageYaml.map(TaupageYaml::getApplicationVersion).map(StringUtils::trimToNull).orElse(null))
-                                    .withMetaInfo(ImmutableMap.of(
-                                            "ami_owner_id", image.getOwnerId(),
-                                            "ami_id", image.getImageId(),
-                                            "ami_name", image.getName(),
-                                            "expiration_date", expirationDate.toString()))
-                                    .build());
-                        }
-                    } else {
-                        log.warn("Could not expiration date of taupage AMI {}", image);
+                for (final Reservation reservation : result.getReservations()) {
+                    for (final Instance instance : reservation.getInstances()) {
+                        processInstance(account, region, instance);
                     }
                 }
-            }
+            } while (nextToken.isPresent());
         } catch (final AmazonServiceException a) {
             if (a.getErrorCode().equals("RequestLimitExceeded")) {
                 log.warn("RequestLimitExceeded for account: {}", account);
@@ -159,6 +130,50 @@ public class FetchAmiJob implements FullstopJob {
                 log.error(a.getMessage(), a);
             }
 
+        }
+    }
+
+    private void processInstance(String account, String region, Instance instance) {
+        if (violationService.violationExists(account, region, EVENT_ID, instance.getInstanceId(), OUTDATED_TAUPAGE)) {
+            return;
+        }
+
+        final Optional<Image> optionalImage = getAmiFromEC2Api(account, region, instance.getImageId());
+        final Optional<Boolean> isTaupageAmi = optionalImage
+                .filter(img -> img.getName().startsWith(taupageNamePrefix))
+                .map(Image::getOwnerId)
+                .map(taupageOwners::contains);
+
+        // will not check for all non taupage ami
+        // or images with taupage as name but created from another owner
+        if (!isTaupageAmi.orElse(false)) {
+            return;
+        }
+
+        final Image image = optionalImage.get();
+        final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
+        final Optional<TaupageYaml> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
+        if (optionalExpirationDate.isPresent()) {
+            final LocalDate expirationDate = optionalExpirationDate.get();
+            if (now().isAfter(expirationDate)) {
+                violationSink.put(new ViolationBuilder()
+                        .withAccountId(account)
+                        .withRegion(region)
+                        .withPluginFullyQualifiedClassName(FetchAmiJob.class)
+                        .withEventId(EVENT_ID)
+                        .withType(OUTDATED_TAUPAGE)
+                        .withInstanceId(instance.getInstanceId())
+                        .withApplicationId(taupageYaml.map(TaupageYaml::getApplicationId).map(StringUtils::trimToNull).orElse(null))
+                        .withApplicationVersion(taupageYaml.map(TaupageYaml::getApplicationVersion).map(StringUtils::trimToNull).orElse(null))
+                        .withMetaInfo(ImmutableMap.of(
+                                "ami_owner_id", image.getOwnerId(),
+                                "ami_id", image.getImageId(),
+                                "ami_name", image.getName(),
+                                "expiration_date", expirationDate.toString()))
+                        .build());
+            }
+        } else {
+            log.warn("Could not expiration date of taupage AMI {}", image);
         }
     }
 
@@ -171,14 +186,6 @@ public class FetchAmiJob implements FullstopJob {
                 .map(parts -> parts.get(2))
                 .map(timestamp -> LocalDate.parse(timestamp, ofPattern("yyyyMMdd")))
                 .map(creationDate -> creationDate.plusDays(60));
-    }
-
-    private DescribeInstancesResult getDescribeEC2Result(final String account, final String region) {
-        final AmazonEC2Client ec2Client = clientProvider.getClient(
-                AmazonEC2Client.class,
-                account,
-                getRegion(fromName(region)));
-        return ec2Client.describeInstances(new DescribeInstancesRequest());
     }
 
     private Optional<Image> getAmiFromEC2Api(final String account, final String region, final String imageId) {
