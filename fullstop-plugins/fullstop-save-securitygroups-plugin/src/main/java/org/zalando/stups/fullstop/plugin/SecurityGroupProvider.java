@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class SecurityGroupProvider {
             try {
                 final DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
                 request.setGroupIds(securityGroupIds);
-                result = amazonEC2Client.describeSecurityGroups(request);
+                result = AwsRequestUtil.performRequest(() -> amazonEC2Client.describeSecurityGroups(request));
             } catch (final AmazonServiceException e) {
                 if (e.getErrorCode().equals(INVALID_GROUP_NOT_FOUND)) {
                     log.warn(e.getMessage());

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
@@ -111,7 +112,7 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
                 getRegion(EU_WEST_1)
         );
 
-        return iamClient.listRoles();
+        return AwsRequestUtil.performRequest(iamClient::listRoles);
     }
 
     private void writeViolation(final String account, final Object metaInfo, final String roleId) {

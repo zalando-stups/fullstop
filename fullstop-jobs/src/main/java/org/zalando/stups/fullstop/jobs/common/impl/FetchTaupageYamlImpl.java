@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.parser.ParserException;
 import org.yaml.snakeyaml.scanner.ScannerException;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
@@ -38,16 +39,15 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
 
     @Override
     public Optional<TaupageYaml> getTaupageYaml(final String instanceId, final String account, final String region) {
+        try {
         final AmazonEC2Client client = clientProvider.getClient(AmazonEC2Client.class,
                 account,
                 Region.getRegion(Regions.fromName(region)));
-
-        try {
-            final DescribeInstanceAttributeResult response = client.describeInstanceAttribute(
-                    new DescribeInstanceAttributeRequest()
-                            .withInstanceId(instanceId)
-                            .withAttribute(USER_DATA));
-
+            final DescribeInstanceAttributeRequest request = new DescribeInstanceAttributeRequest()
+                    .withInstanceId(instanceId)
+                    .withAttribute(USER_DATA);
+            final DescribeInstanceAttributeResult response = AwsRequestUtil.performRequest(
+                    () -> client.describeInstanceAttribute(request));
 
             return ofNullable(response)
                     .map(DescribeInstanceAttributeResult::getInstanceAttribute)

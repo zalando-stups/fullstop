@@ -5,13 +5,13 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
@@ -102,14 +102,8 @@ public class FetchRdsJob implements FullstopJob {
     }
 
     private DescribeDBInstancesResult getRds(final String accountId, final String region) {
-        final DescribeDBInstancesRequest describeDBInstancesRequest = new DescribeDBInstancesRequest();
-        final DescribeDBInstancesResult describeDBInstancesResult;
-
         final AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
                 Region.getRegion(Regions.fromName(region)));
-        describeDBInstancesResult = amazonRDSClient.describeDBInstances(describeDBInstancesRequest);
-
-
-        return describeDBInstancesResult;
+        return AwsRequestUtil.performRequest(amazonRDSClient::describeDBInstances);
     }
 }
