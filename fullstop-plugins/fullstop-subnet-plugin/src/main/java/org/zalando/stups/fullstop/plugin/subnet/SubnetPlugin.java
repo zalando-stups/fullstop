@@ -6,19 +6,10 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
-import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
-import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.services.ec2.model.Route;
-import com.amazonaws.services.ec2.model.RouteTable;
+import com.amazonaws.services.ec2.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -116,13 +107,13 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
     }
 
     private List<Reservation> fetchReservations(final AmazonEC2Client amazonEC2Client, final CloudTrailEvent event, final List<String> instanceIds){
-        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(instanceIds);
+        final DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest();
 
 
-        DescribeInstancesResult describeInstancesResult;
+        DescribeInstancesResult describeInstancesResult = null;
         try {
-            describeInstancesResult = AwsRequestUtil.performRequest(
-                    () -> amazonEC2Client.describeInstances(describeInstancesRequest));
+            describeInstancesResult = amazonEC2Client
+                    .describeInstances(describeInstancesRequest.withInstanceIds(instanceIds));
         }
         catch (final AmazonServiceException e) {
 
@@ -142,8 +133,8 @@ public class SubnetPlugin extends AbstractFullstopPlugin {
         final DescribeRouteTablesRequest describeRouteTablesRequest = new DescribeRouteTablesRequest()
                 .withFilters(subnetIdFilters);
 
-        final DescribeRouteTablesResult describeRouteTablesResult = AwsRequestUtil.performRequest(
-                () -> amazonEC2Client.describeRouteTables(describeRouteTablesRequest));
+        final DescribeRouteTablesResult describeRouteTablesResult = amazonEC2Client
+                .describeRouteTables(describeRouteTablesRequest);
         return describeRouteTablesResult.getRouteTables();
     }
 

@@ -12,7 +12,6 @@ import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.parser.ParserException;
 import org.yaml.snakeyaml.scanner.ScannerException;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
@@ -48,13 +47,14 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
     private Optional<TaupageYaml> getTaupageYaml(@Nonnull final EC2InstanceContext context) {
 
         if (context.isTaupageAmi().orElse(false)) {
+
             final String instanceId = context.getInstanceId();
+
             try {
-                final AmazonEC2Client ec2Client = context.getClient(AmazonEC2Client.class);
-                return Optional.of(AwsRequestUtil.performRequest(
-                        () -> ec2Client.describeInstanceAttribute(new DescribeInstanceAttributeRequest()
+                return Optional.of(context.getClient(AmazonEC2Client.class))
+                        .map(client -> client.describeInstanceAttribute(new DescribeInstanceAttributeRequest()
                                 .withInstanceId(instanceId)
-                                .withAttribute(USER_DATA))))
+                                .withAttribute(USER_DATA)))
                         .map(DescribeInstanceAttributeResult::getInstanceAttribute)
                         .map(InstanceAttribute::getUserData)
                         .map(Base64::decode)

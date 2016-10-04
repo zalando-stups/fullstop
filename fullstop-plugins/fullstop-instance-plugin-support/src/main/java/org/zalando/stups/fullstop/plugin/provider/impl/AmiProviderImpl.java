@@ -9,13 +9,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static java.util.Optional.empty;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -42,11 +40,10 @@ public class AmiProviderImpl implements AmiProvider {
     private Optional<Image> getAmi(@Nonnull final EC2InstanceContext context) {
         final Optional<String> amiId = context.getAmiId();
         try {
-            final AmazonEC2Client ec2Client = context.getClient(AmazonEC2Client.class);
             return amiId
-                    .map(id -> new DescribeImagesRequest().withImageIds(id))
-                    .map(request -> (Supplier<DescribeImagesResult>) () -> ec2Client.describeImages(request))
-                    .map(AwsRequestUtil::performRequest)
+                    .map(id -> context
+                            .getClient(AmazonEC2Client.class)
+                            .describeImages(new DescribeImagesRequest().withImageIds(id)))
                     .map(DescribeImagesResult::getImages)
                     .flatMap(images -> images.stream().findFirst());
         } catch (final AmazonClientException e) {
