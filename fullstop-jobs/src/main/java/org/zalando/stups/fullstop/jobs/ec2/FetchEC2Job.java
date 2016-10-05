@@ -135,7 +135,9 @@ public class FetchEC2Job implements FullstopJob {
                         if (nextToken.isPresent()) {
                             request.setNextToken(nextToken.get());
                         } else {
-                            request.setFilters(newArrayList(new Filter("ip-address", newArrayList("*"))));
+                            request.withFilters(
+                                    new Filter("ip-address").withValues("*"),
+                                    new Filter("instance-state-name").withValues("running"));
                         }
 
                         final DescribeInstancesResult result = ec2Client.describeInstances(request);
