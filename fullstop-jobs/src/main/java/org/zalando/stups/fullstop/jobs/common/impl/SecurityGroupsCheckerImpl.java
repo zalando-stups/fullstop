@@ -5,7 +5,6 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 
@@ -36,8 +35,8 @@ public class SecurityGroupsCheckerImpl implements SecurityGroupsChecker {
         final AmazonEC2Client amazonEC2Client = clientProvider.getClient(
                 AmazonEC2Client.class,
                 account, region);
-        final DescribeSecurityGroupsResult describeSecurityGroupsResult = AwsRequestUtil.performRequest(
-                () -> amazonEC2Client.describeSecurityGroups(describeSecurityGroupsRequest));
+        final DescribeSecurityGroupsResult describeSecurityGroupsResult = amazonEC2Client.describeSecurityGroups(
+                describeSecurityGroupsRequest);
 
         final List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
         return securityGroups.stream().filter(predicate).map(SecurityGroup::getGroupId).collect(toSet());

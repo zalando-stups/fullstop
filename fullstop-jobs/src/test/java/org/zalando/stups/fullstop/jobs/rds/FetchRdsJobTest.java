@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.jobs.rds;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
+import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
 import org.junit.After;
@@ -16,12 +17,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FetchRdsJobTest {
 
@@ -70,12 +66,12 @@ public class FetchRdsJobTest {
     @Test
     public void testCheck() throws Exception {
         final FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
-        when(amazonRDSClientMock.describeDBInstances()).thenReturn(describeDBInstancesResultMock);
+        when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
         fetchRdsJob.run();
 
         verify(violationSinkMock, times(1)).put(any(Violation.class));
         verify(accountIdSupplierMock, times(1)).get();
-        verify(amazonRDSClientMock, times(1)).describeDBInstances();
+        verify(amazonRDSClientMock, times(1)).describeDBInstances(any(DescribeDBInstancesRequest.class));
         verify(jobsPropertiesMock, times(1)).getWhitelistedRegions();
         verify(clientProviderMock, times(1)).getClient(any(), any(String.class), any(Region.class));
     }

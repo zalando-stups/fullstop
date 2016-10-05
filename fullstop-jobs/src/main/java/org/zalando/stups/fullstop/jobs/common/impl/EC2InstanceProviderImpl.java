@@ -7,7 +7,6 @@ import com.amazonaws.services.ec2.model.Instance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.EC2InstanceProvider;
 
@@ -27,9 +26,8 @@ public class EC2InstanceProviderImpl implements EC2InstanceProvider {
     @Override
     @Cacheable(cacheNames = "ec2-instance", cacheManager = "twoHoursTTLCacheManager")
     public Optional<Instance> getById(final String accountId, final Region region, final String instanceId) {
-        final AmazonEC2Client ec2Client = clientProvider.getClient(AmazonEC2Client.class, accountId, region);
-        final DescribeInstancesRequest request = new DescribeInstancesRequest().withInstanceIds(instanceId);
-        return AwsRequestUtil.performRequest(() -> ec2Client.describeInstances(request))
+        return clientProvider.getClient(AmazonEC2Client.class, accountId, region)
+                .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
                 .getReservations().stream()
                 .flatMap(reservation -> reservation.getInstances().stream())
                 .filter(instance -> Objects.equals(instance.getInstanceId(), instanceId))

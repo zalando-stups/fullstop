@@ -2,16 +2,11 @@ package org.zalando.stups.fullstop.jobs.iam;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import com.amazonaws.services.identitymanagement.model.GenerateCredentialReportResult;
-import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult;
-import com.amazonaws.services.identitymanagement.model.ListAccessKeysRequest;
-import com.amazonaws.services.identitymanagement.model.User;
+import com.amazonaws.services.identitymanagement.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 
 import java.util.List;
@@ -36,13 +31,13 @@ class IdentityManagementDataSource {
     }
 
     List<User> getUsers(final String accountId) {
-        return AwsRequestUtil.performRequest(getIAMClient(accountId)::listUsers).getUsers();
+        return getIAMClient(accountId).listUsers().getUsers();
     }
 
     List<AccessKeyMetadata> getAccessKeys(final String accountId, final String userName) {
-        final ListAccessKeysRequest request = new ListAccessKeysRequest().withUserName(userName);
-        final AmazonIdentityManagementClient iamClient = getIAMClient(accountId);
-        return AwsRequestUtil.performRequest(() -> iamClient.listAccessKeys(request)).getAccessKeyMetadata();
+        final ListAccessKeysRequest request = new ListAccessKeysRequest();
+        request.setUserName(userName);
+        return getIAMClient(accountId).listAccessKeys(request).getAccessKeyMetadata();
     }
 
     GetCredentialReportResult getCredentialReportCSV(final String accountId) {
@@ -58,12 +53,12 @@ class IdentityManagementDataSource {
             } catch (final InterruptedException e) {
                 throw new RuntimeException("Could not pull credentials report", e);
             }
-            generationReport = AwsRequestUtil.performRequest(client::generateCredentialReport);
+            generationReport = client.generateCredentialReport();
             i++;
 
         } while (!COMPLETE.toString().equals(generationReport.getState()));
 
-        return AwsRequestUtil.performRequest(client::getCredentialReport);
+        return client.getCredentialReport();
     }
 
     private AmazonIdentityManagementClient getIAMClient(final String accountId) {

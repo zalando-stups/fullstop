@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.zalando.stups.fullstop.aws.AwsRequestUtil;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
@@ -179,8 +178,7 @@ public class FetchAmiJob implements FullstopJob {
                 AmazonEC2Client.class,
                 account,
                 getRegion(fromName(region)));
-        return AwsRequestUtil.performRequest(
-                () -> ec2Client.describeInstances(new DescribeInstancesRequest()));
+        return ec2Client.describeInstances(new DescribeInstancesRequest());
     }
 
     private Optional<Image> getAmiFromEC2Api(final String account, final String region, final String imageId) {
@@ -190,8 +188,7 @@ public class FetchAmiJob implements FullstopJob {
                     account,
                     getRegion(fromName(region)));
 
-            final DescribeImagesResult response = AwsRequestUtil.performRequest(
-                    () -> ec2Client.describeImages(new DescribeImagesRequest().withImageIds(imageId)));
+            final DescribeImagesResult response = ec2Client.describeImages(new DescribeImagesRequest().withImageIds(imageId));
 
             return ofNullable(response)
                     .map(DescribeImagesResult::getImages)
