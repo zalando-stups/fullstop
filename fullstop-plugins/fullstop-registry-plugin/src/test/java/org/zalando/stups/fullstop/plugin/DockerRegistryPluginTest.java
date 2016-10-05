@@ -144,4 +144,16 @@ public class DockerRegistryPluginTest {
 
         plugin.process(mockContext);
     }
+
+    @Test
+    public void testProcessWithoutViolationsOnStatusFalse() throws Exception {
+        when(mockContext.getRuntime()).thenReturn(Optional.of("Docker"));
+        when(mockContext.getSource()).thenReturn(Optional.of("pierone.example.org/stups/foo:bar1"));
+        when(mockContext.getPieroneTag()).thenReturn(Optional.of(new TagSummary("bar1", ZonedDateTime.now(), "test_user")));
+        when(mockContext.getScmSource()).thenReturn(Optional.of(ImmutableMap.of(
+                "status", "FALSE",
+                "url", "git@github.com:zalando-stups/fullstop.git")));
+
+        plugin.process(mockContext);
+    }
 }
