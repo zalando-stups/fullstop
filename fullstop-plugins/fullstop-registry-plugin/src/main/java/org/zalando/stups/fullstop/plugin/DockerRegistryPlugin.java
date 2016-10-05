@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 
 import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.stups.fullstop.violation.ViolationType.ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY;
@@ -80,7 +81,7 @@ public class DockerRegistryPlugin extends AbstractEC2InstancePlugin {
                             .build());
         }
 
-        if (!isBlank(scmSource.get("status"))) {
+        if (!isBlank(scmSource.get("status")) && !equalsIgnoreCase(scmSource.get("status"), "false")) {
             final ImmutableMap.Builder<String, String> metaInfo = ImmutableMap.builder();
             scmSource.forEach((key, value) -> metaInfo.put("scm_source_" + key, value));
             metaInfo.put("source", source);
