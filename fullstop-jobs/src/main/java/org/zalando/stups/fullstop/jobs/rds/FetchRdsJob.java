@@ -22,8 +22,10 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 @Component
@@ -63,26 +65,31 @@ public class FetchRdsJob implements FullstopJob {
             final Map<String, Object> metadata = newHashMap();
             for (final String region : jobsProperties.getWhitelistedRegions()) {
                 try {
-                    final DescribeDBInstancesResult describeDBInstancesResult = getRds(accountId, region);
+                    final AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
+                            Region.getRegion(Regions.fromName(region)));
 
-                    describeDBInstancesResult.getDBInstances().stream()
-                            .filter(DBInstance::getPubliclyAccessible)
-                            .filter(dbInstance -> dbInstance.getEndpoint() != null)
-                            .forEach(dbInstance -> {
-                                metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
-                                metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
-                                writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+                    Optional<String> marker = Optional.empty();
 
-                            });
+                    do {
+                        final DescribeDBInstancesRequest request = new DescribeDBInstancesRequest();
+                        marker.ifPresent(request::setMarker);
+                        final DescribeDBInstancesResult result = amazonRDSClient.describeDBInstances(request);
+                        marker = Optional.ofNullable(trimToNull(result.getMarker()));
+
+                        result.getDBInstances().stream()
+                                .filter(DBInstance::getPubliclyAccessible)
+                                .filter(dbInstance -> dbInstance.getEndpoint() != null)
+                                .forEach(dbInstance -> {
+                                    metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
+                                    metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
+                                    writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
+
+                                });
+
+                    } while (marker.isPresent());
 
                 } catch (final AmazonServiceException a) {
-
-                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                        log.warn("RequestLimitExceeded for account: {}", accountId);
-                    } else {
-                        log.error(a.getMessage(), a);
-                    }
-
+                    log.error(a.getMessage(), a);
                 }
             }
         }
@@ -99,17 +106,5 @@ public class FetchRdsJob implements FullstopJob {
                 .withInstanceId(rdsEndpoint)
                 .build();
         violationSink.put(violation);
-    }
-
-    private DescribeDBInstancesResult getRds(final String accountId, final String region) {
-        final DescribeDBInstancesRequest describeDBInstancesRequest = new DescribeDBInstancesRequest();
-        final DescribeDBInstancesResult describeDBInstancesResult;
-
-        final AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
-                Region.getRegion(Regions.fromName(region)));
-        describeDBInstancesResult = amazonRDSClient.describeDBInstances(describeDBInstancesRequest);
-
-
-        return describeDBInstancesResult;
     }
 }
