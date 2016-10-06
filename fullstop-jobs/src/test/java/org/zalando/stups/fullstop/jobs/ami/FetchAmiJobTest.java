@@ -79,7 +79,6 @@ public class FetchAmiJobTest {
     private Instance instance1 = new Instance()
             .withInstanceId(INSTANCE_ID)
             .withImageId(IMAGE_ID);
-    private Reservation reservation;
 
     @Before
     public void setUp() throws Exception {
@@ -176,6 +175,30 @@ public class FetchAmiJobTest {
                         REGION_1,
                         INSTANCE_ID,
                         OUTDATED_TAUPAGE);
+
+    }
+
+    @Test
+    public void testFollowPagination() throws Exception {
+        final DescribeInstancesResult result1 = new DescribeInstancesResult().withNextToken("123");
+        final DescribeInstancesResult result2 = new DescribeInstancesResult().withNextToken("456");
+        final DescribeInstancesResult result3 = new DescribeInstancesResult();
+
+        when(mockAccountIdSupplier.get()).thenReturn(singleton(ACCOUNT_1));
+        when(mockJobsProperties.getWhitelistedRegions()).thenReturn(singletonList(REGION_1));
+        when(mockClientProvider.getClient(eq(AmazonEC2Client.class), anyString(), any())).thenReturn(mockEC2Client);
+        when(mockEC2Client.describeInstances(any(DescribeInstancesRequest.class))).thenReturn(result1, result2, result3);
+
+        job.run();
+
+        verify(mockAccountIdSupplier).get();
+        verify(mockJobsProperties).getWhitelistedRegions();
+        verify(mockClientProvider).getClient(eq(AmazonEC2Client.class), eq(ACCOUNT_1), eq(getRegion(Regions.fromName(REGION_1))));
+
+
+        final ArgumentCaptor<DescribeInstancesRequest> describeInstances = ArgumentCaptor.forClass(DescribeInstancesRequest.class);
+        verify(mockEC2Client, times(3)).describeInstances(describeInstances.capture());
+        assertThat(describeInstances.getAllValues()).extracting(DescribeInstancesRequest::getNextToken).containsExactly(null, "123", "456");
 
     }
 }
