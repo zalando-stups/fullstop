@@ -49,6 +49,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 /**
@@ -149,7 +150,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         final DescribeLoadBalancersRequest request = new DescribeLoadBalancersRequest();
                         marker.ifPresent(request::setMarker);
                         final DescribeLoadBalancersResult result = elbClient.describeLoadBalancers(request);
-                        marker = Optional.ofNullable(StringUtils.trimToNull(result.getNextMarker()));
+                        marker = Optional.ofNullable(trimToNull(result.getNextMarker()));
 
                         for (final LoadBalancerDescription elb : result.getLoadBalancerDescriptions()) {
                             processELB(account, awsRegion, elb);

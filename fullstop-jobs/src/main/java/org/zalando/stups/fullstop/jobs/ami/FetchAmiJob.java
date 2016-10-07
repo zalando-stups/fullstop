@@ -43,6 +43,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.OUTDATED_TAUPAGE;
 
 @Component
@@ -119,10 +120,9 @@ public class FetchAmiJob implements FullstopJob {
                 } else {
                     request.withFilters(new Filter("instance-state-name").withValues("running"));
                 }
-                nextToken.ifPresent(request::setNextToken);
 
                 final DescribeInstancesResult result = ec2Client.describeInstances(request);
-                nextToken = Optional.ofNullable(result.getNextToken());
+                nextToken = Optional.ofNullable(trimToNull(result.getNextToken()));
 
                 for (final Reservation reservation : result.getReservations()) {
                     for (final Instance instance : reservation.getInstances()) {
