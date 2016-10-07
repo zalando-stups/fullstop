@@ -1,0 +1,62 @@
+{
+  "Records": [
+
+    {
+      "recipientAccountId": "11111111",
+      "eventType": "AwsApiCall",
+      "eventID": "2ff56a67-55b4-4454-b62f-b371f2bcdb7f",
+      "requestID": "9b6c7aa9-4a9c-11e6-a679-4791919b15d7",
+      "responseElements": {
+        "timeout": 3,
+        "codeSha256": "o7Pxdxxxxxxxxxxxxxxu9+xT79+T1HJJ2Bnq0nQ/Tw=",
+        "lastModified": "2016-07-15T14:58:36.452+0000",
+        "description": "A starter AWS Lambda function.",
+        "role": "arn:aws:iam::xxxx1111xxx:role/service-role/lambda-hello-world",
+        "handler": "index.handler",
+        "memorySize": 128,
+        "runtime": "nodejs4.3",
+        "functionArn": "arn:aws:lambda:eu-west-1:xxxx111xxx:function:lambda-test",
+        "functionName": "lambda-test",
+        "codeSize": 349,
+        "version": "$LATEST"
+      },
+      "requestParameters": {
+        "runtime": "nodejs4.3",
+        "handler": "index.handler",
+        "description": "A starter AWS Lambda function.",
+        "publish": false,
+        "timeout": 3,
+        "memorySize": 128,
+        "role": "arn:aws:iam::xxx111x:role/service-role/lambda-hello-world",
+        "functionName": "lambda-test"
+      },
+      "eventVersion": "1.04",
+      "userIdentity": {
+        "sessionContext": {
+          "sessionIssuer": {
+            "userName": "Shibboleth-PowerUser",
+            "accountId": "1111111111",
+            "arn": "arn:aws:iam::xxxx111xxx:role/Shibboleth-PowerUser",
+            "principalId": "xxxx111xxx",
+            "type": "Role"
+          },
+          "attributes": {
+            "creationDate": "2016-07-15T14:49:05Z",
+            "mfaAuthenticated": "false"
+          }
+        },
+        "accessKeyId": "ASIAJSF5H7MGKBWIHORQ",
+        "accountId": "1111111111",
+        "arn": "arn:aws:sts::xxxx111xxx:assumed-role/asasa-PowerUser/mrandi",
+        "principalId": "xxxxxx:mrandi",
+        "type": "AssumedRole"
+      },
+      "eventTime": "2016-07-15T14:58:36Z",
+      "eventSource": "lambda.amazonaws.com",
+      "eventName": "CreateFunction20150331",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "11.111.11.11",
+      "userAgent": "console.amazonaws.com"
+    }
+  ]
+}
