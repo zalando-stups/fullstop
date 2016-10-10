@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.jobs.policy;
 
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.ListRolesRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.google.common.collect.ImmutableMap;
@@ -23,10 +24,12 @@ import javax.annotation.PostConstruct;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Optional;
 
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.EU_WEST_1;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.CROSS_ACCOUNT_ROLE;
 
 @Component
@@ -68,50 +71,54 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
+            final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
+                    AmazonIdentityManagementClient.class,
+                    account,
+                    getRegion(EU_WEST_1)
+            );
 
-            final ListRolesResult listRolesResult = getListRolesResult(account);
+            Optional<String> nextMarker = Optional.empty();
 
-            for (final Role role : listRolesResult.getRoles()) {
+            do {
+                final ListRolesRequest request = new ListRolesRequest();
+                nextMarker.ifPresent(request::setMarker);
+                final ListRolesResult listRolesResult = iamClient.listRoles(request);
+                nextMarker = Optional.ofNullable(trimToNull(listRolesResult.getMarker()));
 
-                final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+                for (final Role role : listRolesResult.getRoles()) {
 
-                List<String> principalArns = Lists.newArrayList();
-                try {
-                    principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
-                            ".Statement[*].Principal.AWS");
-                } catch (final UnsupportedEncodingException e) {
-                    log.warn("Could not decode assumeRolePolicyDocument", e);
+                    final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+
+                    List<String> principalArns = Lists.newArrayList();
+                    try {
+                        principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
+                                ".Statement[*].Principal.AWS");
+                    } catch (final UnsupportedEncodingException e) {
+                        log.warn("Could not decode assumeRolePolicyDocument", e);
+                    }
+
+                    final List<String> crossAccountIds = principalArns.stream()
+                            .filter(principalARN -> !principalARN.contains(account))
+                            .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
+                            .collect(toList());
+
+                    if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
+                        writeViolation(
+                                account,
+                                ImmutableMap.of(
+                                        "role_arn", role.getArn(),
+                                        "role_name", role.getRoleName(),
+                                        "grantees", crossAccountIds),
+                                role.getRoleId()
+                        );
+                    }
                 }
 
-                final List<String> crossAccountIds = principalArns.stream()
-                        .filter(principalARN -> !principalARN.contains(account))
-                        .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
-                        .collect(toList());
+            } while (nextMarker.isPresent());
 
-                if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
-                    writeViolation(
-                            account,
-                            ImmutableMap.of(
-                                    "role_arn", role.getArn(),
-                                    "role_name", role.getRoleName(),
-                                    "grantees", crossAccountIds),
-                            role.getRoleId()
-                    );
-                }
-            }
         }
 
         log.info("Completed job {}", getClass().getSimpleName());
-    }
-
-    private ListRolesResult getListRolesResult(final String account) {
-        final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
-                AmazonIdentityManagementClient.class,
-                account,
-                getRegion(EU_WEST_1)
-        );
-
-        return iamClient.listRoles();
     }
 
     private void writeViolation(final String account, final Object metaInfo, final String roleId) {

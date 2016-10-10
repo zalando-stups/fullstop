@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.jobs.policy;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.ListRolesRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import org.junit.After;
@@ -111,7 +112,7 @@ public class CrossAccountPolicyForIAMJobTest {
     public void testCheck() throws Exception {
         when(accountIdSupplierMock.get()).thenReturn(newHashSet(ACCOUNT_ID));
         when(jobsPropertiesMock.getManagementAccount()).thenReturn(MANAGEMENT_ACCOUNT);
-        when(mockAmazonIdentityManagementClient.listRoles()).thenReturn(mockListRolesResult);
+        when(mockAmazonIdentityManagementClient.listRoles(any(ListRolesRequest.class))).thenReturn(mockListRolesResult);
 
         final CrossAccountPolicyForIAMJob crossAccountPolicyForIAMJob = new CrossAccountPolicyForIAMJob(
                 violationSinkMock,
@@ -123,7 +124,7 @@ public class CrossAccountPolicyForIAMJobTest {
 
         verify(accountIdSupplierMock).get();
         verify(clientProviderMock).getClient(any(), any(String.class), any(Region.class));
-        verify(mockAmazonIdentityManagementClient).listRoles();
+        verify(mockAmazonIdentityManagementClient).listRoles(any(ListRolesRequest.class));
         verify(jobsPropertiesMock,times(1)).getManagementAccount();
         verify(violationSinkMock).put(any());
     }
