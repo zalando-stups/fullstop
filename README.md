@@ -39,7 +39,6 @@ by all other accounts in order to perform this operations.
 * [fullstop-ami-plugin](fullstop-plugins/fullstop-ami-plugin)
 * [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
 * [fullstop-application-masterdata-plugin] (fullstop-plugins/fullstop-application-masterdata-plugin)
-* [fullstop-count-events-plugin] (fullstop-plugins/fullstop-count-events-plugin)
 * [fullstop-hello-event-plugin](fullstop-plugins/fullstop-hello-event-plugin)
 * [fullstop-keypair-plugin](fullstop-plugins/fullstop-keypair-plugin)
 * [fullstop-region-plugin](fullstop-plugins/fullstop-region-plugin)
