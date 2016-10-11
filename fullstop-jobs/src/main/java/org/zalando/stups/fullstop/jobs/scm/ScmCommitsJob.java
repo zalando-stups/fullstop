@@ -13,8 +13,7 @@ import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
-import org.zalando.stups.fullstop.teams.Account;
-import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -30,7 +29,6 @@ import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.zalando.kontrolletti.CommitRangeRequest.Builder.inRepository;
@@ -46,7 +44,7 @@ public class ScmCommitsJob implements FullstopJob {
     private final KontrollettiOperations kontrolletti;
     private final ApplicationLifecycleService lifecycle;
     private final ViolationSink violationSink;
-    private final TeamOperations teamService;
+    private final AccountIdSupplier accounts;
 
     @Autowired
     public ScmCommitsJob(
@@ -54,12 +52,12 @@ public class ScmCommitsJob implements FullstopJob {
             final KontrollettiOperations kontrolletti,
             final ApplicationLifecycleService lifecycle,
             final ViolationSink violationSink,
-            final TeamOperations teamService) {
+            final AccountIdSupplier accounts) {
         this.kio = kio;
         this.kontrolletti = kontrolletti;
         this.lifecycle = lifecycle;
         this.violationSink = violationSink;
-        this.teamService = teamService;
+        this.accounts = accounts;
     }
 
     @PostConstruct
@@ -75,10 +73,7 @@ public class ScmCommitsJob implements FullstopJob {
     public void run() {
         log.info("{} started processing", getClass().getSimpleName());
 
-        final Set<String> activeAccountIds = teamService.getActiveAccounts()
-                .stream()
-                .map(Account::getId)
-                .collect(toSet());
+        final Set<String> activeAccountIds = accounts.get();
 
         kio.listApplications().stream()
                 .map(ApplicationBase::getId)
