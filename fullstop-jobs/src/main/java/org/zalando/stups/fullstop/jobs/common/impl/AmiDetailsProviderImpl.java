@@ -7,6 +7,7 @@ import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AmiDetailsProvider;
@@ -27,6 +28,7 @@ public class AmiDetailsProviderImpl implements AmiDetailsProvider {
     }
 
     @Override
+    @Cacheable(cacheNames = "ami-details", cacheManager = "oneDayTTLCacheManager")
     public Map<String, String> getAmiDetails(final String accountId, final Region region, final String amiId) {
         final ImmutableMap.Builder<String, String> result = ImmutableMap.builder();
         result.put("ami_id", amiId);

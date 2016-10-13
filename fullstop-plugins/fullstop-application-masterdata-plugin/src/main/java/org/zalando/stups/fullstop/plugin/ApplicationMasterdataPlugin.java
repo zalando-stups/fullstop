@@ -14,7 +14,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.violation.ViolationType.SPEC_TYPE_IS_MISSING_IN_KIO;
 import static org.zalando.stups.fullstop.violation.ViolationType.SPEC_URL_IS_MISSING_IN_KIO;
 
 @Component
@@ -61,14 +60,6 @@ public class ApplicationMasterdataPlugin extends AbstractEC2InstancePlugin {
         if (isBlank(kioApp.getSpecificationUrl())) {
             violationSink.put(context.violation()
                     .withType(SPEC_URL_IS_MISSING_IN_KIO)
-                    .withPluginFullyQualifiedClassName(ApplicationMasterdataPlugin.class)
-                    .withMetaInfo(singletonMap("application_id", applicationId))
-                    .build());
-        }
-
-        if (isBlank(kioApp.getSpecificationType())) {
-            violationSink.put(context.violation()
-                    .withType(SPEC_TYPE_IS_MISSING_IN_KIO)
                     .withPluginFullyQualifiedClassName(ApplicationMasterdataPlugin.class)
                     .withMetaInfo(singletonMap("application_id", applicationId))
                     .build());

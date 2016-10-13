@@ -1,4 +1,4 @@
-package org.zalando.stups.fullstop.jobs.config;
+package org.zalando.stups.fullstop.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;

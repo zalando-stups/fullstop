@@ -1,6 +1,7 @@
 package org.zalando.stups.fullstop.aws;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.google.common.base.MoreObjects;
@@ -26,6 +27,8 @@ public class CachingClientProvider implements ClientProvider {
     private static final String ROLE_ARN_FIRST = "arn:aws:iam::";
 
     private static final String ROLE_ARN_LAST = ":role/fullstop";
+
+    private static final int MAX_ERROR_RETRY = 10;
 
     private LoadingCache<Key<?>, ? extends AmazonWebServiceClient> cache = null;
 
@@ -55,7 +58,8 @@ public class CachingClientProvider implements ClientProvider {
                                 key.type,
                                 new STSAssumeRoleSessionCredentialsProvider(
                                         buildRoleArn(key.accountId),
-                                        ROLE_SESSION_NAME), null);
+                                        ROLE_SESSION_NAME),
+                                        new ClientConfiguration().withMaxErrorRetry(MAX_ERROR_RETRY));
                     }
                 });
     }

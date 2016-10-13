@@ -13,6 +13,7 @@ import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
+import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -22,6 +23,7 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
@@ -42,17 +44,20 @@ public class ScmCommitsJob implements FullstopJob {
     private final KontrollettiOperations kontrolletti;
     private final ApplicationLifecycleService lifecycle;
     private final ViolationSink violationSink;
+    private final AccountIdSupplier accounts;
 
     @Autowired
     public ScmCommitsJob(
             final KioOperations kio,
             final KontrollettiOperations kontrolletti,
             final ApplicationLifecycleService lifecycle,
-            final ViolationSink violationSink) {
+            final ViolationSink violationSink,
+            final AccountIdSupplier accounts) {
         this.kio = kio;
         this.kontrolletti = kontrolletti;
         this.lifecycle = lifecycle;
         this.violationSink = violationSink;
+        this.accounts = accounts;
     }
 
     @PostConstruct
@@ -68,18 +73,22 @@ public class ScmCommitsJob implements FullstopJob {
     public void run() {
         log.info("{} started processing", getClass().getSimpleName());
 
+        final Set<String> activeAccountIds = accounts.get();
+
         kio.listApplications().stream()
                 .map(ApplicationBase::getId)
                 .map(kio::getApplicationById)
                 .filter(Application::isActive)
-                .forEach(this::processApplication);
+                .forEach(app -> processApplication(app, activeAccountIds));
 
         log.info("{} finished processing", getClass().getSimpleName());
     }
 
-    private void processApplication(final Application app) {
+    private void processApplication(final Application app, final Set<String> activeAccountIds) {
         try {
-            lifecycle.findDeployments(app.getId()).forEach(deployment ->
+            lifecycle.findDeployments(app.getId()).stream()
+                    .filter(deployment -> activeAccountIds.contains(deployment.getAccount()))
+                    .forEach(deployment ->
                     Optional.ofNullable(app.getScmUrl())
                             .filter(StringUtils::isNotBlank)
                             .map(kontrolletti::normalizeRepositoryUrl) // TODO is this necessary?

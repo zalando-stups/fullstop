@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.plugin;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.pierone.client.TagSummary;
@@ -10,9 +11,13 @@ import java.util.function.Predicate;
 
 import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.violation.ViolationType.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY;
+import static org.zalando.stups.fullstop.violation.ViolationType.IMAGE_IN_PIERONE_NOT_FOUND;
+import static org.zalando.stups.fullstop.violation.ViolationType.SCM_SOURCE_JSON_MISSING;
+import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON;
 
 public class DockerRegistryPlugin extends AbstractEC2InstancePlugin {
 
@@ -73,6 +78,18 @@ public class DockerRegistryPlugin extends AbstractEC2InstancePlugin {
                             .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
                             .withPluginFullyQualifiedClassName(DockerRegistryPlugin.class)
                             .withMetaInfo(singletonMap("source", source))
+                            .build());
+        }
+
+        if (!isBlank(scmSource.get("status")) && !equalsIgnoreCase(scmSource.get("status"), "false")) {
+            final ImmutableMap.Builder<String, String> metaInfo = ImmutableMap.builder();
+            scmSource.forEach((key, value) -> metaInfo.put("scm_source_" + key, value));
+            metaInfo.put("source", source);
+            violationSink.put(
+                    context.violation()
+                            .withType(ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY)
+                            .withPluginFullyQualifiedClassName(DockerRegistryPlugin.class)
+                            .withMetaInfo(metaInfo.build())
                             .build());
         }
     }

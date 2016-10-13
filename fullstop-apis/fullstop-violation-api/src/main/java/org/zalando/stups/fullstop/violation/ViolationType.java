@@ -31,8 +31,6 @@ public class ViolationType {
 
     public static final String SCM_URL_NOT_MATCH_WITH_KIO = "SCM_URL_NOT_MATCH_WITH_KIO";
 
-    public static final String MISSING_VERSION_APPROVAL = "MISSING_VERSION_APPROVAL";
-
     public static final String IMAGE_IN_PIERONE_NOT_FOUND = "IMAGE_IN_PIERONE_NOT_FOUND";
 
     public static final String SCM_SOURCE_JSON_MISSING = "SCM_SOURCE_JSON_MISSING";
@@ -47,8 +45,6 @@ public class ViolationType {
 
     public static final String SPEC_URL_IS_MISSING_IN_KIO = "SPEC_URL_IS_MISSING_IN_KIO";
 
-    public static final String SPEC_TYPE_IS_MISSING_IN_KIO = "SPEC_TYPE_IS_MISSING_IN_KIO";
-
     public static final String MISSING_APPLICATION_ID_IN_USER_DATA = "MISSING_APPLICATION_ID_IN_USER_DATA";
 
     public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
@@ -62,5 +58,7 @@ public class ViolationType {
     public static final String MISSING_SPEC_LINKS = "MISSING_SPEC_LINKS";
 
     public static final String CROSS_ACCOUNT_ROLE = "CROSS_ACCOUNT_ROLE";
+
+    public static final String ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY = "ARTIFACT_BUILT_FROM_DIRTY_REPOSITORY";
 
 }
