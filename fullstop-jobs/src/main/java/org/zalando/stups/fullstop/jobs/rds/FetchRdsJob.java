@@ -62,7 +62,6 @@ public class FetchRdsJob implements FullstopJob {
     @Scheduled(fixedRate = 300_000)
     public void run() {
         for (final String accountId : allAccountIds.get()) {
-            final Map<String, Object> metadata = newHashMap();
             for (final String region : jobsProperties.getWhitelistedRegions()) {
                 try {
                     final AmazonRDSClient amazonRDSClient = clientProvider.getClient(AmazonRDSClient.class, accountId,
@@ -80,6 +79,7 @@ public class FetchRdsJob implements FullstopJob {
                                 .filter(DBInstance::getPubliclyAccessible)
                                 .filter(dbInstance -> dbInstance.getEndpoint() != null)
                                 .forEach(dbInstance -> {
+                                    final Map<String, Object> metadata = newHashMap();
                                     metadata.put("unsecuredDatabase", dbInstance.getEndpoint().getAddress());
                                     metadata.put("errorMessages", "Unsecured Database! Your DB can be reached from outside");
                                     writeViolation(accountId, region, metadata, dbInstance.getEndpoint().getAddress());
