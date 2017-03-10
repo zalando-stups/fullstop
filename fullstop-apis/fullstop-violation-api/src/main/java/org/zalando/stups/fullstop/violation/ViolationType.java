@@ -43,11 +43,7 @@ public class ViolationType {
 
     public static final String UNSECURED_PUBLIC_ENDPOINT = "UNSECURED_PUBLIC_ENDPOINT";
 
-    public static final String SPEC_URL_IS_MISSING_IN_KIO = "SPEC_URL_IS_MISSING_IN_KIO";
-
     public static final String MISSING_APPLICATION_ID_IN_USER_DATA = "MISSING_APPLICATION_ID_IN_USER_DATA";
-
-    public static final String MISSING_APPLICATION_VERSION_IN_USER_DATA = "MISSING_APPLICATION_VERSION_IN_USER_DATA";
 
     public static final String OUTDATED_TAUPAGE = "OUTDATED_TAUPAGE";
 

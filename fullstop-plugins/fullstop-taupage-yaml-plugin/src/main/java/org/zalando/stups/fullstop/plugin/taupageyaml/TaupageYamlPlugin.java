@@ -1,18 +1,17 @@
 package org.zalando.stups.fullstop.plugin.taupageyaml;
 
-import static java.util.function.Predicate.isEqual;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_ID_IN_USER_DATA;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_VERSION_IN_USER_DATA;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
-
-import java.util.function.Predicate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.violation.ViolationSink;
+
+import java.util.function.Predicate;
+
+import static java.util.function.Predicate.isEqual;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_ID_IN_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
+import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
 public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
 
@@ -45,14 +44,6 @@ public class TaupageYamlPlugin extends AbstractEC2InstancePlugin {
                 violationSink.put(
                         context.violation()
                                 .withType(MISSING_APPLICATION_ID_IN_USER_DATA)
-                                .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
-                                .build());
-            }
-
-            if (!context.getVersionId().isPresent()) {
-                violationSink.put(
-                        context.violation()
-                                .withType(MISSING_APPLICATION_VERSION_IN_USER_DATA)
                                 .withPluginFullyQualifiedClassName(TaupageYamlPlugin.class)
                                 .build());
             }
