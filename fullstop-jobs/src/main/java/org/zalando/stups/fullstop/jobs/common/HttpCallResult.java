@@ -5,13 +5,13 @@ public class HttpCallResult {
     private String message;
 
 
-    public HttpCallResult(final boolean isOpen, final String message) {
+    HttpCallResult(final boolean isOpen, final String message) {
         this.open = isOpen;
         this.message = message;
     }
 
-    public void setOpen(final boolean open) {
-        this.open = open;
+    void setIsOpen() {
+        this.open = true;
     }
 
     public boolean isOpen() {
@@ -23,7 +23,7 @@ public class HttpCallResult {
         return message;
     }
 
-    public void setMessage(final String message) {
+    void setMessage(final String message) {
         this.message = message;
     }
 }

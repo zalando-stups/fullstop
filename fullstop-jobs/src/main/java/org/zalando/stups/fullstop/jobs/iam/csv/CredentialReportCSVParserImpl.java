@@ -25,7 +25,7 @@ import static org.apache.commons.csv.QuoteMode.MINIMAL;
 @Component
 public class CredentialReportCSVParserImpl implements CredentialReportCSVParser {
 
-    public static final CSVFormat CSV_FORMAT = CSVFormat.newFormat(',')
+    private static final CSVFormat CSV_FORMAT = CSVFormat.newFormat(',')
             .withQuoteMode(MINIMAL)
             .withHeader()
             .withSkipHeaderRecord()

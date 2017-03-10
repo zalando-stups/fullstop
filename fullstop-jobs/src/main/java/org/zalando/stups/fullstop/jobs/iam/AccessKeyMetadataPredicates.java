@@ -14,13 +14,13 @@ abstract class AccessKeyMetadataPredicates {
 
     private static final String ACTIVE = "Active";
 
-    static final Predicate<AccessKeyMetadata> IS_ACTIVE = activity(ACTIVE);
+    private static final Predicate<AccessKeyMetadata> IS_ACTIVE = activity(ACTIVE);
 
-    static Predicate<AccessKeyMetadata> activity(final String value) {
+    private static Predicate<AccessKeyMetadata> activity(final String value) {
         return t -> value.equals(t.getStatus());
     }
 
-    static Predicate<AccessKeyMetadata> withDaysOlderThan(final int days) {
+    private static Predicate<AccessKeyMetadata> withDaysOlderThan(final int days) {
         return t -> (t.getCreateDate().getTime() < LocalDate.now().minusDays(days).toDate().getTime());
     }
 

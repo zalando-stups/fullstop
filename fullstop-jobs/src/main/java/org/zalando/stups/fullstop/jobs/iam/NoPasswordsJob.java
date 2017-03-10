@@ -26,8 +26,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class NoPasswordsJob implements FullstopJob {
 
-    public static final String ROOT_ACCOUNT = "<root_account>";
-    public static final String ROOT_SUFFIX = ":root";
+    private static final String ROOT_ACCOUNT = "<root_account>";
+    private static final String ROOT_SUFFIX = ":root";
     private final Logger log = getLogger(NoPasswordsJob.class);
 
     private final IdentityManagementDataSource iamDataSource;
