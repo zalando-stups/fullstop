@@ -9,8 +9,18 @@ import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
-import org.zalando.stups.fullstop.plugin.provider.*;
-import org.zalando.stups.fullstop.plugin.provider.impl.*;
+import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
+import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
+import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
+import org.zalando.stups.fullstop.plugin.provider.impl.AmiIdProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.AmiProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.KioApplicationProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.PieroneTagProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.ScmSourceProviderImpl;
+import org.zalando.stups.fullstop.plugin.provider.impl.TaupageYamlProviderImpl;
 import org.zalando.stups.pierone.client.PieroneOperations;
 
 import java.util.function.Function;
@@ -40,8 +50,6 @@ public class EC2InstanceContextConfig {
                 taupageNamePrefix,
                 Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList()),
                 kioApplicationProvider(),
-                kioVersionProvider(),
-                kioApprovalProvider(),
                 pieroneTagProvider(),
                 scmSourceProvider());
     }
@@ -64,16 +72,6 @@ public class EC2InstanceContextConfig {
     @Bean
     KioApplicationProvider kioApplicationProvider() {
         return new KioApplicationProviderImpl(kioOperations);
-    }
-
-    @Bean
-    KioVersionProvider kioVersionProvider() {
-        return new KioVersionProviderImpl(kioOperations);
-    }
-
-    @Bean
-    KioApprovalProvider kioApprovalProvider() {
-        return new KioApprovalProviderImpl(kioOperations);
     }
 
     @Bean

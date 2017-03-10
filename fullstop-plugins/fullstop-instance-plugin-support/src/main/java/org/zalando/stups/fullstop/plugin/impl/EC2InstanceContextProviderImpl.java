@@ -7,7 +7,12 @@ import org.slf4j.Logger;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
-import org.zalando.stups.fullstop.plugin.provider.*;
+import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
+import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
+import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
+import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
+import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
+import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,8 +37,6 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
             final String taupageNamePrefix,
             final List<String> taupageOwners,
             final KioApplicationProvider kioApplicationProvider,
-            final KioVersionProvider kioVersionProvider,
-            final KioApprovalProvider kioApprovalProvider,
             final PieroneTagProvider pieroneTagProvider,
             final ScmSourceProvider scmSourceProvider) {
         cache = newBuilder()
@@ -54,8 +57,6 @@ public class EC2InstanceContextProviderImpl implements EC2InstanceContextProvide
                                                taupageNamePrefix,
                                                taupageOwners,
                                                kioApplicationProvider,
-                                               kioVersionProvider,
-                                               kioApprovalProvider,
                                                pieroneTagProvider,
                                                scmSourceProvider))
                                        .collect(toList());
