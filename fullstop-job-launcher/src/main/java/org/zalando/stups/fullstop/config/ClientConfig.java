@@ -5,9 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.zalando.kontrolletti.HystrixKontrollettiOperations;
-import org.zalando.kontrolletti.KontrollettiOperations;
-import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
@@ -26,9 +23,6 @@ public class ClientConfig {
     @Value("${fullstop.clients.kio.url}")
     private String kioBaseUrl;
 
-    @Value("${fullstop.clients.kontrolletti.url}")
-    private String kontrollettiBaseUrl;
-
     @Value("${fullstop.clients.teamService.url}")
     private String teamServiceBaseUrl;
 
@@ -43,14 +37,6 @@ public class ClientConfig {
         return new RestTemplateKioOperations(
                 restTemplate,
                 kioBaseUrl);
-    }
-
-    @Bean
-    public KontrollettiOperations kontrollettiOperations() {
-        return new HystrixKontrollettiOperations(
-                new RestTemplateKontrollettiOperations(
-                        new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider("kontrolletti", accessTokens)),
-                        kontrollettiBaseUrl));
     }
 
     @Bean

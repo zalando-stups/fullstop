@@ -55,16 +55,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-hystrix</artifactId>
-            <version>${kontrolletti-client-java.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>kio-client-java-spring</artifactId>
         </dependency>
