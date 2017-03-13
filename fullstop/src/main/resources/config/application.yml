@@ -129,9 +129,6 @@ fullstop:
         teamService:
             url: ${FULLSTOP_TEAM_SERVICE_URL}
 
-        kontrolletti:
-            url: ${FULLSTOP_KONTROLLETTI_URL}
-
     whitelist:
         # Which teams are allowed to whitelist violations
         allowed-teams: "stups" #comma separated, will be overriden by ENV VARS
@@ -153,10 +150,6 @@ tokens:
         - tokenId: teamService
           scopes:
               - uid
-        - tokenId: kontrolletti
-          scopes:
-              - uid
-
 
 javax:
     persistence:

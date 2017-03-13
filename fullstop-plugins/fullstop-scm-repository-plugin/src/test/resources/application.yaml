@@ -1,0 +1,11 @@
+fullstop:
+  plugins:
+    scm:
+      hosts:
+        STASH:
+          allowedOwners:
+            "stash.my.company.com": "^.+$"
+        GITHUB:
+          allowedOwners:
+            "github.com": "^(?:zalando|zalando-stups)$"
+            "github.my.company.com": "^.+$"

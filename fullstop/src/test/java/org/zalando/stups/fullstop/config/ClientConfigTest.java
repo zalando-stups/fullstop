@@ -10,7 +10,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.fullstop.teams.TeamOperations;
 import org.zalando.stups.pierone.client.PieroneOperations;
@@ -34,9 +33,6 @@ public class ClientConfigTest {
     @Autowired(required = false)
     private TeamOperations teamOperations;
 
-    @Autowired(required = false)
-    private KontrollettiOperations kontrollettiOperations;
-
     @Test
     public void testKioOperations() throws Exception {
         assertThat(kioOperations).isNotNull();
@@ -53,11 +49,6 @@ public class ClientConfigTest {
     @Test
     public void testTeamOperations() throws Exception {
         assertThat(teamOperations).isNotNull();
-    }
-
-    @Test
-    public void testKontrollettiOperations() throws Exception {
-        assertThat(kontrollettiOperations).isNotNull();
     }
 
     @Configuration

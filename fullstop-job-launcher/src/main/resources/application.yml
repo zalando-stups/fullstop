@@ -39,8 +39,6 @@ fullstop:
     clients:
         kio:
             url: ${FULLSTOP_KIO_URL}
-        kontrolletti:
-            url: ${FULLSTOP_KONTROLLETTI_URL}
         teamService:
             url: ${FULLSTOP_TEAM_SERVICE_URL}
 
@@ -53,9 +51,6 @@ tokens:
 
     token-configuration-list:
         - tokenId: kio
-          scopes:
-              - uid
-        - tokenId: kontrolletti
           scopes:
               - uid
         - tokenId: teamService

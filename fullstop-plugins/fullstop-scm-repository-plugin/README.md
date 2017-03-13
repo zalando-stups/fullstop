@@ -14,11 +14,10 @@ EVENT NAME = "RunInstances"
 
 ###Configuration
 
-####Required
+#### Required
 
 * `FULLSTOP_KIO_URL`: URL to [Kio](https://github.com/zalando-stups/kio) application registry.
 * `FULLSTOP_PIERONE_URL`: URL to [Pier One](https://github.com/zalando-stups/pierone) docker registry.
-* `FULLSTOP_KONTROLLETTI_URL`: URL to [Kontrolletti](https://github.com/zalando/kontrolletti) scm aggregator.
 
 #### How to set configuration values
 
@@ -27,7 +26,6 @@ You can always configure fullstop via environment variable:
 
     $ export FULLSTOP_KIO_URL: https://application.registry.address
     $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
-    $ export FULLSTOP_KONTROLLETTI_URL: https://kontrolletti.address
 
 
 or modify [application.yml](../../fullstop/src/main/resources/config/application.yml)
@@ -39,6 +37,4 @@ fullstop:
             url: ${FULLSTOP_KIO_URL}
         pierone:
             url: ${FULLSTOP_PIERONE_URL}
-        kontrolletti:
-            url: ${FULLSTOP_KONTROLLETTI_URL}
 ```
