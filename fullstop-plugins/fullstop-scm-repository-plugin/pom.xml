@@ -12,7 +12,7 @@
     <name>Fullstop -- SCM Repository plugin</name>
     <description>Checks the SCM information of running applications.
         Reports missing or incorrect repository links.
-        Reports non-allowed allowedRepositories.
+        Reports non-allowed repositories.
     </description>
 
     <dependencies>
