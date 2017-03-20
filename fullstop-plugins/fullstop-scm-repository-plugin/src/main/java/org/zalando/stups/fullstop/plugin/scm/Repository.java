@@ -2,15 +2,15 @@ package org.zalando.stups.fullstop.plugin.scm;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 public class Repository {
 
-    private final Provider provider;
     private final String host;
     private final String owner;
     private final String name;
 
-    Repository(Provider provider, String host, String owner, String name) {
-        this.provider = provider;
+    Repository(String host, String owner, String name) {
         this.host = host;
         this.owner = owner;
         this.name = name;
@@ -28,13 +28,9 @@ public class Repository {
         return name;
     }
 
-    public Provider getProvider() {
-        return provider;
-    }
-
     @Override
     public String toString() {
-        return String.format(provider.getNormalizedUrlFormat(), host, owner, name);
+        return format("https://%s/%s/%s", host, owner, name);
     }
 
     @Override

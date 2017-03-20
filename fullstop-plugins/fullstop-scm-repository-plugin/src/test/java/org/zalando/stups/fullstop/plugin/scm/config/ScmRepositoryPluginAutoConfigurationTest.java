@@ -12,12 +12,9 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
 import org.zalando.stups.fullstop.plugin.scm.ScmRepositoryPlugin;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
-import static org.zalando.stups.fullstop.plugin.scm.Provider.STASH;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration
@@ -37,9 +34,9 @@ public class ScmRepositoryPluginAutoConfigurationTest {
     @Test
     public void testPropertiesMapping() throws Exception {
         assertThat(properties).isNotNull();
-
-        final Map<String, String> allowedOwnersByHost = properties.getHosts().get(STASH);
-        assertThat(allowedOwnersByHost).containsOnly(entry("stash.my.company.com", "^.+$"));
+        assertThat(properties.getHosts()).containsOnly(
+                entry("github.my.company.com", "^.+$"),
+                entry("github.com", "^(?:zalando|zalando-stups)$"));
     }
 
     @Configuration

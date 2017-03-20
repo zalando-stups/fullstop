@@ -2,8 +2,5 @@ fullstop:
   plugins:
     scm:
       hosts:
-        STASH:
-            "stash.my.company.com": "^.+$"
-        GITHUB:
-            "github.com": "^(?:zalando|zalando-stups)$"
-            "github.my.company.com": "^.+$"
+        "github.com": "^(?:zalando|zalando-stups)$"
+        "github.my.company.com": "^.+$"

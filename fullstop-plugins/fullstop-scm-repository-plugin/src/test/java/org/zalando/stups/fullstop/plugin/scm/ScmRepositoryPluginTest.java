@@ -23,8 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.zalando.stups.fullstop.plugin.scm.Provider.GITHUB;
-import static org.zalando.stups.fullstop.plugin.scm.Provider.STASH;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.ILLEGAL_SCM_REPOSITORY;
 import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_KIO;
@@ -57,16 +55,13 @@ public class ScmRepositoryPluginTest {
         kioApp.setId("hello-world");
         kioApp.setScmUrl("git@github.com:zalando-stups/hello-world.git");
 
-        validRepo = new Repository(GITHUB, "github.com", "zalando-stups", "fullstop");
-        unallowedRepo = new Repository(GITHUB, "github.com", "zalando-foo", "fullstop");
-        anotherRepo = new Repository(GITHUB, "github.com", "zalando-stups", "semistop");
+        validRepo = new Repository("github.com", "zalando-stups", "fullstop");
+        unallowedRepo = new Repository("github.com", "zalando-foo", "fullstop");
+        anotherRepo = new Repository("github.com", "zalando-stups", "semistop");
 
         properties.setHosts(ImmutableMap.of(
-                GITHUB, ImmutableMap.of(
-                        "github.com", "^(?:zalando|zalando-stups)$",
-                        "github.my.company.com", "^.*$"
-                ),
-                STASH, singletonMap("stash.my.company.com", "^.*$")
+                "github.com", "^(?:zalando|zalando-stups)$",
+                "github.my.company.com", "^.+$"
         ));
 
         when(mockContext.violation()).thenReturn(new ViolationBuilder());

@@ -91,7 +91,6 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
         }
 
         final String allowedOwnerPattern = Optional.ofNullable(properties.getHosts())
-                .map(hostsByProvider -> hostsByProvider.get(scmSourceRepository.getProvider()))
                 .map(ownersByHost -> ownersByHost.get(scmSourceRepository.getHost()))
                 .orElseThrow(() -> new IllegalStateException(
                         format("Could not find allowedOwnerPattern for %s. Available properties: %s",
