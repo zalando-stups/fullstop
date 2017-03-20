@@ -1,5 +1,7 @@
 package org.zalando.stups.fullstop.plugin.scm.config;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,17 @@ public class ScmRepositoryPluginAutoConfigurationTest {
 
     @Autowired(required = false)
     private ScmRepositoryPluginProperties properties;
+
+    @BeforeClass
+    public static void setUpAdditionalProperties() throws Exception {
+        // other values can be found in application.yaml
+        System.setProperty("spring.application.json", "{\"fullstop\":{\"plugins\":{\"scm\":{\"hosts\":{\"github.my.company.com\":\"^.+$\"}}}}}");
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        System.clearProperty("spring.application.json");
+    }
 
     @Test
     public void testScmRepositoryPlugin() throws Exception {

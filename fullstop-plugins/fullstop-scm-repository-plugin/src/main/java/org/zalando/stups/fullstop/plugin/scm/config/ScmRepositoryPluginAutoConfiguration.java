@@ -13,7 +13,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 public class ScmRepositoryPluginAutoConfiguration {
 
     @Bean
-    public Repositories repositoryUrls(final ScmRepositoryPluginProperties properties) {
+    public Repositories repositories(final ScmRepositoryPluginProperties properties) {
         return new Repositories(properties);
     }
 

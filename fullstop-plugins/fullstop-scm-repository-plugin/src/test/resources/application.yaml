@@ -3,4 +3,3 @@ fullstop:
     scm:
       hosts:
         "github.com": "^(?:zalando|zalando-stups)$"
-        "github.my.company.com": "^.+$"
