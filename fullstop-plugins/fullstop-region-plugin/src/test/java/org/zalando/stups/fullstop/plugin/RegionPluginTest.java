@@ -11,8 +11,6 @@ import org.zalando.stups.fullstop.plugin.impl.EC2InstanceContextProviderImpl;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
 import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
 import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
@@ -47,8 +45,6 @@ public class RegionPluginTest {
         final AmiIdProvider amiIdProvider = mock(AmiIdProvider.class);
         final AmiProvider amiProvider = mock(AmiProvider.class);
         final KioApplicationProvider kioApplicationProvider = mock(KioApplicationProvider.class);
-        final KioVersionProvider kioVersionProvider = mock(KioVersionProvider.class);
-        final KioApprovalProvider kioApprovalProvider = mock(KioApprovalProvider.class);
         final PieroneTagProvider pieroneTagProvider = mock(PieroneTagProvider.class);
         final ScmSourceProvider scmSourceProvider = mock(ScmSourceProvider.class);
 
@@ -61,8 +57,6 @@ public class RegionPluginTest {
                 "blub",
                 Lists.newArrayList("1234"),
                 kioApplicationProvider,
-                kioVersionProvider,
-                kioApprovalProvider,
                 pieroneTagProvider,
                 scmSourceProvider);
 

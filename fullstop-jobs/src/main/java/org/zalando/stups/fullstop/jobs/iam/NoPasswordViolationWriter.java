@@ -20,9 +20,9 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_ROOT_
 @Component
 public class NoPasswordViolationWriter {
 
-    private final Logger log = getLogger(getClass());
+    static final String NO_REGION = "no-region";
 
-    public static final String NO_REGION = "no-region";
+    private final Logger log = getLogger(getClass());
 
     private final ViolationSink violationSink;
 
@@ -34,7 +34,7 @@ public class NoPasswordViolationWriter {
         this.jobsProperties = jobsProperties;
     }
 
-    public void writeNoPasswordViolation(final String accountId, final CSVReportEntry csvReportEntry) {
+    void writeNoPasswordViolation(final String accountId, final CSVReportEntry csvReportEntry) {
         log.info("Found IAM user {} that has a password in account {}", csvReportEntry.getUser(), accountId);
         violationSink.put(
                 new ViolationBuilder()
@@ -47,7 +47,7 @@ public class NoPasswordViolationWriter {
                         .build());
     }
 
-    public void writeRootUserViolation(final List<Map<String, String>> metaInfoList) {
+    void writeRootUserViolation(final List<Map<String, String>> metaInfoList) {
         log.info("Found IAM root user that has configuration problem");
 
         violationSink.put(new ViolationBuilder()

@@ -62,11 +62,6 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-plugin-api</artifactId>
-            <version>${fullstop-plugin-api.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>team-service-api</artifactId>
             <version>${team-service-api.version}</version>
@@ -108,10 +103,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-api</artifactId>
         </dependency>
 
         <dependency>

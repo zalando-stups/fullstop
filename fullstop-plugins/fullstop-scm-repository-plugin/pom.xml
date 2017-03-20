@@ -26,29 +26,10 @@
             <artifactId>fullstop-violation-api</artifactId>
             <version>${fullstop-violation-api.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-plugin-api</artifactId>
-            <version>${fullstop-plugin-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-userdata-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>kio-client-java-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>pierone-client-java-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>

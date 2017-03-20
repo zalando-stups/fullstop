@@ -77,16 +77,6 @@ with security mechanisms, e.g. OAuth2 in place.
 
 This job will start immediately and run every 5 minutes.
 
-
-### ScmCommitsJob
-
-This job will check if every commit of your application has a valid reference to a ticket / issue. It will look at a 24 hour timeframe,
-starting on "yesterday" midnight to "today" midnight. There will be only one violation per repository per day.
-
-#### Scheduling
-
-The job starts with a delay of 10 minuts and runs every 2.5 hours.
-
 ## FAQ
 
 ### What is an open endpoint
