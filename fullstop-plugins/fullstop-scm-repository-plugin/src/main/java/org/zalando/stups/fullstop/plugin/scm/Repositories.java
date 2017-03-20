@@ -1,7 +1,6 @@
 package org.zalando.stups.fullstop.plugin.scm;
 
 import org.zalando.stups.fullstop.plugin.scm.config.ScmRepositoryPluginProperties;
-import org.zalando.stups.fullstop.plugin.scm.config.ScmRepositoryPluginProperties.HostProperties;
 
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class Repositories {
         this.properties = properties;
     }
 
-    Repository parse(String url) {
+    Repository parse(String url) throws UnknownScmUrlException {
         for (Provider provider : asList(GITHUB, STASH)) {
             final Repository repository = tryParse(url, provider);
             if (repository != null) {
@@ -31,13 +30,12 @@ public class Repositories {
             }
         }
 
-        throw new IllegalArgumentException(format("%s does not look like a known git repository format", url));
+        throw new UnknownScmUrlException(url);
     }
 
     private Repository tryParse(String url, Provider provider) {
         final Set<String> hosts = Optional.ofNullable(provider)
                 .map(properties.getHosts()::get)
-                .map(HostProperties::getAllowedOwners)
                 .map(Map::keySet)
                 .orElseThrow(() -> new IllegalStateException("no config provided for scm repository provider " + provider));
         final String hostsPattern = hosts.stream().map(Pattern::quote).collect(joining("|"));
