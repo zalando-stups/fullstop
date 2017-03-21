@@ -1,0 +1,5 @@
+fullstop:
+  plugins:
+    scm:
+      hosts:
+        "github.com": "^(?:zalando|zalando-stups)$"

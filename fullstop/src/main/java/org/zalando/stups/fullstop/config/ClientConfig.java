@@ -8,9 +8,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-import org.zalando.kontrolletti.HystrixKontrollettiOperations;
-import org.zalando.kontrolletti.KontrollettiOperations;
-import org.zalando.kontrolletti.RestTemplateKontrollettiOperations;
 import org.zalando.stups.clients.kio.KioOperations;
 import org.zalando.stups.clients.kio.spring.KioClientResponseErrorHandler;
 import org.zalando.stups.clients.kio.spring.RestTemplateKioOperations;
@@ -44,9 +41,6 @@ public class ClientConfig {
     @Value("${fullstop.clients.teamService.url}")
     private String teamServiceBaseUrl;
 
-    @Value("${fullstop.clients.kontrolletti.url}")
-    private String kontrollettiBaseUrl;
-
     @Value("${fullstop.clients.pierone.urls}")
     private String pieroneUrls;
 
@@ -64,14 +58,6 @@ public class ClientConfig {
                 new RestTemplateTeamOperations(
                         buildOAuth2RestTemplate("teamService"),
                         teamServiceBaseUrl));
-    }
-
-    @Bean
-    public KontrollettiOperations kontrollettiOperations() {
-        return new HystrixKontrollettiOperations(
-                new RestTemplateKontrollettiOperations(
-                        buildOAuth2RestTemplate("kontrolletti"),
-                        kontrollettiBaseUrl));
     }
 
     @Bean
