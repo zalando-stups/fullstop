@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.plugin.scm;
 
 import org.zalando.stups.fullstop.plugin.scm.config.ScmRepositoryPluginProperties;
 
+import javax.annotation.Nonnull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +21,9 @@ public class Repositories {
         pattern = Pattern.compile(format(GITHUB_REGEX_TEMPLATE, hostsPattern));
     }
 
-    Repository parse(String url) throws UnknownScmUrlException {
-        final Matcher matcher = pattern.matcher(url);
+    Repository parse(@Nonnull String url) throws UnknownScmUrlException {
+        final String lowerCaseUrl = url.toLowerCase();
+        final Matcher matcher = pattern.matcher(lowerCaseUrl);
         if (matcher.matches()) {
             return new Repository(
                     matcher.group("host"),
