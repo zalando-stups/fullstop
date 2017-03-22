@@ -55,6 +55,7 @@ public class RepositoriesTest {
         return asList(
                 new Object[][]{
                         {singletonMap("github.com", "^.+$"), "https://github.com/zalando-stups/fullstop", new Repository("github.com", "zalando-stups", "fullstop")},
+                        {singletonMap("github.com", "^.+$"), "https://GitHub.com/zAlAnDo-STUPS/FULLstop", new Repository("github.com", "zalando-stups", "fullstop")},
                         {singletonMap("github.com", "^.+$"), "https://github.com:443/zalando-stups/fullstop", new Repository("github.com", "zalando-stups", "fullstop")},
                         {singletonMap("github.com", "^.+$"), "git:https://github.com/zalando-stups/fullstop", new Repository("github.com", "zalando-stups", "fullstop")},
                         {singletonMap("github.com", "^.+$"), "http://github.com/zalando-stups/fullstop", new Repository("github.com", "zalando-stups", "fullstop")},
