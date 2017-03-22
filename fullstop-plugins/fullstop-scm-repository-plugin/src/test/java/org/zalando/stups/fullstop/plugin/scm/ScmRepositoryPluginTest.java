@@ -66,6 +66,7 @@ public class ScmRepositoryPluginTest {
 
         when(mockContext.violation()).thenReturn(new ViolationBuilder());
         when(mockContext.getApplicationId()).thenReturn(Optional.of("fullstop"));
+        when(mockContext.getSource()).thenReturn(Optional.of("zalando-stups/fullstop:v1"));
     }
 
     @After
@@ -112,7 +113,6 @@ public class ScmRepositoryPluginTest {
     @Test
     public void testProcessBlankScmSourceUrl() throws Exception {
         when(mockContext.getScmSource()).thenReturn(Optional.of(ImmutableMap.of("url", " ", "user", "unittester", "revision", "1a2b3c4d")));
-        when(mockContext.getSource()).thenReturn(empty());
 
         plugin.process(mockContext);
 
@@ -132,6 +132,7 @@ public class ScmRepositoryPluginTest {
         plugin.process(mockContext);
 
         verify(mockContext).getScmSource();
+        verify(mockContext).getSource();
         verify(mockContext).getApplicationId();
         verify(mockContext).violation();
         verify(mockRepositories).parse(eq(badScmUrl));
@@ -151,6 +152,7 @@ public class ScmRepositoryPluginTest {
         verify(mockContext).getApplicationId();
         verify(mockContext).violation();
         verify(mockContext).getKioApplication();
+        verify(mockContext).getSource();
         verify(mockRepositories).parse(eq(unallowedRepo.toString()));
         verify(mockViolationSink).put(argThat(hasType(ILLEGAL_SCM_REPOSITORY)));
     }
@@ -196,6 +198,7 @@ public class ScmRepositoryPluginTest {
 
         verify(mockContext).getKioApplication();
         verify(mockContext).getScmSource();
+        verify(mockContext).getSource();
         verify(mockRepositories).parse(eq(validRepo.toString()));
         verify(mockRepositories).parse(eq(kioApp.getScmUrl()));
         verify(mockContext).violation();
@@ -213,6 +216,7 @@ public class ScmRepositoryPluginTest {
 
         verify(mockContext).getKioApplication();
         verify(mockContext).getScmSource();
+        verify(mockContext).getSource();
         verify(mockRepositories).parse(eq(validRepo.toString()));
         verify(mockRepositories).parse(eq(kioApp.getScmUrl()));
         verify(mockContext).violation();

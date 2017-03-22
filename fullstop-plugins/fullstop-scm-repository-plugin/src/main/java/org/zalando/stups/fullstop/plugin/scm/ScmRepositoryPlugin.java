@@ -83,6 +83,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .withType(ILLEGAL_SCM_REPOSITORY)
                             .withMetaInfo(ImmutableMap.of(
                                     "application_id", context.getApplicationId().orElse(""),
+                                    "deployment_artifact", context.getSource().orElse(""),
                                     "error_message", e.getMessage()))
                             .build()
             );
@@ -103,6 +104,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .withType(ILLEGAL_SCM_REPOSITORY)
                             .withMetaInfo(ImmutableMap.of(
                                     "application_id", context.getApplicationId().orElse(""),
+                                    "deployment_artifact", context.getSource().orElse(""),
                                     "normalized_scm_source_url", scmSourceRepository.toString(),
                                     "allowed_owners", allowedOwnerPattern,
                                     "actual_owner", scmSourceRepository.getOwner()))
@@ -137,6 +139,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                                 .withType(SCM_URL_NOT_MATCH_WITH_KIO)
                                 .withMetaInfo(ImmutableMap.of(
                                         "application_id", app.getId(),
+                                        "deployment_artifact", context.getSource().orElse(""),
                                         "normalized_scm_source_url", scmSourceRepository.toString(),
                                         "normalized_kio_scm_url", kioRepository.toString())).build());
             }
@@ -147,6 +150,7 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
                             .withType(SCM_URL_NOT_MATCH_WITH_KIO)
                             .withMetaInfo(ImmutableMap.of(
                                     "application_id", app.getId(),
+                                    "deployment_artifact", context.getSource().orElse(""),
                                     "normalized_scm_source_url", scmSourceRepository.toString(),
                                     "kio_scm_url", kioScmUrl,
                                     "error_message", e.getMessage())).build());
