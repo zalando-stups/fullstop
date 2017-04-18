@@ -182,7 +182,8 @@ public class TestAsyncIT {
                         }
 
                         if (response.getStatusLine().getStatusCode() == 401
-                                || response.getStatusLine().getStatusCode() == 403) {
+                                || response.getStatusLine().getStatusCode() == 403
+                                || response.getStatusLine().getStatusCode() == 404) {
                             log.info("thats ok - {}", address);
                         } else if (String.valueOf(response.getStatusLine().getStatusCode()).startsWith("3")
                                 && location.startsWith("https")) {

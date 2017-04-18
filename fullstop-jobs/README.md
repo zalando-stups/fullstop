@@ -87,5 +87,5 @@ a website. All other ports are considered "insecure" and will cause a violation.
 
 Web services should only grant access to authenticated / authorized users. Fullstop tries
 to call the root url of every public ELB / EC2 instance wihtout any authentication.
-If the result does not return a 401 (Unauthorized), 403 (Forbidden) or some 5xx (Server error)
+If the result does not return a 401 (Unauthorized), 403 (Forbidden), 404 (Forbidden) or some 5xx (Server error)
 status, the endpoint is also considered "insecure".
