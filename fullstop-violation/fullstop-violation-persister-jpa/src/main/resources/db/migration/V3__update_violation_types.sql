@@ -97,7 +97,7 @@ SELECT fullstop_data.create_or_update_violation_type('PASSWORD_USED',
                                                      'IAM User has password set');
 
 SELECT fullstop_data.create_or_update_violation_type('SCM_SOURCE_JSON_MISSING',
-                                                     'The deployment artifact (Docker image) for this application version is missing the scm-source.json. See http://docs.stups.io/en/latest/user-guide/application-development.html?highlight=scm-source.json#docker for more information.',
+                                                     'The deployment artifact (Docker image) for this application version is missing a valid scm-source.json. See http://docs.stups.io/en/latest/user-guide/application-development.html?highlight=scm-source.json#docker for more information.',
                                                      1,
                                                      'Missing scm-source.json');
 
