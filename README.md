@@ -1,6 +1,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/zalando-stups/fullstop.svg?branch=master)](https://travis-ci.org/zalando-stups/fullstop)
 [![codecov.io](https://codecov.io/github/zalando-stups/fullstop/coverage.svg?branch=master)](https://codecov.io/github/zalando-stups/fullstop?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b79c1a14a027433b93f734c79de230a3)](https://www.codacy.com/app/michele-randi/fullstop?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zalando-stups/fullstop&amp;utm_campaign=Badge_Grade)
 [![swagger-editor](https://img.shields.io/badge/swagger-editor-brightgreen.svg)](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/zalando-stups/fullstop/master/fullstop-api.yaml#/)
 [![Issues in progress](https://badge.waffle.io/zalando-stups/fullstop.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/zalando-stups/fullstop)
 [![Join the chat at https://gitter.im/zalando-stups/fullstop](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/zalando-stups/fullstop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
