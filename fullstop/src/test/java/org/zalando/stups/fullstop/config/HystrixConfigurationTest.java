@@ -23,15 +23,9 @@ public class HystrixConfigurationTest {
     @Autowired
     private TestService testService;
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testMethodThrowsException() throws Exception {
-        try {
-            testService.throwException();
-            failBecauseExceptionWasNotThrown(HystrixRuntimeException.class);
-        }
-        catch (final HystrixRuntimeException e) {
-            assertThat(e).hasRootCauseExactlyInstanceOf(RuntimeException.class);
-        }
+        testService.throwException();
     }
 
     @Test(expected = HystrixRuntimeException.class)
@@ -75,7 +69,7 @@ public class HystrixConfigurationTest {
 
     static class TestService {
 
-        @HystrixCommand
+        @HystrixCommand()
         public void throwException() {
             throw new RuntimeException("this method always fails");
         }

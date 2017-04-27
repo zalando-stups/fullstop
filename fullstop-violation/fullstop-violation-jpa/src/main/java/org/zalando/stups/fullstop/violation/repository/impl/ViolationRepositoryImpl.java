@@ -1,7 +1,8 @@
 package org.zalando.stups.fullstop.violation.repository.impl;
 
-import com.mysema.query.jpa.JPQLQuery;
-import com.mysema.query.types.Predicate;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
@@ -15,8 +16,7 @@ import java.util.*;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.mysema.query.types.ExpressionUtils.allOf;
-import static com.mysema.query.types.Projections.constructor;
+import static com.querydsl.core.types.ExpressionUtils.allOf;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static javax.persistence.TemporalType.TIMESTAMP;
@@ -50,7 +50,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         final QViolationEntity qViolationEntity = QViolationEntity.violationEntity;
         final QViolationTypeEntity qViolationTypeEntity = QViolationTypeEntity.violationTypeEntity;
 
-        final JPQLQuery query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
+        final JPQLQuery<ViolationEntity> query = from(qViolationEntity).leftJoin(qViolationEntity.violationTypeEntity, qViolationTypeEntity);
 
         final List<Predicate> predicates = newArrayList();
 
@@ -105,7 +105,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
             predicates.add(qViolationEntity.applicationVersion.name.in(applicationVersionIds));
         }
 
-        final long total = query.where(allOf(predicates)).count();
+        final long total = query.where(allOf(predicates)).fetchCount();
 
         final Sort sort = pageable.getSort();
         final Sort fixedSort = (sort == null || isEmpty(sort)) ? SORT_BY_ID : sort;
@@ -114,7 +114,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         getQuerydsl().applyPagination(fixedPage, query);
 
         final List<ViolationEntity> list;
-        list = total > 0 ? query.where(allOf(predicates)).list(qViolationEntity) : emptyList();
+        list = total > 0 ? query.where(allOf(predicates)).fetch() : emptyList();
 
         return new PageImpl<>(list, fixedPage, total);
     }
@@ -129,7 +129,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
                         qViolation.eventId.eq(eventId),
                         instanceId == null ? qViolation.instanceId.isNull() : qViolation.instanceId.eq(instanceId),
                         qViolation.violationTypeEntity.id.eq(violationType))
-                .exists();
+                .fetchCount() > 0;
     }
 
     @Override
@@ -142,7 +142,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         final QViolationTypeEntity qType = new QViolationTypeEntity("t");
 
 
-        final JPQLQuery query = from(qViolation);
+        final JPQLQuery<ViolationEntity> query = from(qViolation);
         query.join(qViolation.violationTypeEntity, qType);
 
         final Collection<Predicate> whereClause = newArrayList();
@@ -169,7 +169,7 @@ public class ViolationRepositoryImpl extends QueryDslRepositorySupport implement
         query.groupBy(qViolation.accountId, qType.id);
         query.orderBy(qViolation.accountId.asc(), qType.id.asc());
 
-        return query.list(constructor(CountByAccountAndType.class, qViolation.accountId, qType.id, qViolation.id.count()));
+        return query.select(Projections.constructor(CountByAccountAndType.class, qViolation.accountId, qType.id, qViolation.id.count())).fetch();
     }
 
     @Override

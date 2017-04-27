@@ -2,16 +2,14 @@ package org.zalando.stups.differentnamespace;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SimpleBootApplication.class)
-@IntegrationTest("debug=true")
+@SpringBootTest(classes = SimpleBootApplication.class, properties = "debug=true")
 @ActiveProfiles("triple")
 public class SimpleBootApplicationTripleIT {
 

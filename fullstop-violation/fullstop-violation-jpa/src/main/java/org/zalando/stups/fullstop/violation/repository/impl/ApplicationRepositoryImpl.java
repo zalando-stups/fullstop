@@ -29,6 +29,7 @@ public class ApplicationRepositoryImpl extends QueryDslRepositorySupport impleme
                 .groupBy(qApp.id)
                 .orderBy(qLifecycle.lastModified.max().desc())
                 .limit(1)
-                .singleResult(qApp);
+                .select(qApp)
+                .fetchOne();
     }
 }

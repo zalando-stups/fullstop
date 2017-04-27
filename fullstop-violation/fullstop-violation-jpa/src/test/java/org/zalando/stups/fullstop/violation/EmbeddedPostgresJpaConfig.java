@@ -1,8 +1,8 @@
 package org.zalando.stups.fullstop.violation;
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQL;
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityScan;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -27,8 +27,8 @@ public class EmbeddedPostgresJpaConfig {
     }
 
     @Bean
-    EmbeddedPostgreSQL embeddedPostgres() throws IOException {
-        return EmbeddedPostgreSQL.start();
+    EmbeddedPostgres embeddedPostgres() throws IOException {
+        return EmbeddedPostgres.start();
     }
 
     @Bean
