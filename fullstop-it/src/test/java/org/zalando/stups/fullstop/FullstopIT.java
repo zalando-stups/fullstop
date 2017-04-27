@@ -18,7 +18,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.RequestEntity.get;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = "management.port=0")
+@SpringBootTest(classes = Fullstop.class, webEnvironment = RANDOM_PORT, properties = "management.port=0")
 public class FullstopIT {
 
     @Value("${local.management.port}")
