@@ -37,7 +37,7 @@ public class SaveApplicationLifecycleRetryTest {
 
     @Before
     public void setUp() throws Exception {
-        // somehow the @RunWith(SpringJUnit4ClassRunner.class) does not work well with @EnableRetry annotation
+        // somehow the @RunWith(SpringRunner.class) does not work well with @EnableRetry annotation
         // copied this approach to create a Spring context from
         // https://github.com/spring-projects/spring-retry/blob/master/src/test/java/org/springframework/retry/annotation/EnableRetryTests.java
         final ApplicationContext context = new AnnotationConfigApplicationContext(TestConfig.class);

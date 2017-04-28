@@ -24,8 +24,6 @@ public class EventBusViolationSinkAutoConfiguration {
 
     @Bean
     public EventBus eventBus() {
-        Environment.initialize();
-
-        return EventBus.create(Environment.get());
+        return EventBus.create(Environment.initializeIfEmpty());
     }
 }
