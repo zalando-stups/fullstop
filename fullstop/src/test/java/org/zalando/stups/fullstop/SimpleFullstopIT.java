@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author jbellmann
  */
 @Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("integration")
 public class SimpleFullstopIT {
