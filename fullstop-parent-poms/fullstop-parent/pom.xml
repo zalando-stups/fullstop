@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>fullstop-parent</artifactId>
-    <version>18-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fullstop -- The Build-Parent-Pom</name>
     <description>Fullstop parent -- Audit reporting application</description>
@@ -32,7 +32,7 @@
         <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
         <spring-cloud.version>Dalston.RELEASE</spring-cloud.version>
 
-        <aws-cloudtrail-processing-library.version>1.0.1-ZAL-2</aws-cloudtrail-processing-library.version>
+        <aws-cloudtrail-processing-library.version>1.0.4-ZAL-1</aws-cloudtrail-processing-library.version>
 
         <commons-lang3.version>3.5</commons-lang3.version>
         <guava.version>21.0</guava.version>
