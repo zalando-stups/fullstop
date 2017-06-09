@@ -48,7 +48,7 @@ public class CachingClientProvider implements ClientProvider {
         // this parameters have to be configurable
         cache = CacheBuilder.newBuilder()
                 .maximumSize(500)
-                .expireAfterWrite(50, TimeUnit.MINUTES)
+                .expireAfterAccess(50, TimeUnit.MINUTES)
                 .removalListener((RemovalNotification<Key<?>, AmazonWebServiceClient> notification) -> {
                     logger.debug("Shutting down expired client for key: {}", notification.getKey());
                     notification.getValue().shutdown();
