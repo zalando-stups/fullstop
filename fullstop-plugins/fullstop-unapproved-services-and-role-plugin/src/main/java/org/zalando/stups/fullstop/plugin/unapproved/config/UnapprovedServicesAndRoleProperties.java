@@ -21,6 +21,8 @@ public class UnapprovedServicesAndRoleProperties {
 
     private List<String> eventNames = newArrayList();
 
+    private String administrator = "Shibboleth-Administrator";
+
     public List<String> getEventNames() {
         if (eventNames.isEmpty()) {
             return DEFAULT_EVENT_NAMES;
@@ -33,4 +35,11 @@ public class UnapprovedServicesAndRoleProperties {
         this.eventNames = eventNames;
     }
 
+    public String getAdministrator() {
+        return administrator;
+    }
+
+    public void setAdministrator(String administrator) {
+        this.administrator = administrator;
+    }
 }
