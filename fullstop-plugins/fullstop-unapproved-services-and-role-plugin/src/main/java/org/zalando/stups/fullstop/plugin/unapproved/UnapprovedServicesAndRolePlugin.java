@@ -2,6 +2,9 @@ package org.zalando.stups.fullstop.plugin.unapproved;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.SessionContext;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.SessionIssuer;
+import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -69,7 +73,18 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
 
         return eventSource.equals(EVENT_SOURCE)
                 && (unapprovedServicesAndRoleProperties.getEventNames().contains(cloudTrailEventData.getEventName()))
+                && !isPerformedByAdmin(cloudTrailEventData)
                 && (policyTemplatesProvider.getPolicyTemplateNames().contains(getRoleName(event)));
+    }
+
+    private boolean isPerformedByAdmin(CloudTrailEventData eventData) {
+        return Optional.ofNullable(eventData)
+                .map(CloudTrailEventData::getUserIdentity)
+                .map(UserIdentity::getSessionContext)
+                .map(SessionContext::getSessionIssuer)
+                .map(SessionIssuer::getUserName)
+                .filter(roleName -> roleName.equals(unapprovedServicesAndRoleProperties.getAdministrator()))
+                .isPresent();
     }
 
     @Override
