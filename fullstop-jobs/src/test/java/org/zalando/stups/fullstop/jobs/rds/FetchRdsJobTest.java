@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
@@ -31,6 +32,7 @@ public class FetchRdsJobTest {
     private AmazonRDSClient amazonRDSClientMock;
     private DescribeDBInstancesResult describeDBInstancesResultMock;
     private AccountIdSupplier accountIdSupplierMock;
+    private JobExceptionHandler exceptionHandlerMock;
 
     @Before
     public void setUp() throws Exception {
@@ -39,6 +41,7 @@ public class FetchRdsJobTest {
         this.violationSinkMock = mock(ViolationSink.class);
         this.amazonRDSClientMock = mock(AmazonRDSClient.class);
         this.accountIdSupplierMock = mock(AccountIdSupplier.class);
+        this.exceptionHandlerMock = mock(JobExceptionHandler.class);
 
         when(accountIdSupplierMock.get()).thenReturn(newHashSet("54321"));
 
@@ -74,7 +77,7 @@ public class FetchRdsJobTest {
 
     @Test
     public void testCheck() throws Exception {
-        final FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock);
+        final FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock, exceptionHandlerMock);
         when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
         fetchRdsJob.run();
 

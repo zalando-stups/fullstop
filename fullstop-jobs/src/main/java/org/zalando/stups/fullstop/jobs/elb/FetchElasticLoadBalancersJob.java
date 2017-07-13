@@ -30,6 +30,7 @@ import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -88,6 +89,8 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private final EC2InstanceProvider ec2Instance;
 
+    private final JobExceptionHandler jobExceptionHandler;
+
     @Autowired
     public FetchElasticLoadBalancersJob(final ViolationSink violationSink,
                                         final ClientProvider clientProvider,
@@ -99,7 +102,8 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                                         final FetchTaupageYaml fetchTaupageYaml,
                                         final AmiDetailsProvider amiDetailsProvider,
                                         final EC2InstanceProvider ec2Instance,
-                                        final CloseableHttpClient httpClient) {
+                                        final CloseableHttpClient httpClient,
+                                        final JobExceptionHandler jobExceptionHandler) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -112,6 +116,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         this.amiDetailsProvider = amiDetailsProvider;
         this.ec2Instance = ec2Instance;
         this.httpclient = httpClient;
+        this.jobExceptionHandler = jobExceptionHandler;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -158,12 +163,11 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
                     } while (marker.isPresent());
 
-                } catch (final AmazonServiceException a) {
-                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                        log.warn("RequestLimitExceeded for account: {}", account);
-                    } else {
-                        log.error(a.getMessage(), a);
-                    }
+                } catch (final Exception e) {
+                    jobExceptionHandler.onException(e, ImmutableMap.of(
+                            "job", this.getClass().getSimpleName(),
+                            "aws_account_id", account,
+                            "aws_region", region));
                 }
             }
         }

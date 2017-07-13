@@ -29,6 +29,7 @@ import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -71,6 +72,7 @@ public class FetchEC2Job implements FullstopJob {
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
     private final CloseableHttpClient httpClient;
+    private final JobExceptionHandler jobExceptionHandler;
 
     private final AwsApplications awsApplications;
 
@@ -90,7 +92,8 @@ public class FetchEC2Job implements FullstopJob {
                        final ViolationService violationService,
                        final FetchTaupageYaml fetchTaupageYaml,
                        final AmiDetailsProvider amiDetailsProvider,
-                       final CloseableHttpClient httpClient) {
+                       final CloseableHttpClient httpClient,
+                       final JobExceptionHandler jobExceptionHandler) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -101,6 +104,7 @@ public class FetchEC2Job implements FullstopJob {
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.amiDetailsProvider = amiDetailsProvider;
         this.httpClient = httpClient;
+        this.jobExceptionHandler = jobExceptionHandler;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -151,14 +155,11 @@ public class FetchEC2Job implements FullstopJob {
                         }
                     } while (nextToken.isPresent());
 
-                } catch (final AmazonServiceException a) {
-
-                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                        log.warn("RequestLimitExceeded for account: {}", account);
-                    } else {
-                        log.error(a.getMessage(), a);
-                    }
-
+                } catch (final Exception e) {
+                    jobExceptionHandler.onException(e, ImmutableMap.of(
+                            "job", this.getClass().getSimpleName(),
+                            "aws_account_id", account,
+                            "aws_region", region));
                 }
             }
         }

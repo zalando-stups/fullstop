@@ -7,6 +7,7 @@ import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -43,15 +45,18 @@ public class FetchRdsJob implements FullstopJob {
     private final JobsProperties jobsProperties;
 
     private final ViolationSink violationSink;
+    private final JobExceptionHandler jobExceptionHandler;
 
     @Autowired
     public FetchRdsJob(final AccountIdSupplier allAccountIds, final ClientProvider clientProvider,
                        final JobsProperties jobsProperties,
-                       final ViolationSink violationSink) {
+                       final ViolationSink violationSink,
+                       final JobExceptionHandler jobExceptionHandler) {
         this.allAccountIds = allAccountIds;
         this.clientProvider = clientProvider;
         this.jobsProperties = jobsProperties;
         this.violationSink = violationSink;
+        this.jobExceptionHandler = jobExceptionHandler;
     }
 
     @PostConstruct
@@ -88,8 +93,11 @@ public class FetchRdsJob implements FullstopJob {
 
                     } while (marker.isPresent());
 
-                } catch (final AmazonServiceException a) {
-                    log.error(a.getMessage(), a);
+                } catch (final Exception e) {
+                    jobExceptionHandler.onException(e, ImmutableMap.of(
+                            "job", this.getClass().getSimpleName(),
+                            "aws_account_id", accountId,
+                            "aws_region", region));
                 }
             }
         }
