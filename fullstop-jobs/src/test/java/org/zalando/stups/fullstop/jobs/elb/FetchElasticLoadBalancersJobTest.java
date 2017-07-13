@@ -22,6 +22,7 @@ import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
@@ -140,7 +141,8 @@ public class FetchElasticLoadBalancersJobTest {
                 fetchTaupageYamlMock,
                 mockAmiDetailsProvider,
                 mockEC2InstanceProvider,
-                mock(CloseableHttpClient.class));
+                mock(CloseableHttpClient.class),
+                mock(JobExceptionHandler.class));
 
         fetchELBJob.run();
 

@@ -12,6 +12,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -118,7 +119,8 @@ public class CrossAccountPolicyForIAMJobTest {
                 violationSinkMock,
                 clientProviderMock,
                 accountIdSupplierMock,
-                jobsPropertiesMock);
+                jobsPropertiesMock,
+                mock(JobExceptionHandler.class));
 
         crossAccountPolicyForIAMJob.run();
 

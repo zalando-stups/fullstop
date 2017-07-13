@@ -25,6 +25,7 @@ import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -54,6 +55,7 @@ public class FetchAmiJob implements FullstopJob {
     private final String taupageNamePrefix;
 
     private final List<String> taupageOwners;
+    private final JobExceptionHandler jobExceptionHandler;
 
     private final Logger log = LoggerFactory.getLogger(FetchAmiJob.class);
 
@@ -78,7 +80,8 @@ public class FetchAmiJob implements FullstopJob {
                        final ViolationService violationService,
                        final FetchTaupageYaml fetchTaupageYaml,
                        @Value("${FULLSTOP_TAUPAGE_NAME_PREFIX}") final String taupageNamePrefix,
-                       @Value("${FULLSTOP_TAUPAGE_OWNERS}") final String taupageOwners) {
+                       @Value("${FULLSTOP_TAUPAGE_OWNERS}") final String taupageOwners,
+                       final JobExceptionHandler jobExceptionHandler) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -87,6 +90,7 @@ public class FetchAmiJob implements FullstopJob {
         this.taupageNamePrefix = taupageNamePrefix;
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.taupageOwners = Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList());
+        this.jobExceptionHandler = jobExceptionHandler;
     }
 
     @PostConstruct
@@ -130,8 +134,11 @@ public class FetchAmiJob implements FullstopJob {
                     }
                 }
             } while (nextToken.isPresent());
-        } catch (final AmazonServiceException a) {
-            log.error(a.getMessage(), a);
+        } catch (final Exception e) {
+            jobExceptionHandler.onException(e, ImmutableMap.of(
+                    "job", this.getClass().getSimpleName(),
+                    "aws_account_id", account,
+                    "aws_region", region));
         }
     }
 

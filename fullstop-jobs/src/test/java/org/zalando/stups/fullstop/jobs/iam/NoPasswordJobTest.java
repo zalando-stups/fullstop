@@ -4,6 +4,7 @@ import com.amazonaws.services.identitymanagement.model.GetCredentialReportResult
 import org.junit.Before;
 import org.junit.Test;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.jobs.iam.csv.CSVReportEntry;
 import org.zalando.stups.fullstop.jobs.iam.csv.CredentialReportCSVParser;
 
@@ -38,7 +39,7 @@ public class NoPasswordJobTest {
 
     @Test
     public void testNoPasswordJob() {
-        new NoPasswordsJob(iamDataSource, violationWriter, mockAccountIdSupplier, mockCsvParser).run();
+        new NoPasswordsJob(iamDataSource, violationWriter, mockAccountIdSupplier, mockCsvParser, mock(JobExceptionHandler.class)).run();
 
         verify(mockAccountIdSupplier).get();
         verify(iamDataSource, times(2)).getCredentialReportCSV(anyString());

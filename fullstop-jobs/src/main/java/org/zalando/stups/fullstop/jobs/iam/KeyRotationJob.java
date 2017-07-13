@@ -1,5 +1,6 @@
 package org.zalando.stups.fullstop.jobs.iam;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,7 @@ import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.annotation.EveryDayAtTenPM;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
@@ -26,13 +28,19 @@ public class KeyRotationJob implements FullstopJob {
     private final JobsProperties properties;
 
     private final AccountIdSupplier allAccountIds;
+    private final JobExceptionHandler jobExceptionHandler;
 
     @Autowired
-    public KeyRotationJob(final IdentityManagementDataSource iamDataSource, final KeyRotationViolationWriter violationWriter, final JobsProperties properties, final AccountIdSupplier allAccountIds) {
+    public KeyRotationJob(final IdentityManagementDataSource iamDataSource,
+                          final KeyRotationViolationWriter violationWriter,
+                          final JobsProperties properties,
+                          final AccountIdSupplier allAccountIds,
+                          final JobExceptionHandler jobExceptionHandler) {
         this.violationWriter = violationWriter;
         this.iamDataSource = iamDataSource;
         this.properties = properties;
         this.allAccountIds = allAccountIds;
+        this.jobExceptionHandler = jobExceptionHandler;
     }
 
     @PostConstruct
@@ -45,12 +53,19 @@ public class KeyRotationJob implements FullstopJob {
         log.info("Running {}", getClass().getSimpleName());
 
         allAccountIds.get().forEach(accountId -> {
-            log.info("Checking account {} for expired IAM access keys", accountId);
-            iamDataSource.getUsers(accountId).stream()
-                    .map(u -> iamDataSource.getAccessKeys(accountId, u.getUserName()))
-                    .flatMap(Collection::stream)
-                    .filter(isActiveAndOlderThanDays(properties.getAccessKeysExpireAfterDays()))
-                    .forEach(accessKey -> violationWriter.writeViolation(accountId, accessKey));
+            try {
+                log.info("Checking account {} for expired IAM access keys", accountId);
+                iamDataSource.getUsers(accountId).stream()
+                        .map(u -> iamDataSource.getAccessKeys(accountId, u.getUserName()))
+                        .flatMap(Collection::stream)
+                        .filter(isActiveAndOlderThanDays(properties.getAccessKeysExpireAfterDays()))
+                        .forEach(accessKey -> violationWriter.writeViolation(accountId, accessKey));
+            } catch (Exception e) {
+                jobExceptionHandler.onException(e, ImmutableMap.of(
+                        "job", this.getClass().getSimpleName(),
+                        "aws_account_id", accountId));
+
+            }
         });
 
         log.info("Finished {}", getClass().getSimpleName());

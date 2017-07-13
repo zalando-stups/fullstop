@@ -16,6 +16,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
 import org.zalando.stups.fullstop.violation.ViolationSink;
@@ -47,16 +48,19 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     private final AccountIdSupplier allAccountIds;
 
     private final JobsProperties jobsProperties;
+    private final JobExceptionHandler jobExceptionHandler;
 
     @Autowired
     public CrossAccountPolicyForIAMJob(final ViolationSink violationSink,
                                        final ClientProvider clientProvider,
                                        final AccountIdSupplier allAccountIds,
-                                       final JobsProperties jobsProperties) {
+                                       final JobsProperties jobsProperties,
+                                       final JobExceptionHandler jobExceptionHandler) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
         this.jobsProperties = jobsProperties;
+        this.jobExceptionHandler = jobExceptionHandler;
     }
 
     @PostConstruct
@@ -71,50 +75,56 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
     public void run() {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
-            final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
-                    AmazonIdentityManagementClient.class,
-                    account,
-                    getRegion(EU_WEST_1)
-            );
+            try {
+                final AmazonIdentityManagementClient iamClient = clientProvider.getClient(
+                        AmazonIdentityManagementClient.class,
+                        account,
+                        getRegion(EU_WEST_1)
+                );
 
-            Optional<String> nextMarker = Optional.empty();
+                Optional<String> nextMarker = Optional.empty();
 
-            do {
-                final ListRolesRequest request = new ListRolesRequest();
-                nextMarker.ifPresent(request::setMarker);
-                final ListRolesResult listRolesResult = iamClient.listRoles(request);
-                nextMarker = Optional.ofNullable(trimToNull(listRolesResult.getMarker()));
+                do {
+                    final ListRolesRequest request = new ListRolesRequest();
+                    nextMarker.ifPresent(request::setMarker);
+                    final ListRolesResult listRolesResult = iamClient.listRoles(request);
+                    nextMarker = Optional.ofNullable(trimToNull(listRolesResult.getMarker()));
 
-                for (final Role role : listRolesResult.getRoles()) {
+                    for (final Role role : listRolesResult.getRoles()) {
 
-                    final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
+                        final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
 
-                    List<String> principalArns = Lists.newArrayList();
-                    try {
-                        principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
-                                ".Statement[*].Principal.AWS");
-                    } catch (final UnsupportedEncodingException e) {
-                        log.warn("Could not decode assumeRolePolicyDocument", e);
+                        List<String> principalArns = Lists.newArrayList();
+                        try {
+                            principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
+                                    ".Statement[*].Principal.AWS");
+                        } catch (final UnsupportedEncodingException e) {
+                            log.warn("Could not decode assumeRolePolicyDocument", e);
+                        }
+
+                        final List<String> crossAccountIds = principalArns.stream()
+                                .filter(principalARN -> !principalARN.contains(account))
+                                .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
+                                .collect(toList());
+
+                        if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
+                            writeViolation(
+                                    account,
+                                    ImmutableMap.of(
+                                            "role_arn", role.getArn(),
+                                            "role_name", role.getRoleName(),
+                                            "grantees", crossAccountIds),
+                                    role.getRoleId()
+                            );
+                        }
                     }
 
-                    final List<String> crossAccountIds = principalArns.stream()
-                            .filter(principalARN -> !principalARN.contains(account))
-                            .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
-                            .collect(toList());
-
-                    if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
-                        writeViolation(
-                                account,
-                                ImmutableMap.of(
-                                        "role_arn", role.getArn(),
-                                        "role_name", role.getRoleName(),
-                                        "grantees", crossAccountIds),
-                                role.getRoleId()
-                        );
-                    }
-                }
-
-            } while (nextMarker.isPresent());
+                } while (nextMarker.isPresent());
+            } catch (Exception e) {
+                jobExceptionHandler.onException(e, ImmutableMap.of(
+                        "job", this.getClass().getSimpleName(),
+                        "aws_account_id", account));
+            }
 
         }
 
