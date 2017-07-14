@@ -50,11 +50,25 @@ public class PredicatesTest {
                 new IpPermission()
                         .withIpProtocol("-1")
                         .withIpv4Ranges(
-                                new IpRange().withCidrIp("172.31.0.0/16")
-                                // todo add more private ip range examples
-                        ));
+                                new IpRange().withCidrIp("10.0.0.0/8"),
+                                new IpRange().withCidrIp("172.31.0.0/16"),
+                                new IpRange().withCidrIp("172.16.0.0/12"),
+                                new IpRange().withCidrIp("192.168.0.0/16"))
+                        .withIpv6Ranges(
+                                new Ipv6Range().withCidrIpv6("fc00::/7")));
 
         assertThat(pred).rejects(securityGroup);
+    }
+
+    @Test
+    public void testAllTrafficFromPartiallyPrivateNetwork() throws Exception {
+        securityGroup.withIpPermissions(
+                new IpPermission()
+                        .withIpProtocol("-1")
+                        .withIpv4Ranges(
+                                new IpRange().withCidrIp("192.168.0.0/15")));
+
+        assertThat(pred).accepts(securityGroup);
     }
 
     @Test
