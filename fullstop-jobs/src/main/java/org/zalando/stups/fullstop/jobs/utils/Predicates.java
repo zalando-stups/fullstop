@@ -4,18 +4,15 @@ import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.IpRange;
 import com.github.jgonian.ipmath.Ipv4Range;
 import com.github.jgonian.ipmath.Ipv6Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 
 public final class Predicates {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Predicates.class);
 
     /**
      * https://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
@@ -51,25 +48,42 @@ public final class Predicates {
         return hasExternalIpv4Range || hasExternalIpv6Ranges;
     }
 
-    @SuppressWarnings("RedundantIfStatement")
+    @SuppressWarnings({"SimplifiableIfStatement"})
     private static boolean opensUnallowedPorts(final IpPermission rule, final Set<Integer> allowedPorts) {
+        final String protocol = rule.getIpProtocol();
+        if (protocol != null) {
+            // match logical names as well as protocol numbers
+            switch (protocol.toLowerCase()) {
+                case "tcp":
+                case "6":
+                case "udp":
+                case "17":
+                    // check port ranges
+                    break;
+
+                case "icmp":
+                case "1":
+                case "icmpv6":
+                case "58":
+                    return false;
+
+                default:
+                    // From http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html
+                    // [...] specifying -1 or a protocol number other than tcp, udp, icmp, or 58 (ICMPv6)
+                    // allows traffic on all ports, regardless of any port range you specify. [...]
+                    return true;
+            }
+        }
+
         final Integer fromPort = rule.getFromPort();
         final Integer toPort = rule.getToPort();
 
-        // use explicit ports
+        // No port range means: All traffic
         if (fromPort == null || toPort == null) {
             return true;
         }
 
-        // port ranges are not allowed
-        if (!fromPort.equals(toPort)) {
-            return true;
-        }
-
-        if (!allowedPorts.contains(fromPort)) {
-            return true;
-        }
-
-        return false;
+        // Is there at least one non-allowed port?
+        return IntStream.rangeClosed(fromPort, toPort).anyMatch(port -> !allowedPorts.contains(port));
     }
 }
