@@ -28,6 +28,7 @@ import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupCheckDetails;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
@@ -206,7 +207,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         }
 
 
-        final Set<String> unsecureGroups = securityGroupsChecker.check(
+        final Map<String, SecurityGroupCheckDetails> unsecureGroups = securityGroupsChecker.check(
                 elb.getSecurityGroups(),
                 account,
                 awsRegion);
