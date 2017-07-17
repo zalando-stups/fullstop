@@ -35,6 +35,7 @@ import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.anyString;
@@ -124,7 +125,7 @@ public class FetchElasticLoadBalancersJobTest {
         when(accountIdSupplierMock.get()).thenReturn(newHashSet(ACCOUNT_ID));
         when(jobsPropertiesMock.getWhitelistedRegions()).thenReturn(regions);
         when(portsChecker.check(any(LoadBalancerDescription.class))).thenReturn(Collections.<Integer>emptyList());
-        when(securityGroupsChecker.check(any(), any(), any())).thenReturn(Collections.<String>emptySet());
+        when(securityGroupsChecker.check(any(), any(), any())).thenReturn(emptyMap());
         when(mockAwsELBClient.describeLoadBalancers(any(DescribeLoadBalancersRequest.class))).thenReturn(mockDescribeELBResult);
         when(mockAwsApplications.isPubliclyAccessible(anyString(), anyString(), anyListOf(String.class)))
                 .thenReturn(Optional.of(false));

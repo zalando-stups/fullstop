@@ -6,24 +6,13 @@ import com.amazonaws.services.ec2.model.SecurityGroup;
 import java.util.Set;
 import java.util.function.Predicate;
 
-/**
- * Created by gkneitschel.
- */
 public final class Predicates {
     private Predicates() {
     }
 
-    public static Predicate<SecurityGroup> securityGroupExposesNotAllowedPorts(final Set<Integer> allowedPorts) {
+    public static Predicate<IpPermission> securityGroupExposesNotAllowedPorts(final Set<Integer> allowedPorts) {
 
-        return securityGroup -> {
-
-            for (final IpPermission rule : securityGroup.getIpPermissions()) {
-                if (opensUnallowedPorts(rule, allowedPorts) && hasExternalSource(rule)) {
-                    return true;
-                }
-            }
-            return false;
-        };
+        return rule -> opensUnallowedPorts(rule, allowedPorts) && hasExternalSource(rule);
     }
 
     private static boolean hasExternalSource(final IpPermission rule) {
