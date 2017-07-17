@@ -64,8 +64,12 @@ public class PredicatesTest {
         assertThat(pred).accepts(
                 new IpPermission()
                         .withIpProtocol("-1")
-                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0"))
-        );
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withIpProtocol(null)
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
     }
 
     @Test
@@ -73,6 +77,11 @@ public class PredicatesTest {
         assertThat(pred).accepts(
                 new IpPermission()
                         .withIpProtocol("-1")
+                        .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withIpProtocol(null)
                         .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
     }
 
@@ -84,6 +93,13 @@ public class PredicatesTest {
                         .withToPort(65535)
                         .withIpProtocol("tcp")
                         .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withFromPort(0)
+                        .withToPort(65535)
+                        .withIpProtocol("6")
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
     }
 
     @Test
@@ -93,6 +109,13 @@ public class PredicatesTest {
                         .withFromPort(0)
                         .withToPort(65535)
                         .withIpProtocol("tcp")
+                        .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withFromPort(0)
+                        .withToPort(65535)
+                        .withIpProtocol("6")
                         .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
     }
 
@@ -104,6 +127,13 @@ public class PredicatesTest {
                         .withFromPort(0)
                         .withToPort(65535)
                         .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withIpProtocol("17")
+                        .withFromPort(0)
+                        .withToPort(65535)
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
     }
 
     @Test
@@ -111,6 +141,13 @@ public class PredicatesTest {
         assertThat(pred).accepts(
                 new IpPermission()
                         .withIpProtocol("udp")
+                        .withFromPort(0)
+                        .withToPort(65535)
+                        .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
+
+        assertThat(pred).accepts(
+                new IpPermission()
+                        .withIpProtocol("17")
                         .withFromPort(0)
                         .withToPort(65535)
                         .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
@@ -125,6 +162,13 @@ public class PredicatesTest {
                         .withFromPort(-1)
                         .withToPort(-1)
                         .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
+
+        assertThat(pred).rejects(
+                new IpPermission()
+                        .withIpProtocol("58")
+                        .withFromPort(-1)
+                        .withToPort(-1)
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
     }
 
     @Test
@@ -132,6 +176,13 @@ public class PredicatesTest {
         assertThat(pred).rejects(
                 new IpPermission()
                         .withIpProtocol("icmpv6")
+                        .withFromPort(-1)
+                        .withToPort(-1)
+                        .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
+
+        assertThat(pred).rejects(
+                new IpPermission()
+                        .withIpProtocol("58")
                         .withFromPort(-1)
                         .withToPort(-1)
                         .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
@@ -145,6 +196,13 @@ public class PredicatesTest {
                         .withFromPort(-1)
                         .withToPort(-1)
                         .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
+
+        assertThat(pred).rejects(
+                new IpPermission()
+                        .withIpProtocol("1")
+                        .withFromPort(-1)
+                        .withToPort(-1)
+                        .withIpv4Ranges(new IpRange().withCidrIp("0.0.0.0/0")));
     }
 
     @Test
@@ -152,6 +210,13 @@ public class PredicatesTest {
         assertThat(pred).rejects(
                 new IpPermission()
                         .withIpProtocol("icmp")
+                        .withFromPort(-1)
+                        .withToPort(-1)
+                        .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
+
+        assertThat(pred).rejects(
+                new IpPermission()
+                        .withIpProtocol("1")
                         .withFromPort(-1)
                         .withToPort(-1)
                         .withIpv6Ranges(new Ipv6Range().withCidrIpv6("::/0")));
