@@ -34,6 +34,7 @@ import org.zalando.stups.fullstop.violation.service.ViolationService;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -110,6 +111,11 @@ public class FetchAmiJob implements FullstopJob {
     }
 
     private void runOn(final String account, final String region) {
+        final Map<String, String> accountRegionCtx = ImmutableMap.of(
+                "job", this.getClass().getSimpleName(),
+                "aws_account_id", account,
+                "aws_region", region);
+
         try {
             log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
             final AmazonEC2Client ec2Client = clientProvider.getClient(
@@ -130,15 +136,17 @@ public class FetchAmiJob implements FullstopJob {
 
                 for (final Reservation reservation : result.getReservations()) {
                     for (final Instance instance : reservation.getInstances()) {
-                        processInstance(ec2Client, account, region, instance);
+                        try {
+                            processInstance(ec2Client, account, region, instance);
+                        } catch (Exception e) {
+                            jobExceptionHandler.onException(e, ImmutableMap.<String, String>builder()
+                                    .putAll(accountRegionCtx).put("ec2_instance_id", instance.getInstanceId()).build());
+                        }
                     }
                 }
             } while (nextToken.isPresent());
         } catch (final Exception e) {
-            jobExceptionHandler.onException(e, ImmutableMap.of(
-                    "job", this.getClass().getSimpleName(),
-                    "aws_account_id", account,
-                    "aws_region", region));
+            jobExceptionHandler.onException(e, accountRegionCtx);
         }
     }
 

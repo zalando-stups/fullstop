@@ -1,6 +1,5 @@
 package org.zalando.stups.fullstop.jobs.ec2;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -41,7 +40,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.amazonaws.regions.Region.getRegion;
@@ -129,6 +127,10 @@ public class FetchEC2Job implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
+                final Map<String, String> accountRegionCtx = ImmutableMap.of(
+                        "job", this.getClass().getSimpleName(),
+                        "aws_account_id", account,
+                        "aws_region", region);
                 try {
                     log.info("Scanning public EC2 instances for {}/{}", account, region);
                     final AmazonEC2Client ec2Client = clientProvider.getClient(
@@ -151,16 +153,21 @@ public class FetchEC2Job implements FullstopJob {
 
                         for (final Reservation reservation : result.getReservations()) {
                             for (final Instance instance : reservation.getInstances()) {
-                                processInstance(account, region, instance);
+                                try {
+                                    processInstance(account, region, instance);
+                                } catch (Exception e) {
+                                    final Map<String, String> ec2Ctx = ImmutableMap.<String, String>builder()
+                                            .putAll(accountRegionCtx)
+                                            .put("ec2_instance_id", instance.getInstanceId())
+                                            .build();
+                                    jobExceptionHandler.onException(e, ec2Ctx);
+                                }
                             }
                         }
                     } while (nextToken.isPresent());
 
                 } catch (final Exception e) {
-                    jobExceptionHandler.onException(e, ImmutableMap.of(
-                            "job", this.getClass().getSimpleName(),
-                            "aws_account_id", account,
-                            "aws_region", region));
+                    jobExceptionHandler.onException(e, accountRegionCtx);
                 }
             }
         }
