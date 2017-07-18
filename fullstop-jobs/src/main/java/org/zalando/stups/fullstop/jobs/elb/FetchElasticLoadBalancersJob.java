@@ -1,6 +1,5 @@
 package org.zalando.stups.fullstop.jobs.elb;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
@@ -42,7 +41,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.amazonaws.regions.Region.getRegion;
@@ -142,7 +140,10 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
                 log.info("Scanning ELBs for {}/{}", account, region);
-
+                final Map<String, String> accountRegionCtx = ImmutableMap.of(
+                        "job", this.getClass().getSimpleName(),
+                        "aws_account_id", account,
+                        "aws_region", region);
                 try {
                     final Region awsRegion = getRegion(fromName(region));
                     final AmazonElasticLoadBalancingClient elbClient = clientProvider.getClient(
@@ -159,22 +160,27 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         marker = Optional.ofNullable(trimToNull(result.getNextMarker()));
 
                         for (final LoadBalancerDescription elb : result.getLoadBalancerDescriptions()) {
-                            processELB(account, awsRegion, elb);
+                            try {
+                                processELB(account, awsRegion, elb);
+                            } catch (Exception e) {
+                                final Map<String, String> elbCtx = ImmutableMap.<String, String>builder()
+                                        .putAll(accountRegionCtx)
+                                        .put("load_balancer_name", elb.getLoadBalancerName())
+                                        .build();
+                                jobExceptionHandler.onException(e, elbCtx);
+                            }
                         }
 
                     } while (marker.isPresent());
 
                 } catch (final Exception e) {
-                    jobExceptionHandler.onException(e, ImmutableMap.of(
-                            "job", this.getClass().getSimpleName(),
-                            "aws_account_id", account,
-                            "aws_region", region));
+                    jobExceptionHandler.onException(e, accountRegionCtx);
                 }
             }
         }
     }
 
-    private boolean processELB(String account, Region awsRegion, LoadBalancerDescription elb) {
+    private void processELB(String account, Region awsRegion, LoadBalancerDescription elb) {
         final Map<String, Object> metaData = newHashMap();
         final List<String> errorMessages = newArrayList();
         final String canonicalHostedZoneName = elb.getCanonicalHostedZoneName();
@@ -192,11 +198,11 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
 
         if (!elb.getScheme().equals("internet-facing")) {
-            return true;
+            return;
         }
 
         if (violationService.violationExists(account, awsRegion.getName(), EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
-            return true;
+            return;
         }
 
         final List<Integer> unsecuredPorts = portsChecker.check(elb);
@@ -222,13 +228,13 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
             writeViolation(account, awsRegion.getName(), metaData, canonicalHostedZoneName, instanceIds);
 
             // skip http response check, as we are already having a violation here
-            return true;
+            return;
         }
 
 
         // skip check for publicly available apps
         if (awsApplications.isPubliclyAccessible(account, awsRegion.getName(), instanceIds).orElse(false)) {
-            return true;
+            return;
         }
 
         for (final Integer allowedPort : jobsProperties.getElbAllowedPorts()) {
@@ -250,7 +256,6 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
             log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
         }
-        return false;
     }
 
     private void writeViolation(final String account, final String region, final Object metaInfo, final String canonicalHostedZoneName, final List<String> instanceIds) {

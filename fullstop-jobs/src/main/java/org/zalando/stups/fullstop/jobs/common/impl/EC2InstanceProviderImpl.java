@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.jobs.common.impl;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.AmazonEC2Exception;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.Instance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,19 @@ public class EC2InstanceProviderImpl implements EC2InstanceProvider {
     @Override
     @Cacheable(cacheNames = "ec2-instance", cacheManager = "twoHoursTTLCacheManager")
     public Optional<Instance> getById(final String accountId, final Region region, final String instanceId) {
-        return clientProvider.getClient(AmazonEC2Client.class, accountId, region)
-                .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
-                .getReservations().stream()
-                .flatMap(reservation -> reservation.getInstances().stream())
-                .filter(instance -> Objects.equals(instance.getInstanceId(), instanceId))
-                .findFirst();
+        try {
+            return clientProvider.getClient(AmazonEC2Client.class, accountId, region)
+                    .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
+                    .getReservations().stream()
+                    .flatMap(reservation -> reservation.getInstances().stream())
+                    .filter(instance -> Objects.equals(instance.getInstanceId(), instanceId))
+                    .findFirst();
+        } catch (AmazonEC2Exception e) {
+            if (Objects.equals(e.getErrorCode(), "InvalidInstanceID.NotFound")) {
+                return Optional.empty();
+            } else {
+                throw e;
+            }
+        }
     }
 }

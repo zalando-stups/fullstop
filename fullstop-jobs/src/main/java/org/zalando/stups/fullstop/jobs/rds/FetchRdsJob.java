@@ -1,6 +1,5 @@
 package org.zalando.stups.fullstop.jobs.rds;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rds.AmazonRDSClient;
