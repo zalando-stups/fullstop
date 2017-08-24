@@ -84,7 +84,7 @@ public class NoPasswordsJob implements FullstopJob {
                 Stream.of(csvReportEntries)
                         .flatMap(Collection::stream)
                         .filter(c -> c.getUser().equals(ROOT_ACCOUNT) || c.getUser().endsWith(ROOT_SUFFIX))
-                        .filter(c -> !c.isMfaActive() || c.isAccessKey1Active() || c.isAccessKey2Active())
+                        .filter(c -> (c.isPasswordEnabled() && !c.isMfaActive()) || c.isAccessKey1Active() || c.isAccessKey2Active())
                         .forEach(c -> {
                             final Map<String, String> metaInfo = new HashMap<>();
                             metaInfo.put("account_id", accountId);
