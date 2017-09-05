@@ -28,7 +28,7 @@ public class CachingClientProvider implements ClientProvider {
 
     private static final String ROLE_ARN_LAST = ":role/fullstop";
 
-    private static final int MAX_ERROR_RETRY = 10;
+    private static final int MAX_ERROR_RETRY = 15;
 
     private LoadingCache<Key<?>, ? extends AmazonWebServiceClient> cache = null;
 
