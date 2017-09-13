@@ -45,10 +45,15 @@ public class RestTemplateTeamOperations implements TeamOperations {
     public List<Account> getAwsAccountsByUser(final String userId) {
         Preconditions.checkArgument(StringUtils.hasText(userId), "userId must not be blank");
 
-        final ResponseEntity<List<Account>> response = restOperations.exchange(
+        final ResponseEntity<List<Account>> typeAws = restOperations.exchange(
                 get(URI.create(baseUrl + "/api/accounts/aws?member=" + userId)).build(), userTeamListType);
-        Preconditions.checkState(response.getStatusCode().is2xxSuccessful(), "getAwsAccountsByUser failed: %s", response);
-        return response.getBody();
+        Preconditions.checkState(typeAws.getStatusCode().is2xxSuccessful(), "getAwsAccountsByUser for type AWS failed: %s", typeAws);
+        final ResponseEntity<List<Account>> typeK8s = restOperations.exchange(
+                get(URI.create(baseUrl + "/api/accounts/kubernetes?role=PowerUser&member=" + userId)).build(), userTeamListType);
+        Preconditions.checkState(typeAws.getStatusCode().is2xxSuccessful(), "getAwsAccountsByUser for type Kubernetes failed: %s", typeK8s);
+        final List<Account> allAccounts = typeAws.getBody();
+        allAccounts.addAll(typeK8s.getBody());
+        return allAccounts;
     }
 
     @Override
