@@ -128,7 +128,7 @@ public class ViolationsController {
             @PageableDefault(page = 0, size = 10, sort = "id", direction = ASC) final Pageable pageable) throws NotFoundException {
 
         if (from == null) {
-            from = DateTime.now().minusWeeks(1);
+            from = new DateTime(0);
         }
 
         if (to == null) {
