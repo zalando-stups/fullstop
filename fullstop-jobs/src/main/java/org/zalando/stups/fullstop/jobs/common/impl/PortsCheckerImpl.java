@@ -3,6 +3,7 @@ package org.zalando.stups.fullstop.jobs.common.impl;
 import com.amazonaws.services.elasticloadbalancing.model.Listener;
 import com.amazonaws.services.elasticloadbalancing.model.ListenerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.fullstop.jobs.common.PortsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
@@ -15,7 +16,13 @@ import java.util.stream.Collectors;
  */
 @Component
 public class PortsCheckerImpl implements PortsChecker {
-    JobsProperties jobsProperties = new JobsProperties();
+
+    private final JobsProperties jobsProperties;
+
+    @Autowired
+    public PortsCheckerImpl(JobsProperties jobsProperties) {
+        this.jobsProperties = jobsProperties;
+    }
 
     @Override public List<Integer> check(final LoadBalancerDescription loadBalancerDescription) {
 

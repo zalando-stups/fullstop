@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>13</version>
+        <version>18</version>
         <relativePath />
     </parent>
     <artifactId>fullstop-jobs</artifactId>
@@ -62,11 +62,6 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-plugin-api</artifactId>
-            <version>${fullstop-plugin-api.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>team-service-api</artifactId>
             <version>${team-service-api.version}</version>
@@ -79,22 +74,18 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-iam</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-elasticloadbalancing</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-rds</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -109,9 +100,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-api</artifactId>
+            <groupId>com.github.jgonian</groupId>
+            <artifactId>commons-ip-math</artifactId>
+            <version>1.32</version>
         </dependency>
 
         <dependency>

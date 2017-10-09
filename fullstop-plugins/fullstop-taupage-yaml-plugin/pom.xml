@@ -19,11 +19,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>fullstop-aws-userdata-support</artifactId>
             <version>${fullstop-aws-support.version}</version>
         </dependency>

@@ -14,24 +14,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 public class HystrixConfigurationTest {
 
     @Autowired
     private TestService testService;
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testMethodThrowsException() throws Exception {
-        try {
-            testService.throwException();
-            failBecauseExceptionWasNotThrown(HystrixRuntimeException.class);
-        }
-        catch (final HystrixRuntimeException e) {
-            assertThat(e).hasRootCauseExactlyInstanceOf(RuntimeException.class);
-        }
+        testService.throwException();
     }
 
     @Test(expected = HystrixRuntimeException.class)
@@ -75,7 +69,7 @@ public class HystrixConfigurationTest {
 
     static class TestService {
 
-        @HystrixCommand
+        @HystrixCommand()
         public void throwException() {
             throw new RuntimeException("this method always fails");
         }

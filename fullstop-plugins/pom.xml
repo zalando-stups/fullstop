@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>13</version>
+        <version>18</version>
         <relativePath />
     </parent>
 
@@ -25,7 +25,6 @@
     <modules>
         <module>fullstop-instance-plugin-support</module>
         <module>fullstop-ami-plugin</module>
-        <module>fullstop-application-masterdata-plugin</module>
         <module>fullstop-hello-event-plugin</module>
         <module>fullstop-lambda-plugin</module>
         <module>fullstop-keypair-plugin</module>

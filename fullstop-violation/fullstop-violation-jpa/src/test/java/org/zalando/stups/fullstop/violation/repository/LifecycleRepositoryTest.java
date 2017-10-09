@@ -5,10 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -26,8 +26,8 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 /**
  * Created by gkneitschel.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = EmbeddedPostgresJpaConfig.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = EmbeddedPostgresJpaConfig.class)
 @Transactional
 public class LifecycleRepositoryTest {
 

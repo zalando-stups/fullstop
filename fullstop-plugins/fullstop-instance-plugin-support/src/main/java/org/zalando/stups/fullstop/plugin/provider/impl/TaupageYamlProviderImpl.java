@@ -10,8 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.parser.ParserException;
-import org.yaml.snakeyaml.scanner.ScannerException;
+import org.yaml.snakeyaml.error.YAMLException;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
@@ -64,7 +63,7 @@ public class TaupageYamlProviderImpl implements TaupageYamlProvider {
             } catch (final AmazonClientException e) {
                 log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
                 return empty();
-            } catch (ScannerException | ParserException | IllegalArgumentException s)   {
+            } catch (YAMLException | IllegalArgumentException s)   {
                 log.warn("Taupage YAML is not valid for instance: " + instanceId, s);
                 return empty();
             }

@@ -21,6 +21,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
@@ -73,6 +74,8 @@ public class FetchAmiJobTest {
     private FetchTaupageYaml mockFetchTaupageYaml;
     @Mock
     private AmazonEC2Client mockEC2Client;
+    @Mock
+    private JobExceptionHandler mockExceptionHandler;
 
     private FetchAmiJob job;
 
@@ -82,7 +85,7 @@ public class FetchAmiJobTest {
 
     @Before
     public void setUp() throws Exception {
-        job = new FetchAmiJob(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, "Taupage-AMI-", ACCOUNT_1);
+        job = new FetchAmiJob(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, "Taupage-AMI-", ACCOUNT_1, mockExceptionHandler);
 
         when(mockFetchTaupageYaml.getTaupageYaml(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
     }

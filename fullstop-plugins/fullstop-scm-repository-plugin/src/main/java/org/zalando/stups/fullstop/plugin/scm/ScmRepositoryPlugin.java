@@ -2,46 +2,47 @@ package org.zalando.stups.fullstop.plugin.scm;
 
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
-import org.zalando.kontrolletti.KontrollettiOperations;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.fullstop.plugin.AbstractEC2InstancePlugin;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContextProvider;
+import org.zalando.stups.fullstop.plugin.scm.config.ScmRepositoryPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static java.util.function.Predicate.isEqual;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.zalando.stups.fullstop.violation.ViolationType.*;
+import static org.zalando.stups.fullstop.violation.ViolationType.ILLEGAL_SCM_REPOSITORY;
+import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_KIO;
+import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON;
+import static org.zalando.stups.fullstop.violation.ViolationType.SCM_URL_NOT_MATCH_WITH_KIO;
 
-@Component
 public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
 
     private static final String URL = "url";
 
     private final Logger log = getLogger(getClass());
 
-    private final KontrollettiOperations kontrollettiOperations;
-
+    private final Repositories repositories;
     private final ViolationSink violationSink;
+    private final ScmRepositoryPluginProperties properties;
 
-    @Autowired
     public ScmRepositoryPlugin(
             final EC2InstanceContextProvider contextProvider,
-            final KontrollettiOperations kontrollettiOperations,
-            final ViolationSink violationSink) {
+            final Repositories repositories,
+            final ViolationSink violationSink,
+            final ScmRepositoryPluginProperties properties) {
         super(contextProvider);
-        this.kontrollettiOperations = kontrollettiOperations;
+        this.repositories = repositories;
         this.violationSink = violationSink;
+        this.properties = properties;
     }
 
     @Override
@@ -51,6 +52,66 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
 
     @Override
     protected void process(final EC2InstanceContext context) {
+        final Optional<Map<String, String>> optionalScmSource = context.getScmSource();
+        if (!optionalScmSource.isPresent()) {
+            log.warn("Missing Scm source for {}. Skip ScmRepositoryPlugin.", context);
+            return;
+        }
+
+        final Map<String, String> scmSource = optionalScmSource.get();
+        final String scmSourceUrl = scmSource.get(URL);
+        if (isBlank(scmSourceUrl)) {
+            violationSink.put(
+                    context.violation()
+                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                            .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", context.getApplicationId().orElse(""),
+                                    "deployment_artifact", context.getSource().orElse(""),
+                                    "scm_source", new Yaml().dump(scmSource)))
+                            .build());
+            return;
+        }
+
+        final Repository scmSourceRepository;
+        try {
+            scmSourceRepository = repositories.parse(scmSourceUrl);
+        } catch (final UnknownScmUrlException e) {
+            violationSink.put(
+                    context.violation()
+                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                            .withType(ILLEGAL_SCM_REPOSITORY)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", context.getApplicationId().orElse(""),
+                                    "deployment_artifact", context.getSource().orElse(""),
+                                    "error_message", e.getMessage()))
+                            .build()
+            );
+
+            return;
+        }
+
+        final String allowedOwnerPattern = Optional.ofNullable(properties.getHosts())
+                .map(ownersByHost -> ownersByHost.get(scmSourceRepository.getHost()))
+                .orElseThrow(() -> new IllegalStateException(
+                        format("Could not find allowedOwnerPattern for %s. Available properties: %s",
+                                scmSourceRepository,
+                                properties.getHosts())));
+        if (!scmSourceRepository.getOwner().matches(allowedOwnerPattern)) {
+            violationSink.put(
+                    context.violation()
+                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                            .withType(ILLEGAL_SCM_REPOSITORY)
+                            .withMetaInfo(ImmutableMap.of(
+                                    "application_id", context.getApplicationId().orElse(""),
+                                    "deployment_artifact", context.getSource().orElse(""),
+                                    "normalized_scm_source_url", scmSourceRepository.toString(),
+                                    "allowed_owners", allowedOwnerPattern,
+                                    "actual_owner", scmSourceRepository.getOwner()))
+                            .build()
+            );
+        }
+
         final Optional<Application> optionalKioApp = context.getKioApplication();
         if (!optionalKioApp.isPresent()) {
             log.warn("Missing Kio App for {}. Skip ScmRepositoryPlugin.", context);
@@ -69,52 +130,30 @@ public class ScmRepositoryPlugin extends AbstractEC2InstancePlugin {
             return;
         }
 
-        final Optional<Map<String, String>> optionalScmSource = context.getScmSource();
-        if (!optionalScmSource.isPresent()) {
-            log.warn("Missing Scm source for {}. Skip ScmRepositoryPlugin.", context);
-            return;
-        }
-
-        final Map<String, String> scmSource = optionalScmSource.get();
-        String scmSourceUrl = scmSource.get(URL);
-        if (isBlank(scmSourceUrl)) {
-            violationSink.put(
-                    context.violation()
-                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
-                            .withType(SCM_URL_IS_MISSING_IN_SCM_SOURCE_JSON)
-                            .withMetaInfo(ImmutableMap.of(
-                                    "application_id", app.getId(),
-                                    "deployment_artifact", context.getSource().orElse(""),
-                                    "scm_source", new Yaml().dump(scmSource)))
-                            .build());
-            return;
-        }
-        scmSourceUrl = scmSourceUrl.startsWith("git:") ? scmSourceUrl.replaceFirst("git:", "") : scmSourceUrl;
-        final String normalizedKioScmUrl = kontrollettiOperations.normalizeRepositoryUrl(kioScmUrl);
-        final String normalizedScmSourceUrl = kontrollettiOperations.normalizeRepositoryUrl(scmSourceUrl);
-
-        if (!Objects.equals(normalizedKioScmUrl, normalizedScmSourceUrl)) {
+        try {
+            final Repository kioRepository = repositories.parse(kioScmUrl);
+            if (!scmSourceRepository.equals(kioRepository)) {
+                violationSink.put(
+                        context.violation()
+                                .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
+                                .withType(SCM_URL_NOT_MATCH_WITH_KIO)
+                                .withMetaInfo(ImmutableMap.of(
+                                        "application_id", app.getId(),
+                                        "deployment_artifact", context.getSource().orElse(""),
+                                        "normalized_scm_source_url", scmSourceRepository.toString(),
+                                        "normalized_kio_scm_url", kioRepository.toString())).build());
+            }
+        } catch (UnknownScmUrlException e) {
             violationSink.put(
                     context.violation()
                             .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
                             .withType(SCM_URL_NOT_MATCH_WITH_KIO)
                             .withMetaInfo(ImmutableMap.of(
                                     "application_id", app.getId(),
-                                    "normalized_scm_source_url", normalizedScmSourceUrl,
-                                    "normalized_kio_scm_url", normalizedKioScmUrl)).build());
-            return;
-        }
-
-        if (kontrollettiOperations.getRepository(normalizedScmSourceUrl) == null) {
-            violationSink.put(
-                    context.violation()
-                            .withPluginFullyQualifiedClassName(ScmRepositoryPlugin.class)
-                            .withType(ILLEGAL_SCM_REPOSITORY)
-                            .withMetaInfo(ImmutableMap.of(
-                                    "application_id", app.getId(),
-                                    "normalized_scm_url", normalizedScmSourceUrl))
-                            .build()
-            );
+                                    "deployment_artifact", context.getSource().orElse(""),
+                                    "normalized_scm_source_url", scmSourceRepository.toString(),
+                                    "kio_scm_url", kioScmUrl,
+                                    "error_message", e.getMessage())).build());
         }
     }
 }

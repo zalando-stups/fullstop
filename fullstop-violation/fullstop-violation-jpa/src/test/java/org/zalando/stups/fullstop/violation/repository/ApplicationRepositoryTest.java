@@ -4,10 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
-import org.zalando.stups.fullstop.violation.entity.AccountRegion;
 import org.zalando.stups.fullstop.violation.entity.ApplicationEntity;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
 import org.zalando.stups.fullstop.violation.entity.VersionEntity;
@@ -20,8 +19,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = EmbeddedPostgresJpaConfig.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = EmbeddedPostgresJpaConfig.class)
 @Transactional
 public class ApplicationRepositoryTest {
 
@@ -136,14 +135,5 @@ public class ApplicationRepositoryTest {
         final List<ApplicationEntity> apps1 = versionEntities.get(0).getApplicationEntities();
         final List<ApplicationEntity> apps2 = versionEntities.get(1).getApplicationEntities();
         assertThat(apps1.get(0)).isEqualTo(apps2.get(0));
-    }
-
-    @Test
-    public void testGetDeployments() throws Exception {
-        assertThat(applicationRepository.findDeployments(application.getName()))
-                .containsOnly(
-                        new AccountRegion(ACCOUNT01, EU_WEST_1),
-                        new AccountRegion(ACCOUNT01, US_EAST_1),
-                        new AccountRegion(ACCOUNT02, EU_WEST_1));
     }
 }

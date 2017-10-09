@@ -21,12 +21,10 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sts</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -50,7 +48,6 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -5,9 +5,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.google.common.base.MoreObjects;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.google.common.cache.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,13 +20,15 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CachingClientProvider implements ClientProvider {
 
+    private final Logger logger = LoggerFactory.getLogger(CacheLoader.class);
+
     private static final String ROLE_SESSION_NAME = "fullstop";
 
     private static final String ROLE_ARN_FIRST = "arn:aws:iam::";
 
     private static final String ROLE_ARN_LAST = ":role/fullstop";
 
-    private static final int MAX_ERROR_RETRY = 10;
+    private static final int MAX_ERROR_RETRY = 15;
 
     private LoadingCache<Key<?>, ? extends AmazonWebServiceClient> cache = null;
 
@@ -44,13 +44,15 @@ public class CachingClientProvider implements ClientProvider {
 
     @PostConstruct
     public void init() {
-
         // TODO
         // this parameters have to be configurable
-        cache = CacheBuilder.newBuilder().maximumSize(500).expireAfterWrite(50, TimeUnit.MINUTES).build(
-                new CacheLoader<Key<?>, AmazonWebServiceClient>() {
-                    private final Logger logger = LoggerFactory.getLogger(CacheLoader.class);
-
+        cache = CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(50, TimeUnit.MINUTES)
+                .removalListener((RemovalNotification<Key<?>, AmazonWebServiceClient> notification) -> {
+                    logger.debug("Shutting down expired client for key: {}", notification.getKey());
+                    notification.getValue().shutdown();
+                }).build(new CacheLoader<Key<?>, AmazonWebServiceClient>() {
                     @Override
                     public AmazonWebServiceClient load(@Nonnull final Key<?> key) throws Exception {
                         logger.debug("CacheLoader active for Key : {}", key);
@@ -59,7 +61,7 @@ public class CachingClientProvider implements ClientProvider {
                                 new STSAssumeRoleSessionCredentialsProvider(
                                         buildRoleArn(key.accountId),
                                         ROLE_SESSION_NAME),
-                                        new ClientConfiguration().withMaxErrorRetry(MAX_ERROR_RETRY));
+                                new ClientConfiguration().withMaxErrorRetry(MAX_ERROR_RETRY));
                     }
                 });
     }

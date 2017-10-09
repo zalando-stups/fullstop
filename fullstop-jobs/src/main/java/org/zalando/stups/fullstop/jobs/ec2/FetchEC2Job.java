@@ -1,6 +1,5 @@
 package org.zalando.stups.fullstop.jobs.ec2;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -27,8 +26,10 @@ import org.zalando.stups.fullstop.jobs.common.AwsApplications;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.jobs.common.HttpCallResult;
 import org.zalando.stups.fullstop.jobs.common.HttpGetRootCall;
+import org.zalando.stups.fullstop.jobs.common.SecurityGroupCheckDetails;
 import org.zalando.stups.fullstop.jobs.common.SecurityGroupsChecker;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
+import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationBuilder;
@@ -39,7 +40,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.amazonaws.regions.Region.getRegion;
@@ -71,6 +71,7 @@ public class FetchEC2Job implements FullstopJob {
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
 
     private final CloseableHttpClient httpClient;
+    private final JobExceptionHandler jobExceptionHandler;
 
     private final AwsApplications awsApplications;
 
@@ -90,7 +91,8 @@ public class FetchEC2Job implements FullstopJob {
                        final ViolationService violationService,
                        final FetchTaupageYaml fetchTaupageYaml,
                        final AmiDetailsProvider amiDetailsProvider,
-                       final CloseableHttpClient httpClient) {
+                       final CloseableHttpClient httpClient,
+                       final JobExceptionHandler jobExceptionHandler) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -101,6 +103,7 @@ public class FetchEC2Job implements FullstopJob {
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.amiDetailsProvider = amiDetailsProvider;
         this.httpClient = httpClient;
+        this.jobExceptionHandler = jobExceptionHandler;
 
         threadPoolTaskExecutor.setCorePoolSize(12);
         threadPoolTaskExecutor.setMaxPoolSize(20);
@@ -124,6 +127,10 @@ public class FetchEC2Job implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
+                final Map<String, String> accountRegionCtx = ImmutableMap.of(
+                        "job", this.getClass().getSimpleName(),
+                        "aws_account_id", account,
+                        "aws_region", region);
                 try {
                     log.info("Scanning public EC2 instances for {}/{}", account, region);
                     final AmazonEC2Client ec2Client = clientProvider.getClient(
@@ -146,19 +153,21 @@ public class FetchEC2Job implements FullstopJob {
 
                         for (final Reservation reservation : result.getReservations()) {
                             for (final Instance instance : reservation.getInstances()) {
-                                processInstance(account, region, instance);
+                                try {
+                                    processInstance(account, region, instance);
+                                } catch (Exception e) {
+                                    final Map<String, String> ec2Ctx = ImmutableMap.<String, String>builder()
+                                            .putAll(accountRegionCtx)
+                                            .put("ec2_instance_id", instance.getInstanceId())
+                                            .build();
+                                    jobExceptionHandler.onException(e, ec2Ctx);
+                                }
                             }
                         }
                     } while (nextToken.isPresent());
 
-                } catch (final AmazonServiceException a) {
-
-                    if (a.getErrorCode().equals("RequestLimitExceeded")) {
-                        log.warn("RequestLimitExceeded for account: {}", account);
-                    } else {
-                        log.error(a.getMessage(), a);
-                    }
-
+                } catch (final Exception e) {
+                    jobExceptionHandler.onException(e, accountRegionCtx);
                 }
             }
         }
@@ -174,7 +183,7 @@ public class FetchEC2Job implements FullstopJob {
             return;
         }
 
-        final Set<String> unsecureGroups = securityGroupsChecker.check(
+        final Map<String, SecurityGroupCheckDetails> unsecureGroups = securityGroupsChecker.check(
                 instance.getSecurityGroups().stream().map(GroupIdentifier::getGroupId).collect(toList()),
                 account,
                 getRegion(fromName(region)));

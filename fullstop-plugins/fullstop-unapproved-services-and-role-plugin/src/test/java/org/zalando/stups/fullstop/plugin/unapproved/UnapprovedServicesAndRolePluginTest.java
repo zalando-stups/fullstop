@@ -40,6 +40,7 @@ public class UnapprovedServicesAndRolePluginTest {
     private PolicyTemplatesProvider policyTemplatesProviderMock;
 
     private CloudTrailEvent event;
+    private CloudTrailEvent adminEvent;
 
     private UnapprovedServicesAndRolePlugin plugin;
 
@@ -50,6 +51,7 @@ public class UnapprovedServicesAndRolePluginTest {
         policyTemplatesProviderMock = mock(PolicyTemplatesProvider.class);
 
         event = createCloudTrailEvent("/record.json");
+        adminEvent = createCloudTrailEvent("/admin-record.json");
 
         plugin = new UnapprovedServicesAndRolePlugin(
                 policyProviderMock,
@@ -75,6 +77,11 @@ public class UnapprovedServicesAndRolePluginTest {
         assertThat(result).isTrue();
 
         verify(policyTemplatesProviderMock).getPolicyTemplateNames();
+    }
+
+    @Test
+    public void testSupportsAdminEvent() throws Exception {
+        assertThat(plugin.supports(adminEvent)).isFalse();
     }
 
     @Test

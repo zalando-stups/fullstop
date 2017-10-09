@@ -11,8 +11,7 @@ import com.amazonaws.util.Base64;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.parser.ParserException;
-import org.yaml.snakeyaml.scanner.ScannerException;
+import org.yaml.snakeyaml.error.YAMLException;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
@@ -59,7 +58,7 @@ public class FetchTaupageYamlImpl implements FetchTaupageYaml {
         } catch (final AmazonClientException e) {
             log.warn("Could not get Taupage YAML for instance: " + instanceId, e);
             return empty();
-        } catch (ScannerException | ParserException | IllegalArgumentException s) {
+        } catch (YAMLException | IllegalArgumentException s) {
             log.warn("Taupage YAML is not valid for instance: " + instanceId, s);
             return empty();
         }

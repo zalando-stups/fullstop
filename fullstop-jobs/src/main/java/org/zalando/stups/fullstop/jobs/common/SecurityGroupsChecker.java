@@ -3,13 +3,13 @@ package org.zalando.stups.fullstop.jobs.common;
 import com.amazonaws.regions.Region;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 
-/**
- * Created by gkneitschel.
- */
 public interface SecurityGroupsChecker {
 
-    Set<String> check(Collection<String> groupIds, String account, Region region);
+    /**
+     * Checks the given groups for security issues and returns a map of unsecured groups and their details.
+     */
+    Map<String, SecurityGroupCheckDetails> check(Collection<String> groupIds, String account, Region region);
 
 }

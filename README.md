@@ -38,7 +38,6 @@ by all other accounts in order to perform this operations.
 
 * [fullstop-ami-plugin](fullstop-plugins/fullstop-ami-plugin)
 * [fullstop-application-lifecycle-plugin] (fullstop-plugins/fullstop-application-lifecycle-plugin)
-* [fullstop-application-masterdata-plugin] (fullstop-plugins/fullstop-application-masterdata-plugin)
 * [fullstop-hello-event-plugin](fullstop-plugins/fullstop-hello-event-plugin)
 * [fullstop-keypair-plugin](fullstop-plugins/fullstop-keypair-plugin)
 * [fullstop-region-plugin](fullstop-plugins/fullstop-region-plugin)
@@ -79,7 +78,6 @@ This environment variables should be set:
     FULLSTOP_KIO_URL
     FULLSTOP_PIERONE_URL
     FULLSTOP_TEAM_SERVICE_URL
-    FULLSTOP_KONTROLLETTI_URL
     DATABASE_URL
     DATABASE_USER
     DATABASE_PASSWORD
@@ -103,7 +101,6 @@ Example:
     $ export FULLSTOP_KIO_URL: https://application.registry.address
     $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
     $ export FULLSTOP_TEAM_SERVICE_URL: https://team.service.address
-    $ export FULLSTOP_KONTROLLETTI_URL: https://kontrolletti.address
     $ export DATABASE_URL='jdbc:postgresql://localhost:5432/fullstop'
     $ export DATABASE_USER=postgres
     $ export DATABASE_PASSWORD='{cipher}234laksnfdlF83NHALF'

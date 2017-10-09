@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-parent</artifactId>
-        <version>13</version>
+        <version>18</version>
         <relativePath/>
     </parent>
 
@@ -84,11 +84,6 @@
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
-            <artifactId>fullstop-application-masterdata-plugin</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-keypair-plugin</artifactId>
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
@@ -133,7 +128,6 @@
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- Plugin can be enabled as soon as Kontrolletti is ready -->
         <dependency>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-scm-repository-plugin</artifactId>
@@ -190,15 +184,6 @@
             <groupId>org.zalando.stups</groupId>
             <artifactId>pierone-client-java-spring-hystrix</artifactId>
             <version>${pierone-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>kontrolletti-client-java-hystrix</artifactId>
-            <version>${kontrolletti-client-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -264,6 +249,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
+                <configuration>
+                    <classifier>executable</classifier>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

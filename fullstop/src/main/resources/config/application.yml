@@ -59,7 +59,7 @@ fullstop:
 
             # A period of time during which Amazon SQS prevents other consuming components
             # from receiving and processing that message
-            visibilityTimeout: 60
+            visibilityTimeout: 300
 
             # The S3 end point specific to a region
             s3Region: ${FULLSTOP_S3_REGION}
@@ -129,9 +129,6 @@ fullstop:
         teamService:
             url: ${FULLSTOP_TEAM_SERVICE_URL}
 
-        kontrolletti:
-            url: ${FULLSTOP_KONTROLLETTI_URL}
-
     whitelist:
         # Which teams are allowed to whitelist violations
         allowed-teams: "stups" #comma separated, will be overriden by ENV VARS
@@ -153,10 +150,6 @@ tokens:
         - tokenId: teamService
           scopes:
               - uid
-        - tokenId: kontrolletti
-          scopes:
-              - uid
-
 
 javax:
     persistence:

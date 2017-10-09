@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.zalando.stups.fullstop.violation.ViolationMatchers.hasType;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_ID_IN_USER_DATA;
-import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_APPLICATION_VERSION_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_SOURCE_IN_USER_DATA;
 import static org.zalando.stups.fullstop.violation.ViolationType.MISSING_USER_DATA;
 
@@ -60,7 +59,6 @@ public class TaupageYamlPluginTest {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
         when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
         when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
-        when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
         when(mockContext.getSource()).thenReturn(Optional.of("source"));
 
         plugin.process(mockContext);
@@ -68,7 +66,6 @@ public class TaupageYamlPluginTest {
         verify(mockContext).isTaupageAmi();
         verify(mockContext).getTaupageYaml();
         verify(mockContext).getApplicationId();
-        verify(mockContext).getVersionId();
         verify(mockContext).getSource();
     }
 
@@ -107,7 +104,6 @@ public class TaupageYamlPluginTest {
     public void testProcessMissingAppIdViolation() throws Exception {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
         when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
-        when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
         when(mockContext.getSource()).thenReturn(Optional.of("source"));
 
         when(mockContext.getApplicationId()).thenReturn(Optional.empty());
@@ -117,30 +113,9 @@ public class TaupageYamlPluginTest {
         verify(mockContext).isTaupageAmi();
         verify(mockContext).getTaupageYaml();
         verify(mockContext).getApplicationId();
-        verify(mockContext).getVersionId();
         verify(mockContext).getSource();
         verify(mockContext).violation();
         verify(mockViolationSink).put(argThat(hasType(MISSING_APPLICATION_ID_IN_USER_DATA)));
-    }
-
-    @Test
-    public void testProcessMissingAppVersionViolation() throws Exception {
-        when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
-        when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
-        when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
-        when(mockContext.getSource()).thenReturn(Optional.of("source"));
-
-        when(mockContext.getVersionId()).thenReturn(Optional.empty());
-
-        plugin.process(mockContext);
-
-        verify(mockContext).isTaupageAmi();
-        verify(mockContext).getTaupageYaml();
-        verify(mockContext).getApplicationId();
-        verify(mockContext).getVersionId();
-        verify(mockContext).getSource();
-        verify(mockContext).violation();
-        verify(mockViolationSink).put(argThat(hasType(MISSING_APPLICATION_VERSION_IN_USER_DATA)));
     }
 
     @Test
@@ -148,7 +123,6 @@ public class TaupageYamlPluginTest {
         when(mockContext.isTaupageAmi()).thenReturn(Optional.of(true));
         when(mockContext.getApplicationId()).thenReturn(Optional.of("1234"));
         when(mockContext.getTaupageYaml()).thenReturn(Optional.of(new TaupageYaml(null, null, null, null)));
-        when(mockContext.getVersionId()).thenReturn(Optional.of("1.0.0.FINAL"));
 
         when(mockContext.getSource()).thenReturn(Optional.empty());
 
@@ -157,7 +131,6 @@ public class TaupageYamlPluginTest {
         verify(mockContext).isTaupageAmi();
         verify(mockContext).getTaupageYaml();
         verify(mockContext).getApplicationId();
-        verify(mockContext).getVersionId();
         verify(mockContext).getSource();
         verify(mockContext).violation();
         verify(mockViolationSink).put(argThat(hasType(MISSING_SOURCE_IN_USER_DATA)));

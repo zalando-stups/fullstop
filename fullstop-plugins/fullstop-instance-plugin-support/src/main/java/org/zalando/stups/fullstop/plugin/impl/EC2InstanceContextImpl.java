@@ -7,16 +7,12 @@ import com.amazonaws.services.ec2.model.Image;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
 import org.zalando.stups.clients.kio.Application;
-import org.zalando.stups.clients.kio.Approval;
-import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.events.CloudTrailEventSupport;
 import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
 import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
 import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
@@ -62,10 +58,6 @@ class EC2InstanceContextImpl implements EC2InstanceContext {
 
     private final KioApplicationProvider kioApplicationProvider;
 
-    private final KioVersionProvider kioVersionProvider;
-
-    private final KioApprovalProvider kioApprovalProvider;
-
     private final PieroneTagProvider pieroneTagProvider;
 
     private final ScmSourceProvider scmSourceProvider;
@@ -80,8 +72,6 @@ class EC2InstanceContextImpl implements EC2InstanceContext {
             final String taupageNamePrefix,
             final List<String> taupageOwners,
             final KioApplicationProvider kioApplicationProvider,
-            final KioVersionProvider kioVersionProvider,
-            final KioApprovalProvider kioApprovalProvider,
             final PieroneTagProvider pieroneTagProvider,
             final ScmSourceProvider scmSourceProvider) {
         this.event = event;
@@ -93,8 +83,6 @@ class EC2InstanceContextImpl implements EC2InstanceContext {
         this.taupageNamePrefix = taupageNamePrefix;
         this.taupageOwners = taupageOwners;
         this.kioApplicationProvider = kioApplicationProvider;
-        this.kioVersionProvider = kioVersionProvider;
-        this.kioApprovalProvider = kioApprovalProvider;
         this.pieroneTagProvider = pieroneTagProvider;
         this.scmSourceProvider = scmSourceProvider;
     }
@@ -165,16 +153,6 @@ class EC2InstanceContextImpl implements EC2InstanceContext {
     @Override
     public Optional<Application> getKioApplication() {
         return kioApplicationProvider.apply(this);
-    }
-
-    @Override
-    public Optional<Version> getKioVersion() {
-        return kioVersionProvider.apply(this);
-    }
-
-    @Override
-    public List<Approval> getKioApprovals() {
-        return kioApprovalProvider.apply(this);
     }
 
     @Override

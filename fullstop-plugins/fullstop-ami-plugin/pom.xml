@@ -27,16 +27,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-client-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -47,7 +37,6 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
 
         <dependency>

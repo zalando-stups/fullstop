@@ -5,11 +5,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.fullstop.plugin.FullstopPlugin;
 import org.zalando.stups.fullstop.plugin.RegionPlugin;
 import org.zalando.stups.fullstop.plugin.config.RegionPluginProperties;
@@ -18,9 +17,8 @@ import java.util.List;
 
 import static org.zalando.stups.fullstop.events.TestCloudTrailEventSerializer.createCloudTrailEvent;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FullstopApplication.class)
-@IntegrationTest("debug=true")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = FullstopApplication.class, properties = "debug=true")
 @ActiveProfiles("triple")
 public class FullstopApplicationTripleIT {
 

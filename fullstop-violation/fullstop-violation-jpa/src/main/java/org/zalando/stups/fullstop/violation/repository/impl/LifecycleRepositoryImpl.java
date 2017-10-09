@@ -1,6 +1,6 @@
 package org.zalando.stups.fullstop.violation.repository.impl;
 
-import com.mysema.query.jpa.JPQLQuery;
+import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QueryDslRepositorySupport;
 import org.zalando.stups.fullstop.violation.entity.LifecycleEntity;
@@ -34,7 +34,7 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
         final QVersionEntity qVersionEntity = QVersionEntity.versionEntity;
 
 
-        final JPQLQuery query = from(qLifecycleEntity).leftJoin(qLifecycleEntity.applicationEntity, qApplicationEntity);
+        final JPQLQuery<LifecycleEntity> query = from(qLifecycleEntity).leftJoin(qLifecycleEntity.applicationEntity, qApplicationEntity);
 
         if (version != null && isNotEmpty(version)) {
             query.join(qLifecycleEntity.versionEntity, qVersionEntity);
@@ -43,7 +43,7 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
 
         query.where(qApplicationEntity.name.eq(name));
 
-        final long total = query.count();
+        final long total = query.fetchCount();
 
         query.groupBy(qLifecycleEntity.versionEntity,
                 qLifecycleEntity.instanceId,
@@ -63,7 +63,7 @@ public class LifecycleRepositoryImpl extends QueryDslRepositorySupport implement
 
         getQuerydsl().applyPagination(pageRequest, query);
 
-        final List<LifecycleEntity> lifecycleEntities = total > 0 ? query.list(qLifecycleEntity) : emptyList();
+        final List<LifecycleEntity> lifecycleEntities = total > 0 ? query.fetch() : emptyList();
 
         return new PageImpl<>(lifecycleEntities, pageRequest, total);
 

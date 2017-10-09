@@ -28,11 +28,6 @@
             <version>${fullstop-plugin-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fullstop-aws-cloudtrail-support</artifactId>
-            <version>${fullstop-aws-support.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
@@ -48,7 +43,6 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

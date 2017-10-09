@@ -10,8 +10,6 @@ import org.zalando.stups.fullstop.plugin.EC2InstanceContext;
 import org.zalando.stups.fullstop.plugin.provider.AmiIdProvider;
 import org.zalando.stups.fullstop.plugin.provider.AmiProvider;
 import org.zalando.stups.fullstop.plugin.provider.KioApplicationProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioApprovalProvider;
-import org.zalando.stups.fullstop.plugin.provider.KioVersionProvider;
 import org.zalando.stups.fullstop.plugin.provider.PieroneTagProvider;
 import org.zalando.stups.fullstop.plugin.provider.ScmSourceProvider;
 import org.zalando.stups.fullstop.plugin.provider.TaupageYamlProvider;
@@ -37,8 +35,6 @@ public class EC2InstanceContextImplTest {
     private final String taupageNamePrefixMock = "";
     private final List<String> taupageOwnersMock = Lists.newArrayList("");
     private KioApplicationProvider kioApplicationProviderMock;
-    private KioVersionProvider kioVersionProviderMock;
-    private KioApprovalProvider kioApprovalProviderMock;
     private PieroneTagProvider pieroneTagProviderMock;
     private ScmSourceProvider scmSourceProviderMock;
 
@@ -52,8 +48,6 @@ public class EC2InstanceContextImplTest {
         amiIdProviderMock = mock(AmiIdProvider.class);
         amiProviderMock = mock(AmiProvider.class);
         kioApplicationProviderMock = mock(KioApplicationProvider.class);
-        kioVersionProviderMock = mock(KioVersionProvider.class);
-        kioApprovalProviderMock = mock(KioApprovalProvider.class);
         pieroneTagProviderMock = mock(PieroneTagProvider.class);
         scmSourceProviderMock = mock(ScmSourceProvider.class);
     }
@@ -68,7 +62,7 @@ public class EC2InstanceContextImplTest {
         when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(taupageYaml));
         final EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
                 eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
-                taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock, kioVersionProviderMock, kioApprovalProviderMock,
+                taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock,
                 pieroneTagProviderMock, scmSourceProviderMock);
         final Optional<String> versionId = ec2InstanceContext.getVersionId();
         assertThat(versionId).isPresent();
@@ -83,7 +77,7 @@ public class EC2InstanceContextImplTest {
         when(taupageYamlProviderMock.apply(any(EC2InstanceContext.class))).thenReturn(Optional.of(taupageYaml));
         final EC2InstanceContext ec2InstanceContext = new EC2InstanceContextImpl(
                 eventMock, instanceJsonMock, clientProviderMock, amiIdProviderMock, amiProviderMock, taupageYamlProviderMock,
-                taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock, kioVersionProviderMock, kioApprovalProviderMock,
+                taupageNamePrefixMock, taupageOwnersMock, kioApplicationProviderMock,
                 pieroneTagProviderMock, scmSourceProviderMock);
         final Optional<String> versionId = ec2InstanceContext.getVersionId();
         assertThat(versionId).isEmpty();
