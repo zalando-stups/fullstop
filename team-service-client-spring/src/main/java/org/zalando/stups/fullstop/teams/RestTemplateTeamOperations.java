@@ -54,7 +54,9 @@ public class RestTemplateTeamOperations implements TeamOperations {
     public List<Account> getAwsAccountsByUser(final String userId) {
         Assert.hasText(userId, "userId must not be blank");
         final String url = baseUrl + "/api/accounts/aws?member={member}&role={role}";
+
         return Stream.of(teamServiceProperties.getAwsMembershipRolesAsArray())
+                .parallel()
                 .map(role -> ImmutableMap.of("role", role, "member", userId))
                 .map(queryParams -> restOperations.exchange(url, HttpMethod.GET, null, userTeamListType, queryParams))
                 .flatMap(response -> response.getBody().stream())

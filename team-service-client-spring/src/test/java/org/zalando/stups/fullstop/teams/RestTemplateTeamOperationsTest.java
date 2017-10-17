@@ -2,7 +2,14 @@ package org.zalando.stups.fullstop.teams;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,18 +24,20 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(properties = "spring.main.banner-mode=off")
 public class RestTemplateTeamOperationsTest {
 
+    @Autowired
     private MockRestServiceServer mockServer;
+    @Autowired
     private TeamServiceProperties properties;
+    @Autowired
     private RestTemplateTeamOperations teamOperations;
 
     @Before
     public void setUp() throws Exception {
-        final RestTemplate restTemplate = new RestTemplate();
-        mockServer = MockRestServiceServer.bindTo(restTemplate).build();
-        properties = new TeamServiceProperties();
-        teamOperations = new RestTemplateTeamOperations(restTemplate, "http://test.local", properties);
+        mockServer.reset();
     }
 
     @Test
@@ -53,6 +62,27 @@ public class RestTemplateTeamOperationsTest {
         mockServer.expect(method(GET)).andExpect(requestTo(startsWith("http://test.local/api/accounts/aws?")))
                 .andExpect(queryParam("member", uid)).andExpect(queryParam("role", role))
                 .andRespond(withSuccess(new ClassPathResource(responseBodyFile), APPLICATION_JSON));
+    }
+
+    @Configuration
+    @EnableConfigurationProperties(TeamServiceProperties.class)
+    public static class TestConfig {
+
+        @Bean
+        RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+
+        @Bean
+        MockRestServiceServer mockServer(RestTemplate restTemplate) {
+            return MockRestServiceServer.bindTo(restTemplate).build();
+        }
+
+        @Bean
+        RestTemplateTeamOperations teamOperations(RestTemplate restTemplate, TeamServiceProperties properties) {
+            return new RestTemplateTeamOperations(restTemplate, "http://test.local", properties);
+        }
+
     }
 
 }
