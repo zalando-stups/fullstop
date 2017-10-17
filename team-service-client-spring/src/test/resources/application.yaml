@@ -1,0 +1,4 @@
+fullstop:
+  clients:
+    teamService:
+      awsMembershipRoles: "PowerUser,MasterOfDisaster"

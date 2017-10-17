@@ -1,0 +1,31 @@
+[
+  {
+    "id": "111222333444",
+    "name": "firstaccount",
+    "provider": "aws",
+    "type": "aws",
+    "description": "",
+    "members": [
+      {
+        "id": "mickeymouse",
+        "account_id": "mickeymouse"
+      },
+      {
+        "id": "donaldduck",
+        "account_id": "donaldduck"
+      }
+    ],
+    "owner": "dagobert",
+    "disabled": false
+  },
+  {
+    "id": "999000111222",
+    "name": "thirdaccount",
+    "provider": "aws",
+    "type": "aws",
+    "description": "",
+    "members": [],
+    "owner": "ticktricktrack",
+    "disabled": true
+  }
+]
