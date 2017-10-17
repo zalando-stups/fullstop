@@ -75,7 +75,7 @@ public class RestTemplateTeamOperationsTest {
 
         @Bean
         MockRestServiceServer mockServer(RestTemplate restTemplate) {
-            return MockRestServiceServer.bindTo(restTemplate).build();
+            return MockRestServiceServer.bindTo(restTemplate).ignoreExpectOrder(true).build();
         }
 
         @Bean
