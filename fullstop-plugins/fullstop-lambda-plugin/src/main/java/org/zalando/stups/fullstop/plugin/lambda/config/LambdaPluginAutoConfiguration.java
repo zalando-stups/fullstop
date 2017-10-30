@@ -9,6 +9,5 @@ import org.zalando.stups.fullstop.plugin.lambda.LambdaPlugin;
 @Configuration
 @ComponentScan(basePackageClasses = { LambdaPlugin.class })
 @EnableConfigurationProperties({ LambdaPluginProperties.class })
-
 public class LambdaPluginAutoConfiguration {
 }

@@ -1,0 +1,51 @@
+{
+  "Records": [
+    {
+      "eventID": "da9a8443-f80e-1212-a0e6-49b5fdeb3042",
+      "awsRegion": "eu-central-1",
+      "eventName": "UpdateFunctionCode20150331v2",
+      "eventTime": "2017-08-22T12:52:11Z",
+      "eventType": "AwsApiCall",
+      "requestID": "b65e4932XXXX-11e7-8366-9fc6749ce3da",
+      "userAgent": "AWS-Toolkit-For-Eclipse/2.3.1.v201708161930, Eclipse/3.13.0.v20170207-1030, aws-sdk-java/1.11.130 Windows_7/6.1 Java_HotSpot(TM)_64-Bit_Server_VM/25.66-b18/1.8.0_66",
+      "eventSource": "lambda.amazonaws.com",
+      "eventVersion": "1.05",
+      "userIdentity": {
+        "arn": "arn:aws:iam::XXXX:user/fdsafsd-lambda-test",
+        "type": "IAMUser",
+        "userName": "sapcc-lambda-test",
+        "accountId": "XXXX",
+        "accessKeyId": "AKIAJ6DDDDDYD276BA",
+        "principalId": "AIDAJFLKGGGGGGG5OS"
+      },
+      "sourceIPAddress": "185.85.220.200",
+      "responseElements": {
+        "role": "arn:aws:iam::XXXX:role/hello-lambda-role",
+        "handler": "de.zalando.sapcc.aws.lambda.auth.APIGatewayAuthorizerHandler",
+        "runtime": "java8",
+        "timeout": 15,
+        "version": "$LATEST",
+        "codeSize": 8000261,
+        "codeSha256": "NUtjuknkXXXXivzJ+igt/YcDDAlfdXXXXrPgZKk=",
+        "memorySize": 512,
+        "description": "",
+        "functionArn": "arn:aws:lambda:eu-central-1:XXXX:function:RRR-HHHHH",
+        "functionName": "SAPCC-Authorizer",
+        "lastModified": "2017-08-22T12:52:11.516+0000",
+        "resourceLock": false,
+        "tracingConfig": {
+          "mode": "PassThrough"
+        }
+      },
+      "requestParameters": {
+        "s3Key": "9fe60242-6a6e-XXXX-ac0e-a290a36bb5b6",
+        "dryRun": false,
+        "publish": false,
+        "s3Bucket": "this-is-a-wrong-bucket",
+        "functionName": "arn:aws:lambda:eu-central-1:XXXX:function:RRR-HHHHH",
+        "s3ObjectVersion": "tufRRRRAn_XXXXrRhNThQq6N"
+      },
+      "recipientAccountId": "123456"
+    }
+  ]
+}
