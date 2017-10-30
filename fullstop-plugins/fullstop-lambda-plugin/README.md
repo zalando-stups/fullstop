@@ -1,17 +1,16 @@
-##Hello Event Plugin
+##AWS Lambda Plugin
 
 ###Aim of plugin
-Provide a plugin example. 
-This plugin log a statement to console:
-    
-    HELLO EVENT - {eventId}
+This plugin is going to validate if the Lambda function was created or updated from the known s3 bucket. 
 
 ###Reacts on
 
 ```
-ALL EVENTS
+   lambda.amazonaws.com
+    - CreateFunction.*
+    - UpdateFunctionCode.*
 ```
 
 ###Configuration
 
-No configuration is needed for this plugin.
+List of S3 buckets that are whitelisted for executing a lambda function. 

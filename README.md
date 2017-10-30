@@ -48,6 +48,7 @@ by all other accounts in order to perform this operations.
 * [fullstop-subnet-plugin](fullstop-plugins/fullstop-subnet-plugin)
 * [fullstop-taupage-yaml-plugin] (fullstop-plugins/fullstop-taupage-yaml-plugin)
 * [fullstop-unapproved-services-and-role-plugin] (fullstop-plugins/fullstop-unapproved-services-and-role-plugin)
+* [fullstop-lambda-plugin] (fullstop-plugins/fullstop-lambda-plugin)
 
 ##Jobs
 
