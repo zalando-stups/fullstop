@@ -44,11 +44,11 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     }
 
     @Override
-    public boolean supports(final CloudTrailEvent delimiter) {
-        return delimiter.getEventData().getEventSource().equals(EVENT_SOURCE)
+    public boolean supports(final CloudTrailEvent cloudTrailEvent) {
+        return cloudTrailEvent.getEventData().getEventSource().equals(EVENT_SOURCE)
                 && (
-                isCreateFunctionEvent(delimiter.getEventData().getEventName())
-                        || isUpdateFunctionEvent(delimiter.getEventData().getEventName())
+                isCreateFunctionEvent(cloudTrailEvent.getEventData().getEventName())
+                        || isUpdateFunctionEvent(cloudTrailEvent.getEventData().getEventName())
         );
     }
 
