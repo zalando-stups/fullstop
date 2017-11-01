@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Optional.empty;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
-import static org.zalando.stups.fullstop.violation.ViolationType.LAMBDA_FUNCTION_STARTED_FROM_UNTRUSTED_LOCATION;
+import static org.zalando.stups.fullstop.violation.ViolationType.LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION;
 
 @Component
 public class LambdaPlugin extends AbstractFullstopPlugin {
@@ -64,7 +64,7 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
             violationSink.put(
                     violationFor(event)
                             .withPluginFullyQualifiedClassName(LambdaPlugin.class)
-                            .withType(LAMBDA_FUNCTION_STARTED_FROM_UNTRUSTED_LOCATION)
+                            .withType(LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION)
                             .withMetaInfo(ImmutableMap
                                     .builder()
                                     .put(S3_BUCKET, s3Bucket.orElse(EMPTY))

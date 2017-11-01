@@ -28,9 +28,9 @@ public class LambdaPluginTest {
     public void setUp() throws Exception {
 
         mockViolationSink = mock(ViolationSink.class);
-        mockViolationSink = mock(ViolationSink.class);
 
         lambdaPluginProperties = new LambdaPluginProperties();
+        lambdaPluginProperties.setS3Buckets("zalando-lambda-repository-eu-central-1,zalando-lambda-repository-eu-west-1");
         lambdaPlugin = new LambdaPlugin(mockViolationSink, lambdaPluginProperties);
     }
 
