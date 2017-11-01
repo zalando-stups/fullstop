@@ -9,9 +9,9 @@ INSERT INTO fullstop_data.violation_type (
   created_by,
   version)
 VALUES ('LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION',
-        'The Lambda function you created/updated is not stored in our trusted S3 bucket.',
+        'The code that has been used in a Lambda function, is not stored in one of the trusted S3 buckets.',
         1,
-        'Lambda function created/updated from an untrusted location',
+        'Untrusted AWS-Lambda',
         'pull/512',
         now(),
         now(),
