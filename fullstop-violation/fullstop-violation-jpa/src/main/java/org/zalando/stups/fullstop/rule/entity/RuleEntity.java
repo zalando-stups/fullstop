@@ -50,7 +50,7 @@ public class RuleEntity {
     @JsonProperty(value = "violation_type_entity_id")
     private String violationTypeEntityId;
 
-    @JsonProperty(value = "meta_data_json_path")
+    @JsonProperty(value = "meta_info_json_path")
     private String metaInfoJsonPath;
 
     @CreatedDate

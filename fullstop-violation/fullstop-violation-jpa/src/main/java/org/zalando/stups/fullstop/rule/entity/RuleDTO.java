@@ -32,7 +32,7 @@ public class RuleDTO {
     @JsonProperty(value = "violation_type")
     private String violationTypeEntityId;
 
-    @JsonProperty(value = "meta_data_json_path")
+    @JsonProperty(value = "meta_info_json_path")
     private String metaInfoJsonPath;
 
     @JsonProperty(value = "version")
