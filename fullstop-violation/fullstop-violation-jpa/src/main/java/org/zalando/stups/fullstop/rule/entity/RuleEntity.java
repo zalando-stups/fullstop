@@ -50,6 +50,9 @@ public class RuleEntity {
     @JsonProperty(value = "violation_type_entity_id")
     private String violationTypeEntityId;
 
+    @JsonProperty(value = "meta_data_json_path")
+    private String metaInfoJsonPath;
+
     @CreatedDate
     @NotNull(groups = {PersistenceOnly.class})
     @Column(nullable = false)
@@ -156,6 +159,14 @@ public class RuleEntity {
         this.violationTypeEntityId = violationTypeEntityId;
     }
 
+    public String getMetaInfoJsonPath() {
+        return metaInfoJsonPath;
+    }
+
+    public void setMetaInfoJsonPath(String metaInfoJsonPath) {
+        this.metaInfoJsonPath = metaInfoJsonPath;
+    }
+
     public DateTime getCreated() {
         return created;
     }
@@ -204,6 +215,7 @@ public class RuleEntity {
                 .add("lastModified", lastModified)
                 .add("createdBy", createdBy)
                 .add("created", created)
+                .add("metaInfoJsonPath", metaInfoJsonPath)
                 .add("violationTypeEntityId", violationTypeEntityId)
                 .add("expiryDate", expiryDate)
                 .add("reason", reason)

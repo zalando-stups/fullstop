@@ -45,9 +45,9 @@ public class RuleEntityServiceImpl implements RuleEntityService {
 
     @Override
     public RuleEntity update(final RuleDTO ruleDTO, final Long id) throws NoSuchElementException {
-
-        ofNullable(ruleEntityRepository.findOne(id)).
-                map(this::invalidateRule).orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
+        final RuleEntity existingRule = ofNullable(ruleEntityRepository.findOne(id))
+                .orElseThrow(() -> new NoSuchElementException(format("No such Rule! Id: %s", id)));
+        invalidateRule(existingRule);
 
         return save(ruleDTO);
 
@@ -88,13 +88,13 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         }
     }
 
-    private RuleEntity invalidateRule(final RuleEntity ruleEntity) {
-        return invalidateRule(ruleEntity, DateTime.now());
+    private void invalidateRule(final RuleEntity ruleEntity) {
+        invalidateRule(ruleEntity, DateTime.now());
     }
 
-    private RuleEntity invalidateRule(final RuleEntity ruleEntity, final DateTime expiryDate) {
+    private void invalidateRule(final RuleEntity ruleEntity, final DateTime expiryDate) {
         ruleEntity.setExpiryDate(expiryDate);
-        return ruleEntityRepository.save(ruleEntity);
+        ruleEntityRepository.save(ruleEntity);
     }
 
     private RuleEntity mapDtoToRuleEntity(final RuleDTO ruleDTO) {
@@ -108,6 +108,7 @@ public class RuleEntityServiceImpl implements RuleEntityService {
         ruleEntity.setReason(ruleDTO.getReason());
         ruleEntity.setExpiryDate(ruleDTO.getExpiryDate());
         ruleEntity.setViolationTypeEntityId(ruleDTO.getViolationTypeEntityId());
+        ruleEntity.setMetaInfoJsonPath(ruleDTO.getMetaInfoJsonPath());
         ruleEntity.setVersion(ruleDTO.getVersion());
 
         return ruleEntity;

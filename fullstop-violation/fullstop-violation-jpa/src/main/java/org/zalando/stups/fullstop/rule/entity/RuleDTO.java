@@ -32,6 +32,9 @@ public class RuleDTO {
     @JsonProperty(value = "violation_type")
     private String violationTypeEntityId;
 
+    @JsonProperty(value = "meta_data_json_path")
+    private String metaInfoJsonPath;
+
     @JsonProperty(value = "version")
     private Long version;
 
@@ -105,6 +108,14 @@ public class RuleDTO {
 
     public void setViolationTypeEntityId(final String violationTypeEntityId) {
         this.violationTypeEntityId = violationTypeEntityId;
+    }
+
+    public String getMetaInfoJsonPath() {
+        return metaInfoJsonPath;
+    }
+
+    public void setMetaInfoJsonPath(String metaInfoJsonPath) {
+        this.metaInfoJsonPath = metaInfoJsonPath;
     }
 
     public Long getVersion() {
