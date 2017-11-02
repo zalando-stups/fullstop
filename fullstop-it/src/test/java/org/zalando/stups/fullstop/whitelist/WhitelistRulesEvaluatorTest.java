@@ -8,6 +8,7 @@ import org.zalando.stups.fullstop.violation.entity.VersionEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -15,9 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class WhitelistRulesEvaluatorTest {
 
-    ViolationEntity violationEntity;
-    RuleEntity ruleEntity;
-    WhitelistRulesEvaluator evaluator;
+    private ViolationEntity violationEntity;
+    private RuleEntity ruleEntity;
+    private WhitelistRulesEvaluator evaluator;
 
     @Before
     public void setUp() throws Exception {
@@ -28,7 +29,7 @@ public class WhitelistRulesEvaluatorTest {
 
 
     @Test
-    public void testAccoundID() throws Exception {
+    public void testAccountID() throws Exception {
         violationEntity = new ViolationEntity(null, "1234", null, null, null, null, null, null, null, null);
         ruleEntity.setAccountId("1234");
         final Boolean apply = evaluator.apply(ruleEntity, violationEntity);
@@ -175,5 +176,35 @@ public class WhitelistRulesEvaluatorTest {
         final Boolean apply = evaluator.apply(ruleEntity, violationEntity);
 
         assertThat(apply).isEqualTo(true);
+    }
+
+    @Test
+    public void testJsonPath() throws Exception {
+        final HashMap<String, String> metaInfo = newHashMap();
+        metaInfo.put("user_name", "ses.ci-master-foobar-123abc");
+        violationEntity = new ViolationEntity(null, "700123", "eu-central-6", null, metaInfo, null, null, null, null, null);
+        ruleEntity.setMetaInfoJsonPath("$.[?(@.user_name =~ /ses\\.ci-master-.+/)]");
+
+        assertThat(evaluator.apply(ruleEntity, violationEntity)).isTrue();
+    }
+
+    @Test
+    public void testJsonPathMismatch() throws Exception {
+        final HashMap<String, String> metaInfo = newHashMap();
+        metaInfo.put("user_name", "ses.ci-slave");
+        violationEntity = new ViolationEntity(null, "700123", "eu-central-6", null, metaInfo, null, null, null, null, null);
+        ruleEntity.setMetaInfoJsonPath("$.[?(@.user_name =~ /ses\\.ci-master-.+/)]");
+
+        assertThat(evaluator.apply(ruleEntity, violationEntity)).isFalse();
+    }
+
+    @Test
+    public void testJsonPathMismatch2() throws Exception {
+        final HashMap<String, Object> metaInfo = newHashMap();
+        metaInfo.put("foo", 1);
+        violationEntity = new ViolationEntity(null, "700123", "eu-central-6", null, metaInfo, null, null, null, null, null);
+        ruleEntity.setMetaInfoJsonPath("$.[?(@.user_name =~ /ses\\.ci-master-.+/)]");
+
+        assertThat(evaluator.apply(ruleEntity, violationEntity)).isFalse();
     }
 }

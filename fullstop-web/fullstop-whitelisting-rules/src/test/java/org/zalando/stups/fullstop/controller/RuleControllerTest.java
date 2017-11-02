@@ -91,6 +91,7 @@ public class RuleControllerTest {
         ruleDTO.setReason("BAM!");
         ruleDTO.setRegion("eu-west-1");
         ruleDTO.setViolationTypeEntityId("APPLICATION_NOT_PRESENT_IN_KIO");
+        ruleDTO.setMetaInfoJsonPath("$..*");
 
         ruleEntity = new RuleEntity();
         ruleEntity.setId(1L);
