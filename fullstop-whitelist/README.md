@@ -59,6 +59,7 @@ Matches if, when applied to the the meta_info property (which is an arbitrary JS
 returns a non-empty list of results. JsonPath allows for complex queries.
 
 Example: `"$.[?(@.role_name == 'MyReadOnlyRole' && @.grantees == ['arn:aws:iam::999888777666:root'])]"`
+
 When this expression is applied to the sample meta info:
 ```json
 {
@@ -69,8 +70,7 @@ When this expression is applied to the sample meta info:
   "role_arn": "arn:aws:iam::111222333444:role/MyReadOnlyRole"
 }
 ```
-
-It will return the result:
+it will return the result:
 ```json
 [
    {
@@ -82,7 +82,6 @@ It will return the result:
    }
 ]
 ```
-
 When we change the expression slightly, e.g. to match for another role name:
 `"$.[?(@.role_name == 'AdminRole' && @.grantees == ['arn:aws:iam::999888777666:root'])]"`
 and apply to the sample meta info, it will return an empty list `[]`.
