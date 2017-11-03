@@ -28,8 +28,12 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
 
     private static final String S3_BUCKET_JSON_PATH = "$.code.s3Bucket";
     private static final String S3_KEY_JSON_PATH = "$.code.s3Key";
-    private static final String S3_BUCKET = "s3-bucket";
-    private static final String S3_KEY = "s3-key";
+    private static final String FUNCTION_NAME_JSON_PATH = "$.functionName";
+
+    private static final String S3_BUCKET = "s3_bucket";
+    private static final String S3_KEY = "s3_key";
+    private static final String FUNCTION_NAME = "function_name";
+
     private static final String EMPTY = "";
 
     private final ViolationSink violationSink;
@@ -56,9 +60,9 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     @Override
     public void processEvent(final CloudTrailEvent event) {
 
-        final String parameters = event.getEventData().getRequestParameters();
+        final String requestParameters = event.getEventData().getRequestParameters();
 
-        final Optional<String> s3Bucket = getS3Bucket(parameters);
+        final Optional<String> s3Bucket = getS3Bucket(requestParameters);
 
         if (!s3Bucket.isPresent() || !lambdaPluginProperties.getS3Buckets().contains(s3Bucket.get())) {
             violationSink.put(
@@ -67,8 +71,9 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
                             .withType(LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION)
                             .withMetaInfo(ImmutableMap
                                     .builder()
+                                    .put(FUNCTION_NAME, getFunctionName(requestParameters).orElse(EMPTY))
                                     .put(S3_BUCKET, s3Bucket.orElse(EMPTY))
-                                    .put(S3_KEY, getS3BucketKey(parameters).orElse(EMPTY))
+                                    .put(S3_KEY, getS3BucketKey(requestParameters).orElse(EMPTY))
                                     .build())
                             .build());
         }
@@ -85,6 +90,14 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     private Optional<String> getS3BucketKey(final String parameters) {
         try {
             return Optional.ofNullable(JsonPath.read(parameters, S3_KEY_JSON_PATH));
+        } catch (final JsonPathException ignored) {
+            return empty();
+        }
+    }
+
+    private Optional<String> getFunctionName(final String parameters) {
+        try {
+            return Optional.ofNullable(JsonPath.read(parameters, FUNCTION_NAME_JSON_PATH));
         } catch (final JsonPathException ignored) {
             return empty();
         }
