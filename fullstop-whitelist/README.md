@@ -100,3 +100,33 @@ ID of the violation type (use command line tool `fullstop types` to get a comple
 Matches if the violation was of exactly this type.
 
 Example: `"UNSECURED_PUBLIC_ENDPOINT"`
+
+## Examples
+
+This section shows some example payloads used to create whitelisting rules through the API.
+
+### Whitelist an AMI by name
+Allow AWS account `111222333444` to use any CoreOS-stable hvm AMI. Note that the AMI name is matched by a regular
+expression. For additional security, the AMI owner needs to match as well.
+```json
+  {
+    "account_id": "111222333444",
+    "image_name": "^CoreOS-stable-[0-9.]+-hvm$",
+    "image_owner": "595879546273",
+    "reason": "As requested and approved in ticket #4711",
+    "violation_type_entity_id": "WRONG_AMI"
+  }
+```
+
+### Whitelist OUTDATED_TAUPAGE
+Allow AWS account `111222333444` to pause updating the Taupage AMI to the latest version for the application `my-app`
+until end of Q1 2018. 
+```json
+  {
+    "account_id": "111222333444",
+    "application_id": "my-app",
+    "reason": "As requested and approved in ticket #4711",
+    "expiry_date": "2018-04-30T00:00:00.000Z",
+    "violation_type_entity_id": "OUTDATED_TAUPAGE"
+  }
+```
