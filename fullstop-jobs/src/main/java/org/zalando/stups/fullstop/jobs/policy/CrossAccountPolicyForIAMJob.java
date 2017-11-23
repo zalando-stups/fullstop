@@ -26,9 +26,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.EU_WEST_1;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.CROSS_ACCOUNT_ROLE;
@@ -38,6 +42,7 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
 
     private static final String EVENT_ID = "crossAccountPolicyForIAMJob";
+    private static final Pattern ARN_PATTERN = Pattern.compile("^arn:aws:iam::(?<accountId>[0-9]{12}):.+$");
 
     private final Logger log = LoggerFactory.getLogger(CrossAccountPolicyForIAMJob.class);
 
@@ -94,26 +99,29 @@ public class CrossAccountPolicyForIAMJob implements FullstopJob {
 
                         final String assumeRolePolicyDocument = role.getAssumeRolePolicyDocument();
 
-                        List<String> principalArns = Lists.newArrayList();
+                        List<String> principals = Lists.newArrayList();
                         try {
-                            principalArns = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
+                            principals = JsonPath.read(URLDecoder.decode(assumeRolePolicyDocument, "UTF-8"),
                                     ".Statement[*].Principal.AWS");
                         } catch (final UnsupportedEncodingException e) {
                             log.warn("Could not decode assumeRolePolicyDocument", e);
                         }
 
-                        final List<String> crossAccountIds = principalArns.stream()
-                                .filter(principalARN -> !principalARN.contains(account))
-                                .filter(principalARN -> !principalARN.contains(jobsProperties.getManagementAccount()))
+                        final Set<String> allowedAccounts = newHashSet(account, jobsProperties.getManagementAccount());
+                        final List<String> crossAccountArns = principals.stream()
+                                .map(ARN_PATTERN::matcher)
+                                .filter(Matcher::matches)
+                                .filter(m -> !allowedAccounts.contains(m.group("accountId")))
+                                .map(Matcher::group)
                                 .collect(toList());
 
-                        if (crossAccountIds != null && !crossAccountIds.isEmpty()) {
+                        if (crossAccountArns != null && !crossAccountArns.isEmpty()) {
                             writeViolation(
                                     account,
                                     ImmutableMap.of(
                                             "role_arn", role.getArn(),
                                             "role_name", role.getRoleName(),
-                                            "grantees", crossAccountIds),
+                                            "grantees", crossAccountArns),
                                     role.getRoleId()
                             );
                         }
