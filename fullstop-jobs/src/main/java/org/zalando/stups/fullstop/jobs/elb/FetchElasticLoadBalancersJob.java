@@ -4,8 +4,11 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
+import com.amazonaws.services.elasticloadbalancing.model.DescribeTagsRequest;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.amazonaws.services.elasticloadbalancing.model.Tag;
+import com.amazonaws.services.elasticloadbalancing.model.TagDescription;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -48,7 +51,10 @@ import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
@@ -159,7 +165,19 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         final DescribeLoadBalancersResult result = elbClient.describeLoadBalancers(request);
                         marker = Optional.ofNullable(trimToNull(result.getNextMarker()));
 
+                        final List<String> elbNames = result.getLoadBalancerDescriptions().stream()
+                                .map(LoadBalancerDescription::getLoadBalancerName)
+                                .collect(toList());
+                        final Map<String, List<Tag>> tagsByElb = elbClient.describeTags(
+                                new DescribeTagsRequest().withLoadBalancerNames(elbNames)).getTagDescriptions().stream()
+                                .collect(toMap(TagDescription::getLoadBalancerName, TagDescription::getTags));
                         for (final LoadBalancerDescription elb : result.getLoadBalancerDescriptions()) {
+                            // This check only works for "Senza" Load Balancers, for Kubernetes it's currently
+                            // meaningless. Hence just skip Kubernetes ELBs.
+                            if (hasKubernetesTag(tagsByElb.getOrDefault(elb.getLoadBalancerName(), emptyList()))) {
+                                continue;
+                            }
+
                             try {
                                 processELB(account, awsRegion, elb);
                             } catch (Exception e) {
@@ -178,6 +196,16 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 }
             }
         }
+    }
+
+    private boolean hasKubernetesTag(List<Tag> elbTags) {
+        for (final Tag tag : elbTags) {
+            if (StringUtils.equals(tag.getValue(), "owned")
+                    && startsWith(tag.getKey(), "kubernetes.io/cluster/")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void processELB(String account, Region awsRegion, LoadBalancerDescription elb) {
