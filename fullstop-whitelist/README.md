@@ -11,10 +11,10 @@ Whitelisted violations are marked and can easily be filtered out, before present
 ## Whitelisting rules
 
 The whitelisting engine consists of a configurable set of rules. One rule contains multiple matching criteria,
-that are applied to violation objects. Iff **all** checks within one rule yield true, the whitelisting was successful.
+that are applied to violation objects. If and only if **all** checks within one rule yield true, the whitelisting was successful.
 Each rule is immutable, which means, the checks within the rule cannot be changed. However rules have a modifiable
 expiration date. For example: A feature team and the IT compliance team agreed upon a temporary workaround, that would
-result in Fullstop showing violations, a whitelisting rule can be created with a expiration date set. In case the
+result in Fullstop showing violations, a whitelisting rule can be created with an expiration date set. In case the
 exact expiration date is not yet known, a rule can also be invalidated at any later point in time. This is the only
 possible modification to an existing rule. Updating the checks of a rule, will result in the old one being invalidated
 and a new rule with updated check criteria being created. This way, traceability of whitelisting decisions is guaranteed.
