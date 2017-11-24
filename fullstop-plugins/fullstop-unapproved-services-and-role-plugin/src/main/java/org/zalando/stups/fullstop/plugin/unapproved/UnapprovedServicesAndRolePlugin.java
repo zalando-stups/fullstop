@@ -78,12 +78,13 @@ public class UnapprovedServicesAndRolePlugin extends AbstractFullstopPlugin {
     }
 
     private boolean isPerformedByAdmin(CloudTrailEventData eventData) {
+        final Set<String> adminRoles = unapprovedServicesAndRoleProperties.getAdminRoles();
         return Optional.ofNullable(eventData)
                 .map(CloudTrailEventData::getUserIdentity)
                 .map(UserIdentity::getSessionContext)
                 .map(SessionContext::getSessionIssuer)
                 .map(SessionIssuer::getUserName)
-                .filter(roleName -> roleName.equals(unapprovedServicesAndRoleProperties.getAdministrator()))
+                .filter(adminRoles::contains)
                 .isPresent();
     }
 

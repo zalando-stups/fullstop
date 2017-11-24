@@ -1,0 +1,52 @@
+{
+  "Records": [
+    {
+      "eventVersion": "1.02",
+      "userIdentity": {
+        "arn": "arn:aws:sts::111222333444:assumed-role/OrganizationAccountAccessRole/1509091852018300305",
+        "type": "AssumedRole",
+        "accountId": "111222333444",
+        "accessKeyId": "ASIAIFJ67QTPAZNISOPA",
+        "principalId": "AROAI2T2TCK35EV3X46HY:1509091852018300305",
+        "sessionContext": {
+          "attributes": {
+            "creationDate": "2017-10-27T08:10:52Z",
+            "mfaAuthenticated": "false"
+          },
+          "sessionIssuer": {
+            "arn": "arn:aws:iam::111222333444:role/OrganizationAccountAccessRole",
+            "type": "Role",
+            "userName": "OrganizationAccountAccessRole",
+            "accountId": "111222333444",
+            "principalId": "AROAI2T2TCK35EV3X46HY"
+          }
+        }
+      },
+      "eventTime": "2015-06-17T15:45:40Z",
+      "eventSource": "iam.amazonaws.com",
+      "eventName": "CreateRole",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "cloudformation.amazonaws.com",
+      "userAgent": "cloudformation.amazonaws.com",
+      "requestParameters": {
+        "path": "/",
+        "roleName": "mint-worker-b17-AppServerRole-W5WX8WewafwO2MEWZ",
+        "assumeRolePolicyDocument": "{\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Principal\":{\"Service\":[\"ec2.amazonaws.com\"]},\"Effect\":\"Allow\"}],\"Version\":\"2012-10-17\"}"
+      },
+      "responseElements": {
+        "role": {
+          "assumeRolePolicyDocument": "%7B%22Statement%22%3A%5B%7B%22Action%22%3A%5B%22sts%3AAssumeRole%22%5D%2C%22Principal%22%3A%7B%22Service%22%3A%5B%22ec2.amazonaws.com%22%5D%7D%2C%22Effect%22%3A%22Allow%22%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D",
+          "arn": "arn:aws:iam::XXXX123XXX:role/mint-worker-b17-AppServerRole-WX8WO2MEWZ",
+          "roleId": "FDSaffdsavr",
+          "createDate": "Jun 17, 2015 3:45:40 PM",
+          "roleName": "mint-worker-b17-AppServerRole-W58WO23MEWZ",
+          "path": "/"
+        }
+      },
+      "requestID": "e7ef6dssd9-1507-11e5-aaf6-fb10942b8a1f",
+      "eventID": "0eb03aae-2182-11e5-b5f7-727283247c7f",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "111222333444"
+    }
+  ]
+}
