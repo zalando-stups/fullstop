@@ -189,6 +189,13 @@ paths:
           type: array
           items:
             type: string
+        - name: instance_id
+          in: query
+          required: false
+          description: Include only violations from the instance with these ids
+          type: array
+          items:
+            type: string
         - name: from
           in: query
           required: false
