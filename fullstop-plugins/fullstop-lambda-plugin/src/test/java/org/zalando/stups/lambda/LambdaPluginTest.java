@@ -9,6 +9,7 @@ import org.zalando.stups.fullstop.plugin.lambda.config.LambdaPluginProperties;
 import org.zalando.stups.fullstop.violation.Violation;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -30,7 +31,7 @@ public class LambdaPluginTest {
         mockViolationSink = mock(ViolationSink.class);
 
         lambdaPluginProperties = new LambdaPluginProperties();
-        lambdaPluginProperties.setS3Buckets("zalando-lambda-repository-eu-central-1,zalando-lambda-repository-eu-west-1");
+        lambdaPluginProperties.setS3Buckets(asList("zalando-lambda-repository-eu-central-1", "zalando-lambda-repository-eu-west-1"));
         lambdaPlugin = new LambdaPlugin(mockViolationSink, lambdaPluginProperties);
     }
 
