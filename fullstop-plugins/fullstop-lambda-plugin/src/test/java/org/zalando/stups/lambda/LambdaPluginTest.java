@@ -42,16 +42,33 @@ public class LambdaPluginTest {
 
 
     @Test
-    public void testProcessLambdaEvent() throws Exception {
-        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record.json");
+    public void testCreateCorrectS3Bucket() throws Exception {
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-create-correct-s3bucket.json");
         lambdaPlugin.processEvent(cloudTrailEvent);
 
         verify(mockViolationSink, never()).put(any(Violation.class));
     }
 
     @Test
-    public void testProcessLambdaEventWrongS3Bucket() throws Exception {
-        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-wrong-s3bucket.json");
+    public void testCreateWrongS3Bucket() throws Exception {
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-create-wrong-s3bucket.json");
+        lambdaPlugin.processEvent(cloudTrailEvent);
+
+        verify(mockViolationSink, only()).put(any(Violation.class));
+    }
+
+
+    @Test
+    public void testUpdateCorrectS3Bucket() throws Exception {
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-update-correct-s3bucket.json");
+        lambdaPlugin.processEvent(cloudTrailEvent);
+
+        verify(mockViolationSink, never()).put(any(Violation.class));
+    }
+
+    @Test
+    public void testUpdateWrongS3Bucket() throws Exception {
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-update-wrong-s3bucket.json");
         lambdaPlugin.processEvent(cloudTrailEvent);
 
         verify(mockViolationSink, only()).put(any(Violation.class));
