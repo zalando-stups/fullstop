@@ -26,8 +26,10 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
 
     private static final Pattern UPDATE_FUNCTION_EVENT_REGEXP = Pattern.compile("UpdateFunctionCode.*");
 
-    private static final String S3_BUCKET_JSON_PATH = "$.code.s3Bucket";
-    private static final String S3_KEY_JSON_PATH = "$.code.s3Key";
+    private static final String S3_BUCKET_CODE_JSON_PATH = "$.code.s3Bucket";
+    private static final String S3_BUCKET_JSON_PATH = "$.s3Bucket";
+    private static final String S3_KEY_CODE_JSON_PATH = "$.code.s3Key";
+    private static final String S3_KEY_JSON_PATH = "$.s3Key";
     private static final String FUNCTION_NAME_JSON_PATH = "$.functionName";
 
     private static final String S3_BUCKET = "s3_bucket";
@@ -80,16 +82,22 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     }
 
     private Optional<String> getS3Bucket(final String parameters) {
-        try {
-            return Optional.ofNullable(JsonPath.read(parameters, S3_BUCKET_JSON_PATH));
-        } catch (final JsonPathException ignored) {
-            return empty();
-        }
+        return getFromJSON(parameters, S3_BUCKET_CODE_JSON_PATH, S3_BUCKET_JSON_PATH);
     }
 
     private Optional<String> getS3BucketKey(final String parameters) {
+        return getFromJSON(parameters, S3_KEY_CODE_JSON_PATH, S3_KEY_JSON_PATH);
+    }
+
+    private Optional<String> getFromJSON(final String parameters, final String s3BucketCodeJsonPath, final String s3BucketJsonPath) {
+        final Optional<String> s3bucket;
         try {
-            return Optional.ofNullable(JsonPath.read(parameters, S3_KEY_JSON_PATH));
+            s3bucket = Optional.ofNullable(JsonPath.read(parameters, s3BucketCodeJsonPath));
+            if (s3bucket.isPresent()){
+                return s3bucket;
+            } else {
+                return Optional.ofNullable(JsonPath.read(parameters, s3BucketJsonPath));
+            }
         } catch (final JsonPathException ignored) {
             return empty();
         }
