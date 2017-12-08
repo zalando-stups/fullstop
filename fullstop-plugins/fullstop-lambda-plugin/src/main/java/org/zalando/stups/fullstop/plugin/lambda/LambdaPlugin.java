@@ -2,6 +2,7 @@ package org.zalando.stups.fullstop.plugin.lambda;
 
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +11,10 @@ import org.zalando.stups.fullstop.plugin.AbstractFullstopPlugin;
 import org.zalando.stups.fullstop.plugin.lambda.config.LambdaPluginProperties;
 import org.zalando.stups.fullstop.violation.ViolationSink;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;
 import static org.zalando.stups.fullstop.events.CloudTrailEventSupport.violationFor;
 import static org.zalando.stups.fullstop.violation.ViolationType.LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION;
@@ -41,7 +41,7 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
 
     private static final String EMPTY = "";
 
-    private List<String> whitelistedSha256 = newArrayList(
+    private Set<String> whitelistedSha256 = Sets.newHashSet(
             "cax1BLJW1BIh8CUYWffXav7NJKdoWCh5J3AtW+MUbjs=", // Node.js 6.10
             "uOcL4KIfjdER8JrY4HgSFhPKbAvRmnpTTiT1VBiU0iA=", // C#
             "cl0KxraOjIeRrk9/rG4V1YZWZBi7eb2FvkQbTb396F4=", // Python 2.7
