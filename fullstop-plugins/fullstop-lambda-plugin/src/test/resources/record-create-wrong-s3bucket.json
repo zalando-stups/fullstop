@@ -1,0 +1,74 @@
+{
+  "Records": [
+    {
+      "eventID": "2ff56a67-1223-4454-4545-b371f2bcdb7f",
+      "awsRegion": "eu-central-1",
+      "eventName": "CreateFunction2ffff31",
+      "eventTime": "2017-07-19T08:22:38Z",
+      "eventType": "AwsApiCall",
+      "requestID": "6caa67fffffe7-8579-25b7c8acc41c",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36",
+      "eventSource": "lambda.amazonaws.com",
+      "eventVersion": "1.05",
+      "userIdentity": {
+        "arn": "arn:aws:sts::fdsafsdafds1232:assumed-role/Shibboleth-PowerUser/xxxxx",
+        "type": "AssumedRole",
+        "accountId": "fdsafsdafds1232",
+        "accessKeyId": "ASIAIXTTTTTTEPVAHWQ",
+        "principalId": "AROATTTTTTTI5DTBK:dddddd",
+        "sessionContext": {
+          "attributes": {
+            "creationDate": "2017-07-19T08:17:08Z",
+            "mfaAuthenticated": "false"
+          },
+          "sessionIssuer": {
+            "arn": "arn:aws:iam::fdsafsdafds1232:role/Shibboleth-PowerUser",
+            "type": "Role",
+            "userName": "Shibboleth-PowerUser",
+            "accountId": "fdsafsdafds1232",
+            "principalId": "AROAJ7XBNPU37CDI5DTBK"
+          }
+        }
+      },
+      "sourceIPAddress": "185.85.220.199",
+      "responseElements": {
+        "role": "arn:aws:iam::fdsafsdafds1232:role/lambda-minimum-permissions",
+        "handler": "lambda_function.lambda_handler",
+        "runtime": "python3.6",
+        "timeout": 3,
+        "version": "$LATEST",
+        "codeSize": 321,
+        "codeSha256": "wBRmat4UiZGNmAdddddddddddpVTHeAR94fTWQ=",
+        "memorySize": 128,
+        "description": "A starter AWS Lambda function.",
+        "functionArn": "arn:aws:lambda:eu-central-1:fdsafsdafds1232:function:myFirstLambda",
+        "functionName": "myFirstLambda",
+        "lastModified": "2017-07-19T08:22:38.093+0000",
+        "tracingConfig": {
+          "mode": "PassThrough"
+        }
+      },
+      "requestParameters": {
+        "code": {
+
+        },
+        "role": "arn:aws:iam::3fdsafdsaf05:role/lambda-minimum-permissions",
+        "tags": {
+          "lambda-console:blueprint": "hello-world-python3"
+        },
+        "handler": "lambda_function.lambda_handler",
+        "publish": false,
+        "runtime": "python3.6",
+        "timeout": 3,
+        "kMSKeyArn": "",
+        "memorySize": 128,
+        "description": "A starter AWS Lambda function.",
+        "functionName": "myFirstLambda",
+        "tracingConfig": {
+          "mode": "PassThrough"
+        }
+      },
+      "recipientAccountId": "fdsafdsafdsa"
+    }
+  ]
+}

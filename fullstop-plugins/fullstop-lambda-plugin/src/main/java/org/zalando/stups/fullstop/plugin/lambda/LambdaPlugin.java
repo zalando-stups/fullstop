@@ -26,8 +26,10 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
 
     private static final Pattern UPDATE_FUNCTION_EVENT_REGEXP = Pattern.compile("UpdateFunctionCode.*");
 
-    private static final String S3_BUCKET_JSON_PATH = "$.code.s3Bucket";
-    private static final String S3_KEY_JSON_PATH = "$.code.s3Key";
+    private static final String S3_BUCKET_CODE_JSON_PATH = "$.code.s3Bucket";
+    private static final String S3_BUCKET_JSON_PATH = "$.s3Bucket";
+    private static final String S3_KEY_CODE_JSON_PATH = "$.code.s3Key";
+    private static final String S3_KEY_JSON_PATH = "$.s3Key";
     private static final String FUNCTION_NAME_JSON_PATH = "$.functionName";
 
     private static final String S3_BUCKET = "s3_bucket";
@@ -50,8 +52,7 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     @Override
     public boolean supports(final CloudTrailEvent cloudTrailEvent) {
         return cloudTrailEvent.getEventData().getEventSource().equals(EVENT_SOURCE)
-                && (
-                isCreateFunctionEvent(cloudTrailEvent.getEventData().getEventName())
+                && (isCreateFunctionEvent(cloudTrailEvent.getEventData().getEventName())
                         || isUpdateFunctionEvent(cloudTrailEvent.getEventData().getEventName())
         );
     }
@@ -61,8 +62,11 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
 
         final String requestParameters = event.getEventData().getRequestParameters();
+        final String responseElements = event.getEventData().getResponseElements();
 
-        final Optional<String> s3Bucket = getS3Bucket(requestParameters);
+        final Optional<String> s3Bucket = getFromJSON(requestParameters,
+                S3_BUCKET_CODE_JSON_PATH,
+                S3_BUCKET_JSON_PATH);
 
         if (!s3Bucket.isPresent() || !lambdaPluginProperties.getS3Buckets().contains(s3Bucket.get())) {
             violationSink.put(
@@ -71,36 +75,32 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
                             .withType(LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION)
                             .withMetaInfo(ImmutableMap
                                     .builder()
-                                    .put(FUNCTION_NAME, getFunctionName(requestParameters).orElse(EMPTY))
+                                    .put(FUNCTION_NAME, getFromJSON(responseElements,
+                                            FUNCTION_NAME_JSON_PATH)
+                                            .orElse(EMPTY))
                                     .put(S3_BUCKET, s3Bucket.orElse(EMPTY))
-                                    .put(S3_KEY, getS3BucketKey(requestParameters).orElse(EMPTY))
+                                    .put(S3_KEY, getFromJSON(requestParameters, S3_KEY_CODE_JSON_PATH,
+                                            S3_KEY_JSON_PATH)
+                                            .orElse(EMPTY))
                                     .build())
                             .build());
         }
     }
 
-    private Optional<String> getS3Bucket(final String parameters) {
-        try {
-            return Optional.ofNullable(JsonPath.read(parameters, S3_BUCKET_JSON_PATH));
-        } catch (final JsonPathException ignored) {
-            return empty();
-        }
-    }
+    private Optional<String> getFromJSON(final String json, final String... jsonPaths) {
+        Optional<String> result = empty();
 
-    private Optional<String> getS3BucketKey(final String parameters) {
-        try {
-            return Optional.ofNullable(JsonPath.read(parameters, S3_KEY_JSON_PATH));
-        } catch (final JsonPathException ignored) {
-            return empty();
+        for (final String jsonPath : jsonPaths) {
+            try {
+                result = Optional.ofNullable(JsonPath.read(json, jsonPath));
+                if (result.isPresent()) {
+                    return result;
+                }
+            } catch (final JsonPathException ignored) {
+                // DO NOTHING
+            }
         }
-    }
-
-    private Optional<String> getFunctionName(final String parameters) {
-        try {
-            return Optional.ofNullable(JsonPath.read(parameters, FUNCTION_NAME_JSON_PATH));
-        } catch (final JsonPathException ignored) {
-            return empty();
-        }
+        return result;
     }
 
     private static boolean isUpdateFunctionEvent(final String eventName) {
