@@ -74,5 +74,13 @@ public class LambdaPluginTest {
         verify(mockViolationSink, only()).put(any(Violation.class));
     }
 
+    @Test
+    public void testUpdateWrongS3BucketWhitelistedCodeSha256() throws Exception {
+        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-update-wrong-s3bucket-whitelisted-codesha256.json");
+        lambdaPlugin.processEvent(cloudTrailEvent);
+
+        verify(mockViolationSink, never()).put(any(Violation.class));
+    }
+
 
 }
