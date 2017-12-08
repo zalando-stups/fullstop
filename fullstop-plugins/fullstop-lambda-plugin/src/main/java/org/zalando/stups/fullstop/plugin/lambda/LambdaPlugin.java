@@ -63,6 +63,7 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
     public void processEvent(final CloudTrailEvent event) {
 
         final String requestParameters = event.getEventData().getRequestParameters();
+        final String responseElements = event.getEventData().getResponseElements();
 
         final Optional<String> s3Bucket = getS3Bucket(requestParameters);
 
@@ -73,7 +74,7 @@ public class LambdaPlugin extends AbstractFullstopPlugin {
                             .withType(LAMBDA_FUNCTION_CREATED_FROM_UNTRUSTED_LOCATION)
                             .withMetaInfo(ImmutableMap
                                     .builder()
-                                    .put(FUNCTION_NAME, getFunctionName(requestParameters).orElse(EMPTY))
+                                    .put(FUNCTION_NAME, getFunctionName(responseElements).orElse(EMPTY))
                                     .put(S3_BUCKET, s3Bucket.orElse(EMPTY))
                                     .put(S3_KEY, getS3BucketKey(requestParameters).orElse(EMPTY))
                                     .build())
