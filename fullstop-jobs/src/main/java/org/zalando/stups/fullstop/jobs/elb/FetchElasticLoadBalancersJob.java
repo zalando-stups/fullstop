@@ -8,7 +8,6 @@ import com.amazonaws.services.elasticloadbalancing.model.DescribeTagsRequest;
 import com.amazonaws.services.elasticloadbalancing.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import com.amazonaws.services.elasticloadbalancing.model.Tag;
-import com.amazonaws.services.elasticloadbalancing.model.TagDescription;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -49,13 +48,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.partition;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLIC_ENDPOINT;
 
 /**
@@ -65,6 +67,8 @@ import static org.zalando.stups.fullstop.violation.ViolationType.UNSECURED_PUBLI
 public class FetchElasticLoadBalancersJob implements FullstopJob {
 
     private static final String EVENT_ID = "checkElbJob";
+
+    private static final int ELB_NAMES_MAX_SIZE = 20;
 
     private final Logger log = LoggerFactory.getLogger(FetchElasticLoadBalancersJob.class);
 
@@ -165,16 +169,19 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                         final DescribeLoadBalancersResult result = elbClient.describeLoadBalancers(request);
                         marker = Optional.ofNullable(trimToNull(result.getNextMarker()));
 
-                        final List<String> elbNames = result.getLoadBalancerDescriptions().stream()
+                        final List<String> publicElbNames = result.getLoadBalancerDescriptions().stream()
+                                .filter(this::isInternetFacing) // optimization: fetch only tags for public elbs
                                 .map(LoadBalancerDescription::getLoadBalancerName)
                                 .collect(toList());
-                        final Map<String, List<Tag>> tagsByElb = elbClient.describeTags(
-                                new DescribeTagsRequest().withLoadBalancerNames(elbNames)).getTagDescriptions().stream()
-                                .collect(toMap(TagDescription::getLoadBalancerName, TagDescription::getTags));
+                        final Map<String, List<Tag>> tagsByPublicElb = getElbTags(elbClient, publicElbNames);
                         for (final LoadBalancerDescription elb : result.getLoadBalancerDescriptions()) {
+                            if (!isInternetFacing(elb)) {
+                                continue;
+                            }
+
                             // This check only works for "Senza" Load Balancers, for Kubernetes it's currently
                             // meaningless. Hence just skip Kubernetes ELBs.
-                            if (hasKubernetesTag(tagsByElb.getOrDefault(elb.getLoadBalancerName(), emptyList()))) {
+                            if (hasKubernetesTag(tagsByPublicElb.getOrDefault(elb.getLoadBalancerName(), emptyList()))) {
                                 continue;
                             }
 
@@ -195,6 +202,22 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                     jobExceptionHandler.onException(e, accountRegionCtx);
                 }
             }
+        }
+    }
+
+    private Map<String, List<Tag>> getElbTags(AmazonElasticLoadBalancingClient elbClient, List<String> elbNames) {
+        if (isEmpty(elbNames)) {
+            return emptyMap();
+        } else {
+            final Map<String, List<Tag>> result = newHashMapWithExpectedSize(elbNames.size());
+            // http://docs.aws.amazon.com/elasticloadbalancing/2012-06-01/APIReference/API_DescribeTags.html
+            // describeTags expects a maximum of 20 load balancer names per call
+            for (List<String> elbNamePartition : partition(elbNames, ELB_NAMES_MAX_SIZE)) {
+                elbClient.describeTags(new DescribeTagsRequest().withLoadBalancerNames(elbNamePartition))
+                        .getTagDescriptions()
+                        .forEach(tagDescription -> result.put(tagDescription.getLoadBalancerName(), tagDescription.getTags()));
+            }
+            return result;
         }
     }
 
@@ -223,11 +246,6 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
                 .map(amiId -> amiDetailsProvider.getAmiDetails(account, awsRegion, amiId))
                 .findFirst()
                 .ifPresent(metaData::putAll);
-
-
-        if (!elb.getScheme().equals("internet-facing")) {
-            return;
-        }
 
         if (violationService.violationExists(account, awsRegion.getName(), EVENT_ID, canonicalHostedZoneName, UNSECURED_PUBLIC_ENDPOINT)) {
             return;
@@ -284,6 +302,10 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
 
             log.debug("Active threads in pool: {}/{}", threadPoolTaskExecutor.getActiveCount(), threadPoolTaskExecutor.getMaxPoolSize());
         }
+    }
+
+    private boolean isInternetFacing(LoadBalancerDescription elb) {
+        return elb.getScheme().equals("internet-facing");
     }
 
     private void writeViolation(final String account, final String region, final Object metaInfo, final String canonicalHostedZoneName, final List<String> instanceIds) {
