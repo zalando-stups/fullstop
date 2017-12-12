@@ -117,7 +117,7 @@ public class FetchAmiJob implements FullstopJob {
                 "aws_region", region);
 
         try {
-            log.info("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
+            log.debug("Scanning EC2 instances to fetch AMIs {}/{}", account, region);
             final AmazonEC2Client ec2Client = clientProvider.getClient(
                     AmazonEC2Client.class,
                     account,

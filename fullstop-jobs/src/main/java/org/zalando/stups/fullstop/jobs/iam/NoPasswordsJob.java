@@ -72,7 +72,7 @@ public class NoPasswordsJob implements FullstopJob {
                 final List<CSVReportEntry> csvReportEntries = csvParser.apply(credentialReportCSV);
 
                 //check for all users
-                log.info("Checking account {} for IAM users with passwords", accountId);
+                log.debug("Checking account {} for IAM users with passwords", accountId);
                 Stream.of(csvReportEntries)
                         .flatMap(Collection::stream)
                         .filter(CSVReportEntry::isPasswordEnabled)
@@ -80,7 +80,7 @@ public class NoPasswordsJob implements FullstopJob {
 
 
                 //check for the root user account
-                log.info("Checking account {} for IAM users with mfa, access key", accountId);
+                log.debug("Checking account {} for IAM users with mfa, access key", accountId);
                 Stream.of(csvReportEntries)
                         .flatMap(Collection::stream)
                         .filter(c -> c.getUser().equals(ROOT_ACCOUNT) || c.getUser().endsWith(ROOT_SUFFIX))

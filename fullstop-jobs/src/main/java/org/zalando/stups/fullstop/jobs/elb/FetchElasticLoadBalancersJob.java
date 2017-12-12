@@ -145,7 +145,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
-                log.info("Scanning ELBs for {}/{}", account, region);
+                log.debug("Scanning ELBs for {}/{}", account, region);
                 final Map<String, String> accountRegionCtx = ImmutableMap.of(
                         "job", this.getClass().getSimpleName(),
                         "aws_account_id", account,
@@ -270,7 +270,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
             final ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
             listenableFuture.addCallback(
                     httpCallResult -> {
-                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
+                        log.debug("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
                         if (httpCallResult.isOpen()) {
                             final Map<String, Object> md = ImmutableMap.<String, Object>builder()
                                     .putAll(metaData)

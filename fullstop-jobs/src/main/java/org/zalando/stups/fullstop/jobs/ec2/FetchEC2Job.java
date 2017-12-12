@@ -132,7 +132,7 @@ public class FetchEC2Job implements FullstopJob {
                         "aws_account_id", account,
                         "aws_region", region);
                 try {
-                    log.info("Scanning public EC2 instances for {}/{}", account, region);
+                    log.debug("Scanning public EC2 instances for {}/{}", account, region);
                     final AmazonEC2Client ec2Client = clientProvider.getClient(
                             AmazonEC2Client.class,
                             account,
@@ -216,7 +216,7 @@ public class FetchEC2Job implements FullstopJob {
                     httpCall);
             listenableFuture.addCallback(
                     httpCallResult -> {
-                        log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
+                        log.debug("address: {} and port: {}", instancePublicIpAddress, allowedPort);
                         if (httpCallResult.isOpen()) {
                             final Map<String, Object> md = ImmutableMap.<String, Object>builder()
                                     .putAll(metaData)
