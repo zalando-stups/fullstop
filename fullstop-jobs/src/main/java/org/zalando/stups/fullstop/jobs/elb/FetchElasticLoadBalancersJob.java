@@ -270,7 +270,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
             final ListenableFuture<HttpCallResult> listenableFuture = threadPoolTaskExecutor.submitListenable(HttpGetRootCall);
             listenableFuture.addCallback(
                     httpCallResult -> {
-                        log.info("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
+                        log.debug("address: {} and port: {}", canonicalHostedZoneName, allowedPort);
                         if (httpCallResult.isOpen()) {
                             final Map<String, Object> md = ImmutableMap.<String, Object>builder()
                                     .putAll(metaData)

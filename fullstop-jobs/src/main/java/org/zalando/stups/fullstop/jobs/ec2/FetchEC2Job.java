@@ -216,7 +216,7 @@ public class FetchEC2Job implements FullstopJob {
                     httpCall);
             listenableFuture.addCallback(
                     httpCallResult -> {
-                        log.info("address: {} and port: {}", instancePublicIpAddress, allowedPort);
+                        log.debug("address: {} and port: {}", instancePublicIpAddress, allowedPort);
                         if (httpCallResult.isOpen()) {
                             final Map<String, Object> md = ImmutableMap.<String, Object>builder()
                                     .putAll(metaData)
