@@ -80,7 +80,7 @@ public class S3Service {
             final ObjectMetadata metadata, final InputStream stream) {
         // AmazonS3 s3client = new AmazonS3Client();
         try {
-            log.info("Uploading a new object to S3 from a file");
+            log.debug("Uploading a new object to S3 from a file");
 
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
@@ -94,7 +94,7 @@ public class S3Service {
         final List<String> commonPrefixes = Lists.newArrayList();
 
         try {
-            log.info("Listing objects in bucket '{}' with prefix '{}'", bucketName, prefix);
+            log.debug("Listing objects in bucket '{}' with prefix '{}'", bucketName, prefix);
 
             final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
                     .withDelimiter("/")
@@ -128,7 +128,7 @@ public class S3Service {
         final List<String> s3Objects = Lists.newArrayList();
 
         try {
-            log.info("Listing objects");
+            log.debug("Listing objects");
 
             final ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
                     .withDelimiter("/")

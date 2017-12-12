@@ -17,6 +17,7 @@
         <!-- Skip WARN "EventVersion 1.04 is not supported by CloudTrail"  -->
         <Logger name="com.amazonaws.services.cloudtrail.processinglibrary.serializer.AbstractEventSerializer"
                 level="ERROR"/>
+        <Logger name="com.amazonaws.services.cloudtrail.processinglibrary" level="WARN" />
 
         <Root level="info">
             <AppenderRef ref="Console"/>
