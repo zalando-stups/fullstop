@@ -145,7 +145,7 @@ public class FetchElasticLoadBalancersJob implements FullstopJob {
         log.info("Running job {}", getClass().getSimpleName());
         for (final String account : allAccountIds.get()) {
             for (final String region : jobsProperties.getWhitelistedRegions()) {
-                log.info("Scanning ELBs for {}/{}", account, region);
+                log.debug("Scanning ELBs for {}/{}", account, region);
                 final Map<String, String> accountRegionCtx = ImmutableMap.of(
                         "job", this.getClass().getSimpleName(),
                         "aws_account_id", account,

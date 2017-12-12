@@ -54,7 +54,7 @@ public class KeyRotationJob implements FullstopJob {
 
         allAccountIds.get().forEach(accountId -> {
             try {
-                log.info("Checking account {} for expired IAM access keys", accountId);
+                log.debug("Checking account {} for expired IAM access keys", accountId);
                 iamDataSource.getUsers(accountId).stream()
                         .map(u -> iamDataSource.getAccessKeys(accountId, u.getUserName()))
                         .flatMap(Collection::stream)
