@@ -23,14 +23,13 @@ public class LambdaPluginTest {
 
     private ViolationSink mockViolationSink;
     private LambdaPlugin lambdaPlugin;
-    private LambdaPluginProperties lambdaPluginProperties;
 
     @Before
     public void setUp() throws Exception {
 
         mockViolationSink = mock(ViolationSink.class);
 
-        lambdaPluginProperties = new LambdaPluginProperties();
+        LambdaPluginProperties lambdaPluginProperties = new LambdaPluginProperties();
         lambdaPluginProperties.setS3Buckets(asList("zalando-lambda-repository-eu-central-1", "zalando-lambda-repository-eu-west-1"));
         lambdaPlugin = new LambdaPlugin(mockViolationSink, lambdaPluginProperties);
     }
@@ -73,14 +72,5 @@ public class LambdaPluginTest {
 
         verify(mockViolationSink, only()).put(any(Violation.class));
     }
-
-    @Test
-    public void testUpdateWrongS3BucketWhitelistedCodeSha256() throws Exception {
-        final CloudTrailEvent cloudTrailEvent = createCloudTrailEvent("/record-update-wrong-s3bucket-whitelisted-codesha256.json");
-        lambdaPlugin.processEvent(cloudTrailEvent);
-
-        verify(mockViolationSink, never()).put(any(Violation.class));
-    }
-
 
 }

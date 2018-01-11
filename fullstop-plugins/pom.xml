@@ -26,9 +26,9 @@
         <module>fullstop-instance-plugin-support</module>
         <module>fullstop-ami-plugin</module>
         <module>fullstop-hello-event-plugin</module>
-        <module>fullstop-lambda-plugin</module>
         <module>fullstop-keypair-plugin</module>
         <module>fullstop-region-plugin</module>
+        <module>fullstop-lambda-plugin</module>
         <module>fullstop-registry-plugin</module>
         <module>fullstop-save-securitygroups-plugin</module>
         <module>fullstop-application-lifecycle-plugin</module>
