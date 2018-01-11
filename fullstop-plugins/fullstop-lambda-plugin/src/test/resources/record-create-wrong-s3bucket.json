@@ -2,7 +2,7 @@
   "Records": [
     {
       "eventID": "2ff56a67-1223-4454-4545-b371f2bcdb7f",
-      "awsRegion": "eu-central-1",
+      "awsRegion": "us-east-1",
       "eventName": "CreateFunction2ffff31",
       "eventTime": "2017-07-19T08:22:38Z",
       "eventType": "AwsApiCall",
