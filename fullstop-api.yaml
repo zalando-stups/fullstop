@@ -276,7 +276,7 @@ paths:
             items:
               $ref: "#/definitions/ViolationType"
 
-  /api/violations-count:
+  /api/violation-count:
     get:
       summary: Count violations by accounts and types
       tags:
