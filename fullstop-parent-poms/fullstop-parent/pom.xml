@@ -34,7 +34,7 @@
 
         <aws-cloudtrail-processing-library.version>1.0.4-ZAL-1</aws-cloudtrail-processing-library.version>
 
-        <commons-lang3.version>3.5</commons-lang3.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
         <guava.version>21.0</guava.version>
         <javax.el-api.version>2.2.5</javax.el-api.version>
 
