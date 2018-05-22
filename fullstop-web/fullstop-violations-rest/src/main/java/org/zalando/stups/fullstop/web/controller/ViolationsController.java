@@ -114,7 +114,7 @@ public class ViolationsController {
             final String type,
             @ApiParam(value = "Include only violations with a certain types")
             @RequestParam(value = "types", required = false)
-            List<String> types,
+            final List<String> types,
             @ApiParam(value = "Include only violations with a certain application name")
             @RequestParam(value = "application-ids", required = false)
             final List<String> applicationIds,
@@ -135,16 +135,19 @@ public class ViolationsController {
             to = DateTime.now();
         }
 
+        final List<String> allTypes = newArrayList();
         if (types != null && !types.isEmpty()) {
-            types.add(type);
-        } else if (type != null) {
-            types = newArrayList(type);
+            allTypes.addAll(types);
+        }
+
+        if (type != null) {
+            allTypes.add(type);
         }
 
         return mapBackendToFrontendViolations(
                 violationService.queryViolations(
                         accounts, from, to, lastViolation,
-                        checked, severity, priority, auditRelevant, types, whitelisted, applicationIds, applicationVersionIds, pageable));
+                        checked, severity, priority, auditRelevant, allTypes, whitelisted, applicationIds, applicationVersionIds, pageable));
     }
 
     @ApiOperation(
