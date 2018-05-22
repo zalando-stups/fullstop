@@ -212,4 +212,14 @@ public class ViolationRepositoryTest {
                 false);
         assertThat(result).hasSize(1);
     }
+
+    /**
+     * Trying to reproduce https://github.com/zalando-stups/fullstop/issues/553
+     */
+    @Test
+    public void testGetByTypes() {
+        final Page<ViolationEntity> result = violationRepository.queryViolations(null, null, null, null, false, null, null, null, newArrayList("SOMETHING_WENT_WRONG", "YOU_SCREWED_UP"), false, null, null, new PageRequest(0, 2, ASC, "id"));
+        assertThat(result).isNotNull();
+        assertThat(result.getTotalElements()).isEqualTo(2);
+    }
 }
