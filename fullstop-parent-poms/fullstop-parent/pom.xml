@@ -50,7 +50,7 @@
         <stups-spring-oauth2.version>1.0.21</stups-spring-oauth2.version>
         <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
         <tokens.version>0.11.0-beta-2</tokens.version>
-        <kio-client.version>0.11.1</kio-client.version>
+        <kio-client.version>1.0.0</kio-client.version>
         <pierone-client.version>1.0.0</pierone-client.version>
 
         <assertj-core.version>3.10.0</assertj-core.version>
