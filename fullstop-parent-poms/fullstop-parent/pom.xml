@@ -55,7 +55,7 @@
 
         <assertj-core.version>3.10.0</assertj-core.version>
         <mockito.version>1.10.19</mockito.version>
-        <otj-pg-embedded.version>0.7.1</otj-pg-embedded.version>
+        <otj-pg-embedded.version>0.12.0</otj-pg-embedded.version>
     </properties>
 
     <dependencyManagement>
