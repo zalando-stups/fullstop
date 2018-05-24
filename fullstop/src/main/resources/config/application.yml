@@ -175,3 +175,10 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 3000
+
+logging:
+  level:
+    org.springframework.boot:
+      actuate:
+        audit:
+          listener: debug
