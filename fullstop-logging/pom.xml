@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-reactor</artifactId>
+        <artifactId>fullstop-parent</artifactId>
         <version>1.3.0-SNAPSHOT</version>
     </parent>
 
