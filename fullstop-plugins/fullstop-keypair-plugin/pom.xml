@@ -2,13 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fullstop-plugins</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <artifactId>fullstop-plugins</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullstop-keypair-plugin</artifactId>
-    <name>Fullstop -- KeyPair plugin</name>
 
     <dependencies>
         <dependency>
@@ -17,9 +16,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-api</artifactId>
-            <version>${fullstop-violation-api.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
@@ -39,14 +38,5 @@
             <artifactId>assertj-core</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

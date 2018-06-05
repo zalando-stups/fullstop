@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-parent</artifactId>
-        <version>18</version>
-        <relativePath />
+        <artifactId>fullstop-reactor</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullstop-plugins</artifactId>
-    <name>Fullstop -- Plugins</name>
-    <version>1.2.0-SNAPSHOT</version>
-
     <packaging>pom</packaging>
-
-    <properties>
-        <fullstop-plugin-api.version>1.2.0-SNAPSHOT</fullstop-plugin-api.version>
-        <fullstop-violation-api.version>1.2.0-SNAPSHOT</fullstop-violation-api.version>
-        <fullstop-aws-support.version>1.2.0-SNAPSHOT</fullstop-aws-support.version>
-        <fullstop-testing.version>1.2.0-SNAPSHOT</fullstop-testing.version>
-        <fullstop-violation-jpa.version>1.2.0-SNAPSHOT</fullstop-violation-jpa.version>
-    </properties>
 
     <modules>
         <module>fullstop-instance-plugin-support</module>
@@ -38,11 +27,4 @@
         <module>fullstop-scm-repository-plugin</module>
         <module>fullstop-taupage-yaml-plugin</module>
     </modules>
-
-    <scm>
-        <url>https://github.com/zalando-stups/fullstop.git</url>
-        <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 </project>

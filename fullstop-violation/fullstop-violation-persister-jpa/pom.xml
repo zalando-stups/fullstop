@@ -3,43 +3,35 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>fullstop-violation</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>fullstop-violation-persister-jpa</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-logging</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-jpa</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-sink-reactor</artifactId>
-            <version>${fullstop-core.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-whitelist</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

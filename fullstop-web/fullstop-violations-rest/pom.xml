@@ -3,33 +3,25 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-parent</artifactId>
-        <version>18</version>
-        <relativePath />
+        <artifactId>fullstop-web</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullstop-violations-rest</artifactId>
-    <name>Fullstop -- Violations REST API</name>
-    <version>1.2.0-SNAPSHOT</version>
-
-    <properties>
-        <fullstop-violation.version>1.2.0-SNAPSHOT</fullstop-violation.version>
-        <team-service-api.version>1.2.0-SNAPSHOT</team-service-api.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-logging</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-jpa</artifactId>
-            <version>${fullstop-violation.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-web-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -46,9 +38,9 @@
             <artifactId>spring-security-oauth2</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>team-service-api</artifactId>
-            <version>${team-service-api.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -67,16 +59,14 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>2.8.0</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.8.0</version>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-web-test-support</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -92,20 +82,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-    <scm>
-        <url>https://github.com/zalando-stups/fullstop.git</url>
-        <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 </project>

@@ -10,13 +10,15 @@
         <version>1.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fullstop-logging</artifactId>
+    <artifactId>fullstop-web</artifactId>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-    </dependencies>
-
+    <modules>
+        <module>fullstop-web-commons</module>
+        <module>fullstop-web-test-support</module>
+        <module>fullstop-violations-rest</module>
+        <module>fullstop-timemachine</module>
+        <module>fullstop-whitelisting-rules</module>
+        <module>fullstop-lifecycle-api</module>
+    </modules>
 </project>

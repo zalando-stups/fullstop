@@ -1,14 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.zalando.stups</groupId>
-        <artifactId>fullstop-parent</artifactId>
-        <version>18</version>
-        <relativePath />
+        <artifactId>fullstop-reactor</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
+
     <artifactId>fullstop-plugin-api</artifactId>
-    <name>Fullstop -- Plugin API</name>
-    <version>1.2.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -18,22 +18,15 @@
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-metadata</artifactId>
-            <version>1.2.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>aws-cloudtrail-processing-library</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>aws-java-sdk</artifactId>
-                    <groupId>com.amazonaws</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-logging</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -52,20 +45,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-    <scm>
-        <url>https://github.com/zalando-stups/fullstop.git</url>
-        <connection>scm:git:git@github.com:zalando-stups/fullstop.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando-stups/fullstop.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 </project>
