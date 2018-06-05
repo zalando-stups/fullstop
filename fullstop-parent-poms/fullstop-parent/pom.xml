@@ -30,7 +30,7 @@
         <license.skip>true</license.skip>
 
         <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-        <spring-cloud.version>Dalston.RELEASE</spring-cloud.version>
+        <spring-cloud.version>Edgware.SR3</spring-cloud.version>
 
         <aws-cloudtrail-processing-library.version>1.0.4-ZAL-1</aws-cloudtrail-processing-library.version>
 
