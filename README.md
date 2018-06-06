@@ -143,7 +143,7 @@ for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/lates
 
 ## How to build
 
-    $ mvn clean install
+    $ ./mvnw clean install
 
 ## How to run
 
