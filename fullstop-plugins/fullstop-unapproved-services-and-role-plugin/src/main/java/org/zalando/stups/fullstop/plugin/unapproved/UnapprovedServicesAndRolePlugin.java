@@ -7,9 +7,9 @@ import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.Sessio
 import com.amazonaws.services.cloudtrail.processinglibrary.model.internal.UserIdentity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.JsonDiff;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
-import io.fabric8.zjsonpatch.JsonDiff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

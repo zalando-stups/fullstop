@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fullstop-plugins</artifactId>
         <groupId>org.zalando.stups</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <artifactId>fullstop-plugins</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullstop-scm-repository-plugin</artifactId>
 
-    <name>Fullstop -- SCM Repository plugin</name>
     <description>Checks the SCM information of running applications.
         Reports missing or incorrect repository links.
         Reports non-allowed repositories.
@@ -22,9 +22,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-violation-api</artifactId>
-            <version>${fullstop-violation-api.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -50,9 +50,9 @@
         <!-- TEST DEPENDENCIES BELOW HERE -->
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.zalando.stups</groupId>
             <artifactId>fullstop-plugin-test</artifactId>
-            <version>${fullstop-testing.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -71,13 +71,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

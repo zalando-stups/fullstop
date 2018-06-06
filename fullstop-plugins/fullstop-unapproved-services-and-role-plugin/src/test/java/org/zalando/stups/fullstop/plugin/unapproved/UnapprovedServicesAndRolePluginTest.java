@@ -3,7 +3,7 @@ package org.zalando.stups.fullstop.plugin.unapproved;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.zjsonpatch.JsonDiff;
+import com.flipkart.zjsonpatch.JsonDiff;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

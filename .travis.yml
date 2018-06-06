@@ -10,21 +10,13 @@ addons:
 before_script:
   - psql -c 'CREATE DATABASE fullstop;' -U postgres
 #  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
-  - pip install --user codecov
 
 script:
     - mvn clean verify -Pintegration-test,pg-travis -U
 
 after_success:
-    - codecov
+    - bash <(curl -s https://codecov.io/bash)
 
 notifications:
     email:
       on_failure: change
-    webhooks:
-        urls:
-          - https://webhooks.gitter.im/e/5a095b6bac7576bf3e78
-        on_success: always
-        on_failure: always
-        on_start: false
-
