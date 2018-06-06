@@ -19,6 +19,7 @@ violations.log
 violations.*.log
 
 **/src/generated
+**/.factorypath
 
 pom.xml.releaseBackup
 pom.xml.versionsBackup
