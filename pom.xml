@@ -25,7 +25,7 @@
         <java.version>1.8</java.version>
 
         <!-- Keep in sync with parent pom -->
-        <spring-boot.version>1.5.10.RELEASE</spring-boot.version>
+        <spring-boot.version>2.0.2.RELEASE</spring-boot.version>
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <aws-cloudtrail-processing-library.version>1.0.4-ZAL-1</aws-cloudtrail-processing-library.version>
         <jsr305.version>3.0.2</jsr305.version>
