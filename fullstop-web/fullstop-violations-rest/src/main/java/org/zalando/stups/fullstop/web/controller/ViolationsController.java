@@ -22,6 +22,7 @@ import org.zalando.stups.fullstop.web.model.Violation;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -137,7 +138,7 @@ public class ViolationsController {
 
         final List<String> allTypes = newArrayList();
         if (types != null && !types.isEmpty()) {
-            allTypes.addAll(types);
+            types.stream().filter(Objects::nonNull).forEach(allTypes::add);
         }
 
         if (type != null) {
