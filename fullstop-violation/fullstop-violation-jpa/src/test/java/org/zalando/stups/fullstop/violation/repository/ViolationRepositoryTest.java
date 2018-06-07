@@ -20,6 +20,7 @@ import org.zalando.stups.fullstop.violation.entity.ViolationTypeEntity;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -211,5 +212,16 @@ public class ViolationRepositoryTest {
                 false,
                 false);
         assertThat(result).hasSize(1);
+    }
+
+    /**
+     * Trying to reproduce https://github.com/zalando-stups/fullstop/issues/553
+     */
+    @Test
+    public void testGetByTypes() {
+        final ArrayList<String> types = newArrayList("SOMETHING_WENT_WRONG", "YOU_SCREWED_UP");
+        final Page<ViolationEntity> result = violationRepository.queryViolations(null, null, null, null, false, null, null, null, types, false, null, null, new PageRequest(0, 2, ASC, "id"));
+        assertThat(result).isNotNull();
+        assertThat(result.getTotalElements()).isEqualTo(2);
     }
 }
