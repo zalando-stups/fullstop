@@ -20,6 +20,7 @@ import org.mockito.junit.MockitoRule;
 import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
+import org.zalando.stups.fullstop.jobs.common.TaupageExpirationTimeProvider;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.violation.Violation;
@@ -27,6 +28,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +78,8 @@ public class FetchAmiJobTest {
     private AmazonEC2Client mockEC2Client;
     @Mock
     private JobExceptionHandler mockExceptionHandler;
+    @Mock
+    private TaupageExpirationTimeProvider mockExpirationTimeProvider;
 
     private FetchAmiJob job;
 
@@ -84,30 +88,32 @@ public class FetchAmiJobTest {
             .withImageId(IMAGE_ID);
 
     @Before
-    public void setUp() throws Exception {
-        job = new FetchAmiJob(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, "Taupage-AMI-", ACCOUNT_1, mockExceptionHandler);
+    public void setUp() {
+        job = new FetchAmiJob(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, "Taupage-AMI-", ACCOUNT_1, mockExceptionHandler, mockExpirationTimeProvider);
 
         when(mockFetchTaupageYaml.getTaupageYaml(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
     }
 
     @After
-    public void tearDown() throws Exception {
-        verifyNoMoreInteractions(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, mockEC2Client);
+    public void tearDown() {
+        verifyNoMoreInteractions(mockViolationSink, mockClientProvider, mockAccountIdSupplier, mockJobsProperties, mockViolationService, mockFetchTaupageYaml, mockEC2Client, mockExpirationTimeProvider);
     }
 
     @Test
-    public void testInit() throws Exception {
+    public void testInit() {
         job.init();
     }
 
     @Test
-    public void testRunWithMultipleAccountsAndRegions() throws Exception {
+    public void testRunWithMultipleAccountsAndRegions() {
         final DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult()
                 .withReservations(new Reservation().withInstances(instance1));
         final Image image = new Image()
                 .withImageId(IMAGE_ID)
                 .withName("Taupage-AMI-" + LocalDate.now().format(ofPattern("yyyyMMdd")) + "-123456")
                 .withOwnerId(ACCOUNT_1);
+        when(mockExpirationTimeProvider.getExpirationTime(eq(REGION_1), anyString(), anyString())).thenReturn(ZonedDateTime.now().plusDays(10));
+        when(mockExpirationTimeProvider.getExpirationTime(eq(REGION_2), anyString(), anyString())).thenReturn(null);
         when(mockAccountIdSupplier.get()).thenReturn(ACCOUNTS);
         when(mockJobsProperties.getWhitelistedRegions()).thenReturn(REGIONS);
         when(mockClientProvider.getClient(eq(AmazonEC2Client.class), anyString(), any())).thenReturn(mockEC2Client);
@@ -119,10 +125,15 @@ public class FetchAmiJobTest {
         verify(mockAccountIdSupplier).get();
         verify(mockJobsProperties).getWhitelistedRegions();
 
-        ACCOUNTS.forEach(account -> REGIONS.forEach(regionName -> {
-            verify(mockClientProvider).getClient(eq(AmazonEC2Client.class), eq(account), eq(getRegion(Regions.fromName(regionName))));
-            verify(mockViolationService).violationExists(eq(account), eq(regionName), eq(FetchAmiJob.EVENT_ID), eq(INSTANCE_ID), eq(OUTDATED_TAUPAGE));
-        }));
+        REGIONS.forEach(regionName -> {
+
+            verify(mockExpirationTimeProvider, times(ACCOUNTS.size())).getExpirationTime(eq(regionName), eq(ACCOUNT_1), eq(IMAGE_ID));
+
+            ACCOUNTS.forEach(account -> {
+                verify(mockClientProvider).getClient(eq(AmazonEC2Client.class), eq(account), eq(getRegion(Regions.fromName(regionName))));
+                verify(mockViolationService).violationExists(eq(account), eq(regionName), eq(FetchAmiJob.EVENT_ID), eq(INSTANCE_ID), eq(OUTDATED_TAUPAGE));
+            });
+        });
 
         final int accountsTimesRegions = ACCOUNTS.size() * REGIONS.size();
 
@@ -136,13 +147,14 @@ public class FetchAmiJobTest {
     }
 
     @Test
-    public void testFindOutdatedTaupage() throws Exception {
+    public void testFindOutdatedTaupage() {
         final DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult()
                 .withReservations(new Reservation().withInstances(instance1));
         final Image image = new Image()
                 .withImageId(IMAGE_ID)
                 .withName("Taupage-AMI-" + LocalDate.now().minusDays(70).format(ofPattern("yyyyMMdd")) + "-123456")
                 .withOwnerId(ACCOUNT_1);
+        when(mockExpirationTimeProvider.getExpirationTime(anyString(), anyString(), anyString())).thenReturn(ZonedDateTime.now().minusDays(1));
         when(mockAccountIdSupplier.get()).thenReturn(singleton(ACCOUNT_1));
         when(mockJobsProperties.getWhitelistedRegions()).thenReturn(singletonList(REGION_1));
         when(mockClientProvider.getClient(eq(AmazonEC2Client.class), anyString(), any())).thenReturn(mockEC2Client);
@@ -151,6 +163,7 @@ public class FetchAmiJobTest {
 
         job.run();
 
+        verify(mockExpirationTimeProvider).getExpirationTime(eq(REGION_1), eq(ACCOUNT_1), eq(IMAGE_ID));
         verify(mockAccountIdSupplier).get();
         verify(mockJobsProperties).getWhitelistedRegions();
         verify(mockClientProvider).getClient(eq(AmazonEC2Client.class), eq(ACCOUNT_1), eq(getRegion(Regions.fromName(REGION_1))));
@@ -182,7 +195,7 @@ public class FetchAmiJobTest {
     }
 
     @Test
-    public void testFollowPagination() throws Exception {
+    public void testFollowPagination() {
         final DescribeInstancesResult result1 = new DescribeInstancesResult().withNextToken("123");
         final DescribeInstancesResult result2 = new DescribeInstancesResult().withNextToken("456");
         final DescribeInstancesResult result3 = new DescribeInstancesResult();
