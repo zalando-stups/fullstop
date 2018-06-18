@@ -1,0 +1,26 @@
+version: "2017-09-20"
+dependencies:
+- id: base
+  type: docker
+  ref: registry.opensource.zalan.do/stups/openjdk
+pipeline:
+- id: build
+  overlay: ci/java
+  type: script
+  commands:
+  - desc: Build JARs
+    cmd: |
+      # Tests are run by Travis CI for now
+      mvn clean package -DskipTests
+  - desc: Build and push Docker images
+    cmd: |
+      FULLSTOP_IMAGE=pierone.stups.zalan.do/torch/fullstop:cdp${CDP_BUILD_VERSION}
+      FULLSTOP_JOBS_IMAGE=pierone.stups.zalan.do/torch/fullstop-jobs:cdp${CDP_BUILD_VERSION}
+
+      docker build --build-arg BASE_IMAGE_VERSION=${DEP_BASE_VERSION} --tag $FULLSTOP_IMAGE fullstop
+      docker build --build-arg BASE_IMAGE_VERSION=${DEP_BASE_VERSION} --tag $FULLSTOP_JOBS_IMAGE fullstop-job-launcher
+
+      if [ -z "$CDP_PULL_REQUEST_NUMBER" ]; then
+        docker push $FULLSTOP_IMAGE
+        docker push $FULLSTOP_JOBS_IMAGE
+      fi

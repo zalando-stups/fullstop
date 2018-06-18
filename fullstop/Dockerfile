@@ -1,8 +1,8 @@
-FROM registry.opensource.zalan.do/stups/openjdk:latest
+ARG BASE_IMAGE_VERSION=latest
+FROM registry.opensource.zalan.do/stups/openjdk:${BASE_IMAGE_VERSION}
 
 MAINTAINER Zalando SE
 
-CMD java $(java-dynamic-memory-opts) $(appdynamics-agent) -jar /fullstop.jar
+CMD ["/bin/bash", "-c", "java $JAVA_OPTS $(java-dynamic-memory-opts) -jar /fullstop.jar"]
 
 COPY target/fullstop-executable.jar /fullstop.jar
-COPY target/scm-source.json /
