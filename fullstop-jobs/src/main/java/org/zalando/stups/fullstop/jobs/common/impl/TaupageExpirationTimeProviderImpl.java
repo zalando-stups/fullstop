@@ -18,6 +18,8 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 @Component
 public class TaupageExpirationTimeProviderImpl implements TaupageExpirationTimeProvider {
 
+    static final String TAG_KEY = "ExpirationTime";
+
     private final ClientProvider clientProvider;
 
     public TaupageExpirationTimeProviderImpl(ClientProvider clientProvider) {
@@ -33,7 +35,7 @@ public class TaupageExpirationTimeProviderImpl implements TaupageExpirationTimeP
         final DescribeTagsRequest tagsRequest = new DescribeTagsRequest().withFilters(
                 new Filter("resource-id").withValues(imageId),
                 new Filter("resource-type").withValues("image"),
-                new Filter("key").withValues("ExpirationTime"));
+                new Filter("key").withValues(TAG_KEY));
         return ec2.describeTags(tagsRequest).getTags().stream()
                 .findFirst()
                 .map(TagDescription::getValue)
