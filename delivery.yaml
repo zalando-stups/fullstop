@@ -14,8 +14,8 @@ pipeline:
       mvn clean package -DskipTests
   - desc: Build and push Docker images
     cmd: |
-      FULLSTOP_IMAGE=pierone.stups.zalan.do/torch/fullstop:cdp${CDP_BUILD_VERSION}
-      FULLSTOP_JOBS_IMAGE=pierone.stups.zalan.do/torch/fullstop-jobs:cdp${CDP_BUILD_VERSION}
+      FULLSTOP_IMAGE=pierone.stups.zalan.do/torch/fullstop:${CDP_BUILD_VERSION}
+      FULLSTOP_JOBS_IMAGE=pierone.stups.zalan.do/torch/fullstop-jobs:${CDP_BUILD_VERSION}
 
       docker build --build-arg BASE_IMAGE_VERSION=${DEP_BASE_VERSION} --tag $FULLSTOP_IMAGE fullstop
       docker build --build-arg BASE_IMAGE_VERSION=${DEP_BASE_VERSION} --tag $FULLSTOP_JOBS_IMAGE fullstop-job-launcher
