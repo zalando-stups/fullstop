@@ -130,3 +130,16 @@ until end of Q1 2018.
     "violation_type_entity_id": "OUTDATED_TAUPAGE"
   }
 ```
+
+### Whitelist a CROSS_ACCOUNT_ROLE
+Allow AWS account `111222333444` to define an IAM role that grants cross account access for another AWS account `999888777666`. The role expires mid of January 2019.
+```json
+  {
+    "account_id": "111222333444",
+    "expiry_date": "2019-01-15T00:00:00.000Z",
+    "meta_info_json_path": "$.[?(@.grantees == ['arn:aws:iam::999888777666:root'])]",
+    "reason": "As requested and approved in ticket #4711",
+    "version": 0,
+    "violation_type": "CROSS_ACCOUNT_ROLE"
+  }
+```
