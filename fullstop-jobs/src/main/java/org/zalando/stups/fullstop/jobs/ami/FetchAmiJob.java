@@ -1,7 +1,6 @@
 package org.zalando.stups.fullstop.jobs.ami;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
@@ -11,7 +10,6 @@ import com.amazonaws.services.ec2.model.Filter;
 import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,6 +22,7 @@ import org.zalando.stups.fullstop.aws.ClientProvider;
 import org.zalando.stups.fullstop.jobs.FullstopJob;
 import org.zalando.stups.fullstop.jobs.common.AccountIdSupplier;
 import org.zalando.stups.fullstop.jobs.common.FetchTaupageYaml;
+import org.zalando.stups.fullstop.jobs.common.TaupageExpirationTimeProvider;
 import org.zalando.stups.fullstop.jobs.config.JobsProperties;
 import org.zalando.stups.fullstop.jobs.exception.JobExceptionHandler;
 import org.zalando.stups.fullstop.taupage.TaupageYaml;
@@ -32,7 +31,7 @@ import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,8 +39,7 @@ import java.util.stream.Stream;
 
 import static com.amazonaws.regions.Region.getRegion;
 import static com.amazonaws.regions.Regions.fromName;
-import static java.time.LocalDate.now;
-import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.time.ZonedDateTime.now;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -71,7 +69,8 @@ public class FetchAmiJob implements FullstopJob {
     private final FetchTaupageYaml fetchTaupageYaml;
 
     private final ViolationService violationService;
-    private static final Splitter TAUPAGE_NAME_SPLITTER = Splitter.on('-');
+
+    private final TaupageExpirationTimeProvider taupageExpirationTimeProvider;
 
     @Autowired
     public FetchAmiJob(final ViolationSink violationSink,
@@ -82,7 +81,8 @@ public class FetchAmiJob implements FullstopJob {
                        final FetchTaupageYaml fetchTaupageYaml,
                        @Value("${FULLSTOP_TAUPAGE_NAME_PREFIX}") final String taupageNamePrefix,
                        @Value("${FULLSTOP_TAUPAGE_OWNERS}") final String taupageOwners,
-                       final JobExceptionHandler jobExceptionHandler) {
+                       final JobExceptionHandler jobExceptionHandler,
+                       final TaupageExpirationTimeProvider taupageExpirationTimeProvider) {
         this.violationSink = violationSink;
         this.clientProvider = clientProvider;
         this.allAccountIds = allAccountIds;
@@ -92,6 +92,7 @@ public class FetchAmiJob implements FullstopJob {
         this.fetchTaupageYaml = fetchTaupageYaml;
         this.taupageOwners = Stream.of(taupageOwners.split(",")).filter(s -> !s.isEmpty()).collect(toList());
         this.jobExceptionHandler = jobExceptionHandler;
+        this.taupageExpirationTimeProvider = taupageExpirationTimeProvider;
     }
 
     @PostConstruct
@@ -168,9 +169,10 @@ public class FetchAmiJob implements FullstopJob {
         }
 
         final Image image = optionalImage.get();
-        final Optional<LocalDate> optionalExpirationDate = getExpirationDate(image);
+        final Optional<ZonedDateTime> optionalExpirationDate = Optional.ofNullable(
+                taupageExpirationTimeProvider.getExpirationTime(region, image.getOwnerId(), image.getImageId()));
         if (optionalExpirationDate.isPresent()) {
-            final LocalDate expirationDate = optionalExpirationDate.get();
+            final ZonedDateTime expirationDate = optionalExpirationDate.get();
             if (now().isAfter(expirationDate)) {
                 final Optional<TaupageYaml> taupageYaml = fetchTaupageYaml.getTaupageYaml(instance.getInstanceId(), account, region);
                 violationSink.put(new ViolationBuilder()
@@ -189,20 +191,7 @@ public class FetchAmiJob implements FullstopJob {
                                 "expiration_date", expirationDate.toString()))
                         .build());
             }
-        } else {
-            log.warn("Could not expiration date of taupage AMI {}", image);
         }
-    }
-
-    private Optional<LocalDate> getExpirationDate(final Image image) {
-        // current implementation parse creation date from name + add 60 days support period
-        return Optional.ofNullable(image.getName())
-                .filter(name -> !name.isEmpty())
-                .map(TAUPAGE_NAME_SPLITTER::splitToList)
-                .filter(list -> list.size() == 4) // "Taupage-AMI-20160201-123456"
-                .map(parts -> parts.get(2))
-                .map(timestamp -> LocalDate.parse(timestamp, ofPattern("yyyyMMdd")))
-                .map(creationDate -> creationDate.plusDays(60));
     }
 
     private Optional<Image> getAmiFromEC2Api(final AmazonEC2Client ec2Client, final String imageId) {
