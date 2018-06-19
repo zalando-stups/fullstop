@@ -5,7 +5,7 @@
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
         <!-- Make sure to update spring-boot.version property as well -->
-        <version>Edgware.SR3</version>
+        <version>Finchley.RELEASE</version>
         <relativePath/>
     </parent>
 
