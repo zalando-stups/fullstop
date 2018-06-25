@@ -48,6 +48,7 @@
         <stups-spring-oauth2.version>1.0.21</stups-spring-oauth2.version>
         <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
+        <guava.version>25.1-jre</guava.version>
     </properties>
 
     <modules>
@@ -225,6 +226,11 @@
                 <groupId>com.github.jgonian</groupId>
                 <artifactId>commons-ip-math</artifactId>
                 <version>${commons-ip-math.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
