@@ -13,6 +13,9 @@ fullstop:
     container:
         autoStart: false
 
+    # Only used in integration tests. When running on an EC2 instance, the region will be inferred automatically.
+    stsRegion: us-west-1
+
     processor:
         properties:
             # The sqs url where you wish to pull CloudTrail notification from (required)

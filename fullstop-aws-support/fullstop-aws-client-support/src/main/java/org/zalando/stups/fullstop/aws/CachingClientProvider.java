@@ -13,6 +13,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -25,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @author jbellmann
@@ -42,8 +44,13 @@ public class CachingClientProvider implements ClientProvider {
 
     private static final int MAX_ERROR_RETRY = 15;
 
-    private LoadingCache<Key<?>, Value> cache = null;
+    private LoadingCache<Key<?>, CacheValue> cache = null;
     private AWSSecurityTokenService awsSecurityTokenService;
+    private String stsRegion;
+
+    public CachingClientProvider(@Value("${fullstop.stsRegion:#{null}") String stsRegion) {
+        this.stsRegion = stsRegion;
+    }
 
     @Override
     public <T extends AmazonWebServiceClient> T getClient(final Class<T> type, final String accountId, final Region region) {
@@ -53,7 +60,11 @@ public class CachingClientProvider implements ClientProvider {
 
     @PostConstruct
     public void init() {
-        awsSecurityTokenService = AWSSecurityTokenServiceClientBuilder.defaultClient();
+        final AWSSecurityTokenServiceClientBuilder builder = AWSSecurityTokenServiceClientBuilder.standard();
+        if (hasText(stsRegion)) {
+            builder.setRegion(stsRegion);
+        }
+        awsSecurityTokenService = builder.build();
         // TODO this parameters have to be configurable
         cache = CacheBuilder.newBuilder()
                 .maximumSize(500)
@@ -63,15 +74,15 @@ public class CachingClientProvider implements ClientProvider {
     }
 
     @PreDestroy
-    public void tearDown(){
+    public void tearDown() {
         cache.invalidateAll();
         awsSecurityTokenService.shutdown();
     }
 
-    private CacheLoader<Key<?>, Value> createCacheLoader() {
-        return new CacheLoader<Key<?>, Value>() {
+    private CacheLoader<Key<?>, CacheValue> createCacheLoader() {
+        return new CacheLoader<Key<?>, CacheValue>() {
             @Override
-            public Value load(@Nonnull final Key<?> key) {
+            public CacheValue load(@Nonnull final Key<?> key) {
                 log.debug("CacheLoader active for Key : {}", key);
                 final STSAssumeRoleSessionCredentialsProvider tempCredentials = new STSAssumeRoleSessionCredentialsProvider
                         .Builder(buildRoleArn(key.accountId), ROLE_SESSION_NAME).withStsClient(awsSecurityTokenService)
@@ -87,14 +98,14 @@ public class CachingClientProvider implements ClientProvider {
                 builder.withRegion(key.region.getName());
                 builder.withClientConfiguration(new ClientConfiguration().withMaxErrorRetry(MAX_ERROR_RETRY));
                 final AmazonWebServiceClient client = (AmazonWebServiceClient) builder.build();
-                return new Value(client, tempCredentials);
+                return new CacheValue(client, tempCredentials);
             }
         };
     }
 
-    private void removalHook(RemovalNotification<Key<?>, Value> notification) {
+    private void removalHook(RemovalNotification<Key<?>, CacheValue> notification) {
         log.debug("Shutting down expired client for key: {}", notification.getKey());
-        final Value value = notification.getValue();
+        final CacheValue value = notification.getValue();
 
         final AmazonWebServiceClient client = value.client;
         client.shutdown();
@@ -150,11 +161,11 @@ public class CachingClientProvider implements ClientProvider {
 
     }
 
-    private static final class Value {
+    private static final class CacheValue {
         private final AmazonWebServiceClient client;
         private final STSAssumeRoleSessionCredentialsProvider tempCredentials;
 
-        private Value(AmazonWebServiceClient client, STSAssumeRoleSessionCredentialsProvider tempCredentials) {
+        private CacheValue(AmazonWebServiceClient client, STSAssumeRoleSessionCredentialsProvider tempCredentials) {
             this.client = client;
             this.tempCredentials = tempCredentials;
         }
