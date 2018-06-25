@@ -1,8 +1,15 @@
 package org.zalando.stups.fullstop.s3;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
 import com.amazonaws.util.IOUtils;
 import com.google.common.collect.Lists;
@@ -27,21 +34,21 @@ import static org.joda.time.DateTimeZone.UTC;
 @Service
 public class S3Service {
 
-    public static final String TAUPAGE_YAML = "taupage.yaml";
+    private static final String TAUPAGE_YAML = "taupage.yaml";
 
-    public static final String AUDIT_LOG_FILE_NAME = "audit-log-";
+    private static final String AUDIT_LOG_FILE_NAME = "audit-log-";
 
-    public static final String LOG_GZ = ".log.gz";
+    private static final String LOG_GZ = ".log.gz";
 
     private final Logger log = LoggerFactory.getLogger(S3Service.class);
 
-    private final AmazonS3Client s3client = new AmazonS3Client();
+    private final AmazonS3 s3client = AmazonS3ClientBuilder.defaultClient();
 
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
 
     public String writeToS3(final String accountId, final String region, final Date instanceBootTime,
-            final String logData, final String logType, final String instanceId) throws IOException {
+                            final String logData, final String logType, final String instanceId) {
         String fileName = null;
 
         final DateTime dateTime = new DateTime(instanceBootTime, UTC);
@@ -52,17 +59,17 @@ public class S3Service {
 
         switch (LogType.valueOf(logType)) {
 
-        case USER_DATA:
-            fileName = TAUPAGE_YAML;
-            break;
+            case USER_DATA:
+                fileName = TAUPAGE_YAML;
+                break;
 
-        case AUDIT_LOG:
-            fileName = AUDIT_LOG_FILE_NAME + new DateTime(UTC) + LOG_GZ;
-            break;
+            case AUDIT_LOG:
+                fileName = AUDIT_LOG_FILE_NAME + new DateTime(UTC) + LOG_GZ;
+                break;
 
-        default:
-            log.error("Wrong logType given: " + logType);
-            break;
+            default:
+                log.error("Wrong logType given: " + logType);
+                break;
         }
 
         final ObjectMetadata metadata = new ObjectMetadata();
@@ -77,15 +84,14 @@ public class S3Service {
     }
 
     public void putObjectToS3(final String bucket, final String fileName, final String keyName,
-            final ObjectMetadata metadata, final InputStream stream) {
+                              final ObjectMetadata metadata, final InputStream stream) {
         // AmazonS3 s3client = new AmazonS3Client();
         try {
             log.debug("Uploading a new object to S3 from a file");
 
             s3client.putObject(new PutObjectRequest(bucket, Paths.get(keyName, fileName).toString(), stream, metadata));
 
-        }
-        catch (final AmazonServiceException e) {
+        } catch (final AmazonServiceException e) {
             log.error("Could not put object to S3", e);
         }
     }
@@ -149,8 +155,7 @@ public class S3Service {
                 listObjectsRequest.setMarker(objectListing.getNextMarker());
             } while (objectListing.isTruncated());
 
-        }
-        catch (final AmazonServiceException e) {
+        } catch (final AmazonServiceException e) {
             log.error("Error Message:    " + e.getMessage());
         }
 
@@ -166,16 +171,13 @@ public class S3Service {
         String result = null;
         try {
             result = IOUtils.toString(inputStream);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             log.warn("Could not download file for bucket: {}, with key: {}", bucketName, key);
-        }
-        finally {
+        } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
-                }
-                catch (final IOException ex) {
+                } catch (final IOException ex) {
                     log.debug("Ignore failure in closing the Closeable", ex);
                 }
             }

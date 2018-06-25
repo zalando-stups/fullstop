@@ -34,7 +34,18 @@ import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,9 +63,9 @@ import static org.zalando.stups.fullstop.web.test.builder.domain.ViolationEntity
 @WebAppConfiguration
 public class ViolationsControllerTest {
 
-    public static final String ACCOUNT_ID = "123";
+    private static final String ACCOUNT_ID = "123";
 
-    public static final String REGION = "eu-west-1";
+    private static final String REGION = "eu-west-1";
 
     @Autowired
     private WebApplicationContext wac;
@@ -76,7 +87,7 @@ public class ViolationsControllerTest {
     private ObjectMapper objectMapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         reset(violationServiceMock, mockTeamOperations, mockViolationConverter);
 
         violationRequest = new Violation();
@@ -100,7 +111,7 @@ public class ViolationsControllerTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SecurityContextHolder.clearContext();
         verifyNoMoreInteractions(violationServiceMock, mockTeamOperations, mockViolationConverter);
     }
@@ -120,11 +131,11 @@ public class ViolationsControllerTest {
     public void testGetOneNullViolation() throws Exception {
         when(violationServiceMock.findOne(948439L)).thenReturn(null);
 
-        final ResultActions resultActions = this.mockMvc.perform(get("/api/violations/948439"))
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(get("/api/violations/948439")).andExpect(status().isNotFound());
         verify(violationServiceMock).findOne(948439L);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testViolations() throws Exception {
         when(violationServiceMock.queryViolations(any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), anyBoolean(), any(), any(), any())).thenReturn(
@@ -144,7 +155,7 @@ public class ViolationsControllerTest {
                 isNull(Integer.class),
                 isNull(Integer.class),
                 isNull(Boolean.class),
-                any(List.class),
+                anyListOf(String.class),
                 anyBoolean(),
                 isNull(List.class),
                 isNull(List.class),
@@ -183,7 +194,7 @@ public class ViolationsControllerTest {
 
         verify(violationServiceMock).queryViolations(
                 eq(newArrayList("123")), any(DateTime.class), any(DateTime.class), eq(lastViolation), eq(
-                        true), any(), any(), any(), anyList(), anyBoolean(), anyList(),anyList(), any());
+                        true), any(), any(), any(), anyListOf(String.class), anyBoolean(), anyListOf(String.class), anyListOf(String.class), any());
         verify(mockViolationConverter).convert(any(ViolationEntity.class));
     }
 

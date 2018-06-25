@@ -85,12 +85,13 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
 
     private static Predicate<ViolationEntity> imageNameMatches(final String imageNamePattern) {
         return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                final Map<String,String> map = (Map<String, String>) v.getMetaInfo();
+            if (v.getMetaInfo() instanceof Map) {
+                final Map map = (Map) v.getMetaInfo();
                 if (map == null || map.get("ami_name") == null) {
                     return false;
                 }
-                return map.get("ami_name").matches(imageNamePattern);
+                final String amiName = (String) map.get("ami_name");
+                return amiName.matches(imageNamePattern);
             } else {
                 return false;
             }
@@ -99,9 +100,10 @@ public class WhitelistRulesEvaluator implements BiFunction<RuleEntity, Violation
 
     private static Predicate<ViolationEntity> imageOwnerIsEqual(final String imageOwner) {
         return v -> {
-            if(v.getMetaInfo() instanceof Map) {
-                final Map<String,String> map = (Map<String, String>) v.getMetaInfo();
-                return imageOwner.equals(map.get("ami_owner_id"));
+            if (v.getMetaInfo() instanceof Map) {
+                final Map map = (Map) v.getMetaInfo();
+                final String amiOwnerId = (String) map.get("ami_owner_id");
+                return imageOwner.equals(amiOwnerId);
             } else {
                 return false;
             }

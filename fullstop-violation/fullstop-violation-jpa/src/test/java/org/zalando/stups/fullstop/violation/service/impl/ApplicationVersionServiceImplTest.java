@@ -41,7 +41,8 @@ public class ApplicationVersionServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        reset(applicationRepositoryMock, versionRepositoryMock);
+        reset(applicationRepositoryMock);
+        reset(versionRepositoryMock);
 
         applicationEntity = new ApplicationEntity(MY_APP_1);
         versionEntity = new VersionEntity(SNAPSHOT);

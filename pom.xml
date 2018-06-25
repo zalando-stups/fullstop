@@ -50,6 +50,7 @@
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
         <guava.version>25.1-jre</guava.version>
         <flyway.version>4.2.0</flyway.version>
+        <aws-java-sdk.version>1.11.354</aws-java-sdk.version>
     </properties>
 
     <modules>
@@ -95,6 +96,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-bom</artifactId>
+                <version>${aws-java-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>

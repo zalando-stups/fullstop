@@ -1,10 +1,10 @@
 package org.zalando.stups.fullstop.jobs.config;
 
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -18,7 +18,6 @@ public class HttpClientConfig {
 
     @Bean
     @Scope("prototype")
-    @SuppressWarnings("deprecation")
     public CloseableHttpClient build() {
         final RequestConfig config = RequestConfig.custom()
                 .setConnectionRequestTimeout(1000)
@@ -35,9 +34,9 @@ public class HttpClientConfig {
                     .disableRedirectHandling()
                     .setDefaultRequestConfig(config)
                     .setUserAgent("fullstop-job (https://github.com/zalando-stups/fullstop)")
-                    .setHostnameVerifier(new AllowAllHostnameVerifier())
-                    .setSslcontext(
-                            new SSLContextBuilder()
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .setSSLContext(
+                            SSLContextBuilder.create()
                                     .loadTrustMaterial(
                                             null,
                                             (arrayX509Certificate, value) -> true)

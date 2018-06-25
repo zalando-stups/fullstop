@@ -1,17 +1,18 @@
 package org.zalando.stups.fullstop.plugin.example;
 
-import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEvent;
 import com.amazonaws.services.cloudtrail.processinglibrary.model.CloudTrailEventData;
+import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
-import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
-import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.plugin.metadata.PluginMetadata;
@@ -56,7 +57,7 @@ public class ExamplePlugin implements FullstopPlugin {
         final String parameters = event.getEventData().getRequestParameters();
         final String instanceId = getFromParameters(parameters);
 
-        final AmazonEC2Client client = getClientForAccount(
+        final AmazonEC2 client = getClientForAccount(
                 event.getEventData().getUserIdentity().getAccountId(),
                 Region.getRegion(Regions.fromName(event.getEventData().getAwsRegion())));
 
@@ -71,28 +72,19 @@ public class ExamplePlugin implements FullstopPlugin {
         LOG.info("SAVING RESULT INTO MAGIC DB", result);
     }
 
-    private AmazonEC2Client getClientForAccount(final String accountId, final Region region) {
-        final AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(new ProfileCredentialsProvider());
-
-        final AssumeRoleRequest assumeRequest = new AssumeRoleRequest().withRoleArn(
-                "arn:aws:iam::ACCOUNT_ID:role/fullstop-role")
-                                                                 .withDurationSeconds(3600).withRoleSessionName(
-                        "fullstop-role");
-
-        final AssumeRoleResult assumeResult = stsClient.assumeRole(assumeRequest);
-
-        final BasicSessionCredentials temporaryCredentials = new BasicSessionCredentials(
-                assumeResult.getCredentials()
-                            .getAccessKeyId(), assumeResult.getCredentials().getSecretAccessKey(),
-                assumeResult.getCredentials().getSessionToken());
-
-        final AmazonEC2Client amazonEC2Client = new AmazonEC2Client(temporaryCredentials);
-        amazonEC2Client.setRegion(region);
-
-        return amazonEC2Client;
+    private AmazonEC2 getClientForAccount(final String accountId, final Region region) {
+        final AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClient.builder()
+                .withCredentials(new ProfileCredentialsProvider()).build();
+        final String roleArn = String.format("arn:aws:iam::%s:role/fullstop-role", accountId);
+        final String sessionName = "fullstop-role";
+        final AWSCredentialsProvider tempCredentialsProvider = new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, sessionName)
+                .withStsClient(stsClient)
+                .withRoleSessionDurationSeconds(3600)
+                .build();
+        return AmazonEC2Client.builder().withCredentials(tempCredentialsProvider).withRegion(region.getName()).build();
     }
 
-    private String getFromParameters(final String parameters) {
+    private String getFromParameters(@SuppressWarnings("unused") final String parameters) {
 
         // TODO Auto-generated method stub
         return null;

@@ -5,17 +5,15 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.SuccessCallback;
 
 import java.io.IOException;
 import java.net.URI;
@@ -48,7 +46,7 @@ public class TestAsyncIT {
     private CloseableHttpClient httpclient;
 
     @Test
-    public void run() throws InterruptedException {
+    public void run() {
 
         threadPoolTaskExecutor.setCorePoolSize(8);
         threadPoolTaskExecutor.setMaxPoolSize(10);
@@ -70,9 +68,9 @@ public class TestAsyncIT {
                     .disableCookieManagement()
                     .disableRedirectHandling()
                     .setDefaultRequestConfig(config)
-                    .setHostnameVerifier(new AllowAllHostnameVerifier())
-                    .setSslcontext(
-                            new SSLContextBuilder()
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .setSSLContext(
+                            SSLContextBuilder.create()
                                     .loadTrustMaterial(
                                             null,
                                             (arrayX509Certificate, value) -> true)
@@ -121,17 +119,8 @@ public class TestAsyncIT {
                 final HttpCall httpCall = new HttpCall(httpclient, address, allowedPort);
                 final ListenableFuture<Void> listenableFuture = threadPoolTaskExecutor.submitListenable(httpCall);
                 listenableFuture.addCallback(
-                        new SuccessCallback<Void>() {
-                            @Override
-                            public void onSuccess(final Void result) {
-                                log.info("address: {} and port: {}", address, allowedPort);
-                            }
-                        }, new FailureCallback() {
-                            @Override
-                            public void onFailure(final Throwable ex) {
-                                log.warn(ex.getMessage(), ex);
-                            }
-                        });
+                        result -> log.info("address: {} and port: {}", address, allowedPort),
+                        ex -> log.warn(ex.getMessage(), ex));
 
                 log.info("getActiveCount: {}", threadPoolTaskExecutor.getActiveCount());
                 log.info("### - Thread: {}", Thread.currentThread().getId());
@@ -152,14 +141,14 @@ public class TestAsyncIT {
 
         private final Integer allowedPort;
 
-        public HttpCall(final CloseableHttpClient httpclient, final String address, final Integer allowedPort) {
+        HttpCall(final CloseableHttpClient httpclient, final String address, final Integer allowedPort) {
             this.httpclient = httpclient;
             this.address = address;
             this.allowedPort = allowedPort;
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void call() {
             log.info("Thread: {}", Thread.currentThread().getId());
 
             final String scheme = allowedPort == 443 ? "https" : "http";
