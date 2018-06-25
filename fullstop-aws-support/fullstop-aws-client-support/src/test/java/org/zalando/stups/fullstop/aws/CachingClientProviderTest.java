@@ -54,7 +54,7 @@ public class CachingClientProviderTest {
 
         @Bean
         public ClientProvider cachingClientProvider() {
-            return new CachingClientProvider();
+            return new CachingClientProvider(null);
         }
     }
 
