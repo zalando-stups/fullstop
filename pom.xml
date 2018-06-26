@@ -49,6 +49,7 @@
         <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
         <guava.version>25.1-jre</guava.version>
+        <flyway.version>4.2.0</flyway.version>
     </properties>
 
     <modules>
