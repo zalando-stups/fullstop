@@ -97,7 +97,6 @@ public class ViolationsControllerTest {
         createViolation.setApplicationId("testapp");
         createViolation.setApplicationVersion("2");
 
-        ViolationSink violationSink = mock(ViolationSink.class);
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
