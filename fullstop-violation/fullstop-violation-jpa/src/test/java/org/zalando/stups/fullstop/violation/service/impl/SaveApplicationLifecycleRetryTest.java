@@ -21,7 +21,15 @@ import org.zalando.stups.fullstop.violation.service.ApplicationLifecycleService;
 import javax.persistence.OptimisticLockException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class SaveApplicationLifecycleRetryTest {
 
@@ -46,7 +54,9 @@ public class SaveApplicationLifecycleRetryTest {
         mockVersionRepository = context.getBean(VersionRepository.class);
         mockLifecycleRepository = context.getBean(LifecycleRepository.class);
 
-        reset(mockApplicationRepository, mockVersionRepository, mockLifecycleRepository);
+        reset(mockApplicationRepository);
+        reset(mockVersionRepository);
+        reset(mockLifecycleRepository);
 
         application = new ApplicationEntity("foobar");
         version = new VersionEntity("1.0");
@@ -60,12 +70,12 @@ public class SaveApplicationLifecycleRetryTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(mockApplicationRepository, mockVersionRepository, mockLifecycleRepository);
     }
 
     @Test
-    public void testRetry() throws Exception {
+    public void testRetry() {
         when(mockLifecycleRepository.save(any(LifecycleEntity.class)))
                 // first time throw an exception
                 .thenThrow(new ObjectOptimisticLockingFailureException(ApplicationEntity.class, "foobar"))
@@ -86,7 +96,7 @@ public class SaveApplicationLifecycleRetryTest {
 
 
     @Test(expected = DataIntegrityViolationException.class)
-    public void testFailOnMaxAttemptsExceeded() throws Exception {
+    public void testFailOnMaxAttemptsExceeded() {
         when(mockLifecycleRepository.save(any(LifecycleEntity.class))).thenThrow(new DataIntegrityViolationException("constraint violation"));
 
         try {
@@ -100,7 +110,7 @@ public class SaveApplicationLifecycleRetryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testFailOnNonRetriableException() throws Exception {
+    public void testFailOnNonRetriableException() {
         when(mockLifecycleRepository.save(any(LifecycleEntity.class))).thenThrow(new IllegalArgumentException());
 
         try {

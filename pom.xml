@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
         <!-- Make sure to update spring-boot.version property as well -->
-        <version>Edgware.SR3</version>
+        <version>1.5.14.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -25,7 +25,7 @@
         <java.version>1.8</java.version>
 
         <!-- Keep in sync with parent pom -->
-        <spring-boot.version>1.5.10.RELEASE</spring-boot.version>
+        <spring-boot.version>1.5.14.RELEASE</spring-boot.version>
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <aws-cloudtrail-processing-library.version>1.0.4-ZAL-1</aws-cloudtrail-processing-library.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -50,6 +50,9 @@
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
         <guava.version>25.1-jre</guava.version>
         <flyway.version>4.2.0</flyway.version>
+        <aws-java-sdk.version>1.11.354</aws-java-sdk.version>
+        <wiremock.version>2.18.0</wiremock.version>
+        <spring-cloud-netflix-dependencies.version>1.4.4.RELEASE</spring-cloud-netflix-dependencies.version>
     </properties>
 
     <modules>
@@ -95,6 +98,20 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-bom</artifactId>
+                <version>${aws-java-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-netflix-dependencies</artifactId>
+                <version>${spring-cloud-netflix-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>
@@ -232,6 +249,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

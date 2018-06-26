@@ -1,20 +1,24 @@
 package org.zalando.stups.fullstop.aws;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore
 public class ClientTest {
 
-    private final Region region = Region.getRegion(Regions.EU_CENTRAL_1);
-
+    @SuppressWarnings("unused")
+    @Test
     public void createClient() {
-        final AmazonEC2Client client = region.createClient(
-                AmazonEC2Client.class,
-                new STSAssumeRoleSessionCredentialsProvider("", ""), null);
+        final AWSCredentialsProvider tempCredentialsProvider = new STSAssumeRoleSessionCredentialsProvider.Builder("", "").build();
+        final AmazonEC2 client = AmazonEC2ClientBuilder.standard()
+                .withRegion(Regions.EU_CENTRAL_1)
+                .withCredentials(tempCredentialsProvider)
+                .build();
     }
 
 }

@@ -22,7 +22,12 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class FetchRdsJobTest {
 
@@ -35,7 +40,7 @@ public class FetchRdsJobTest {
     private JobExceptionHandler exceptionHandlerMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.clientProviderMock = mock(ClientProvider.class);
         this.jobsPropertiesMock = mock(JobsProperties.class);
         this.violationSinkMock = mock(ViolationSink.class);
@@ -71,12 +76,13 @@ public class FetchRdsJobTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock, amazonRDSClientMock);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void testCheck() throws Exception {
+    public void testCheck() {
         final FetchRdsJob fetchRdsJob = new FetchRdsJob(accountIdSupplierMock, clientProviderMock, jobsPropertiesMock, violationSinkMock, exceptionHandlerMock);
         when(amazonRDSClientMock.describeDBInstances(any(DescribeDBInstancesRequest.class))).thenReturn(describeDBInstancesResultMock);
         fetchRdsJob.run();
@@ -89,9 +95,10 @@ public class FetchRdsJobTest {
         verify(clientProviderMock, times(1)).getClient(any(), any(String.class), any(Region.class));
 
         // Regression test for #479: Make sure that the metadata lists the correct endpoints.
-        assertArrayEquals(new String[] {"aws.db.cn", "aws.db2.cn"},
+        assertArrayEquals(new String[]{"aws.db.cn", "aws.db2.cn"},
                 violations.getAllValues().stream()
-                        .map(v -> ((Map<String, Object>) v.getMetaInfo()).get("unsecuredDatabase"))
+                        .map(violation -> (Map) violation.getMetaInfo())
+                        .map(metaInfo -> metaInfo.get("unsecuredDatabase"))
                         .toArray());
     }
 }

@@ -1,6 +1,5 @@
 package org.zalando.stups.fullstop.swagger.configuration;
 
-import com.google.common.base.Predicate;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +8,8 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import static java.util.Collections.emptyList;
 
 @Configuration
 @PropertySource("classpath:swagger.properties")
@@ -22,9 +23,10 @@ public class SwaggerConfig {
                 "Audit reporting",
                 "",
                 "",
-                "",
+                ApiInfo.DEFAULT_CONTACT,
                 "Apache 2.0",
-                "http://www.apache.org/licenses/LICENSE-2.0.html");
+                "http://www.apache.org/licenses/LICENSE-2.0.html",
+                emptyList());
     }
 
     @Bean
@@ -33,12 +35,8 @@ public class SwaggerConfig {
                 .directModelSubstitute(DateTime.class, String.class)
                 .apiInfo(apiInfo())
                 .select()
-                .paths(fullstopOnlyEndpoints())
+                .paths(input -> input != null && input.contains("/api/"))
                 .build();
-    }
-
-    private Predicate<String> fullstopOnlyEndpoints() {
-        return input -> input.contains("/api/");
     }
 
 }

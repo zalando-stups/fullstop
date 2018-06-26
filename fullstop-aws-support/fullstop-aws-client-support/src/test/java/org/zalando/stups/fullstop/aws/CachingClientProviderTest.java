@@ -1,52 +1,57 @@
 package org.zalando.stups.fullstop.aws;
 
-import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-import java.util.concurrent.TimeUnit;
+import static com.amazonaws.regions.Regions.EU_CENTRAL_1;
+import static com.amazonaws.regions.Regions.EU_WEST_1;
+import static com.amazonaws.regions.Regions.EU_WEST_2;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author jbellmann
- */
-@Ignore
-@RunWith(SpringRunner.class)
 @ContextConfiguration
 public class CachingClientProviderTest {
+
+    private static final String ACCOUNT_ID1 = "000000000000";
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+    private static final String ACCOUNT_ID2 = "111111111111";
+    private static final Region REGION1 = Region.getRegion(EU_CENTRAL_1);
+    private static final Region REGION2 = Region.getRegion(EU_WEST_2);
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private ClientProvider provider;
 
     @Test
-    public void testCachingClientProvider() throws InterruptedException {
-        final AmazonWebServiceClient client = provider.getClient(
-                AmazonEC2Client.class, "",
-                Region.getRegion(Regions.EU_CENTRAL_1));
+    public void testCachingClientProvider() {
+        final AmazonEC2Client client = provider.getClient(AmazonEC2Client.class, ACCOUNT_ID1, REGION1);
+        assertThat(client).isNotNull();
 
-        Assertions.assertThat(client).isNotNull();
-        System.out.println(client.toString());
-        for (int i = 0; i < 10; i++) {
-
-            final AmazonEC2Client other = provider.getClient(
-                    AmazonEC2Client.class, "",
-                    Region.getRegion(Regions.EU_CENTRAL_1));
-
-            Assertions.assertThat(other).isNotNull();
-            Assertions.assertThat(other).isEqualTo(client);
-            System.out.println(other.toString());
-            TimeUnit.SECONDS.sleep(2);
-        }
-
+        assertThat(provider.getClient(AmazonEC2Client.class, ACCOUNT_ID1, REGION1))
+                .isNotNull()
+                .isSameAs(client);
+        assertThat(provider.getClient(AmazonEC2Client.class, ACCOUNT_ID2, REGION1))
+                .isNotNull()
+                .isNotSameAs(client);
+        assertThat(provider.getClient(AmazonEC2Client.class, ACCOUNT_ID1, REGION2))
+                .isNotNull()
+                .isNotSameAs(client);
+        assertThat(provider.getClient(AmazonCloudWatchClient.class, ACCOUNT_ID1, REGION1))
+                .isNotNull()
+                .isNotSameAs(client);
     }
 
     @Configuration
@@ -54,7 +59,7 @@ public class CachingClientProviderTest {
 
         @Bean
         public ClientProvider cachingClientProvider() {
-            return new CachingClientProvider();
+            return new CachingClientProvider(EU_WEST_1.getName());
         }
     }
 
