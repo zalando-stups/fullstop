@@ -24,8 +24,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+import org.zalando.stups.fullstop.web.model.CreateViolation;
 import org.zalando.stups.fullstop.web.model.Violation;
 import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
@@ -66,7 +68,12 @@ public class ViolationsControllerTest {
     private TeamOperations mockTeamOperations;
 
     @Autowired
+    private ViolationSink violationSinkMock;
+
+    @Autowired
     private Converter<ViolationEntity, Violation> mockViolationConverter;
+
+    private CreateViolation createViolation;
 
     private Violation violationRequest;
 
@@ -78,6 +85,19 @@ public class ViolationsControllerTest {
     @Before
     public void setUp() throws Exception {
         reset(violationServiceMock, mockTeamOperations, mockViolationConverter);
+
+        createViolation = new CreateViolation();
+        createViolation.setEventId(UUID.randomUUID().toString());
+        createViolation.setAccountId("2547093960");
+        createViolation.setRegion("eu-west-1");
+        createViolation.setMetaInfo("this is a meta info object of string");
+        createViolation.setViolationType("OUTDATED_TAUPAGE");
+        createViolation.setInstanceId("eu-2174329546");
+        createViolation.setUsername("testuser");
+        createViolation.setApplicationId("testapp");
+        createViolation.setApplicationVersion("2");
+
+        ViolationSink violationSink = mock(ViolationSink.class);
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
@@ -259,9 +279,23 @@ public class ViolationsControllerTest {
         verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
     }
 
+    @Test
+    public void testCreateViolation() throws Exception
+    {
+        this.mockMvc.perform(post("/api/violations")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(createViolation)))
+                .andExpect(status().isOk());
+
+        verify(violationSinkMock).put(isA(CreateViolation.class));
+    }
+
     @Configuration
     @Import(ControllerTestConfig.class)
     static class TestConfig {
+
+        @Bean
+        public ViolationSink violationSink() { return mock(ViolationSink.class); }
 
         @Bean
         public ViolationsController violationsController() {
