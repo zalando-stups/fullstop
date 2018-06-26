@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.teams.Account;
@@ -191,6 +192,7 @@ public class ViolationsController {
     @ApiResponse(code = 202, message = "Violation successfully accepted!")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    @PreAuthorize("#oauth2.hasScope('fullstop.violation.write')")
     public void createViolation(@Valid @RequestBody CreateViolation violation)
     {
         violationSink.put(violation);
