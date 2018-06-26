@@ -10,6 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.teams.Account;
@@ -33,6 +36,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -187,12 +191,12 @@ public class ViolationsController {
         return entityToDto.convert(dbViolationEntity);
     }
 
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Violation created successfully!")})
-    @PostMapping
-    public CreateViolation createViolation(@Valid @RequestBody CreateViolation violation)
+    @ApiResponse(code = 202, message = "Violation successfully accepted!")
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public void createViolation(@Valid @RequestBody CreateViolation violation)
     {
         violationSink.put(violation);
-        return violation;
     }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {

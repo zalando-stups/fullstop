@@ -3,9 +3,8 @@ package org.zalando.stups.fullstop.web.model;
 import io.swagger.annotations.ApiModel;
 import org.zalando.stups.fullstop.violation.Violation;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import java.util.Objects;
 
 @ApiModel
 public class CreateViolation implements Violation {
@@ -18,11 +17,6 @@ public class CreateViolation implements Violation {
     private String username;
     private String applicationId;
     private String applicationVersion;
-
-
-    public CreateViolation() {
-    }
-
 
     @Override
     @NotNull
@@ -76,7 +70,6 @@ public class CreateViolation implements Violation {
     }
 
     @Override
-    @NotNull
     public String getInstanceId() {
         return instanceId;
     }
@@ -86,7 +79,6 @@ public class CreateViolation implements Violation {
     }
 
     @Override
-    @Nullable
     public String getUsername() {
         return username;
     }
@@ -96,7 +88,6 @@ public class CreateViolation implements Violation {
     }
 
     @Override
-    @NotNull
     public String getApplicationId() {
         return applicationId;
     }
@@ -106,7 +97,6 @@ public class CreateViolation implements Violation {
     }
 
     @Override
-    @NotNull
     public String getApplicationVersion() {
         return applicationVersion;
     }
@@ -116,20 +106,39 @@ public class CreateViolation implements Violation {
     }
 
     @Override
-    @Nullable
     public String getPluginFullyQualifiedClassName() {
         return null;
     }
 
     @Override
-    @Nullable
     public Boolean getChecked() {
         return null;
     }
 
     @Override
-    @Nullable
     public String getComment() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CreateViolation violation = (CreateViolation) o;
+        return Objects.equals(eventId, violation.eventId) &&
+                Objects.equals(accountId, violation.accountId) &&
+                Objects.equals(region, violation.region) &&
+                Objects.equals(metaInfo, violation.metaInfo) &&
+                Objects.equals(violationType, violation.violationType) &&
+                Objects.equals(instanceId, violation.instanceId) &&
+                Objects.equals(username, violation.username) &&
+                Objects.equals(applicationId, violation.applicationId) &&
+                Objects.equals(applicationVersion, violation.applicationVersion);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(eventId, accountId, region, metaInfo, violationType, instanceId, username, applicationId, applicationVersion);
     }
 }

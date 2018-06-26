@@ -31,8 +31,7 @@ import org.zalando.stups.fullstop.web.model.CreateViolation;
 import org.zalando.stups.fullstop.web.model.Violation;
 import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
@@ -86,11 +85,14 @@ public class ViolationsControllerTest {
     public void setUp() throws Exception {
         reset(violationServiceMock, mockTeamOperations, mockViolationConverter);
 
+        Map<String, String> metainfo = new HashMap<String, String>();
+        metainfo.put("info", "meta info test string");
+
         createViolation = new CreateViolation();
         createViolation.setEventId(UUID.randomUUID().toString());
         createViolation.setAccountId("2547093960");
         createViolation.setRegion("eu-west-1");
-        createViolation.setMetaInfo("this is a meta info object of string");
+        createViolation.setMetaInfo(metainfo);
         createViolation.setViolationType("OUTDATED_TAUPAGE");
         createViolation.setInstanceId("eu-2174329546");
         createViolation.setUsername("testuser");
@@ -284,9 +286,9 @@ public class ViolationsControllerTest {
         this.mockMvc.perform(post("/api/violations")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(createViolation)))
-                .andExpect(status().isOk());
+                .andExpect(status().isAccepted());
 
-        verify(violationSinkMock).put(isA(CreateViolation.class));
+        verify(violationSinkMock).put(eq(createViolation));
     }
 
     @Configuration
