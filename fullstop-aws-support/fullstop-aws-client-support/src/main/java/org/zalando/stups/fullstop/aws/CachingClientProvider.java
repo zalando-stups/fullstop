@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -60,6 +61,7 @@ public class CachingClientProvider implements ClientProvider {
 
     @PostConstruct
     public void init() {
+        log.debug("Initializing CachingClientProvider");
         final AWSSecurityTokenServiceClientBuilder builder = AWSSecurityTokenServiceClientBuilder.standard();
         if (hasText(stsRegion)) {
             builder.setRegion(stsRegion);
@@ -75,6 +77,7 @@ public class CachingClientProvider implements ClientProvider {
 
     @PreDestroy
     public void tearDown() {
+        log.debug("Shutting down CachingClientProvider");
         cache.invalidateAll();
         awsSecurityTokenService.shutdown();
     }
@@ -83,7 +86,7 @@ public class CachingClientProvider implements ClientProvider {
         return new CacheLoader<Key<?>, CacheValue>() {
             @Override
             public CacheValue load(@Nonnull final Key<?> key) {
-                log.debug("CacheLoader active for Key : {}", key);
+                log.debug("Creating a new AmazonWebServiceClient client for {}", key);
                 final STSAssumeRoleSessionCredentialsProvider tempCredentials = new STSAssumeRoleSessionCredentialsProvider
                         .Builder(buildRoleArn(key.accountId), ROLE_SESSION_NAME).withStsClient(awsSecurityTokenService)
                         .build();
@@ -105,13 +108,9 @@ public class CachingClientProvider implements ClientProvider {
 
     private void removalHook(RemovalNotification<Key<?>, CacheValue> notification) {
         log.debug("Shutting down expired client for key: {}", notification.getKey());
-        final CacheValue value = notification.getValue();
-
-        final AmazonWebServiceClient client = value.client;
-        client.shutdown();
-
-        final STSAssumeRoleSessionCredentialsProvider tempCredentials = value.tempCredentials;
-        tempCredentials.close();
+        final Optional<CacheValue> value = Optional.ofNullable(notification.getValue());
+        value.map(v -> v.client).ifPresent(AmazonWebServiceClient::shutdown);
+        value.map(v -> v.tempCredentials).ifPresent(STSAssumeRoleSessionCredentialsProvider::close);
     }
 
     private String buildRoleArn(final String accountId) {
