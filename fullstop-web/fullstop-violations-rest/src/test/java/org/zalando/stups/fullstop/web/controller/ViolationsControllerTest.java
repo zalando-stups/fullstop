@@ -24,13 +24,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
+import org.zalando.stups.fullstop.web.model.CreateViolation;
 import org.zalando.stups.fullstop.web.model.Violation;
 import org.zalando.stups.fullstop.web.test.ControllerTestConfig;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.joda.time.DateTimeZone.UTC;
@@ -77,7 +78,12 @@ public class ViolationsControllerTest {
     private TeamOperations mockTeamOperations;
 
     @Autowired
+    private ViolationSink violationSinkMock;
+
+    @Autowired
     private Converter<ViolationEntity, Violation> mockViolationConverter;
+
+    private CreateViolation createViolation;
 
     private Violation violationRequest;
 
@@ -89,6 +95,21 @@ public class ViolationsControllerTest {
     @Before
     public void setUp() {
         reset(violationServiceMock, mockTeamOperations, mockViolationConverter);
+
+        Map<String, String> metainfo = new HashMap<String, String>();
+        metainfo.put("info", "meta info test string");
+
+        createViolation = new CreateViolation();
+        createViolation.setEventId(UUID.randomUUID().toString());
+        createViolation.setAccountId("2547093960");
+        createViolation.setRegion("eu-west-1");
+        createViolation.setMetaInfo(metainfo);
+        createViolation.setViolationType("OUTDATED_TAUPAGE");
+        createViolation.setInstanceId("eu-2174329546");
+        createViolation.setUsername("testuser");
+        createViolation.setApplicationId("testapp");
+        createViolation.setApplicationVersion("2");
+
 
         violationRequest = new Violation();
         violationRequest.setAccountId(ACCOUNT_ID);
@@ -270,9 +291,23 @@ public class ViolationsControllerTest {
         verify(mockTeamOperations).getAwsAccountsByUser(eq("test-user"));
     }
 
+    @Test
+    public void testCreateViolation() throws Exception
+    {
+        this.mockMvc.perform(post("/api/violations")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(createViolation)))
+                .andExpect(status().isAccepted());
+
+        verify(violationSinkMock).put(eq(createViolation));
+    }
+
     @Configuration
     @Import(ControllerTestConfig.class)
     static class TestConfig {
+
+        @Bean
+        public ViolationSink violationSink() { return mock(ViolationSink.class); }
 
         @Bean
         public ViolationsController violationsController() {

@@ -10,17 +10,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.zalando.stups.fullstop.teams.Account;
 import org.zalando.stups.fullstop.teams.TeamOperations;
+import org.zalando.stups.fullstop.violation.ViolationSink;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
 import org.zalando.stups.fullstop.violation.service.ViolationService;
 import org.zalando.stups.fullstop.web.api.ForbiddenException;
 import org.zalando.stups.fullstop.web.api.NotFoundException;
+import org.zalando.stups.fullstop.web.model.CreateViolation;
 import org.zalando.stups.fullstop.web.model.Violation;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +42,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = "/api/violations", produces = APPLICATION_JSON_VALUE)
 @Api(value = "/api/violations", description = "the violations API")
 public class ViolationsController {
+    @Autowired
+    private ViolationSink violationSink;
 
     @Autowired
     private ViolationService violationService;
@@ -180,6 +186,14 @@ public class ViolationsController {
         violation.setComment(comment);
         final ViolationEntity dbViolationEntity = violationService.save(violation);
         return entityToDto.convert(dbViolationEntity);
+    }
+
+    @ApiResponse(code = 202, message = "Violation successfully accepted!")
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public void createViolation(@Valid @RequestBody CreateViolation violation)
+    {
+        violationSink.put(violation);
     }
 
     private boolean hasAccessToAccount(final String userId, final String targetAccountId) {
