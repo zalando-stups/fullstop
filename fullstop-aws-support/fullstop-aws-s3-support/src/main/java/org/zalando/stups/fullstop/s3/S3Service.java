@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,10 +43,18 @@ public class S3Service {
 
     private final Logger log = LoggerFactory.getLogger(S3Service.class);
 
-    private final AmazonS3 s3client = AmazonS3ClientBuilder.defaultClient();
+    private final AmazonS3 s3client;
 
     @Value("${fullstop.instanceData.bucketName}")
     private String bucketName;
+
+    public S3Service(@Value("${fullstop.processor.properties.s3Region:#{null}}") String s3Region) {
+        final AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder.standard();
+        if (StringUtils.hasText(s3Region)) {
+            s3Builder.setRegion(s3Region);
+        }
+        s3client = s3Builder.build();
+    }
 
     public String writeToS3(final String accountId, final String region, final Date instanceBootTime,
                             final String logData, final String logType, final String instanceId) {

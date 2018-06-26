@@ -13,12 +13,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class S3ServiceTest {
 
     private final Logger log = getLogger(getClass());
-    
+
     private S3Service service;
 
     @Before
-    public void setUp() throws Exception {
-        service = new S3Service();
+    public void setUp() {
+        service = new S3Service(null);
     }
 
     @Test
