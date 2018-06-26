@@ -37,11 +37,10 @@ public class FullstopApi {
     @Autowired
     private ApplicationLifecycleService applicationLifecycleService;
 
-    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3", response = Void.class)
+    @ApiOperation(value = "Put instance log in S3", notes = "Add log for instance in S3")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Logs saved successfully")})
     @RequestMapping(value = "/instance-logs", method = RequestMethod.POST)
-    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true)
-                                             @RequestBody final LogObj log) {
+    public ResponseEntity<Void> instanceLogs(@ApiParam(value = "", required = true) @RequestBody final LogObj log) {
         saveLog(log);
 
         return new ResponseEntity<>(CREATED);
