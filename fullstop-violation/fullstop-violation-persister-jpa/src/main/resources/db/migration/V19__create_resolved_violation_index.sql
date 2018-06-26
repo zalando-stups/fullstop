@@ -1,0 +1,1 @@
+CREATE INDEX CONCURRENTLY resolved_violation_idx ON fullstop_data.violation(account_id) WHERE rule_entity_id IS NULL AND comment IS NOT NULL;
