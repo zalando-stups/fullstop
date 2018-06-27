@@ -52,7 +52,7 @@
         <flyway.version>4.2.0</flyway.version>
         <aws-java-sdk.version>1.11.354</aws-java-sdk.version>
         <wiremock.version>2.18.0</wiremock.version>
-        <spring-cloud-netflix-dependencies.version>1.4.4.RELEASE</spring-cloud-netflix-dependencies.version>
+        <spring-cloud-netflix-dependencies.version>2.0.0.RELEASE</spring-cloud-netflix-dependencies.version>
     </properties>
 
     <modules>
