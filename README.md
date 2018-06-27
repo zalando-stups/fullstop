@@ -79,7 +79,7 @@ This environment variables should be set:
     FULLSTOP_TAUPAGE_NAME_PREFIX
     FULLSTOP_S3_BUCKET
     FULLSTOP_KIO_URL
-    FULLSTOP_PIERONE_URL
+    FULLSTOP_PIERONE_URLS
     FULLSTOP_TEAM_SERVICE_URL
     DATABASE_URL
     DATABASE_USER
@@ -102,7 +102,7 @@ Example:
     $ export FULLSTOP_TAUPAGE_NAME_PREFIX=Taupage
     $ export FULLSTOP_S3_BUCKET=fullstop-bucket
     $ export FULLSTOP_KIO_URL: https://application.registry.address
-    $ export FULLSTOP_PIERONE_URL: https://docker.repository.address
+    $ export FULLSTOP_PIERONE_URLS: https://docker.repository.address
     $ export FULLSTOP_TEAM_SERVICE_URL: https://team.service.address
     $ export DATABASE_URL='jdbc:postgresql://localhost:5432/fullstop'
     $ export DATABASE_USER=postgres
@@ -119,6 +119,12 @@ Example:
 
 Set the parameter `fullstop.container.autoStart=false` either as program argument, or as system property to start
 Fullstop without CloudTrail processing.
+
+### Scopes
+In order to create Violations and save them to the database,
+your applications which is responsible for that needs this oAuth2 scope
+for the POST method on "/api/violations" endpoint
+> fullstop.violation.write
 
 ## Database setup
 
