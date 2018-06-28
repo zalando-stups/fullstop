@@ -153,7 +153,7 @@ Needs Java 1.8. Newer jdks are not supported yet.
 
     $ ./mvnw clean install
     
-## Run entire test suite
+## Run entire test suite (requires a local docker environment)
 
     $ ./mvnw clean verify -Pintegration-test
 
