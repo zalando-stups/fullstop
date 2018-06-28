@@ -3,10 +3,10 @@ spring:
         resource:
             tokenInfoUri: https://example.com/oauth/tokeninfo
     datasource:
-        url: jdbc:postgresql://localhost:5432/fullstop_test
+        url: jdbc:tc:postgresql:9://localhost/fullstop_test
         username: postgres
         password: postgres
-        driver-class-name: org.postgresql.Driver
+        driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
 
 fullstop:
 
