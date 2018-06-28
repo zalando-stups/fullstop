@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.fullstop.rule.entity.RuleEntity;
 import org.zalando.stups.fullstop.rule.repository.RuleEntityRepository;
-import org.zalando.stups.fullstop.violation.EmbeddedPostgresJpaConfig;
+import org.zalando.stups.fullstop.violation.JpaConfig;
 import org.zalando.stups.fullstop.violation.entity.CountByAccountAndType;
 import org.zalando.stups.fullstop.violation.entity.CountByAppVersionAndType;
 import org.zalando.stups.fullstop.violation.entity.ViolationEntity;
@@ -34,7 +34,7 @@ import static org.joda.time.DateTime.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EmbeddedPostgresJpaConfig.class)
+@SpringBootTest(classes = JpaConfig.class)
 @Transactional
 public class ViolationRepositoryTest {
 

@@ -1,4 +1,9 @@
 spring:
+  datasource:
+    url: jdbc:tc:postgresql:9://localhost/fullstop_test
+    username: postgres
+    password: postgres
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   jpa:
     ## Toggle to print sql statements
     # show-sql: true
