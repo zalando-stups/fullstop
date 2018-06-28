@@ -152,6 +152,10 @@ for encryption or you use Amazons [AWS CLI](http://docs.aws.amazon.com/cli/lates
 Needs Java 1.8. Newer jdks are not supported yet.
 
     $ ./mvnw clean install
+    
+## Run entire test suite
+
+    $ ./mvnw clean verify -Pintegration-test
 
 ## How to run
 
