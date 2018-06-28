@@ -121,8 +121,8 @@ Set the parameter `fullstop.container.autoStart=false` either as program argumen
 Fullstop without CloudTrail processing.
 
 ### Scopes
-In order to create Violations and save them to the database,
-your applications which is responsible for that needs this oAuth2 scope
+In order to create violations and save them to the database,
+your application which is responsible for that, needs this oAuth2 scope
 for the POST method on "/api/violations" endpoint
 > fullstop.violation.write
 
