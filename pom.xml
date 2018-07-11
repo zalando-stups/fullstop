@@ -52,7 +52,7 @@
         <aws-java-sdk.version>1.11.362</aws-java-sdk.version>
         <wiremock.version>2.18.0</wiremock.version>
         <spring-cloud-netflix-dependencies.version>1.4.5.RELEASE</spring-cloud-netflix-dependencies.version>
-        <testcontainers.postgresql.version>1.8.0</testcontainers.postgresql.version>
+        <testcontainers.postgresql.version>1.8.1</testcontainers.postgresql.version>
     </properties>
 
     <modules>
