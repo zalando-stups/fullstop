@@ -44,6 +44,26 @@ spring:
             hibernate:
                 default_schema: fullstop_data
 
+logbook:
+  exclude:
+    - /health
+    - /swagger-ui.html
+    - /api-docs
+    - /webjars/**
+    - /.well-known/**
+  filter.enabled: true
+  format.style: json
+  obfuscate:
+    headers:
+        - Authorization
+        - X-Secret
+    parameters:
+        - access_token
+        - password
+  write:
+    category: http.wire-log
+    level: INFO
+
 fullstop:
 
     container:
