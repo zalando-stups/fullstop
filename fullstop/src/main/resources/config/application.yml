@@ -52,7 +52,6 @@ logbook:
     - /webjars/**
     - /.well-known/**
   filter.enabled: true
-  format.style: json
   obfuscate:
     headers:
         - Authorization
