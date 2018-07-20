@@ -50,7 +50,7 @@
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
         <guava.version>25.1-jre</guava.version>
         <flyway.version>4.2.0</flyway.version>
-        <aws-java-sdk.version>1.11.370</aws-java-sdk.version>
+        <aws-java-sdk.version>1.11.371</aws-java-sdk.version>
         <wiremock.version>2.18.0</wiremock.version>
         <spring-cloud-netflix-dependencies.version>1.4.5.RELEASE</spring-cloud-netflix-dependencies.version>
         <testcontainers.postgresql.version>1.8.1</testcontainers.postgresql.version>
