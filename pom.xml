@@ -5,7 +5,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <!-- Make sure to update spring-boot.version property as well -->
-        <version>1.5.14.RELEASE</version>
+        <version>1.5.15.RELEASE</version>
         <relativePath/>
     </parent>
 
